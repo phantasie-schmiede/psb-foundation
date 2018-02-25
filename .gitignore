@@ -1,0 +1,70 @@
+# TYPO3 files
+.htpasswd
+index.php
+typo3
+typo3_src
+typo3_src-*
+
+# TYPO3 folders
+.idea/
+fileadmin/
+/typo3conf/*
+/src/typo3conf/*
+typo3_src-*/
+typo3temp/
+uploads/
+
+# TYPO3 exceptions
+!typo3conf/ext/
+!typo3conf/LocalConfiguration.php
+!typo3conf/PackageStates.php
+!Initialization/Files/typo3conf/AdditionalConfiguration.php
+
+# OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+_*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+__MACOSX/
+*~
+.directory
+.Trash-*
+
+# Style related
+.sass-cache/
+*.css.map
+!_*.scss
+!_*.woff
+!_*.woff2
+!_*.ttf
+!_*.eot
+!_*.svg
+
+# Composer
+composer.phar
+vendor/
+# Commit your application's lock file http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file
+# You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
+# composer.lock

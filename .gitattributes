@@ -1,0 +1,63 @@
+.editorconfig     text      eol=lf
+.gitattributes    text      eol=lf
+.gitconfig        text      eol=lf
+.gitignore        text      eol=lf
+.gitkeep          text      eol=lf
+.htaccess         text      eol=lf
+.htpasswd         text      eol=lf
+*.php             text      eol=lf
+*.sql             text      eol=lf
+*.ts              text      eol=lf
+*.t3s             text      eol=lf
+*.tsconf          text      eol=lf
+*.const           text      eol=lf
+*.setup           text      eol=lf
+*.css             text      eol=lf
+*.sass            text      eol=lf
+*.scss            text      eol=lf
+*.less            text      eol=lf
+*.js              text      eol=lf
+*.jsx             text      eol=lf
+*.json            text      eol=lf
+*.html            text      eol=lf
+*.xhtml           text      eol=lf
+*.tmpl            text      eol=lf
+*.xml             text      eol=lf
+*.twig            text      eol=lf
+*.yaml            text      eol=lf
+*.yml             text      eol=lf
+*.xlf             text      eol=lf
+*.txt             text      eol=lf
+*.rst             text      eol=lf
+*.md              text      eol=lf
+*.xsd             text      eol=lf
+*.svg             text      eol=lf
+*.sh              text      eol=lf
+AUTHORS           text      eol=lf
+CHANGELOG         text      eol=lf
+CHANGES           text      eol=lf
+CONTRIBUTING      text      eol=lf
+COPYING           text      eol=lf
+INSTALL           text      eol=lf
+license           text      eol=lf
+LICENSE           text      eol=lf
+NEWS              text      eol=lf
+readme            text      eol=lf
+*README*          text      eol=lf
+
+*.t3d             binary
+*.png             binary
+*.jpg             binary
+*.jpeg            binary
+*.ico             binary
+*.gif             binary
+*.eot             binary
+*.ttf             binary
+*.woff            binary
+*.woff2           binary
+*.otf             binary
+*.pdf             binary
+*.psb             binary
+*.psd             binary
+*.tif             binary
+*.tiff            binary
