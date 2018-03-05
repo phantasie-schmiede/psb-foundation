@@ -1,0 +1,11 @@
+plugin.tx_psfoundation {
+  view {
+    templateRootPaths.0 = {$plugin.tx_psfoundation.view.templateRootPath}
+    partialRootPaths.0 = {$plugin.tx_psfoundation.view.partialRootPath}
+    layoutRootPaths.0 = {$plugin.tx_psfoundation.view.layoutRootPath}
+  }
+
+  persistence {
+    storagePid = {$plugin.tx_psfoundation.persistence.storagePid}
+  }
+}

@@ -1,0 +1,26 @@
+page = PAGE
+page {
+  10 = FLUIDTEMPLATE
+  10 {
+    format = html
+    templateRootPaths.0 = {$plugin.tx_psfoundation.view.templateRootPath}/Page
+    partialRootPaths.0 = {$plugin.tx_psfoundation.view.partialRootPath}/Page
+    layoutRootPaths.0 = {$plugin.tx_psfoundation.view.layoutRootPath}/Page
+
+    file.stdWrap.cObject = CASE
+    file.stdWrap.cObject {
+      key.data = levelfield:-1, backend_layout, slide
+      key.override.field = backend_layout
+
+      default = TEXT
+      default {
+        value = {$plugin.tx_psfoundation.view.templateRootPath}Page/Default.html
+      }
+
+      pagets__1 = TEXT
+      pagets__1 {
+        value = {$plugin.tx_psfoundation.view.templateRootPath}Page/OneColumn.html
+      }
+    }
+  }
+}

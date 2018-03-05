@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" product-name="ps_foundation"
+          date="2018-03-05T19:53:00+01:00">
+        <header/>
+        <body>
+          <trans-unit id="title">
+            <source>One column</source>
+          </trans-unit>
+          <trans-unit id="column1">
+            <source>Main content</source>
+          </trans-unit>
+        </body>
+    </file>
+</xliff>
