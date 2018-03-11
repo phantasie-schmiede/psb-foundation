@@ -22,5 +22,9 @@ page {
         value = {$plugin.tx_psfoundation.view.templateRootPath}Page/OneColumn.html
       }
     }
+
+    variables {
+      mainContent < styles.content.get
+    }
   }
 }
