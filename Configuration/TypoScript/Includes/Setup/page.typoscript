@@ -1,11 +1,41 @@
 page = PAGE
 page {
+  bodyTagAdd = class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden"
+
+  meta {
+    viewport = width=device-width, initial-scale=1, shrink-to-fit=no
+  }
+
+  includeCSS {
+    fontAwesome = {$plugin.tx_psfoundation.settings.resourcePath}Public/Stylesheets/Vendors/FontAwesome/fontawesome-all.min.css
+    simpleLineIcons = {$plugin.tx_psfoundation.settings.resourcePath}Public/Stylesheets/Vendors/SimpleLineIcons/simple-line-icons.css
+    basic = {$plugin.tx_psfoundation.settings.resourcePath}Public/Stylesheets/style.css
+  }
+
+  includeJSFooterlibs {
+    10 = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/Vendors/jquery.min.js
+    20 = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/Vendors/popper.min.js
+    30 = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/Vendors/bootstrap.min.js
+    40 = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/Vendors/pace.min.js
+#    50 = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/Vendors/chart.min.js
+  }
+
+  includeJSFooter {
+    coreui = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/CoreUI/app.js
+#    coreuiViewsChart = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/CoreUI/views/chart.js
+#    coreuiViewsMain = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/CoreUI/views/main.js
+    coreuiViewsPopovers = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/CoreUI/views/popovers.js
+    coreuiViewsTooltips = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/CoreUI/views/tooltips.js
+#    coreuiViewsWidgets = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/CoreUI/views/widgets.js
+    app = {$plugin.tx_psfoundation.settings.resourcePath}Public/JavaScript/App.js
+  }
+
   10 = FLUIDTEMPLATE
   10 {
     format = html
-    templateRootPaths.0 = {$plugin.tx_psfoundation.view.templateRootPath}/Page
-    partialRootPaths.0 = {$plugin.tx_psfoundation.view.partialRootPath}/Page
-    layoutRootPaths.0 = {$plugin.tx_psfoundation.view.layoutRootPath}/Page
+    templateRootPaths.0 = {$plugin.tx_psfoundation.view.templateRootPath}Page
+    partialRootPaths.0 = {$plugin.tx_psfoundation.view.partialRootPath}Page
+    layoutRootPaths.0 = {$plugin.tx_psfoundation.view.layoutRootPath}Page
 
     file.stdWrap.cObject = CASE
     file.stdWrap.cObject {
