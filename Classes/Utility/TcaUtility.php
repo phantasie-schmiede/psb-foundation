@@ -67,7 +67,7 @@ class TcaUtility
             'size'       => 12,
             'eval'       => 'datetime',
         ],
-        'float'  => [
+        'float'    => [
             'type' => 'input',
             'size' => 20,
             'eval' => 'double2',
@@ -250,6 +250,8 @@ class TcaUtility
      * @param array $customFieldConfiguration override array keys within the 'config'-part
      * @param array $configuration override array keys on the same level as 'config'
      * @param bool $autoAddToDefaultType whether field shall be appended to the 'showitem'-list of type 0
+     *
+     * @return array|null
      */
     public function addColumn(
         string $property,
@@ -258,7 +260,7 @@ class TcaUtility
         array $customFieldConfiguration = [],
         array $configuration = [],
         bool $autoAddToDefaultType = true
-    ): void {
+    ): ?array {
         if (array_key_exists($type, self::FIELD_CONFIGURATIONS)) {
             $config = self::FIELD_CONFIGURATIONS[$type];
             ArrayUtility::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
@@ -274,7 +276,15 @@ class TcaUtility
             if ($autoAddToDefaultType) {
                 $this->addFieldToType($property);
             }
+
+            /**
+             * returns the pure field configuration
+             * e.g. needed when adding columns to existing tables in TCA/Overrides
+             */
+            return $fieldConfiguration;
         }
+
+        return null;
     }
 
     /**
@@ -380,7 +390,7 @@ class TcaUtility
                         ],
                     ],
                 ],
-                'l10n_parent'       => [
+                'l10n_parent'      => [
                     'displayCond' => 'FIELD:sys_language_uid:>:0',
                     'exclude'     => 1,
                     'label'       => 'LLL:EXT:lang/locallang_general.xlf:LGL.l18n_parent',
@@ -391,7 +401,7 @@ class TcaUtility
                             ['', 0],
                         ],
                         'foreign_table'       => $table,
-                        'foreign_table_where' => 'AND '.$table.'.pid=#[[###CURRENT_PID###]]# AND '.$table.'.sys_language_uid IN (-1,0)',
+                        'foreign_table_where' => 'AND '.$table.'.pid=###CURRENT_PID### AND '.$table.'.sys_language_uid IN (-1,0)',
                     ],
                 ],
                 'l10n_diffsource'  => [
