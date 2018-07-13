@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utility;
+namespace PS\PsFoundation\Utilities;
 
 /***************************************************************
  *  Copyright notice
@@ -27,13 +27,13 @@ namespace PS\PsFoundation\Utility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utilities\ArrayUtilities;
 
 /**
- * Class TcaUtility
- * @package PS\PsFoundation\Utility
+ * Class TcaUtilities
+ * @package PS\PsFoundation\Utilities
  */
-class TcaUtility
+class TcaUtilities
 {
     public const FIELD_TYPES = [
         'CHECKBOX' => 'checkbox',
@@ -144,7 +144,7 @@ class TcaUtility
     protected $preDefinedColumns;
 
     /**
-     * TcaUtility constructor.
+     * TcaUtilities constructor.
      *
      * @param string $table
      * @param string $title
@@ -207,7 +207,7 @@ class TcaUtility
     public function setConfiguration(array $configuration, bool $merge = false): void
     {
         if ($merge) {
-            ArrayUtility::mergeRecursiveWithOverrule($this->configuration, $configuration);
+            ArrayUtilities::mergeRecursiveWithOverrule($this->configuration, $configuration);
         } else {
             $this->configuration = $configuration;
         }
@@ -263,14 +263,14 @@ class TcaUtility
     ): ?array {
         if (array_key_exists($type, self::FIELD_CONFIGURATIONS)) {
             $config = self::FIELD_CONFIGURATIONS[$type];
-            ArrayUtility::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
+            ArrayUtilities::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
             $fieldConfiguration = [
                 'exclude' => 0,
                 'label'   => $label,
                 'config'  => $config,
             ];
 
-            ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $configuration);
+            ArrayUtilities::mergeRecursiveWithOverrule($fieldConfiguration, $configuration);
             $this->configuration['columns'][$property] = $fieldConfiguration;
 
             if ($autoAddToDefaultType) {
