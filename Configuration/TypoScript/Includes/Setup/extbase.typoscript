@@ -1,0 +1,6 @@
+config.tx_extbase {
+  objects {
+    TYPO3\CMS\Fluid\View\TemplateView.className = PS\PsFoundation\Views\TemplateView
+    TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper.className = PS\PsFoundation\ViewHelpers\RenderViewHelper
+  }
+}
