@@ -27,7 +27,7 @@ namespace PS\PsFoundation\Utilities;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Utilities\ArrayUtilities;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
  * Class TcaUtilities
@@ -207,7 +207,7 @@ class TcaUtilities
     public function setConfiguration(array $configuration, bool $merge = false): void
     {
         if ($merge) {
-            ArrayUtilities::mergeRecursiveWithOverrule($this->configuration, $configuration);
+            ArrayUtility::mergeRecursiveWithOverrule($this->configuration, $configuration);
         } else {
             $this->configuration = $configuration;
         }
@@ -263,14 +263,14 @@ class TcaUtilities
     ): ?array {
         if (array_key_exists($type, self::FIELD_CONFIGURATIONS)) {
             $config = self::FIELD_CONFIGURATIONS[$type];
-            ArrayUtilities::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
+            ArrayUtility::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
             $fieldConfiguration = [
                 'exclude' => 0,
                 'label'   => $label,
                 'config'  => $config,
             ];
 
-            ArrayUtilities::mergeRecursiveWithOverrule($fieldConfiguration, $configuration);
+            ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $configuration);
             $this->configuration['columns'][$property] = $fieldConfiguration;
 
             if ($autoAddToDefaultType) {

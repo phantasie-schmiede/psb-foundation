@@ -9,9 +9,9 @@ plugin.tx_psfoundation {
   }
 
   settings {
-    resourcePath = EXT:ps_foundation/Resources/
-    languagePath = {$plugin.tx_psfoundation.settings.resourcePath}Private/Language/
-    iconPath = {$plugin.tx_psfoundation.settings.resourcePath}Public/Icons/
+    resourcePath = EXT:ps_foundation/Resources/Public/
+    languagePath = {$plugin.tx_psfoundation.settings.resourcePath}../Private/Language/
+    iconPath = {$plugin.tx_psfoundation.settings.resourcePath}Icons/
   }
 
   persistence {
