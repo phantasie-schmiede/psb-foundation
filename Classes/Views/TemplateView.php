@@ -34,11 +34,6 @@ use PS\PsFoundation\Services\GlobalVariableService;
  */
 class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
 {
-
-    /**
-     * Init view
-     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
-     */
     public function initializeView(): void
     {
         parent::initializeView();
@@ -46,19 +41,17 @@ class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
     }
 
     /**
-     * Renders a partial.
-     *
      * @param string $partialName
      * @param string $sectionName
      * @param array $variables
      * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
      *
      * @return string
-     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
      */
     public function renderPartial($partialName, $sectionName, array $variables, $ignoreUnknown = false): string
     {
         $globalVariables = GlobalVariableService::getGlobalVariables();
+
         foreach ($globalVariables as $key => $value) {
             if (!isset($variables[$key])) {
                 $variables[$key] = $value;
@@ -67,5 +60,4 @@ class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
 
         return parent::renderPartial($partialName, $sectionName, $variables, $ignoreUnknown);
     }
-
 }

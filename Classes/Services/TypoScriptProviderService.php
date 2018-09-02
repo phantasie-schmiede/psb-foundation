@@ -37,7 +37,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class TypoScriptProviderService
 {
-
     /**
      * @param string $configurationType
      * @param string|null $extensionName
@@ -60,8 +59,27 @@ class TypoScriptProviderService
         }
 
         $typoScriptService = $objectManager->get(\TYPO3\CMS\Core\TypoScript\TypoScriptService::class);
+        $convertedTypoScript = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
 
-        return $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
+        array_walk_recursive($convertedTypoScript, function(&$item) {
+            if (is_numeric($item)) {
+                if (false === strpos($item, '.')) {
+                    $item = (int)$item;
+                } else {
+                    $item = (double)$item;
+                }
+            } else {
+                switch ($item) {
+                    case 'true':
+                        $item = true;
+                        break;
+                    case 'false':
+                        $item = false;
+                        break;
+                }
+            }
+        });
+
+        return $convertedTypoScript;
     }
-
 }

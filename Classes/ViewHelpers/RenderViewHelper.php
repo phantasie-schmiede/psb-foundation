@@ -34,18 +34,17 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
  */
 class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
 {
-
     /**
      * @param array $arguments
      * @param \Closure $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
      *
      * @return mixed
-     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
      */
     public static function renderStatic(array $arguments, \Closure $renderChildrenClosure, RenderingContextInterface $renderingContext)
     {
         $globalVariables = GlobalVariableService::getGlobalVariables();
+
         foreach ($globalVariables as $key => $value) {
             if (!isset($arguments['arguments'][$key])) {
                 $arguments['arguments'][$key] = $value;

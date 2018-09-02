@@ -53,6 +53,7 @@ class GlobalVariableService
     public static function getGlobalVariables(): array
     {
         $globalVariables = [];
+
         /** @var GlobalVariableProviderInterface $globalVariableProvider */
         foreach (self::$globalVariableProviders as $globalVariableProvider) {
             ArrayUtility::mergeRecursiveWithOverrule($globalVariables, $globalVariableProvider->getGlobalVariables());
