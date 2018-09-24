@@ -7,6 +7,10 @@ call_user_func(
              <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extKey.'/Configuration/TSConfig/PageTS.typoscript">
         ');
 
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('
+             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extKey.'/Configuration/TSConfig/UserTS.typoscript">
+        ');
+
         // customize BE login style
         // $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'] = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'], ['allowed_classes' => false]);
         //
