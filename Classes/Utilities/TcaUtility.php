@@ -39,7 +39,10 @@ class TcaUtility
         'CHECKBOX' => 'checkbox',
         'DATE'     => 'date',
         'DATETIME' => 'datetime',
+        'DOCUMENT' => 'document',
+        'FILE'     => 'file',
         'FLOAT'    => 'float',
+        'IMAGE'    => 'image',
         'INLINE'   => 'inline',
         'INTEGER'  => 'integer',
         'LINK'     => 'link',
@@ -47,6 +50,12 @@ class TcaUtility
         'SELECT'   => 'select',
         'STRING'   => 'string',
         'TEXT'     => 'text',
+    ];
+
+    private const FAL_PLACEHOLDER_TYPES = [
+        'document',
+        'file',
+        'image',
     ];
 
     private const FIELD_CONFIGURATIONS = [
@@ -67,11 +76,14 @@ class TcaUtility
             'size'       => 12,
             'eval'       => 'datetime',
         ],
+        'document' => [],
+        'file'     => [],
         'float'    => [
             'type' => 'input',
             'size' => 20,
             'eval' => 'double2',
         ],
+        'image'    => [],
         'inline'   => [
             'type'          => 'inline',
             'foreign_table' => '',
@@ -262,7 +274,33 @@ class TcaUtility
         bool $autoAddToDefaultType = true
     ): ?array {
         if (array_key_exists($type, self::FIELD_CONFIGURATIONS)) {
-            $config = self::FIELD_CONFIGURATIONS[$type];
+            if (\in_array($type, self::FAL_PLACEHOLDER_TYPES, true)) {
+                switch ($type) {
+                    case self::FIELD_TYPES['DOCUMENT']:
+                        $allowedFileTypes = 'pdf';
+                        break;
+                    case self::FIELD_TYPES['FILE']:
+                        $allowedFileTypes = '*';
+                        break;
+                    case self::FIELD_TYPES['IMAGE']:
+                        $allowedFileTypes = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+                        break;
+                    default:
+                        $allowedFileTypes = '';
+                }
+                $config = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig(
+                    $property,
+                    [
+                        'appearance' => [
+                            'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference',
+                        ],
+                        'maxitems'   => 9999,
+                    ],
+                    $allowedFileTypes
+                );
+            } else {
+                $config = self::FIELD_CONFIGURATIONS[$type];
+            }
             ArrayUtility::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
             $fieldConfiguration = [
                 'exclude' => 0,
