@@ -30,10 +30,10 @@ namespace PS\PsFoundation\Utilities;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
- * Class TcaUtilities
+ * Class TcaUtility
  * @package PS\PsFoundation\Utilities
  */
-class TcaUtilities
+class TcaUtility
 {
     public const FIELD_TYPES = [
         'CHECKBOX' => 'checkbox',
@@ -144,7 +144,7 @@ class TcaUtilities
     protected $preDefinedColumns;
 
     /**
-     * TcaUtilities constructor.
+     * TcaUtility constructor.
      *
      * @param string $table
      * @param string $title
