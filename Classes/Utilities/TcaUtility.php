@@ -50,6 +50,7 @@ class TcaUtility
         'SELECT'   => 'select',
         'STRING'   => 'string',
         'TEXT'     => 'text',
+        'USER'     => 'user',
     ];
 
     private const FAL_PLACEHOLDER_TYPES = [
@@ -142,6 +143,13 @@ class TcaUtility
             'cols'           => 32,
             'rows'           => 5,
             'eval'           => 'trim',
+        ],
+        'user'     => [
+            'type'       => 'user',
+            'size'       => 50,
+            'eval'       => 'trim,required',
+            'userFunc'   => '',
+            'parameters' => [],
         ],
     ];
 
@@ -363,6 +371,8 @@ class TcaUtility
      */
     protected function getDummyConfiguration(string $table): array
     {
+        $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
+        
         return [
             'ctrl'      => [
                 'adminOnly'                => false,
@@ -416,22 +426,22 @@ class TcaUtility
             'columns'   => [
                 'sys_language_uid' => [
                     'exclude' => 1,
-                    'label'   => 'LLL:EXT:lang/locallang_general.xlf:LGL.language',
+                    'label'   => $ll.'language',
                     'config'  => [
                         'type'                => 'select',
                         'renderType'          => 'selectSingle',
                         'foreign_table'       => 'sys_language',
                         'foreign_table_where' => 'ORDER BY sys_language.title',
                         'items'               => [
-                            ['LLL:EXT:lang/locallang_general.xlf:LGL.allLanguages', -1],
-                            ['LLL:EXT:lang/locallang_general.xlf:LGL.default_value', 0],
+                            [$ll.'allLanguages', -1],
+                            [$ll.'default_value', 0],
                         ],
                     ],
                 ],
                 'l10n_parent'      => [
                     'displayCond' => 'FIELD:sys_language_uid:>:0',
                     'exclude'     => 1,
-                    'label'       => 'LLL:EXT:lang/locallang_general.xlf:LGL.l18n_parent',
+                    'label'       => $ll.'l18n_parent',
                     'config'      => [
                         'type'                => 'select',
                         'renderType'          => 'selectSingle',
@@ -448,7 +458,7 @@ class TcaUtility
                     ],
                 ],
                 't3ver_label'      => [
-                    'label'  => 'LLL:EXT:lang/locallang_general.xlf:LGL.versionLabel',
+                    'label'  => $ll.'versionLabel',
                     'config' => [
                         'type' => 'input',
                         'size' => 30,
@@ -457,14 +467,14 @@ class TcaUtility
                 ],
                 'hidden'           => [
                     'exclude' => 1,
-                    'label'   => 'LLL:EXT:lang/locallang_general.xlf:LGL.hidden',
+                    'label'   => $ll.'hidden',
                     'config'  => [
                         'type' => 'check',
                     ],
                 ],
                 'starttime'        => [
                     'exclude' => 1,
-                    'label'   => 'LLL:EXT:lang/locallang_general.xlf:LGL.starttime',
+                    'label'   => $ll.'starttime',
                     'config'  => [
                         'type'       => 'input',
                         'renderType' => 'inputDateTime',
@@ -479,7 +489,7 @@ class TcaUtility
                 ],
                 'endtime'          => [
                     'exclude' => 1,
-                    'label'   => 'LLL:EXT:lang/locallang_general.xlf:LGL.endtime',
+                    'label'   => $ll.'endtime',
                     'config'  => [
                         'type'       => 'input',
                         'renderType' => 'inputDateTime',
