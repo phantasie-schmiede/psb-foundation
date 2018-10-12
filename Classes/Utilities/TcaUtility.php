@@ -35,24 +35,6 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  */
 class TcaUtility
 {
-    public const FIELD_TYPES = [
-        'CHECKBOX' => 'checkbox',
-        'DATE'     => 'date',
-        'DATETIME' => 'datetime',
-        'DOCUMENT' => 'document',
-        'FILE'     => 'file',
-        'FLOAT'    => 'float',
-        'IMAGE'    => 'image',
-        'INLINE'   => 'inline',
-        'INTEGER'  => 'integer',
-        'LINK'     => 'link',
-        'MM'       => 'mm',
-        'SELECT'   => 'select',
-        'STRING'   => 'string',
-        'TEXT'     => 'text',
-        'USER'     => 'user',
-    ];
-
     private const FAL_PLACEHOLDER_TYPES = [
         'document',
         'file',
@@ -153,6 +135,31 @@ class TcaUtility
         ],
     ];
 
+    public const FIELD_TYPES = [
+        'CHECKBOX' => 'checkbox',
+        'DATE'     => 'date',
+        'DATETIME' => 'datetime',
+        'DOCUMENT' => 'document',
+        'FILE'     => 'file',
+        'FLOAT'    => 'float',
+        'IMAGE'    => 'image',
+        'INLINE'   => 'inline',
+        'INTEGER'  => 'integer',
+        'LINK'     => 'link',
+        'MM'       => 'mm',
+        'SELECT'   => 'select',
+        'STRING'   => 'string',
+        'TEXT'     => 'text',
+        'USER'     => 'user',
+    ];
+
+    private const PROTECTED_COLUMNS = [
+        'crdate',
+        'pid',
+        'tstamp',
+        'uid',
+    ];
+
     /**
      * @var array
      */
@@ -164,7 +171,7 @@ class TcaUtility
     protected $preDefinedColumns;
 
     /**
-     * TcaUtility constructor.
+     * TcaUtility constructor
      *
      * @param string $table
      * @param string $title
@@ -173,6 +180,10 @@ class TcaUtility
     public function __construct(string $table, string $title = '', string $labelColumn = '')
     {
         $this->configuration = $this->getDummyConfiguration($table);
+        /**
+         * remember the default system columns (e.g. for versioning, translating) in order to exclude them when
+         * auto-creating the showItemList
+         */
         $this->setPreDefinedColumns(array_keys($this->configuration['columns']));
 
         if ('' !== $title) {
@@ -190,11 +201,13 @@ class TcaUtility
 
     /**
      * 'main' function
+     *
      * Use the return of this function as return in your TCA-file
      *
      * @param bool $autoCreateShowItemList
      *
      * @return array
+     * @throws Exception
      */
     public function getConfiguration(bool $autoCreateShowItemList = true): array
     {
@@ -216,6 +229,8 @@ class TcaUtility
                     $type);
             }
         }
+
+        $this->validateConfiguration();
 
         return $this->configuration;
     }
@@ -264,6 +279,16 @@ class TcaUtility
     }
 
     /**
+     * adds a property's configuration to the ['columns'] section of the TCA
+     * also returns the field configuration, e.g. needed when adding columns to existing tables in TCA/Overrides
+     *
+     * Example:
+     * $tempColumns = array_merge(
+     *     $tcaUtility->addColumn(...),
+     *     $tcaUtility->addColumn(...),
+     *     $tcaUtility->addColumn(...)
+     * );
+     *
      * @param string $property name of the database column
      * @param string $label BE label of the field (can begin with LLL:)
      * @param string $type use constants of this class to see what is available and to avoid typos
@@ -323,11 +348,7 @@ class TcaUtility
                 $this->addFieldToType($property);
             }
 
-            /**
-             * returns the pure field configuration
-             * e.g. needed when adding columns to existing tables in TCA/Overrides
-             */
-            return $fieldConfiguration;
+            return [$property => $fieldConfiguration];
         }
 
         return null;
@@ -372,7 +393,7 @@ class TcaUtility
     protected function getDummyConfiguration(string $table): array
     {
         $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
-        
+
         return [
             'ctrl'      => [
                 'adminOnly'                => false,
@@ -504,5 +525,21 @@ class TcaUtility
                 ],
             ],
         ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function validateConfiguration(): void
+    {
+        if (isset($this->configuration['ctrl']['sortby'])) {
+            if (isset($this->configuration['ctrl']['default_sortby'])) {
+                throw new Exception('You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.');
+            }
+
+            if (\in_array($this->configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
+                throw new Exception('Your current configuration would overwrite a reserved system column with sorting values!');
+            }
+        }
     }
 }
