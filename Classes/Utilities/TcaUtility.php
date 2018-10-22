@@ -42,115 +42,132 @@ class TcaUtility
     ];
 
     private const FIELD_CONFIGURATIONS = [
-        'checkbox' => [
-            'type' => 'check',
+        'checkbox'    => [
+            'default' => 0,
+            'type'    => 'check',
+
         ],
-        'date'     => [
+        'date'        => [
             'dbType'     => 'date',
-            'type'       => 'input',
+            'default'    => '0000-00-00',
+            'eval'       => 'date',
             'renderType' => 'inputDateTime',
             'size'       => 7,
-            'eval'       => 'date',
-            'default'    => '0000-00-00',
-        ],
-        'datetime' => [
             'type'       => 'input',
+
+        ],
+        'datetime'    => [
+            'eval'       => 'datetime',
             'renderType' => 'inputDateTime',
             'size'       => 12,
-            'eval'       => 'datetime',
+            'type'       => 'input',
+
         ],
-        'document' => [],
-        'file'     => [],
-        'float'    => [
-            'type' => 'input',
-            'size' => 20,
+        'document'    => [],
+        'file'        => [],
+        'float'       => [
             'eval' => 'double2',
+            'size' => 20,
+            'type' => 'input',
+
         ],
-        'image'    => [],
-        'inline'   => [
-            'type'          => 'inline',
-            'foreign_table' => '',
-            'foreign_field' => '',
-            //'foreign_sortby' => 'foreignSortby',
-            //'foreign_selector' => 'foreign_selector' // for m:n-relations
-            'maxitems'      => 9999,
+        'image'       => [],
+        'inline'      => [
             'appearance'    => [
                 'collapseAll'                     => true,
-                'expandSingle'                    => true,
-                'levelLinksPosition'              => 'bottom',
-                'useSortable'                     => true,
-                'showPossibleLocalizationRecords' => true,
-                'showRemovedLocalizationRecords'  => true,
-                'showAllLocalizationLink'         => true,
-                'showSynchronizationLink'         => true,
                 'enabledControls'                 => [
                     'dragdrop' => true,
                 ],
+                'expandSingle'                    => true,
+                'levelLinksPosition'              => 'bottom',
+                'showAllLocalizationLink'         => true,
+                'showPossibleLocalizationRecords' => true,
+                'showRemovedLocalizationRecords'  => true,
+                'showSynchronizationLink'         => true,
+                'useSortable'                     => true,
             ],
+            'foreign_field' => '',
+            //'foreign_selector' => 'foreign_selector' // for m:n-relations
+            //'foreign_sortby' => 'foreignSortby',
+            'foreign_table' => '',
+            'maxitems'      => 9999,
+            'type'          => 'inline',
+
         ],
-        'integer'  => [
-            'type' => 'input',
-            'size' => 20,
+        'integer'     => [
             'eval' => 'num',
+            'size' => 20,
+            'type' => 'input',
+
         ],
-        'link'     => [
-            'type'       => 'input',
+        'link'        => [
             'renderType' => 'inputLink',
             'size'       => 10,
+            'type'       => 'input',
+
         ],
-        'mm'       => [
-            'type'          => 'select',
+        'mm'          => [
+            'autoSizeMax'   => 30,
+            'foreign_table' => '',
+            'maxitems'      => 9999,
+            'MM'            => '',
+            'multiple'      => 0,
             'renderType'    => 'selectMultipleSideBySide',
             'size'          => 10,
-            'maxitems'      => 9999,
-            'autoSizeMax'   => 30,
-            'multiple'      => 0,
-            'foreign_table' => '',
-            'MM'            => '',
-        ],
-        'select'   => [
             'type'          => 'select',
-            'renderType'    => 'selectSingle',
+
+        ],
+        'passthrough' => [
+            'type' => 'passthrough',
+        ],
+        'select'      => [
             'foreign_table' => '',
             'maxitems'      => 1,
+            'renderType'    => 'selectSingle',
+            'type'          => 'select',
+
         ],
-        'string'   => [
-            'type' => 'input',
-            'size' => 20,
+        'string'      => [
             'eval' => 'trim',
+            'size' => 20,
+            'type' => 'input',
+
         ],
-        'text'     => [
-            'type'           => 'text',
-            'enableRichtext' => true,
+        'text'        => [
             'cols'           => 32,
-            'rows'           => 5,
+            'enableRichtext' => true,
             'eval'           => 'trim',
+            'rows'           => 5,
+            'type'           => 'text',
+
         ],
-        'user'     => [
-            'type'       => 'user',
-            'size'       => 50,
+        'user'        => [
             'eval'       => 'trim,required',
-            'userFunc'   => '',
             'parameters' => [],
+            'size'       => 50,
+            'type'       => 'user',
+            'userFunc'   => '',
+
         ],
     ];
 
     public const FIELD_TYPES = [
-        'CHECKBOX' => 'checkbox',
-        'DATE'     => 'date',
-        'DATETIME' => 'datetime',
-        'DOCUMENT' => 'document',
-        'FILE'     => 'file',
-        'FLOAT'    => 'float',
-        'IMAGE'    => 'image',
-        'INLINE'   => 'inline',
-        'INTEGER'  => 'integer',
-        'LINK'     => 'link',
-        'MM'       => 'mm',
-        'SELECT'   => 'select',
-        'STRING'   => 'string',
-        'TEXT'     => 'text',
-        'USER'     => 'user',
+        'CHECKBOX'    => 'checkbox',
+        'DATE'        => 'date',
+        'DATETIME'    => 'datetime',
+        'DOCUMENT'    => 'document',
+        'FILE'        => 'file',
+        'FLOAT'       => 'float',
+        'IMAGE'       => 'image',
+        'INLINE'      => 'inline',
+        'INTEGER'     => 'integer',
+        'LINK'        => 'link',
+        'MM'          => 'mm',
+        'PASSTHROUGH' => 'passthrough',
+        'SELECT'      => 'select',
+        'STRING'      => 'string',
+        'TEXT'        => 'text',
+        'USER'        => 'user',
     ];
 
     private const PROTECTED_COLUMNS = [
