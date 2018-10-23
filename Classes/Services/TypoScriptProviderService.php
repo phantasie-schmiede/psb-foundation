@@ -62,7 +62,10 @@ class TypoScriptProviderService
         $convertedTypoScript = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
 
         array_walk_recursive($convertedTypoScript, function(&$item) {
-            if (is_numeric($item)) {
+            // if constants are unset
+            if (0 === strpos($item, '{$')) {
+                $item = null;
+            } elseif (is_numeric($item)) {
                 if (false === strpos($item, '.')) {
                     $item = (int)$item;
                 } else {
