@@ -27,6 +27,7 @@ namespace PS\PsFoundation\Utilities;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
@@ -45,7 +46,6 @@ class TcaUtility
         'checkbox'    => [
             'default' => 0,
             'type'    => 'check',
-
         ],
         'date'        => [
             'dbType'     => 'date',
@@ -54,14 +54,12 @@ class TcaUtility
             'renderType' => 'inputDateTime',
             'size'       => 7,
             'type'       => 'input',
-
         ],
         'datetime'    => [
             'eval'       => 'datetime',
             'renderType' => 'inputDateTime',
             'size'       => 12,
             'type'       => 'input',
-
         ],
         'document'    => [],
         'file'        => [],
@@ -69,7 +67,6 @@ class TcaUtility
             'eval' => 'double2',
             'size' => 20,
             'type' => 'input',
-
         ],
         'image'       => [],
         'inline'      => [
@@ -92,19 +89,16 @@ class TcaUtility
             'foreign_table' => '',
             'maxitems'      => 9999,
             'type'          => 'inline',
-
         ],
         'integer'     => [
             'eval' => 'num',
             'size' => 20,
             'type' => 'input',
-
         ],
         'link'        => [
             'renderType' => 'inputLink',
             'size'       => 10,
             'type'       => 'input',
-
         ],
         'mm'          => [
             'autoSizeMax'   => 30,
@@ -115,7 +109,6 @@ class TcaUtility
             'renderType'    => 'selectMultipleSideBySide',
             'size'          => 10,
             'type'          => 'select',
-
         ],
         'passthrough' => [
             'type' => 'passthrough',
@@ -125,13 +118,11 @@ class TcaUtility
             'maxitems'      => 1,
             'renderType'    => 'selectSingle',
             'type'          => 'select',
-
         ],
         'string'      => [
             'eval' => 'trim',
             'size' => 20,
             'type' => 'input',
-
         ],
         'text'        => [
             'cols'           => 32,
@@ -139,7 +130,6 @@ class TcaUtility
             'eval'           => 'trim',
             'rows'           => 5,
             'type'           => 'text',
-
         ],
         'user'        => [
             'eval'       => 'trim,required',
@@ -147,7 +137,6 @@ class TcaUtility
             'size'       => 50,
             'type'       => 'user',
             'userFunc'   => '',
-
         ],
     ];
 
