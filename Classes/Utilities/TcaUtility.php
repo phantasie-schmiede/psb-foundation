@@ -36,6 +36,25 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  */
 class TcaUtility
 {
+    public const FIELD_TYPES = [
+        'CHECKBOX'    => 'checkbox',
+        'DATE'        => 'date',
+        'DATETIME'    => 'datetime',
+        'DOCUMENT'    => 'document',
+        'FILE'        => 'file',
+        'FLOAT'       => 'float',
+        'IMAGE'       => 'image',
+        'INLINE'      => 'inline',
+        'INTEGER'     => 'integer',
+        'LINK'        => 'link',
+        'MM'          => 'mm',
+        'PASSTHROUGH' => 'passthrough',
+        'SELECT'      => 'select',
+        'STRING'      => 'string',
+        'TEXT'        => 'text',
+        'USER'        => 'user',
+    ];
+
     private const FAL_PLACEHOLDER_TYPES = [
         'document',
         'file',
@@ -46,6 +65,7 @@ class TcaUtility
         'checkbox'    => [
             'default' => 0,
             'type'    => 'check',
+
         ],
         'date'        => [
             'dbType'     => 'date',
@@ -54,12 +74,14 @@ class TcaUtility
             'renderType' => 'inputDateTime',
             'size'       => 7,
             'type'       => 'input',
+
         ],
         'datetime'    => [
             'eval'       => 'datetime',
             'renderType' => 'inputDateTime',
             'size'       => 12,
             'type'       => 'input',
+
         ],
         'document'    => [],
         'file'        => [],
@@ -67,6 +89,7 @@ class TcaUtility
             'eval' => 'double2',
             'size' => 20,
             'type' => 'input',
+
         ],
         'image'       => [],
         'inline'      => [
@@ -89,16 +112,19 @@ class TcaUtility
             'foreign_table' => '',
             'maxitems'      => 9999,
             'type'          => 'inline',
+
         ],
         'integer'     => [
             'eval' => 'num',
             'size' => 20,
             'type' => 'input',
+
         ],
         'link'        => [
             'renderType' => 'inputLink',
-            'size'       => 10,
+            'size'       => 20,
             'type'       => 'input',
+
         ],
         'mm'          => [
             'autoSizeMax'   => 30,
@@ -109,6 +135,7 @@ class TcaUtility
             'renderType'    => 'selectMultipleSideBySide',
             'size'          => 10,
             'type'          => 'select',
+
         ],
         'passthrough' => [
             'type' => 'passthrough',
@@ -118,11 +145,13 @@ class TcaUtility
             'maxitems'      => 1,
             'renderType'    => 'selectSingle',
             'type'          => 'select',
+
         ],
         'string'      => [
             'eval' => 'trim',
             'size' => 20,
             'type' => 'input',
+
         ],
         'text'        => [
             'cols'           => 32,
@@ -130,6 +159,7 @@ class TcaUtility
             'eval'           => 'trim',
             'rows'           => 5,
             'type'           => 'text',
+
         ],
         'user'        => [
             'eval'       => 'trim,required',
@@ -137,26 +167,8 @@ class TcaUtility
             'size'       => 50,
             'type'       => 'user',
             'userFunc'   => '',
-        ],
-    ];
 
-    public const FIELD_TYPES = [
-        'CHECKBOX'    => 'checkbox',
-        'DATE'        => 'date',
-        'DATETIME'    => 'datetime',
-        'DOCUMENT'    => 'document',
-        'FILE'        => 'file',
-        'FLOAT'       => 'float',
-        'IMAGE'       => 'image',
-        'INLINE'      => 'inline',
-        'INTEGER'     => 'integer',
-        'LINK'        => 'link',
-        'MM'          => 'mm',
-        'PASSTHROUGH' => 'passthrough',
-        'SELECT'      => 'select',
-        'STRING'      => 'string',
-        'TEXT'        => 'text',
-        'USER'        => 'user',
+        ],
     ];
 
     private const PROTECTED_COLUMNS = [
@@ -169,12 +181,17 @@ class TcaUtility
     /**
      * @var array
      */
-    protected $configuration;
+    private $configuration;
 
     /**
      * @var array
      */
-    protected $preDefinedColumns;
+    private $preDefinedColumns;
+
+    /**
+     * @var string
+     */
+    private $table;
 
     /**
      * TcaUtility constructor
@@ -185,7 +202,9 @@ class TcaUtility
      */
     public function __construct(string $table, string $title = '', string $labelColumn = '')
     {
+        $this->table = $table;
         $this->configuration = $this->getDummyConfiguration($table);
+
         /**
          * remember the default system columns (e.g. for versioning, translating) in order to exclude them when
          * auto-creating the showItemList
@@ -327,6 +346,7 @@ class TcaUtility
                     default:
                         $allowedFileTypes = '';
                 }
+
                 $config = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig(
                     $property,
                     [
@@ -340,6 +360,7 @@ class TcaUtility
             } else {
                 $config = self::FIELD_CONFIGURATIONS[$type];
             }
+
             ArrayUtility::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
             $fieldConfiguration = [
                 'exclude' => 0,
@@ -361,6 +382,21 @@ class TcaUtility
     }
 
     /**
+     * @param string $field
+     * @param int $index
+     */
+    public function addFieldToType(string $field, int $index = 0): void
+    {
+        $separator = '';
+
+        if (isset($this->configuration['types'][$index]['showitem']) && '' !== $this->configuration['types'][$index]['showitem']) {
+            $separator = ', ';
+        }
+
+        $this->configuration['types'][$index]['showitem'] .= $separator.$field;
+    }
+
+    /**
      * @param string $fieldList
      * @param int|null $index
      */
@@ -377,26 +413,11 @@ class TcaUtility
     }
 
     /**
-     * @param string $field
-     * @param int $index
-     */
-    public function addFieldToType(string $field, int $index = 0): void
-    {
-        $separator = '';
-
-        if (isset($this->configuration['types'][$index]['showitem']) && '' !== $this->configuration['types'][$index]['showitem']) {
-            $separator = ', ';
-        }
-
-        $this->configuration['types'][$index]['showitem'] .= $separator.$field;
-    }
-
-    /**
      * @param string $table
      *
      * @return array
      */
-    protected function getDummyConfiguration(string $table): array
+    private function getDummyConfiguration(string $table): array
     {
         $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
 
@@ -540,11 +561,11 @@ class TcaUtility
     {
         if (isset($this->configuration['ctrl']['sortby'])) {
             if (isset($this->configuration['ctrl']['default_sortby'])) {
-                throw new Exception('You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.');
+                throw new Exception($this->table.': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.');
             }
 
             if (\in_array($this->configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
-                throw new Exception('Your current configuration would overwrite a reserved system column with sorting values!');
+                throw new Exception($this->table.': Your current configuration would overwrite a reserved system column with sorting values!');
             }
         }
     }
