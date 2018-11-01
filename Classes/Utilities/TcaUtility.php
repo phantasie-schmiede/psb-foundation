@@ -274,19 +274,13 @@ class TcaUtility
     }
 
     /**
-     * @return array
+     * @param string $property
+     *
+     * @return mixed
      */
-    public function getPreDefinedColumns(): array
+    public function getCtrlProperty(string $property)
     {
-        return $this->preDefinedColumns;
-    }
-
-    /**
-     * @param array $preDefinedColumns
-     */
-    public function setPreDefinedColumns(array $preDefinedColumns): void
-    {
-        $this->preDefinedColumns = $preDefinedColumns;
+        return $this->configuration['ctrl'][$property];
     }
 
     /**
@@ -301,6 +295,22 @@ class TcaUtility
         }
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPreDefinedColumns(): array
+    {
+        return $this->preDefinedColumns;
+    }
+
+    /**
+     * @param array $preDefinedColumns
+     */
+    public function setPreDefinedColumns(array $preDefinedColumns): void
+    {
+        $this->preDefinedColumns = $preDefinedColumns;
     }
 
     /**
@@ -413,6 +423,49 @@ class TcaUtility
     }
 
     /**
+     * set columns and their order for sorting in list view (BE only)
+     *
+     * function excepts simple arrays like [property1, property2, ...] (order is ascending by default)
+     * and associative arrays like
+     * [
+     *     'porperty 1' => QueryInterface::ORDER_ASCENDING,
+     *     'porperty 2' => QueryInterface::ORDER_DESCENDING,
+     *     ...
+     * ]
+     *
+     * @param array $columns
+     */
+    public function enableAutomaticSorting(array $columns): void
+    {
+        $this->configuration['ctrl']['sortby'] = null;
+        $orderings = [];
+
+        foreach ($columns as $key => $value) {
+            if (is_numeric($key)) {
+                $orderings[] = $value.' '.QueryInterface::ORDER_ASCENDING;
+            } else {
+                if (!$value) {
+                    $value = QueryInterface::ORDER_ASCENDING;
+                }
+
+                $orderings[] = $key.' '.$value;
+            }
+        }
+        $this->configuration['ctrl']['default_sortby'] = implode(', ', $orderings);
+    }
+
+    /**
+     * enables custom sorting in list view (BE only)
+     *
+     * @param string $column
+     */
+    public function enableManualSorting(string $column = 'sorting'): void
+    {
+        $this->configuration['ctrl']['default_sortby'] = null;
+        $this->configuration['ctrl']['sortby'] = $column;
+    }
+
+    /**
      * @param string $table
      *
      * @return array
@@ -427,7 +480,7 @@ class TcaUtility
                 //'copyAfterDuplFields' => 'colPos, sys_language_uid',
                 'crdate'                   => 'crdate',
                 'cruser_id'                => 'cruser_id',
-                'default_sortby'           => 'ORDER BY uid DESC',
+                'default_sortby'           => 'uid DESC',
                 'delete'                   => 'deleted',
                 'enablecolumns'            => [
                     'disabled'  => 'hidden',
