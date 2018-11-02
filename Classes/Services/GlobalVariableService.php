@@ -38,6 +38,11 @@ class GlobalVariableService
      * @var array<\PS\PsFoundation\Services\GlobalVariableProviderInterface>
      */
     protected static $globalVariableProviders = [];
+    
+    /**
+     * @var array
+     */
+    protected static $globalVariables = [];
 
     /**
      * @param GlobalVariableProviderInterface $globalVariableProvider
@@ -52,14 +57,13 @@ class GlobalVariableService
      */
     public static function getGlobalVariables(): array
     {
-        $globalVariables = [];
-
-        /** @var GlobalVariableProviderInterface $globalVariableProvider */
-        foreach (self::$globalVariableProviders as $globalVariableProvider) {
-            ArrayUtility::mergeRecursiveWithOverrule($globalVariables, $globalVariableProvider->getGlobalVariables());
+        if (0 === \count(self::$globalVariables)) {
+            /** @var GlobalVariableProviderInterface $globalVariableProvider */
+            foreach (self::$globalVariableProviders as $globalVariableProvider) {
+                ArrayUtility::mergeRecursiveWithOverrule(self::$globalVariables, $globalVariableProvider->getGlobalVariables());
+            }
         }
 
-        return $globalVariables;
+        return self::$globalVariables;
     }
-
 }
