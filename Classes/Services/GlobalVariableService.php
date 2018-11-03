@@ -38,7 +38,7 @@ class GlobalVariableService
      * @var array<\PS\PsFoundation\Services\GlobalVariableProviderInterface>
      */
     protected static $globalVariableProviders = [];
-    
+
     /**
      * @var array
      */
@@ -60,7 +60,8 @@ class GlobalVariableService
         if (0 === \count(self::$globalVariables)) {
             /** @var GlobalVariableProviderInterface $globalVariableProvider */
             foreach (self::$globalVariableProviders as $globalVariableProvider) {
-                ArrayUtility::mergeRecursiveWithOverrule(self::$globalVariables, $globalVariableProvider->getGlobalVariables());
+                ArrayUtility::mergeRecursiveWithOverrule(self::$globalVariables,
+                    $globalVariableProvider->getGlobalVariables());
             }
         }
 

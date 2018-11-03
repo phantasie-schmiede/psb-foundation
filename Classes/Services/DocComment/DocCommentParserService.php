@@ -40,15 +40,15 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * You can register your parser for custom comments in this way (e.g. in ext_localconf.php):
  *
  * $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
- * $docCommentParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\ParserService::class);
+ * $docCommentParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\DocCommentParserService::class);
  * $yourOwnValueParser = $objectManager->get(\Your\Own\ValueParser::class);
  * $docCommentParser->addValueParser('yourCustomAnnotation', $yourOwnValueParser);
  *
  * Keep in mind that your ValueParser has to implement \PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface
  *
- * @package PS\PsFoundation\Services\DocComment
+ * @package PS\PsFoundation\Services\DocCommentParserService
  */
-class ParserService implements LoggerAwareInterface, SingletonInterface
+class DocCommentParserService implements LoggerAwareInterface, SingletonInterface
 {
     use LoggerAwareTrait;
 
@@ -71,19 +71,23 @@ class ParserService implements LoggerAwareInterface, SingletonInterface
     /**
      * @var array
      */
-    protected $valueParser;
+    protected $valueParser = [];
 
     /**
-     * @param string $annotationType The first part after the @-symbol, e.g. return or var
      * @param ValueParserInterface $parser Instance of your custom parser class
      * @param bool $isSingleValue Allows multiple usages of this type per block when false, e.g. param
+     *
+     * @throws \Exception
      */
     public function addValueParser(
-        string $annotationType,
         ValueParserInterface $parser,
         bool $isSingleValue = false
     ): void {
-        $annotationType = strtolower($annotationType);
+        if (!\defined(\get_class($parser).'::ANNOTATION_TYPE')) {
+            throw new \Exception(\get_class($parser).' has to define a constant named ANNOTATION_TYPE!', 1541107562);
+        }
+
+        $annotationType = $parser::ANNOTATION_TYPE;
         $this->valueParser[$annotationType] = $parser;
 
         if ($isSingleValue) {
@@ -123,14 +127,13 @@ class ParserService implements LoggerAwareInterface, SingletonInterface
                 $commentLine = ltrim(trim($commentLine), '/* ');
                 if (0 === strpos($commentLine, '@')) {
                     $parts = GeneralUtility::trimExplode(' ', substr($commentLine, 1), true, 2);
-                    $annotationType = strtolower(array_shift($parts));
+                    $annotationType = array_shift($parts);
 
                     if (isset($this->valueParser[$annotationType])) {
                         $value = $this->valueParser[$annotationType]->processValue(implode($parts));
                     } elseif (!empty($parts)) {
                         switch ($annotationType) {
                             case self::SECTION_PARAM:
-                            case self::SECTION_VAR:
                                 $parts = GeneralUtility::trimExplode(' ', $parts[0], true, 3);
                                 [$variableType, $name, $description] = $parts;
                                 $value = [
@@ -141,11 +144,12 @@ class ParserService implements LoggerAwareInterface, SingletonInterface
                                 break;
                             case self::SECTION_RETURN:
                             case self::SECTION_THROWS:
+                            case self::SECTION_VAR:
                                 $parts = GeneralUtility::trimExplode(' ', $parts[0], true, 2);
-                                [$exceptionType, $description] = $parts;
+                                [$type, $description] = $parts;
                                 $value = [
                                     'description' => $description,
-                                    'type'        => $exceptionType,
+                                    'type'        => $type,
                                 ];
                                 break;
                             default:

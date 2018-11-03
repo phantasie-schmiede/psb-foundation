@@ -28,7 +28,13 @@ namespace PS\PsFoundation\Utilities;
  ***************************************************************/
 
 use Exception;
+use PS\PsFoundation\Services\DocComment\DocCommentParserService;
+use PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
+use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
 /**
  * Class TcaUtility
@@ -179,9 +185,29 @@ class TcaUtility
     ];
 
     /**
+     * @var string
+     */
+    protected $className;
+
+    /**
      * @var array
      */
     private $configuration;
+
+    /**
+     * @var \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper
+     */
+    private $dataMapper;
+
+    /**
+     * @var string
+     */
+    protected $defaultLabelPath;
+
+    /**
+     * @var string
+     */
+    private $extensionKey;
 
     /**
      * @var array
@@ -194,34 +220,38 @@ class TcaUtility
     private $table;
 
     /**
-     * TcaUtility constructor
-     *
-     * @param string $table
-     * @param string $title
-     * @param string $labelColumn
+     * @param string $classOrTableName
+     * @param string $extensionKey
+     * @param \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper $dataMapper
      */
-    public function __construct(string $table, string $title = '', string $labelColumn = '')
-    {
-        $this->table = $table;
-        $this->configuration = $this->getDummyConfiguration($table);
+    public function __construct(
+        string $classOrTableName,
+        string $extensionKey,
+        DataMapper $dataMapper
+    ) {
+        $this->dataMapper = $dataMapper;
+        $this->extensionKey = $extensionKey;
+        $this->defaultLabelPath = 'LLL:EXT:'.$this->extensionKey.'/Resources/Private/Language/Backend/Configuration/TCA/';
+
+        if (false !== strpos($classOrTableName, '\\')) {
+            $this->className = $classOrTableName;
+            $this->table = $this->dataMapper->convertClassNameToTableName($classOrTableName);
+            $this->configuration = $this->getDummyConfiguration($this->table);
+            $this->defaultLabelPath .= $this->table.'.xlf:';
+            $this->setCtrlProperties([
+                'title' => $this->defaultLabelPath.'tca.title',
+            ]);
+        } else {
+            $this->table = $classOrTableName;
+            $this->defaultLabelPath .= 'Overrides/'.$this->table.'.xlf:';
+            $this->configuration = $GLOBALS['TCA'][$this->table];
+        }
 
         /**
-         * remember the default system columns (e.g. for versioning, translating) in order to exclude them when
+         * remember the predefined columns (e.g. for versioning, translating) in order to exclude them when
          * auto-creating the showItemList
          */
         $this->setPreDefinedColumns(array_keys($this->configuration['columns']));
-
-        if ('' !== $title) {
-            $this->setCtrlProperties([
-                'title' => $title,
-            ]);
-        }
-
-        if ('' !== $labelColumn) {
-            $this->setCtrlProperties([
-                'label' => $labelColumn,
-            ]);
-        }
     }
 
     /**
@@ -256,6 +286,7 @@ class TcaUtility
         }
 
         $this->validateConfiguration();
+        $this->registerNewTableInGlobalTca();
 
         return $this->configuration;
     }
@@ -422,6 +453,28 @@ class TcaUtility
         $this->configuration['types'][$index] = ['showitem' => $fieldList];
     }
 
+    public function buildFromDocComment(): void
+    {
+        if (null === $this->className) {
+            // throw exception
+        }
+
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $docCommentParserService = $objectManager->get(DocCommentParserService::class);
+
+        /** @var \ReflectionClass $reflection */
+        $reflection = GeneralUtility::makeInstance(\ReflectionClass::class, $this->className);
+        $properties = $reflection->getProperties();
+
+        foreach ($properties as $property) {
+            $docComment = $docCommentParserService->parsePhpDocComment($this->className, $property->getName());
+            if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
+                // @todo REMOVE BEFORE DEPLOYMENT!!!
+                \TYPO3\CMS\Core\Utility\DebugUtility::debug($docComment);
+            }
+        }
+    }
+
     /**
      * set columns and their order for sorting in list view (BE only)
      *
@@ -472,7 +525,7 @@ class TcaUtility
      */
     private function getDummyConfiguration(string $table): array
     {
-        $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
+        $ll = 'LLL:EXT:lang / locallang_general.xlf:LGL.';
 
         return [
             'ctrl'      => [
@@ -490,7 +543,7 @@ class TcaUtility
                 //'groupName' => '',
                 'hideAtCopy'               => false,
                 'hideTable'                => false,
-                'iconfile'                 => 'EXT:core/Resources/Public/Icons/T3Icons/mimetypes/mimetypes-x-sys_action.svg',
+                'iconfile'                 => 'EXT:core / Resources /Public/Icons / T3Icons / mimetypes / mimetypes - x - sys_action.svg',
                 'is_static'                => false,
                 'label'                    => 'uid',
                 'label_alt'                => '',
@@ -550,7 +603,7 @@ class TcaUtility
                             ['', 0],
                         ],
                         'foreign_table'       => $table,
-                        'foreign_table_where' => 'AND '.$table.'.pid=###CURRENT_PID### AND '.$table.'.sys_language_uid IN (-1,0)',
+                        'foreign_table_where' => ' AND '.$table.'.pid =###CURRENT_PID### AND '.$table.'.sys_language_uid IN (-1,0)',
                     ],
                 ],
                 'l10n_diffsource'  => [
@@ -607,6 +660,14 @@ class TcaUtility
         ];
     }
 
+    private function registerNewTableInGlobalTca(): void
+    {
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages($this->table);
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr(
+            $this->table, 'EXT:'.$this->extensionKey.'/Resources/Private/Language/Backend/CSH/'.$this->table.'.xlf'
+        );
+    }
+
     /**
      * @throws Exception
      */
@@ -614,11 +675,13 @@ class TcaUtility
     {
         if (isset($this->configuration['ctrl']['sortby'])) {
             if (isset($this->configuration['ctrl']['default_sortby'])) {
-                throw new Exception($this->table.': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.');
+                throw new Exception($this->table.': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.',
+                    1541107594);
             }
 
             if (\in_array($this->configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
-                throw new Exception($this->table.': Your current configuration would overwrite a reserved system column with sorting values!');
+                throw new Exception($this->table.': Your current configuration would overwrite a reserved system column with sorting values!',
+                    1541107601);
             }
         }
     }

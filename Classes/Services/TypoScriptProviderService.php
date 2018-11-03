@@ -39,7 +39,7 @@ class TypoScriptProviderService
 {
     /**
      * @param string $configurationType
-     * @param string|null $extensionName
+     * @param string|null $extensionKey
      * @param string|null $pluginName
      *
      * @return array|null
@@ -47,12 +47,12 @@ class TypoScriptProviderService
      */
     public static function getTypoScriptConfiguration(
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
-        string $extensionName = null,
+        string $extensionKey = null,
         string $pluginName = null
     ): ?array {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $configurationManager = $objectManager->get(ConfigurationManager::class);
-        $typoScript = $configurationManager->getConfiguration($configurationType, $extensionName, $pluginName);
+        $typoScript = $configurationManager->getConfiguration($configurationType, $extensionKey, $pluginName);
 
         if (!\is_array($typoScript)) {
             return null;

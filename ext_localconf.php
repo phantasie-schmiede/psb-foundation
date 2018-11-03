@@ -11,6 +11,11 @@ call_user_func(
              <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extKey.'/Configuration/TSConfig/UserTS.typoscript">
         ');
 
+        $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
+        $docCommentParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\DocCommentParserService::class);
+        $tcaConfigParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser::class);
+        $docCommentParser->addValueParser($tcaConfigParser);
+
         // customize BE login style
         // $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'] = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'], ['allowed_classes' => false]);
         //

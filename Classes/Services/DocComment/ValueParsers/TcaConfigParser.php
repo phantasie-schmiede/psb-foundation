@@ -26,20 +26,37 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
- * Interface ValueParserInterface
- *
- * Your parser class also has to define a constant named ANNOTATION_TYPE!
- * (The first part after the @-symbol, e.g. return or var)
- *
+ * Class TcaConfigParser
  * @package PS\PsFoundation\Services\DocComment\ValueParsers
  */
-interface ValueParserInterface
+class TcaConfigParser implements ValueParserInterface
 {
+    public const ANNOTATION_TYPE = '\PS\PsFoundation\Tca\Config';
+
     /**
      * @param null|string $value
      *
      * @return mixed
+     * @throws Exception
      */
-    public function processValue(?string $value);
+    public function processValue(?string $value)
+    {
+        if (null === $value) {
+            throw new Exception('Annotation '.self::ANNOTATION_TYPE.' must contain a value!');
+        }
+
+        $result = [];
+        $valueParts = GeneralUtility::trimExplode(',', $value, true);
+
+        foreach ($valueParts as $part) {
+            [$key, $value] = GeneralUtility::trimExplode('=', $part, false, 2);
+            $result[$key] = $value;
+        }
+
+        return $result;
+    }
 }
