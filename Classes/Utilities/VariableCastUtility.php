@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\DocComment\ValueParsers;
+namespace PS\PsFoundation\Utilities;
 
 /***************************************************************
  *  Copyright notice
@@ -27,10 +28,37 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  ***************************************************************/
 
 /**
- * Class TcaConfigParser
- * @package PS\PsFoundation\Services\DocComment\ValueParsers
+ * Class VariableCastUtility
+ * @package PS\PsFoundation\Utilities
  */
-class TcaConfigParser extends AbstractValuePairsParser
+class VariableCastUtility
 {
-    public const ANNOTATION_TYPE = '\PS\PsFoundation\Tca\Config';
+    /**
+     * @param string $variable
+     *
+     * @return bool|float|int|string
+     */
+    public static function convertString(string $variable)
+    {
+        if (is_numeric($variable)) {
+            if (false === strpos($variable, '.')) {
+                $output = (int)$variable;
+            } else {
+                $output = (double)$variable;
+            }
+        } else {
+            switch ($variable) {
+                case 'true':
+                    $output = true;
+                    break;
+                case 'false':
+                    $output = false;
+                    break;
+                default:
+                    $output = $variable;
+            }
+        }
+
+        return $output;
+    }
 }

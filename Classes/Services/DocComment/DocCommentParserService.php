@@ -108,6 +108,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
             throw new \Exception(\get_class($parser).' has to define a constant named ANNOTATION_TYPE!', 1541107562);
         }
 
+        /** @noinspection PhpUndefinedFieldInspection */
         $annotationType = $parser::ANNOTATION_TYPE;
         $this->valueParser[$annotationType] = $parser;
 

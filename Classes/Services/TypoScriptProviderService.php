@@ -26,6 +26,7 @@ namespace PS\PsFoundation\Services;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PS\PsFoundation\Utilities\VariableCastUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -61,25 +62,12 @@ class TypoScriptProviderService
         $typoScriptService = $objectManager->get(\TYPO3\CMS\Core\TypoScript\TypoScriptService::class);
         $convertedTypoScript = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
 
-        array_walk_recursive($convertedTypoScript, function(&$item) {
+        array_walk_recursive($convertedTypoScript, function (&$item) {
             // if constants are unset
             if (0 === strpos($item, '{$')) {
                 $item = null;
-            } elseif (is_numeric($item)) {
-                if (false === strpos($item, '.')) {
-                    $item = (int)$item;
-                } else {
-                    $item = (double)$item;
-                }
             } else {
-                switch ($item) {
-                    case 'true':
-                        $item = true;
-                        break;
-                    case 'false':
-                        $item = false;
-                        break;
-                }
+                $item = VariableCastUtility::convertString($item);
             }
         });
 

@@ -13,6 +13,8 @@ call_user_func(
 
         $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
         $docCommentParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\DocCommentParserService::class);
+        $tcaFieldConfigParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser::class);
+        $docCommentParser->addValueParser($tcaFieldConfigParser, \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
         $tcaConfigParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser::class);
         $docCommentParser->addValueParser($tcaConfigParser, \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
 

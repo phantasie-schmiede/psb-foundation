@@ -27,10 +27,10 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  ***************************************************************/
 
 /**
- * Class TcaConfigParser
+ * Class TcaFieldConfigParser
  * @package PS\PsFoundation\Services\DocComment\ValueParsers
  */
-class TcaConfigParser extends AbstractValuePairsParser
+class TcaFieldConfigParser  extends AbstractValuePairsParser
 {
-    public const ANNOTATION_TYPE = '\PS\PsFoundation\Tca\Config';
+    public const ANNOTATION_TYPE = '\PS\PsFoundation\Tca\FieldConfig';
 }

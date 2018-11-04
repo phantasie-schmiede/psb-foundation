@@ -30,6 +30,7 @@ namespace PS\PsFoundation\Utilities;
 use Exception;
 use PS\PsFoundation\Services\DocComment\DocCommentParserService;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
+use PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -356,7 +357,6 @@ class TcaUtility
      * );
      *
      * @param string $property name of the database column
-     * @param string $label BE label of the field (can begin with LLL:)
      * @param string $type use constants of this class to see what is available and to avoid typos
      * @param array $customFieldConfiguration override array keys within the 'config'-part
      * @param array $configuration override array keys on the same level as 'config'
@@ -366,7 +366,6 @@ class TcaUtility
      */
     public function addColumn(
         string $property,
-        string $label,
         string $type,
         array $customFieldConfiguration = [],
         array $configuration = [],
@@ -405,7 +404,7 @@ class TcaUtility
             ArrayUtility::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
             $fieldConfiguration = [
                 'exclude' => 0,
-                'label'   => $label,
+                'label'   => $this->defaultLabelPath.':'.$property,
                 'config'  => $config,
             ];
 
@@ -453,10 +452,14 @@ class TcaUtility
         $this->configuration['types'][$index] = ['showitem' => $fieldList];
     }
 
+    /**
+     * @throws Exception
+     */
     public function buildFromDocComment(): void
     {
         if (null === $this->className) {
-            // throw exception
+            throw new Exception('You must provide a class name instead of '.$this->table.' if you want to use this feature!',
+                1541351524);
         }
 
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
@@ -468,10 +471,24 @@ class TcaUtility
 
         foreach ($properties as $property) {
             $docComment = $docCommentParserService->parsePhpDocComment($this->className, $property->getName());
-            if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
-                // @todo REMOVE BEFORE DEPLOYMENT!!!
-                \TYPO3\CMS\Core\Utility\DebugUtility::debug($docComment);
+            if (isset($docComment[TcaFieldConfigParser::ANNOTATION_TYPE])) {
+                $fieldConfig = $docComment[TcaFieldConfigParser::ANNOTATION_TYPE];
+                $type = $fieldConfig['type'];
+                unset($fieldConfig['type']);
+
+                $config = [];
+                if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
+                    $config = $docComment[TcaConfigParser::ANNOTATION_TYPE];
+                }
+
+                $this->addColumn($this->dataMapper->convertPropertyNameToColumnName($property->getName()), $type,
+                    $fieldConfig, $config);
             }
+        }
+
+        $docComment = $docCommentParserService->parsePhpDocComment($this->className);
+        if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
+            $this->setCtrlProperties($docComment[TcaConfigParser::ANNOTATION_TYPE]);
         }
     }
 

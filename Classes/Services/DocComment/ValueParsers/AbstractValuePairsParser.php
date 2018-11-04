@@ -26,11 +26,37 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
+use PS\PsFoundation\Utilities\VariableCastUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
- * Class TcaConfigParser
+ * Class AbstractValuePairsParser
  * @package PS\PsFoundation\Services\DocComment\ValueParsers
  */
-class TcaConfigParser extends AbstractValuePairsParser
+abstract class AbstractValuePairsParser implements ValueParserInterface
 {
-    public const ANNOTATION_TYPE = '\PS\PsFoundation\Tca\Config';
+    /**
+     * @param null|string $valuePairs
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function processValue(?string $valuePairs)
+    {
+        if (null === $valuePairs) {
+            /** @noinspection PhpUndefinedClassConstantInspection */
+            throw new Exception('Annotation '.self::ANNOTATION_TYPE.' must be followed by value pairs like "key=value"!');
+        }
+
+        $result = [];
+        $valueParts = GeneralUtility::trimExplode(';', $valuePairs, true);
+
+        foreach ($valueParts as $part) {
+            [$key, $value] = GeneralUtility::trimExplode('=', $part, false, 2);
+            $result[$key] = VariableCastUtility::convertString($value);
+        }
+
+        return $result;
+    }
 }
