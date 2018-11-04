@@ -32,6 +32,7 @@ use PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -42,15 +43,22 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
  * $docCommentParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\DocCommentParserService::class);
  * $yourOwnValueParser = $objectManager->get(\Your\Own\ValueParser::class);
- * $docCommentParser->addValueParser('yourCustomAnnotation', $yourOwnValueParser);
+ * $docCommentParser->addValueParser($yourOwnValueParser, \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['...']);
  *
  * Keep in mind that your ValueParser has to implement \PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface
+ * and the constant ANNOTATION_TYPE!
  *
  * @package PS\PsFoundation\Services\DocCommentParserService
  */
 class DocCommentParserService implements LoggerAwareInterface, SingletonInterface
 {
     use LoggerAwareTrait;
+
+    public const VALUE_TYPES = [
+        'ADD'    => 'add',
+        'MERGE'  => 'merge',
+        'SINGLE' => 'single',
+    ];
 
     private const SECTION_SUMMARY     = 'summary';
     private const SECTION_DESCRIPTION = 'description';
@@ -62,26 +70,39 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     /**
      * @var array
      */
-    protected $singleValues = [
-        'package',
-        'return',
-        'var',
+    private $addValues = [
+        self::SECTION_PARAM,
+        self::SECTION_THROWS,
     ];
 
     /**
      * @var array
      */
-    protected $valueParser = [];
+    protected $mergeValues = [];
+
+    /**
+     * @var array
+     */
+    private $singleValues = [
+        'package',
+        self::SECTION_RETURN,
+        self::SECTION_VAR,
+    ];
+
+    /**
+     * @var array
+     */
+    private $valueParser = [];
 
     /**
      * @param ValueParserInterface $parser Instance of your custom parser class
-     * @param bool $isSingleValue Allows multiple usages of this type per block when false, e.g. param
+     * @param string $valueType Use constant VALUE_TYPES of this class: ADD simply adds a new item to the result array; MERGE merges the item with the result array; SINGLE allows only one occurrence of this type per block
      *
      * @throws \Exception
      */
     public function addValueParser(
         ValueParserInterface $parser,
-        bool $isSingleValue = false
+        string $valueType
     ): void {
         if (!\defined(\get_class($parser).'::ANNOTATION_TYPE')) {
             throw new \Exception(\get_class($parser).' has to define a constant named ANNOTATION_TYPE!', 1541107562);
@@ -90,8 +111,18 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         $annotationType = $parser::ANNOTATION_TYPE;
         $this->valueParser[$annotationType] = $parser;
 
-        if ($isSingleValue) {
-            $this->singleValues[] = $annotationType;
+        switch ($valueType) {
+            case self::VALUE_TYPES['ADD']:
+                $this->addValues[] = $annotationType;
+                break;
+            case self::VALUE_TYPES['MERGE']:
+                $this->mergeValues[] = $annotationType;
+                break;
+            case self::VALUE_TYPES['SINGLE']:
+                $this->singleValues[] = $annotationType;
+                break;
+            default:
+                throw new \Exception($valueType.' is no valid value type! Use this constant to provide a valid type: \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES', 1541348283);
         }
 
         AnnotationReader::addGlobalIgnoredName($annotationType);
@@ -159,24 +190,34 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                         $value = [];
                     }
 
-                    if (\in_array($annotationType, $this->singleValues, true)) {
-                        if (isset($parsedDocComment[$annotationType])) {
-                            if (!\is_string($class)) {
-                                $class = \get_class($class);
+                    $parsedDocComment[$annotationType] = [];
+
+                    switch (true) {
+                        case (\in_array($annotationType, $this->addValues, true)):
+                            $parsedDocComment[$annotationType][] = $value;
+                            break;
+                        case (\in_array($annotationType, $this->mergeValues, true)):
+                            ArrayUtility::mergeRecursiveWithOverrule($parsedDocComment[$annotationType], $value);
+                            break;
+                        case (\in_array($annotationType, $this->singleValues, true)):
+                            if (isset($parsedDocComment[$annotationType])) {
+                                if (!\is_string($class)) {
+                                    $class = \get_class($class);
+                                }
+
+                                $warning = '@'.$annotationType.' has been overridden in '.$class;
+
+                                if ($methodOrPropertyName) {
+                                    $warning .= ' at '.$methodOrPropertyName;
+                                }
+
+                                $this->logger->warning($warning);
                             }
 
-                            $warning = '@'.$annotationType.' has been overridden in '.$class;
-
-                            if ($methodOrPropertyName) {
-                                $warning .= ' at '.$methodOrPropertyName;
-                            }
-
-                            $this->logger->warning($warning);
-                        }
-
-                        $parsedDocComment[$annotationType] = $value;
-                    } else {
-                        $parsedDocComment[$annotationType][] = $value;
+                            $parsedDocComment[$annotationType] = $value;
+                            break;
+                        default:
+                            // this case is not possible
                     }
                 } else {
                     // extract summary and description if given
