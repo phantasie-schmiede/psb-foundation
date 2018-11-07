@@ -34,6 +34,59 @@ namespace PS\PsFoundation\Utilities;
 class VariableCastUtility
 {
     /**
+     * Although calculated on a base of 2, the average user might be confused when he is shown the technically correct
+     * unit names like KiB, MiB or GiB. Hence the inaccurate, "old" units are being used.
+     */
+    public const FILE_SIZE_UNITS = [
+        'B'  => 0,
+        'KB' => 1,
+        'MB' => 2,
+        'GB' => 3,
+        'TB' => 4,
+        'PB' => 5,
+        'EB' => 6,
+        'ZB' => 7,
+        'YB' => 8,
+    ];
+
+    /**
+     * Convert file size to a human readable string
+     *
+     * To enforce a specific unit use a value of FILE_SIZE_UNITS as second parameter
+     *
+     * @param int $bytes
+     * @param int|null $unit
+     * @param int $decimals
+     * @param string $decimalSeparator
+     * @param string $thousandsSeparator
+     *
+     * @return string
+     */
+    public static function convertFileSize(
+        int $bytes,
+        int $unit = null,
+        int $decimals = 2,
+        $decimalSeparator = ',',
+        $thousandsSeparator = '.'
+    ): string {
+
+        if ($unit) {
+            $bytes /= (1024 ** $unit);
+        } else {
+            $power = 0;
+
+            while ($bytes >= 1024) {
+                $bytes /= 1024;
+                $power++;
+            }
+        }
+
+        $unitString = array_search($power ?? $unit, self::FILE_SIZE_UNITS, true);
+
+        return number_format($bytes, $decimals, $decimalSeparator, $thousandsSeparator).' '.$unitString;
+    }
+
+    /**
      * @param string $variable
      *
      * @return bool|float|int|string
