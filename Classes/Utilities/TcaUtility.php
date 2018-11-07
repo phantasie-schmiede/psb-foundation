@@ -28,6 +28,8 @@ namespace PS\PsFoundation\Utilities;
  ***************************************************************/
 
 use Exception;
+use PS\PsFoundation\Exceptions\MisconfiguredTcaException;
+use PS\PsFoundation\Exceptions\UnsetPropertyException;
 use PS\PsFoundation\Services\DocComment\DocCommentParserService;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
@@ -458,7 +460,7 @@ class TcaUtility
     public function buildFromDocComment(): void
     {
         if (null === $this->className) {
-            throw new Exception('You must provide a class name instead of '.$this->table.' if you want to use this feature!',
+            throw new UnsetPropertyException('When instantiating you must provide a class name instead of '.$this->table.' if you want to use this feature!',
                 1541351524);
         }
 
@@ -692,12 +694,12 @@ class TcaUtility
     {
         if (isset($this->configuration['ctrl']['sortby'])) {
             if (isset($this->configuration['ctrl']['default_sortby'])) {
-                throw new Exception($this->table.': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.',
+                throw new MisconfiguredTcaException($this->table.': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.',
                     1541107594);
             }
 
             if (\in_array($this->configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
-                throw new Exception($this->table.': Your current configuration would overwrite a reserved system column with sorting values!',
+                throw new MisconfiguredTcaException($this->table.': Your current configuration would overwrite a reserved system column with sorting values!',
                     1541107601);
             }
         }

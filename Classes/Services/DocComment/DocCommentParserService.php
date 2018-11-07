@@ -28,6 +28,8 @@ namespace PS\PsFoundation\Services\DocComment;
  ***************************************************************/
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use PS\PsFoundation\Exceptions\ImplementationException;
+use PS\PsFoundation\Exceptions\InvalidValueTypeException;
 use PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -105,7 +107,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         string $valueType
     ): void {
         if (!\defined(\get_class($parser).'::ANNOTATION_TYPE')) {
-            throw new \Exception(\get_class($parser).' has to define a constant named ANNOTATION_TYPE!', 1541107562);
+            throw new ImplementationException(\get_class($parser).' has to define a constant named ANNOTATION_TYPE!', 1541107562);
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
@@ -123,7 +125,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                 $this->singleValues[] = $annotationType;
                 break;
             default:
-                throw new \Exception($valueType.' is no valid value type! Use this constant to provide a valid type: \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES', 1541348283);
+                throw new InvalidValueTypeException($valueType.' is no valid value type! Use a value of this constant to provide a valid type: \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES',
+                    1541348283);
         }
 
         AnnotationReader::addGlobalIgnoredName($annotationType);
@@ -159,14 +162,14 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                 $commentLine = ltrim(trim($commentLine), '/* ');
                 if (0 === strpos($commentLine, '@')) {
                     $parts = GeneralUtility::trimExplode(' ', substr($commentLine, 1), true, 2);
-                    $annotationType = array_shift($parts);
+                    [$annotationType, $parameters] = $parts;
 
                     if (isset($this->valueParser[$annotationType])) {
-                        $value = $this->valueParser[$annotationType]->processValue(implode($parts));
-                    } elseif (!empty($parts)) {
+                        $value = $this->valueParser[$annotationType]->processValue($parameters);
+                    } elseif (null !== $parameters) {
                         switch ($annotationType) {
                             case self::SECTION_PARAM:
-                                $parts = GeneralUtility::trimExplode(' ', $parts[0], true, 3);
+                                $parts = GeneralUtility::trimExplode(' ', $parameters, true, 3);
                                 [$variableType, $name, $description] = $parts;
                                 $value = [
                                     'description' => $description,
@@ -177,7 +180,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                             case self::SECTION_RETURN:
                             case self::SECTION_THROWS:
                             case self::SECTION_VAR:
-                                $parts = GeneralUtility::trimExplode(' ', $parts[0], true, 2);
+                                $parts = GeneralUtility::trimExplode(' ', $parameters, true, 2);
                                 [$type, $description] = $parts;
                                 $value = [
                                     'description' => $description,
@@ -185,7 +188,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                                 ];
                                 break;
                             default:
-                                $value = $parts[0];
+                                $value = $parameters;
                         }
                     } else {
                         $value = [];

@@ -27,6 +27,7 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  ***************************************************************/
 
 use Exception;
+use PS\PsFoundation\Exceptions\AnnotationException;
 use PS\PsFoundation\Utilities\VariableCastUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -46,7 +47,8 @@ abstract class AbstractValuePairsParser implements ValueParserInterface
     {
         if (null === $valuePairs) {
             /** @noinspection PhpUndefinedClassConstantInspection */
-            throw new Exception('Annotation '.self::ANNOTATION_TYPE.' must be followed by value pairs like "key=value"!');
+            throw new AnnotationException(static::ANNOTATION_TYPE.' must be followed by value pairs like "key=value"!',
+                1541619320);
         }
 
         $result = [];
