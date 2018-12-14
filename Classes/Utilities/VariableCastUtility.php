@@ -87,12 +87,17 @@ class VariableCastUtility
     }
 
     /**
-     * @param string $variable
+     * @param string|null $variable
+     * @param bool $convertEmptyStringToNull
      *
-     * @return bool|float|int|string
+     * @return bool|float|int|string|null
      */
-    public static function convertString(string $variable)
+    public static function convertString(?string $variable, $convertEmptyStringToNull = false)
     {
+        if ($convertEmptyStringToNull && '' === $variable) {
+            return null;
+        }
+
         if (is_numeric($variable)) {
             if (false === strpos($variable, '.')) {
                 $output = (int)$variable;

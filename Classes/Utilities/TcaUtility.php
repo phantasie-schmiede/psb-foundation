@@ -361,7 +361,7 @@ class TcaUtility
      * @param string $property name of the database column
      * @param string $type use constants of this class to see what is available and to avoid typos
      * @param array $customFieldConfiguration override array keys within the 'config'-part
-     * @param array $configuration override array keys on the same level as 'config'
+     * @param array $customPropertyConfiguration override array keys on the same level as 'config'
      * @param bool $autoAddToDefaultType whether field shall be appended to the 'showitem'-list of type 0
      *
      * @return array|null
@@ -370,7 +370,7 @@ class TcaUtility
         string $property,
         string $type,
         array $customFieldConfiguration = [],
-        array $configuration = [],
+        array $customPropertyConfiguration = [],
         bool $autoAddToDefaultType = true
     ): ?array {
         if (array_key_exists($type, self::FIELD_CONFIGURATIONS)) {
@@ -389,7 +389,8 @@ class TcaUtility
                         $allowedFileTypes = '';
                 }
 
-                $config = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig(
+                /** @noinspection TranslationMissingInspection */
+                $fieldConfiguration = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig(
                     $property,
                     [
                         'appearance' => [
@@ -400,24 +401,24 @@ class TcaUtility
                     $allowedFileTypes
                 );
             } else {
-                $config = self::FIELD_CONFIGURATIONS[$type];
+                $fieldConfiguration = self::FIELD_CONFIGURATIONS[$type];
             }
 
-            ArrayUtility::mergeRecursiveWithOverrule($config, $customFieldConfiguration);
-            $fieldConfiguration = [
+            ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
+            $propertyConfiguration = [
                 'exclude' => 0,
-                'label'   => $this->defaultLabelPath.':'.$property,
-                'config'  => $config,
+                'label'   => $this->defaultLabelPath.$property,
+                'config'  => $fieldConfiguration,
             ];
 
-            ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $configuration);
-            $this->configuration['columns'][$property] = $fieldConfiguration;
+            ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration, $customPropertyConfiguration);
+            $this->configuration['columns'][$property] = $propertyConfiguration;
 
             if ($autoAddToDefaultType) {
                 $this->addFieldToType($property);
             }
 
-            return [$property => $fieldConfiguration];
+            return [$property => $propertyConfiguration];
         }
 
         return null;
@@ -483,8 +484,8 @@ class TcaUtility
                     $config = $docComment[TcaConfigParser::ANNOTATION_TYPE];
                 }
 
-                $this->addColumn($this->dataMapper->convertPropertyNameToColumnName($property->getName()), $type,
-                    $fieldConfig, $config);
+                $this->addColumn($this->dataMapper->convertPropertyNameToColumnName($property->getName(),
+                    $this->className), $type, $fieldConfig, $config);
             }
         }
 
@@ -544,7 +545,7 @@ class TcaUtility
      */
     private function getDummyConfiguration(string $table): array
     {
-        $ll = 'LLL:EXT:lang / locallang_general.xlf:LGL.';
+        $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
 
         return [
             'ctrl'      => [
@@ -562,7 +563,7 @@ class TcaUtility
                 //'groupName' => '',
                 'hideAtCopy'               => false,
                 'hideTable'                => false,
-                'iconfile'                 => 'EXT:core / Resources /Public/Icons / T3Icons / mimetypes / mimetypes - x - sys_action.svg',
+                'iconfile'                 => 'EXT:core/Resources/Public/Icons/T3Icons/mimetypes/mimetypes-x-sys_action.svg',
                 'is_static'                => false,
                 'label'                    => 'uid',
                 'label_alt'                => '',

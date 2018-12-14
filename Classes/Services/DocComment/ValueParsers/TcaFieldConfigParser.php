@@ -32,5 +32,5 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  */
 class TcaFieldConfigParser  extends AbstractValuePairsParser
 {
-    public const ANNOTATION_TYPE = '\PS\PsFoundation\Tca\FieldConfig';
+    public const ANNOTATION_TYPE = 'PS\PsFoundation\Tca\FieldConfig';
 }
