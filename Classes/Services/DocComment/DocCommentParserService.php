@@ -194,7 +194,9 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                         $value = [];
                     }
 
-                    $parsedDocComment[$annotationType] = [];
+                    if (!isset($parsedDocComment[$annotationType])) {
+                        $parsedDocComment[$annotationType] = [];
+                    }
 
                     switch (true) {
                         case (\in_array($annotationType, $this->addValues, true)):
@@ -204,7 +206,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                             ArrayUtility::mergeRecursiveWithOverrule($parsedDocComment[$annotationType], $value);
                             break;
                         case (\in_array($annotationType, $this->singleValues, true)):
-                            if (isset($parsedDocComment[$annotationType])) {
+                            if ([] !== $parsedDocComment[$annotationType]) {
                                 if (!\is_string($class)) {
                                     $class = \get_class($class);
                                 }
