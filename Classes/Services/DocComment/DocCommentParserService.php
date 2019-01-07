@@ -28,8 +28,8 @@ namespace PS\PsFoundation\Services\DocComment;
  ***************************************************************/
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use InvalidArgumentException;
 use PS\PsFoundation\Exceptions\ImplementationException;
-use PS\PsFoundation\Exceptions\InvalidValueTypeException;
 use PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -42,13 +42,15 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * You can register your parser for custom comments in this way (e.g. in ext_localconf.php):
  *
- * $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
+ * $objectManager =
+ * \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
  * $docCommentParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\DocCommentParserService::class);
  * $yourOwnValueParser = $objectManager->get(\Your\Own\ValueParser::class);
- * $docCommentParser->addValueParser($yourOwnValueParser, \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['...']);
+ * $docCommentParser->addValueParser($yourOwnValueParser,
+ * \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['...']);
  *
- * Keep in mind that your ValueParser has to implement \PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface
- * and the constant ANNOTATION_TYPE!
+ * Keep in mind that your ValueParser has to implement
+ * \PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface and the constant ANNOTATION_TYPE!
  *
  * @package PS\PsFoundation\Services\DocCommentParserService
  */
@@ -62,10 +64,11 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         'SINGLE' => 'single',
     ];
 
-    private const SECTION_SUMMARY     = 'summary';
     private const SECTION_DESCRIPTION = 'description';
+    private const SECTION_PACKAGE     = 'package';
     private const SECTION_PARAM       = 'param';
     private const SECTION_RETURN      = 'return';
+    private const SECTION_SUMMARY     = 'summary';
     private const SECTION_THROWS      = 'throws';
     private const SECTION_VAR         = 'var';
 
@@ -80,13 +83,13 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     /**
      * @var array
      */
-    protected $mergeValues = [];
+    private $mergeValues = [];
 
     /**
      * @var array
      */
     private $singleValues = [
-        'package',
+        self::SECTION_PACKAGE,
         self::SECTION_RETURN,
         self::SECTION_VAR,
     ];
@@ -97,8 +100,10 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     private $valueParser = [];
 
     /**
-     * @param ValueParserInterface $parser Instance of your custom parser class
-     * @param string $valueType Use constant VALUE_TYPES of this class: ADD simply adds a new item to the result array; MERGE merges the item with the result array; SINGLE allows only one occurrence of this type per block
+     * @param ValueParserInterface $parser    Instance of your custom parser class
+     * @param string               $valueType Use constant VALUE_TYPES of this class: ADD simply adds a new item to the
+     *                                        result array; MERGE merges the item with the result array; SINGLE allows
+     *                                        only one occurrence of this type per block
      *
      * @throws \Exception
      */
@@ -107,7 +112,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         string $valueType
     ): void {
         if (!\defined(\get_class($parser).'::ANNOTATION_TYPE')) {
-            throw new ImplementationException(\get_class($parser).' has to define a constant named ANNOTATION_TYPE!', 1541107562);
+            throw new ImplementationException(\get_class($parser).' has to define a constant named ANNOTATION_TYPE!',
+                1541107562);
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
@@ -125,7 +131,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                 $this->singleValues[] = $annotationType;
                 break;
             default:
-                throw new InvalidValueTypeException($valueType.' is no valid value type! Use a value of this constant to provide a valid type: \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES',
+                throw new InvalidArgumentException($valueType.' is no valid value type! Use a value of this constant to provide a valid type: \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES',
                     1541348283);
         }
 
@@ -134,9 +140,10 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
 
     /**
      * @param object|string $class
-     * @param string|null $methodOrPropertyName
+     * @param string|null   $methodOrPropertyName
      *
      * @return array|null
+     * @throws \ReflectionException
      */
     public function parsePhpDocComment($class, string $methodOrPropertyName = null): ?array
     {
@@ -160,6 +167,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
 
             foreach ($commentLines as $commentLine) {
                 $commentLine = ltrim(trim($commentLine), '/* ');
+
                 if (0 === strpos($commentLine, '@')) {
                     $parts = GeneralUtility::trimExplode(' ', substr($commentLine, 1), true, 2);
                     [$annotationType, $parameters] = $parts;

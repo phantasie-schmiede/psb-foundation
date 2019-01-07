@@ -74,7 +74,6 @@ class TcaUtility
         'checkbox'    => [
             'default' => 0,
             'type'    => 'check',
-
         ],
         'date'        => [
             'dbType'     => 'date',
@@ -83,14 +82,12 @@ class TcaUtility
             'renderType' => 'inputDateTime',
             'size'       => 7,
             'type'       => 'input',
-
         ],
         'datetime'    => [
             'eval'       => 'datetime',
             'renderType' => 'inputDateTime',
             'size'       => 12,
             'type'       => 'input',
-
         ],
         'document'    => [],
         'file'        => [],
@@ -98,7 +95,6 @@ class TcaUtility
             'eval' => 'double2',
             'size' => 20,
             'type' => 'input',
-
         ],
         'image'       => [],
         'inline'      => [
@@ -116,24 +112,19 @@ class TcaUtility
                 'useSortable'                     => true,
             ],
             'foreign_field' => '',
-            //'foreign_selector' => 'foreign_selector' // for m:n-relations
-            //'foreign_sortby' => 'foreignSortby',
             'foreign_table' => '',
             'maxitems'      => 9999,
             'type'          => 'inline',
-
         ],
         'integer'     => [
             'eval' => 'num',
             'size' => 20,
             'type' => 'input',
-
         ],
         'link'        => [
             'renderType' => 'inputLink',
             'size'       => 20,
             'type'       => 'input',
-
         ],
         'mm'          => [
             'autoSizeMax'   => 30,
@@ -144,7 +135,6 @@ class TcaUtility
             'renderType'    => 'selectMultipleSideBySide',
             'size'          => 10,
             'type'          => 'select',
-
         ],
         'passthrough' => [
             'type' => 'passthrough',
@@ -154,13 +144,11 @@ class TcaUtility
             'maxitems'      => 1,
             'renderType'    => 'selectSingle',
             'type'          => 'select',
-
         ],
         'string'      => [
             'eval' => 'trim',
             'size' => 20,
             'type' => 'input',
-
         ],
         'text'        => [
             'cols'           => 32,
@@ -168,7 +156,6 @@ class TcaUtility
             'eval'           => 'trim',
             'rows'           => 5,
             'type'           => 'text',
-
         ],
         'user'        => [
             'eval'       => 'trim,required',
@@ -176,7 +163,6 @@ class TcaUtility
             'size'       => 50,
             'type'       => 'user',
             'userFunc'   => '',
-
         ],
     ];
 
@@ -190,7 +176,7 @@ class TcaUtility
     /**
      * @var string
      */
-    protected $className;
+    private $className;
 
     /**
      * @var array
@@ -205,7 +191,7 @@ class TcaUtility
     /**
      * @var string
      */
-    protected $defaultLabelPath;
+    private $defaultLabelPath;
 
     /**
      * @var string
@@ -223,8 +209,8 @@ class TcaUtility
     private $table;
 
     /**
-     * @param string $classOrTableName
-     * @param string $extensionKey
+     * @param string                                                   $classOrTableName
+     * @param string                                                   $extensionKey
      * @param \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper $dataMapper
      */
     public function __construct(
@@ -289,14 +275,13 @@ class TcaUtility
         }
 
         $this->validateConfiguration();
-        $this->registerNewTableInGlobalTca();
 
         return $this->configuration;
     }
 
     /**
      * @param array $configuration
-     * @param bool $merge
+     * @param bool  $merge
      */
     public function setConfiguration(array $configuration, bool $merge = false): void
     {
@@ -348,6 +333,21 @@ class TcaUtility
     }
 
     /**
+     * Use this function in ext_tables.php
+     *
+     * @param string $extensionKey
+     * @param array  $tables
+     */
+    public static function registerNewTablesInGlobalTca(string $extensionKey, array $tables): void
+    {
+        foreach ($tables as $table) {
+            ExtensionManagementUtility::allowTableOnStandardPages($table);
+            ExtensionManagementUtility::addLLrefForTCAdescr($table,
+                'EXT:'.$extensionKey.'/Resources/Private/Language/Backend/CSH/'.$table.'.xlf');
+        }
+    }
+
+    /**
      * adds a property's configuration to the ['columns'] section of the TCA
      * also returns the field configuration, e.g. needed when adding columns to existing tables in TCA/Overrides
      *
@@ -358,11 +358,12 @@ class TcaUtility
      *     $tcaUtility->addColumn(...)
      * );
      *
-     * @param string $property name of the database column
-     * @param string $type use constants of this class to see what is available and to avoid typos
-     * @param array $customFieldConfiguration override array keys within the 'config'-part
-     * @param array $customPropertyConfiguration override array keys on the same level as 'config'
-     * @param bool $autoAddToDefaultType whether field shall be appended to the 'showitem'-list of type 0
+     * @param string $property                    name of the database column
+     * @param string $type                        use constants of this class to see what is available and to avoid
+     *                                            typos
+     * @param array  $customFieldConfiguration    override array keys within the 'config'-part
+     * @param array  $customPropertyConfiguration override array keys on the same level as 'config'
+     * @param bool   $autoAddToDefaultType        whether field shall be appended to the 'showitem'-list of type 0
      *
      * @return array|null
      */
@@ -426,7 +427,7 @@ class TcaUtility
 
     /**
      * @param string $field
-     * @param int $index
+     * @param int    $index
      */
     public function addFieldToType(string $field, int $index = 0): void
     {
@@ -440,7 +441,7 @@ class TcaUtility
     }
 
     /**
-     * @param string $fieldList
+     * @param string   $fieldList
      * @param int|null $index
      */
     public function addType(string $fieldList, int $index = null): void
@@ -478,12 +479,7 @@ class TcaUtility
                 $fieldConfig = $docComment[TcaFieldConfigParser::ANNOTATION_TYPE];
                 $type = $fieldConfig['type'];
                 unset($fieldConfig['type']);
-
-                $config = [];
-                if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
-                    $config = $docComment[TcaConfigParser::ANNOTATION_TYPE];
-                }
-
+                $config = $docComment[TcaConfigParser::ANNOTATION_TYPE] ?? [];
                 $this->addColumn($this->dataMapper->convertPropertyNameToColumnName($property->getName(),
                     $this->className), $type, $fieldConfig, $config);
             }
@@ -545,6 +541,7 @@ class TcaUtility
      */
     private function getDummyConfiguration(string $table): array
     {
+        /** @noinspection TranslationMissingInspection */
         $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
 
         return [
@@ -594,9 +591,7 @@ class TcaUtility
             'types'     => [
                 0 => ['showitem' => ''],
             ],
-            'palettes'  => [
-                //'0' => ['showitem' => ''],
-            ],
+            'palettes'  => [],
             'columns'   => [
                 'sys_language_uid' => [
                     'exclude' => 1,
@@ -678,14 +673,6 @@ class TcaUtility
                 ],
             ],
         ];
-    }
-
-    private function registerNewTableInGlobalTca(): void
-    {
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::allowTableOnStandardPages($this->table);
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr(
-            $this->table, 'EXT:'.$this->extensionKey.'/Resources/Private/Language/Backend/CSH/'.$this->table.'.xlf'
-        );
     }
 
     /**

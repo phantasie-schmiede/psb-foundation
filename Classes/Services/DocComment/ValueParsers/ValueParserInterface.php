@@ -37,7 +37,7 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
 interface ValueParserInterface
 {
     /**
-     * @param null|string $value
+     * @param string|null $value
      *
      * @return mixed
      */

@@ -38,7 +38,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 abstract class AbstractValuePairsParser implements ValueParserInterface
 {
     /**
-     * @param null|string $valuePairs
+     * @param string|null $valuePairs
      *
      * @return mixed
      * @throws Exception
