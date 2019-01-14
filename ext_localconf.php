@@ -14,9 +14,17 @@ call_user_func(
         $objectManager = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
         $docCommentParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\DocCommentParserService::class);
         $tcaFieldConfigParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser::class);
-        $docCommentParser->addValueParser($tcaFieldConfigParser, \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
+        $docCommentParser->addValueParser($tcaFieldConfigParser,
+            \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
         $tcaConfigParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser::class);
-        $docCommentParser->addValueParser($tcaConfigParser, \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
+        $docCommentParser->addValueParser($tcaConfigParser,
+            \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
+        $tcaMappingParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaMappingParser::class);
+        $docCommentParser->addValueParser($tcaMappingParser,
+            \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
+
+        $typoScriptParser = $objectManager->get(\PS\PsFoundation\Services\Configuration\ValueParsers\TypoScriptParser::class);
+        \PS\PsFoundation\Services\Configuration\FlexFormService::addValueParser($typoScriptParser);
 
         // customize BE login style
         // $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'] = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'], ['allowed_classes' => false]);
