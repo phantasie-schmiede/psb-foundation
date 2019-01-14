@@ -31,6 +31,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use InvalidArgumentException;
 use PS\PsFoundation\Exceptions\ImplementationException;
 use PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
+use PS\PsFoundation\Utilities\Cache;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -144,9 +145,20 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      *
      * @return array|null
      * @throws \ReflectionException
+     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
     public function parsePhpDocComment($class, string $methodOrPropertyName = null): ?array
     {
+        $cache = Cache::getCache('ps_foundation');
+        $cacheIdentifier = 'docComment_'.hash('sha256', $class.$methodOrPropertyName);
+        $parsedDocComment = $cache->get($cacheIdentifier);
+
+        if (false !== $parsedDocComment) {
+            return unserialize($parsedDocComment, ['allowed_classes' => false]);
+        }
+
+        $parsedDocComment = null;
+
         /** @var \ReflectionClass $reflection */
         $reflection = GeneralUtility::makeInstance(\ReflectionClass::class, $class);
 
@@ -250,10 +262,10 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                     }
                 }
             }
-
-            return $parsedDocComment;
         }
 
-        return null;
+        $cache->set($cacheIdentifier, serialize($parsedDocComment), [], 86400);
+
+        return $parsedDocComment;
     }
 }

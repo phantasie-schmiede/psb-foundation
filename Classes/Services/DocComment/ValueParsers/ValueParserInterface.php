@@ -26,6 +26,8 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Core\SingletonInterface;
+
 /**
  * Interface ValueParserInterface
  *
@@ -34,7 +36,7 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  *
  * @package PS\PsFoundation\Services\DocComment\ValueParsers
  */
-interface ValueParserInterface
+interface ValueParserInterface extends SingletonInterface
 {
     /**
      * @param string|null $value

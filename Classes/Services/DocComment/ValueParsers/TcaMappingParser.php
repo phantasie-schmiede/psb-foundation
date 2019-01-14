@@ -27,30 +27,10 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  ***************************************************************/
 
 /**
- * Class TcaFieldConfigParser
+ * Class TcaMappingParser
  * @package PS\PsFoundation\Services\DocComment\ValueParsers
  */
-class TcaFieldConfigParser extends AbstractValuePairsParser
+class TcaMappingParser extends AbstractValuePairsParser
 {
-    public const ANNOTATION_TYPE = 'PS\PsFoundation\Tca\FieldConfig';
-
-    /**
-     * @param string|null $valuePairs
-     *
-     * @return mixed
-     * @throws \Exception
-     */
-    public function processValue(?string $valuePairs)
-    {
-        $result = parent::processValue($valuePairs);
-
-        // transform associative array to simple array for TCA
-        if ('select' === $result['type'] && isset ($result['items']) && is_array($result['items'])) {
-            $result['items'] = array_map(function ($key, $value) {
-                return [ucwords(str_replace('_', ' ', strtolower($key))), $value];
-            }, array_keys($result['items']), array_values($result['items']));
-        }
-
-        return $result;
-    }
+    public const ANNOTATION_TYPE = 'PS\PsFoundation\Tca\Mapping';
 }
