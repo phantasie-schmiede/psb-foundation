@@ -26,7 +26,7 @@ namespace PS\PsFoundation\Services;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Utilities\VariableCastUtility;
+use PS\PsFoundation\Utilities\VariableUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -39,8 +39,8 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class TypoScriptProviderService
 {
     /**
-     * @param string $configurationType
-     * @param string|null $extensionKey
+     * @param string      $configurationType
+     * @param string|null $extensionName
      * @param string|null $pluginName
      *
      * @return array|null
@@ -48,12 +48,12 @@ class TypoScriptProviderService
      */
     public static function getTypoScriptConfiguration(
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
-        string $extensionKey = null,
+        string $extensionName = null,
         string $pluginName = null
     ): ?array {
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $configurationManager = $objectManager->get(ConfigurationManager::class);
-        $typoScript = $configurationManager->getConfiguration($configurationType, $extensionKey, $pluginName);
+        $typoScript = $configurationManager->getConfiguration($configurationType, $extensionName, $pluginName);
 
         if (!\is_array($typoScript)) {
             return null;
@@ -67,7 +67,7 @@ class TypoScriptProviderService
             if (0 === strpos($item, '{$')) {
                 $item = null;
             } else {
-                $item = VariableCastUtility::convertString($item);
+                $item = VariableUtility::convertString($item);
             }
         });
 

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utilities;
+namespace PS\PsFoundation\Services\Configuration;
 
 /***************************************************************
  *  Copyright notice
@@ -33,139 +33,19 @@ use PS\PsFoundation\Exceptions\UnsetPropertyException;
 use PS\PsFoundation\Services\DocComment\DocCommentParserService;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
+use PS\PsFoundation\Utilities\VariableUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
 /**
- * Class TcaUtility
- * @package PS\PsFoundation\Utilities
+ * Class TcaService
+ * @package PS\PsFoundation\Services\Configuration
  */
-class TcaUtility
+class TcaService
 {
-    public const FIELD_TYPES = [
-        'CHECKBOX'    => 'checkbox',
-        'DATE'        => 'date',
-        'DATETIME'    => 'datetime',
-        'DOCUMENT'    => 'document',
-        'FILE'        => 'file',
-        'FLOAT'       => 'float',
-        'IMAGE'       => 'image',
-        'INLINE'      => 'inline',
-        'INTEGER'     => 'integer',
-        'LINK'        => 'link',
-        'MM'          => 'mm',
-        'PASSTHROUGH' => 'passthrough',
-        'SELECT'      => 'select',
-        'STRING'      => 'string',
-        'TEXT'        => 'text',
-        'USER'        => 'user',
-    ];
-
-    private const FAL_PLACEHOLDER_TYPES = [
-        'document',
-        'file',
-        'image',
-    ];
-
-    private const FIELD_CONFIGURATIONS = [
-        'checkbox'    => [
-            'default' => 0,
-            'type'    => 'check',
-        ],
-        'date'        => [
-            'dbType'     => 'date',
-            'default'    => '0000-00-00',
-            'eval'       => 'date',
-            'renderType' => 'inputDateTime',
-            'size'       => 7,
-            'type'       => 'input',
-        ],
-        'datetime'    => [
-            'eval'       => 'datetime',
-            'renderType' => 'inputDateTime',
-            'size'       => 12,
-            'type'       => 'input',
-        ],
-        'document'    => [],
-        'file'        => [],
-        'float'       => [
-            'eval' => 'double2',
-            'size' => 20,
-            'type' => 'input',
-        ],
-        'image'       => [],
-        'inline'      => [
-            'appearance'    => [
-                'collapseAll'                     => true,
-                'enabledControls'                 => [
-                    'dragdrop' => true,
-                ],
-                'expandSingle'                    => true,
-                'levelLinksPosition'              => 'bottom',
-                'showAllLocalizationLink'         => true,
-                'showPossibleLocalizationRecords' => true,
-                'showRemovedLocalizationRecords'  => true,
-                'showSynchronizationLink'         => true,
-                'useSortable'                     => true,
-            ],
-            'foreign_field' => '',
-            'foreign_table' => '',
-            'maxitems'      => 9999,
-            'type'          => 'inline',
-        ],
-        'integer'     => [
-            'eval' => 'num',
-            'size' => 20,
-            'type' => 'input',
-        ],
-        'link'        => [
-            'renderType' => 'inputLink',
-            'size'       => 20,
-            'type'       => 'input',
-        ],
-        'mm'          => [
-            'autoSizeMax'   => 30,
-            'foreign_table' => '',
-            'maxitems'      => 9999,
-            'MM'            => '',
-            'multiple'      => 0,
-            'renderType'    => 'selectMultipleSideBySide',
-            'size'          => 10,
-            'type'          => 'select',
-        ],
-        'passthrough' => [
-            'type' => 'passthrough',
-        ],
-        'select'      => [
-            'foreign_table' => '',
-            'maxitems'      => 1,
-            'renderType'    => 'selectSingle',
-            'type'          => 'select',
-        ],
-        'string'      => [
-            'eval' => 'trim',
-            'size' => 20,
-            'type' => 'input',
-        ],
-        'text'        => [
-            'cols'           => 32,
-            'enableRichtext' => true,
-            'eval'           => 'trim',
-            'rows'           => 5,
-            'type'           => 'text',
-        ],
-        'user'        => [
-            'eval'       => 'trim,required',
-            'parameters' => [],
-            'size'       => 50,
-            'type'       => 'user',
-            'userFunc'   => '',
-        ],
-    ];
-
     private const PROTECTED_COLUMNS = [
         'crdate',
         'pid',
@@ -184,19 +64,9 @@ class TcaUtility
     private $configuration;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper
-     */
-    private $dataMapper;
-
-    /**
      * @var string
      */
     private $defaultLabelPath;
-
-    /**
-     * @var string
-     */
-    private $extensionKey;
 
     /**
      * @var array
@@ -209,26 +79,24 @@ class TcaUtility
     private $table;
 
     /**
-     * @param string                                                   $classOrTableName
-     * @param string                                                   $extensionKey
-     * @param \TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper $dataMapper
+     * @param string $classOrTableName
+     * @param string $extensionKey
+     *
+     * @throws \ReflectionException
      */
     public function __construct(
         string $classOrTableName,
-        string $extensionKey,
-        DataMapper $dataMapper
+        string $extensionKey = null
     ) {
-        $this->dataMapper = $dataMapper;
-        $this->extensionKey = $extensionKey;
-        $this->defaultLabelPath = 'LLL:EXT:'.$this->extensionKey.'/Resources/Private/Language/Backend/Configuration/TCA/';
+        $this->defaultLabelPath = 'LLL:EXT:'.($extensionKey ?? VariableUtility::convertClassNameToExtensionKey($classOrTableName)).'/Resources/Private/Language/Backend/Configuration/TCA/';
 
         if (false !== strpos($classOrTableName, '\\')) {
             $this->className = $classOrTableName;
-            $this->table = $this->dataMapper->convertClassNameToTableName($classOrTableName);
+            $this->table = VariableUtility::convertClassNameToTableName($this->className);
             $this->configuration = $this->getDummyConfiguration($this->table);
             $this->defaultLabelPath .= $this->table.'.xlf:';
             $this->setCtrlProperties([
-                'title' => $this->defaultLabelPath.'tca.title',
+                'title' => $this->defaultLabelPath.'domain.model',
             ]);
         } else {
             $this->table = $classOrTableName;
@@ -353,9 +221,9 @@ class TcaUtility
      *
      * Example:
      * $tempColumns = array_merge(
-     *     $tcaUtility->addColumn(...),
-     *     $tcaUtility->addColumn(...),
-     *     $tcaUtility->addColumn(...)
+     *     $tcaService->addColumn(...),
+     *     $tcaService->addColumn(...),
+     *     $tcaService->addColumn(...)
      * );
      *
      * @param string $property                    name of the database column
@@ -374,55 +242,48 @@ class TcaUtility
         array $customPropertyConfiguration = [],
         bool $autoAddToDefaultType = true
     ): ?array {
-        if (array_key_exists($type, self::FIELD_CONFIGURATIONS)) {
-            if (\in_array($type, self::FAL_PLACEHOLDER_TYPES, true)) {
-                switch ($type) {
-                    case self::FIELD_TYPES['DOCUMENT']:
-                        $allowedFileTypes = 'pdf';
-                        break;
-                    case self::FIELD_TYPES['FILE']:
-                        $allowedFileTypes = '*';
-                        break;
-                    case self::FIELD_TYPES['IMAGE']:
-                        $allowedFileTypes = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
-                        break;
-                    default:
-                        $allowedFileTypes = '';
-                }
+        if (\in_array($type, Fields::FAL_PLACEHOLDER_TYPES, true)) {
+            switch ($type) {
+                case Fields::FIELD_TYPES['DOCUMENT']:
+                    $allowedFileTypes = 'pdf';
+                    break;
+                case Fields::FIELD_TYPES['FILE']:
+                    $allowedFileTypes = '*';
+                    break;
+                case Fields::FIELD_TYPES['IMAGE']:
+                    $allowedFileTypes = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+                    break;
+                default:
+                    $allowedFileTypes = '';
+            }
 
-                /** @noinspection TranslationMissingInspection */
-                $fieldConfiguration = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig(
-                    $property,
-                    [
-                        'appearance' => [
-                            'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference',
-                        ],
-                        'maxitems'   => 9999,
+            /** @noinspection TranslationMissingInspection */
+            $fieldConfiguration = ExtensionManagementUtility::getFileFieldTCAConfig($property,
+                [
+                    'appearance' => [
+                        'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference',
                     ],
-                    $allowedFileTypes
-                );
-            } else {
-                $fieldConfiguration = self::FIELD_CONFIGURATIONS[$type];
-            }
-
-            ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
-            $propertyConfiguration = [
-                'exclude' => 0,
-                'label'   => $this->defaultLabelPath.$property,
-                'config'  => $fieldConfiguration,
-            ];
-
-            ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration, $customPropertyConfiguration);
-            $this->configuration['columns'][$property] = $propertyConfiguration;
-
-            if ($autoAddToDefaultType) {
-                $this->addFieldToType($property);
-            }
-
-            return [$property => $propertyConfiguration];
+                    'maxitems'   => 9999,
+                ], $allowedFileTypes);
+        } else {
+            $fieldConfiguration = Fields::getDefaultConfiguration($type);
         }
 
-        return null;
+        ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
+        $propertyConfiguration = [
+            'exclude' => 0,
+            'label'   => $this->defaultLabelPath.$property,
+            'config'  => $fieldConfiguration,
+        ];
+
+        ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration, $customPropertyConfiguration);
+        $this->configuration['columns'][$property] = $propertyConfiguration;
+
+        if ($autoAddToDefaultType) {
+            $this->addFieldToType($property);
+        }
+
+        return [$property => $propertyConfiguration];
     }
 
     /**
@@ -480,7 +341,7 @@ class TcaUtility
                 $type = $fieldConfig['type'];
                 unset($fieldConfig['type']);
                 $config = $docComment[TcaConfigParser::ANNOTATION_TYPE] ?? [];
-                $this->addColumn($this->dataMapper->convertPropertyNameToColumnName($property->getName(),
+                $this->addColumn(VariableUtility::convertPropertyNameToColumnName($property->getName(),
                     $this->className), $type, $fieldConfig, $config);
             }
         }
