@@ -32,6 +32,7 @@ use InvalidArgumentException;
 use PS\PsFoundation\Exceptions\ImplementationException;
 use PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
 use PS\PsFoundation\Utilities\Cache;
+use PS\PsFoundation\Utilities\VariableUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -65,20 +66,22 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         'SINGLE' => 'single',
     ];
 
-    private const SECTION_DESCRIPTION = 'description';
-    private const SECTION_PACKAGE     = 'package';
-    private const SECTION_PARAM       = 'param';
-    private const SECTION_RETURN      = 'return';
-    private const SECTION_SUMMARY     = 'summary';
-    private const SECTION_THROWS      = 'throws';
-    private const SECTION_VAR         = 'var';
+    private const ANNOTATION_TYPES = [
+        'DESCRIPTION' => 'description',
+        'PACKAGE'     => 'package',
+        'PARAM'       => 'param',
+        'RETURN'      => 'return',
+        'SUMMARY'     => 'summary',
+        'THROWS'      => 'throws',
+        'VAR'         => 'var',
+    ];
 
     /**
      * @var array
      */
     private $addValues = [
-        self::SECTION_PARAM,
-        self::SECTION_THROWS,
+        self::ANNOTATION_TYPES['PARAM'],
+        self::ANNOTATION_TYPES['THROWS'],
     ];
 
     /**
@@ -90,9 +93,9 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      * @var array
      */
     private $singleValues = [
-        self::SECTION_PACKAGE,
-        self::SECTION_RETURN,
-        self::SECTION_VAR,
+        self::ANNOTATION_TYPES['PACKAGE'],
+        self::ANNOTATION_TYPES['RETURN'],
+        self::ANNOTATION_TYPES['VAR'],
     ];
 
     /**
@@ -175,7 +178,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         if ($docComment) {
             $commentLines = preg_split('/(\r\n|\n|\r)/', $reflection->getDocComment());
             $parsedDocComment = [];
-            $section = self::SECTION_SUMMARY;
+            $annotationType = self::ANNOTATION_TYPES['SUMMARY'];
 
             foreach ($commentLines as $commentLine) {
                 $commentLine = ltrim(trim($commentLine), '/* ');
@@ -183,36 +186,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                 if (0 === strpos($commentLine, '@')) {
                     $parts = GeneralUtility::trimExplode(' ', substr($commentLine, 1), true, 2);
                     [$annotationType, $parameters] = $parts;
-
-                    if (isset($this->valueParser[$annotationType])) {
-                        $value = $this->valueParser[$annotationType]->processValue($parameters);
-                    } elseif (null !== $parameters) {
-                        switch ($annotationType) {
-                            case self::SECTION_PARAM:
-                                $parts = GeneralUtility::trimExplode(' ', $parameters, true, 3);
-                                [$variableType, $name, $description] = $parts;
-                                $value = [
-                                    'description' => $description,
-                                    'name'        => $name,
-                                    'type'        => $variableType,
-                                ];
-                                break;
-                            case self::SECTION_RETURN:
-                            case self::SECTION_THROWS:
-                            case self::SECTION_VAR:
-                                $parts = GeneralUtility::trimExplode(' ', $parameters, true, 2);
-                                [$type, $description] = $parts;
-                                $value = [
-                                    'description' => $description,
-                                    'type'        => $type,
-                                ];
-                                break;
-                            default:
-                                $value = $parameters;
-                        }
-                    } else {
-                        $value = [];
-                    }
+                    $value = $this->processValue($annotationType, $parameters);
 
                     if (!isset($parsedDocComment[$annotationType])) {
                         $parsedDocComment[$annotationType] = [];
@@ -248,17 +222,28 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                 } else {
                     // extract summary and description if given
                     if ('' !== $commentLine) {
-                        if (isset($parsedDocComment[$section])) {
-                            $parsedDocComment[$section] .= ' '.$commentLine;
+                        if (isset($parsedDocComment[$annotationType])) {
+                            $parameters = ($parameters ?? '').' '.$commentLine;
+
+                            if (is_array($parsedDocComment[$annotationType]) && VariableUtility::isNumericArray($parsedDocComment[$annotationType])) {
+                                $indexOfLastElement = count($parsedDocComment[$annotationType]) - 1;
+                                $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($parameters,
+                                    $annotationType);
+                            } else {
+                                $parsedDocComment[$annotationType] = $this->processValue($annotationType, $parameters);
+                            }
                         } else {
-                            $parsedDocComment[$section] = $commentLine;
+                            $parameters = $commentLine;
+                            $parsedDocComment[$annotationType] = $parameters;
                         }
+                    } elseif (self::ANNOTATION_TYPES['SUMMARY '] !== $annotationType) {
+                        $annotationType = null;
                     }
 
                     // summary ends with a period or a blank line
-                    if (self::SECTION_SUMMARY === $section && ('.' === substr($commentLine,
-                                -1) || ('' === $commentLine && isset($parsedDocComment[$section])))) {
-                        $section = self::SECTION_DESCRIPTION;
+                    if (self::ANNOTATION_TYPES['SUMMARY '] === $annotationType && ('.' === substr($commentLine,
+                                -1) || ('' === $commentLine && isset($parsedDocComment[$annotationType])))) {
+                        $annotationType = self::ANNOTATION_TYPES['DESCRIPTION'];
                     }
                 }
             }
@@ -267,5 +252,46 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         $cache->set($cacheIdentifier, serialize($parsedDocComment), [], 86400);
 
         return $parsedDocComment;
+    }
+
+    /**
+     * @param string|null $annotationType
+     * @param mixed       $value
+     *
+     * @return mixed
+     */
+    private function processValue(?string $annotationType, $value)
+    {
+        if (isset($this->valueParser[$annotationType])) {
+            return $this->valueParser[$annotationType]->processValue($value);
+        }
+
+        if (null !== $value) {
+            switch ($annotationType) {
+                case self::ANNOTATION_TYPES['PARAM']:
+                    $parts = GeneralUtility::trimExplode(' ', $value, true, 3);
+                    [$variableType, $name, $description] = $parts;
+
+                    return [
+                        'description' => $description,
+                        'name'        => $name,
+                        'type'        => $variableType,
+                    ];
+                case self::ANNOTATION_TYPES['RETURN']:
+                case self::ANNOTATION_TYPES['THROWS']:
+                case self::ANNOTATION_TYPES['VAR']:
+                    $parts = GeneralUtility::trimExplode(' ', $value, true, 2);
+                    [$type, $description] = $parts;
+
+                    return [
+                        'description' => $description,
+                        'type'        => $type,
+                    ];
+                default:
+                    return $value;
+            }
+        } else {
+            return [];
+        }
     }
 }

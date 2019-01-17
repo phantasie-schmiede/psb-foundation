@@ -30,10 +30,10 @@ namespace PS\PsFoundation\Services\Configuration;
 use InvalidArgumentException;
 use PS\PsFoundation\Exceptions\ImplementationException;
 use PS\PsFoundation\Services\Configuration\ValueParsers\ValueParserInterface;
+use PS\PsFoundation\Utilities\VariableUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
  * Class FlexFormService
@@ -50,6 +50,11 @@ class FlexFormService
      * @var string
      */
     private static $extensionKey;
+
+    /**
+     * @var string
+     */
+    private static $pluginName;
 
     /**
      * @var array
@@ -75,7 +80,8 @@ class FlexFormService
     public function __construct(string $extensionKeyOrName, string $pluginName)
     {
         self::setExtensionKey($extensionKeyOrName);
-        $this->setDefaultLabelPath('LLL:EXT:'.self::getExtensionKey().'/Resources/Private/Language/Backend/Configuration/FlexForms/'.$pluginName.'.xlf:');
+        self::setPluginName($pluginName);
+        $this->setDefaultLabelPath('LLL:EXT:'.self::getExtensionKey().'/Resources/Private/Language/Backend/Configuration/FlexForms/'.lcfirst(self::getPluginName()).'.xlf:');
         $this->buildBasicStructure();
     }
 
@@ -93,6 +99,22 @@ class FlexFormService
     public static function setExtensionKey(string $extensionKeyOrName): void
     {
         self::$extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored($extensionKeyOrName);
+    }
+
+    /**
+     * @return string
+     */
+    public static function getPluginName(): string
+    {
+        return self::$pluginName;
+    }
+
+    /**
+     * @param string $pluginName
+     */
+    public static function setPluginName(string $pluginName): void
+    {
+        self::$pluginName = $pluginName;
     }
 
     /**
@@ -145,29 +167,33 @@ class FlexFormService
     }
 
     /**
-     * @param string      $pluginName
-     * @param string      $extensionKeyOrName
+     * @param string|null $pluginName
+     * @param string|null $extensionKeyOrName
      * @param string|null $dataStructure
      */
     public static function register(
-        string $pluginName,
+        string $pluginName = null,
         string $extensionKeyOrName = null,
         string $dataStructure = null
     ): void {
+        if (null !== $pluginName) {
+            self::setPluginName($pluginName);
+        }
+
         if (null !== $extensionKeyOrName) {
             self::setExtensionKey(GeneralUtility::camelCaseToLowerCaseUnderscored($extensionKeyOrName));
         }
 
-        $pluginKey = str_replace('_', '', self::getExtensionKey()).'_'.strtolower($pluginName);
+        $pluginKey = str_replace('_', '', self::getExtensionKey()).'_'.strtolower(self::getPluginName());
 
         if (null === $dataStructure) {
-            $xmlPath = 'EXT:'.self::getExtensionKey().'/Configuration/FlexForms/'.$pluginName.'.xml';
-            /** @noinspection UnsupportedStringOffsetOperationsInspection */
-            $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist'][$pluginKey] = 'pi_flexform';
+            $xmlPath = 'EXT:'.self::getExtensionKey().'/Configuration/FlexForms/'.self::getPluginName().'.xml';
             $xmlFile = file_get_contents(GeneralUtility::getFileAbsFileName($xmlPath));
             $dataStructure = self::replaceMarkers($xmlFile);
         }
 
+        /** @noinspection UnsupportedStringOffsetOperationsInspection */
+        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist'][$pluginKey] = 'pi_flexform';
         ExtensionManagementUtility::addPiFlexFormValue($pluginKey, $dataStructure);
     }
 
@@ -198,14 +224,12 @@ class FlexFormService
         ArrayUtility::mergeRecursiveWithOverrule($config, $customConfig);
 
         $fieldConfiguration = [
-            'TCEforms' => [
-                'config' => $config,
-                'label'  => '',
-            ],
+            'config' => $config,
+            'label'  => $this->defaultLabelPath.$name,
         ];
 
         ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
-        $ds['T3DataStructure']['sheets'][$sheet]['ROOT']['el'][$name] = $fieldConfiguration;
+        $ds['T3DataStructure']['sheets'][$sheet]['ROOT']['el'][$name]['TCEforms'] = $fieldConfiguration;
         $this->setDs($ds);
 
         return $ds;
@@ -218,16 +242,58 @@ class FlexFormService
     public function addSheet(string $name, $title = null): void
     {
         $ds = $this->getDs();
+
         $ds['T3DataStructure']['sheets'][$name] = [
             'ROOT' => [
                 'el'       => [],
                 'TCEforms' => [
-                    'sheetTitle' => $title ?? LocalizationUtility::translate($this->getDefaultLabelPath().$name),
+                    'sheetTitle' => $title ?? $this->getDefaultLabelPath().'sheetTitle.'.$name,
                 ],
                 'type'     => 'array',
             ],
         ];
+
         $this->setDs($ds);
+    }
+
+    /**
+     * @param array $items
+     *
+     * @return array
+     */
+    public function createSelectBoxItems(array $items): array
+    {
+        $index = 0;
+        $preparedItems = ['_attributes' => ['type' => 'array']];
+
+        foreach ($items as $label => $value) {
+            $preparedItems[] = [
+                'numIndex' => [
+                    '_attributes' => [
+                        'index' => $index++,
+                        'type'  => 'array',
+                    ],
+                    [
+                        'numIndex' => [
+                            '_attributes' => [
+                                'index' => 0,
+                            ],
+                            $label,
+                        ],
+                    ],
+                    [
+                        'numIndex' => [
+                            '_attributes' => [
+                                'index' => 1,
+                            ],
+                            $value,
+                        ],
+                    ],
+                ],
+            ];
+        }
+
+        return $preparedItems;
     }
 
     /**
@@ -235,6 +301,7 @@ class FlexFormService
      */
     public function getXml(): string
     {
+        return VariableUtility::convertArrayToXml($this->getDs());
     }
 
     private function buildBasicStructure(): void
@@ -245,7 +312,7 @@ class FlexFormService
                     '_attributes' => [
                         'type' => 'array',
                     ],
-                    'langDisable' => 0,
+                    'langDisable' => 1,
                 ],
                 'sheets' => [],
             ],

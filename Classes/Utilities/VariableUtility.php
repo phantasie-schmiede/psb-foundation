@@ -55,6 +55,44 @@ class VariableUtility
     ];
 
     /**
+     * @param array $array
+     *
+     * @return \SimpleXMLElement|string
+     */
+    public static function convertArrayToXml(array $array)
+    {
+        $xml = '';
+
+        foreach ($array as $key => $value) {
+            if (is_string($key)) {
+                $xml .= '<'.$key;
+
+                if (is_array($value) && isset($value['_attributes']) && is_array($value['_attributes'])) {
+                    foreach ($value['_attributes'] as $attributeName => $attributeValue) {
+                        $xml .= ' '.$attributeName.'="'.$attributeValue.'"';
+                    }
+
+                    unset($value['_attributes']);
+                }
+
+                $xml .= '>';
+            }
+
+            if (is_array($value)) {
+                $xml .= self::convertArrayToXml($value);
+            } else {
+                $xml .= $value;
+            }
+
+            if (is_string($key)) {
+                $xml .= '</'.$key.'>';
+            }
+        }
+
+        return $xml;
+    }
+
+    /**
      * @param string $className
      *
      * @return string
@@ -76,6 +114,7 @@ class VariableUtility
      *
      * @return string
      * @throws \ReflectionException
+     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
     public static function convertClassNameToTableName(string $className): string
     {
@@ -135,6 +174,7 @@ class VariableUtility
      *
      * @return string
      * @throws \ReflectionException
+     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
     public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
@@ -181,5 +221,15 @@ class VariableUtility
             default:
                 return $variable;
         }
+    }
+
+    /**
+     * @param array $array
+     *
+     * @return bool
+     */
+    public static function isNumericArray(array $array): bool
+    {
+        return 0 < count(array_filter($array, 'is_numeric', ARRAY_FILTER_USE_KEY));
     }
 }
