@@ -27,8 +27,11 @@ namespace PS\PsFoundation\Utilities;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
 use PS\PsFoundation\Services\DocComment\DocCommentParserService;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
+use RuntimeException;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -53,6 +56,16 @@ class VariableUtility
         'ZB' => 7,
         'YB' => 8,
     ];
+
+    /**
+     * @param $url
+     *
+     * @return string
+     */
+    public static function cleanUrl($url): string
+    {
+        return html_entity_decode(urldecode($url));
+    }
 
     /**
      * @param array $array
@@ -114,7 +127,6 @@ class VariableUtility
      *
      * @return string
      * @throws \ReflectionException
-     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
     public static function convertClassNameToTableName(string $className): string
     {
@@ -174,7 +186,6 @@ class VariableUtility
      *
      * @return string
      * @throws \ReflectionException
-     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
     public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
@@ -195,7 +206,7 @@ class VariableUtility
      */
     public static function convertString(?string $variable, $convertEmptyStringToNull = false)
     {
-        if ($convertEmptyStringToNull && '' === $variable) {
+        if (null === $variable || ($convertEmptyStringToNull && '' === $variable)) {
             return null;
         }
 
@@ -208,6 +219,18 @@ class VariableUtility
         }
 
         if (0 < strpos($variable, '::')) {
+            $pattern = '/\[\'?(\w*)\'?\]/';
+            if (0 < preg_match_all($pattern, $variable, $matches)) {
+                $variable = constant(preg_replace($pattern, '', $variable));
+
+                try {
+                    return ArrayUtility::getValueByPath($variable, $matches[1]);
+                } catch (Exception $e) {
+                    throw new RuntimeException('Path "'.implode('->', $matches[1]).'" does not exist in array!',
+                        1548170593);
+                }
+            }
+
             return constant($variable);
         }
 
@@ -221,6 +244,16 @@ class VariableUtility
             default:
                 return $variable;
         }
+    }
+
+    /**
+     * @param string $data
+     *
+     * @return string
+     */
+    public static function createHash(string $data): string
+    {
+        return hash('sha256', $data);
     }
 
     /**

@@ -15,9 +15,9 @@ page {
     20 = {$plugin.tx_psfoundation.settings.resourcePath}JavaScript/Vendors/bootstrap.bundle.min.js
   }
 
-#  includeJSFooter {
-#    app = {$plugin.tx_psfoundation.settings.resourcePath}JavaScript/App.js
-#  }
+  #includeJSFooter {
+  #  app = {$plugin.tx_psfoundation.settings.resourcePath}JavaScript/App.js
+  #}
 
   10 = FLUIDTEMPLATE
   10 {

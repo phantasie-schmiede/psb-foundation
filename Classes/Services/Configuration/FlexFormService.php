@@ -167,21 +167,21 @@ class FlexFormService
     }
 
     /**
-     * @param string|null $pluginName
-     * @param string|null $extensionKeyOrName
      * @param string|null $dataStructure
+     * @param string|null $extensionKeyOrName
+     * @param string|null $pluginName
      */
     public static function register(
-        string $pluginName = null,
+        string $dataStructure = null,
         string $extensionKeyOrName = null,
-        string $dataStructure = null
+        string $pluginName = null
     ): void {
-        if (null !== $pluginName) {
-            self::setPluginName($pluginName);
-        }
-
         if (null !== $extensionKeyOrName) {
             self::setExtensionKey(GeneralUtility::camelCaseToLowerCaseUnderscored($extensionKeyOrName));
+        }
+
+        if (null !== $pluginName) {
+            self::setPluginName($pluginName);
         }
 
         $pluginKey = str_replace('_', '', self::getExtensionKey()).'_'.strtolower(self::getPluginName());

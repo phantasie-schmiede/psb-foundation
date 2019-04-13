@@ -79,10 +79,13 @@ class TcaService
     private $table;
 
     /**
-     * @param string $classOrTableName
-     * @param string $extensionKey
+     * TcaService constructor.
+     *
+     * @param string      $classOrTableName
+     * @param string|null $extensionKey
      *
      * @throws \ReflectionException
+     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
      */
     public function __construct(
         string $classOrTableName,
@@ -330,7 +333,6 @@ class TcaService
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $docCommentParserService = $objectManager->get(DocCommentParserService::class);
 
-        /** @var \ReflectionClass $reflection */
         $reflection = GeneralUtility::makeInstance(\ReflectionClass::class, $this->className);
         $properties = $reflection->getProperties();
 
