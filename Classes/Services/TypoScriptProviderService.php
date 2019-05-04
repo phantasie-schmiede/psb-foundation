@@ -1,11 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace PS\PsFoundation\Services;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
  *
  *  All rights reserved
  *
@@ -26,11 +27,14 @@ namespace PS\PsFoundation\Services;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PS\PsFoundation\Traits\Injections\ObjectManagerStaticTrait;
 use PS\PsFoundation\Utilities\VariableUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use stdClass;
+use TYPO3\CMS\Core\TypoScript\TemplateService;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
  * Class TypoScriptProviderService
@@ -38,31 +42,47 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class TypoScriptProviderService
 {
+    use ObjectManagerStaticTrait;
+
+    /**
+     * @var bool
+     */
+    public static $fullTypoScriptAvailable = false;
+
     /**
      * @param string      $configurationType
      * @param string|null $extensionName
      * @param string|null $pluginName
      *
      * @return array|null
-     * @throws \TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException
+     * @throws InvalidConfigurationTypeException
      */
     public static function getTypoScriptConfiguration(
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
         string $extensionName = null,
         string $pluginName = null
     ): ?array {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $configurationManager = $objectManager->get(ConfigurationManager::class);
-        $typoScript = $configurationManager->getConfiguration($configurationType, $extensionName, $pluginName);
+        $configurationManager = self::getObjectManager()->get(ConfigurationManager::class);
+        $typoScript = null;
 
-        if (!\is_array($typoScript)) {
+        // RootlineUtility:286 requires $GLOBALS['TCA'] to be set
+        if (null !== $GLOBALS['TCA']) {
+            $typoScript = $configurationManager->getConfiguration($configurationType, $extensionName, $pluginName);
+            self::$fullTypoScriptAvailable = true;
+        }
+
+        if (!is_array($typoScript)) {
+            $typoScript = self::generateTypoScript($configurationType, $extensionName, $pluginName);
+        }
+
+        if (null === $typoScript) {
             return null;
         }
 
-        $typoScriptService = $objectManager->get(\TYPO3\CMS\Core\TypoScript\TypoScriptService::class);
+        $typoScriptService = self::getObjectManager()->get(TypoScriptService::class);
         $convertedTypoScript = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
 
-        array_walk_recursive($convertedTypoScript, function (&$item) {
+        array_walk_recursive($convertedTypoScript, static function (&$item) {
             // if constants are unset
             if (0 === strpos($item, '{$')) {
                 $item = null;
@@ -72,5 +92,62 @@ class TypoScriptProviderService
         });
 
         return $convertedTypoScript;
+    }
+
+    /**
+     * This function is used, when TS is needed, but not yet provided by the general TYPO3 bootstrap process, e.g. in
+     * ext_localconf.php. Results may differ from those returned by the ConfigurationManager later on, so check the
+     * outcome carefully!
+     *
+     * @param string      $configurationType
+     * @param string|null $extensionName
+     * @param string|null $pluginName
+     *
+     * @return array
+     */
+    private static function generateTypoScript(
+        string $configurationType,
+        string $extensionName = null,
+        string $pluginName = null
+    ): array {
+        if (null === $GLOBALS['TSFE']) {
+            // fill $GLOBALS['TSFE'] with an empty object because in TemplateService:558 an object is assumed
+            $GLOBALS['TSFE'] = new stdClass();
+            $resetTsfe = true;
+        }
+
+        $templateService = self::getObjectManager()->get(TemplateService::class);
+        $templateService->tt_track = false;
+        $templateService->init();
+        $templateService->runThroughTemplates([['uid' => 1]]);
+        $templateService->generateConfig();
+
+        $typoScript = $templateService->setup;
+
+        if ($resetTsfe ?? false) {
+            $GLOBALS['TSFE'] = null;
+        }
+
+        if (null !== $extensionName) {
+            $key = 'tx_'.strtolower($extensionName);
+
+            if (null !== $pluginName) {
+                $key .= '_'.strtolower($pluginName);
+            }
+
+            $key .= '.';
+        }
+
+        switch ($configurationType) {
+            case ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK:
+                return $typoScript['plugin.'][$key];
+                break;
+            case ConfigurationManager::CONFIGURATION_TYPE_SETTINGS:
+                return $typoScript['plugin.'][$key]['settings.'];
+                break;
+            default:
+                return $typoScript;
+                break;
+        }
     }
 }

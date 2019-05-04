@@ -6,7 +6,7 @@ namespace PS\PsFoundation\Services\Configuration;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
  *
  *  All rights reserved
  *
@@ -33,12 +33,16 @@ use PS\PsFoundation\Exceptions\UnsetPropertyException;
 use PS\PsFoundation\Services\DocComment\DocCommentParserService;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
+use PS\PsFoundation\Traits\Injections\ObjectManagerTrait;
 use PS\PsFoundation\Utilities\VariableUtility;
+use ReflectionClass;
+use ReflectionException;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use function count;
 
 /**
  * Class TcaService
@@ -46,6 +50,8 @@ use TYPO3\CMS\Extbase\Persistence\QueryInterface;
  */
 class TcaService
 {
+    use ObjectManagerTrait;
+
     private const PROTECTED_COLUMNS = [
         'crdate',
         'pid',
@@ -84,26 +90,26 @@ class TcaService
      * @param string      $classOrTableName
      * @param string|null $extensionKey
      *
-     * @throws \ReflectionException
-     * @throws \TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException
+     * @throws ReflectionException
+     * @throws NoSuchCacheException
      */
     public function __construct(
         string $classOrTableName,
         string $extensionKey = null
     ) {
-        $this->defaultLabelPath = 'LLL:EXT:'.($extensionKey ?? VariableUtility::convertClassNameToExtensionKey($classOrTableName)).'/Resources/Private/Language/Backend/Configuration/TCA/';
+        $this->setDefaultLabelPath('LLL:EXT:'.($extensionKey ?? VariableUtility::convertClassNameToExtensionKey($classOrTableName)).'/Resources/Private/Language/Backend/Configuration/TCA/');
 
         if (false !== strpos($classOrTableName, '\\')) {
             $this->className = $classOrTableName;
             $this->table = VariableUtility::convertClassNameToTableName($this->className);
             $this->configuration = $this->getDummyConfiguration($this->table);
-            $this->defaultLabelPath .= $this->table.'.xlf:';
+            $this->setDefaultLabelPath($this->getDefaultLabelPath().$this->table.'.xlf:');
             $this->setCtrlProperties([
-                'title' => $this->defaultLabelPath.'domain.model',
+                'title' => $this->getDefaultLabelPath().'domain.model',
             ]);
         } else {
             $this->table = $classOrTableName;
-            $this->defaultLabelPath .= 'Overrides/'.$this->table.'.xlf:';
+            $this->setDefaultLabelPath($this->getDefaultLabelPath().'Overrides/'.$this->table.'.xlf:');
             $this->configuration = $GLOBALS['TCA'][$this->table];
         }
 
@@ -131,7 +137,7 @@ class TcaService
             if ('' === $this->configuration['types'][0]) {
                 $columns = array_keys($this->configuration['columns']);
                 foreach ($columns as $column) {
-                    if (!\in_array($column, $this->getPreDefinedColumns(), true)) {
+                    if (!in_array($column, $this->getPreDefinedColumns(), true)) {
                         $this->addFieldToType($column);
                     }
                 }
@@ -185,6 +191,22 @@ class TcaService
         }
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultLabelPath(): string
+    {
+        return $this->defaultLabelPath;
+    }
+
+    /**
+     * @param string $defaultLabelPath
+     */
+    public function setDefaultLabelPath(string $defaultLabelPath): void
+    {
+        $this->defaultLabelPath = $defaultLabelPath;
     }
 
     /**
@@ -245,7 +267,7 @@ class TcaService
         array $customPropertyConfiguration = [],
         bool $autoAddToDefaultType = true
     ): ?array {
-        if (\in_array($type, Fields::FAL_PLACEHOLDER_TYPES, true)) {
+        if (in_array($type, Fields::FAL_PLACEHOLDER_TYPES, true)) {
             switch ($type) {
                 case Fields::FIELD_TYPES['DOCUMENT']:
                     $allowedFileTypes = 'pdf';
@@ -275,7 +297,7 @@ class TcaService
         ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
         $propertyConfiguration = [
             'exclude' => 0,
-            'label'   => $this->defaultLabelPath.$property,
+            'label'   => $this->getDefaultLabelPath().$property,
             'config'  => $fieldConfiguration,
         ];
 
@@ -311,7 +333,7 @@ class TcaService
     public function addType(string $fieldList, int $index = null): void
     {
         if (null === $index) {
-            if (\count($this->configuration['types']) > 0) {
+            if (count($this->configuration['types']) > 0) {
                 $index = max(array_keys($this->configuration['types'])) + 1;
             } else {
                 $index = 0;
@@ -330,10 +352,9 @@ class TcaService
                 1541351524);
         }
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $docCommentParserService = $objectManager->get(DocCommentParserService::class);
+        $docCommentParserService = $this->getObjectManager()->get(DocCommentParserService::class);
 
-        $reflection = GeneralUtility::makeInstance(\ReflectionClass::class, $this->className);
+        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $this->className);
         $properties = $reflection->getProperties();
 
         foreach ($properties as $property) {
@@ -549,7 +570,7 @@ class TcaService
                     1541107594);
             }
 
-            if (\in_array($this->configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
+            if (in_array($this->configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
                 throw new MisconfiguredTcaException($this->table.': Your current configuration would overwrite a reserved system column with sorting values!',
                     1541107601);
             }

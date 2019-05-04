@@ -6,7 +6,7 @@ namespace PS\PsFoundation\ViewHelpers;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
  *
  *  All rights reserved
  *
@@ -27,36 +27,46 @@ namespace PS\PsFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
 use PS\PsFoundation\Services\GlobalVariableService;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * Class RenderViewHelper
+ * Class GlobalVariablesViewHelper
  * @package PS\PsFoundation\ViewHelpers
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+class GlobalVariablesViewHelper extends AbstractViewHelper
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
+     * @return null|void
+     * @throws InvalidConfigurationTypeException
+     */
+    public function render(): void
+    {
+        static::renderStatic([], $this->buildRenderChildrenClosure(), $this->renderingContext);
+    }
+
+    /**
+     * @param array $arguments
+     * @param \Closure $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
      *
-     * @return mixed
+     * @throws InvalidConfigurationTypeException
      */
     public static function renderStatic(
         array $arguments,
-        Closure $renderChildrenClosure,
+        \Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+    ): void {
+        if (!$renderingContext->getVariableProvider()->exists('mandator')) {
+            $globalVariables = GlobalVariableService::getGlobalVariables();
 
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
+            foreach ($globalVariables as $key => $value) {
+                if (!$renderingContext->getVariableProvider()->exists($key)) {
+                    $renderingContext->getVariableProvider()->add($key, $value);
+                }
             }
         }
-
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
     }
 }

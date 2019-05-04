@@ -1,11 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace PS\PsFoundation\TypoScript\Conditions;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
  *
  *  All rights reserved
  *
@@ -29,6 +30,10 @@ namespace PS\PsFoundation\TypoScript\Conditions;
 use TYPO3\CMS\Core\Configuration\TypoScript\ConditionMatching\AbstractCondition;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
+/**
+ * Class ExtensionsLoadedCondition
+ * @package PS\PsFoundation\TypoScript\Conditions
+ */
 class ExtensionsLoadedCondition extends AbstractCondition
 {
     /**

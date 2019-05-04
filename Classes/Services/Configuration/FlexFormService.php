@@ -27,13 +27,16 @@ namespace PS\PsFoundation\Services\Configuration;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
 use InvalidArgumentException;
 use PS\PsFoundation\Exceptions\ImplementationException;
 use PS\PsFoundation\Services\Configuration\ValueParsers\ValueParserInterface;
-use PS\PsFoundation\Utilities\VariableUtility;
+use PS\PsFoundation\Utilities\XmlUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function defined;
+use function get_class;
 
 /**
  * Class FlexFormService
@@ -44,7 +47,7 @@ class FlexFormService
     /**
      * @var string
      */
-    private const DEFAULT_SHEET = 'sDEF';
+    public const DEFAULT_SHEET = 'sDEF';
 
     /**
      * @var string
@@ -152,12 +155,12 @@ class FlexFormService
     /**
      * @param ValueParserInterface $parser Instance of your custom parser class
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public static function addValueParser(ValueParserInterface $parser): void
     {
-        if (!\defined(\get_class($parser).'::MARKER_TYPE')) {
-            throw new ImplementationException(\get_class($parser).' has to define a constant named MARKER_TYPE!',
+        if (!defined(get_class($parser).'::MARKER_TYPE')) {
+            throw new ImplementationException(get_class($parser).' has to define a constant named MARKER_TYPE!',
                 1547211801);
         }
 
@@ -261,7 +264,7 @@ class FlexFormService
      *
      * @return array
      */
-    public function createSelectBoxItems(array $items): array
+    public static function createSelectBoxItems(array $items): array
     {
         $index = 0;
         $preparedItems = ['_attributes' => ['type' => 'array']];
@@ -301,7 +304,7 @@ class FlexFormService
      */
     public function getXml(): string
     {
-        return VariableUtility::convertArrayToXml($this->getDs());
+        return XmlUtility::convertArrayToXml($this->getDs());
     }
 
     private function buildBasicStructure(): void

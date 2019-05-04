@@ -6,7 +6,7 @@ namespace PS\PsFoundation\Utilities;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
  *
  *  All rights reserved
  *
@@ -28,8 +28,11 @@ namespace PS\PsFoundation\Utilities;
  ***************************************************************/
 
 use Exception;
+use InvalidArgumentException;
 use PS\PsFoundation\Services\DocComment\DocCommentParserService;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
+use PS\PsFoundation\Traits\Injections\ObjectManagerStaticTrait;
+use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -41,6 +44,8 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class VariableUtility
 {
+    use ObjectManagerStaticTrait;
+
     /**
      * Although calculated on a base of 2, the average user might be confused when he is shown the technically correct
      * unit names like KiB, MiB or GiB. Hence the inaccurate, "old" units are being used.
@@ -68,44 +73,6 @@ class VariableUtility
     }
 
     /**
-     * @param array $array
-     *
-     * @return \SimpleXMLElement|string
-     */
-    public static function convertArrayToXml(array $array)
-    {
-        $xml = '';
-
-        foreach ($array as $key => $value) {
-            if (is_string($key)) {
-                $xml .= '<'.$key;
-
-                if (is_array($value) && isset($value['_attributes']) && is_array($value['_attributes'])) {
-                    foreach ($value['_attributes'] as $attributeName => $attributeValue) {
-                        $xml .= ' '.$attributeName.'="'.$attributeValue.'"';
-                    }
-
-                    unset($value['_attributes']);
-                }
-
-                $xml .= '>';
-            }
-
-            if (is_array($value)) {
-                $xml .= self::convertArrayToXml($value);
-            } else {
-                $xml .= $value;
-            }
-
-            if (is_string($key)) {
-                $xml .= '</'.$key.'>';
-            }
-        }
-
-        return $xml;
-    }
-
-    /**
      * @param string $className
      *
      * @return string
@@ -118,7 +85,7 @@ class VariableUtility
             return GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]);
         }
 
-        throw new \InvalidArgumentException(self::class.': '.$className.' is not a full qualified (namespaced) class name!',
+        throw new InvalidArgumentException(self::class.': '.$className.' is not a full qualified (namespaced) class name!',
             1547120513);
     }
 
@@ -126,12 +93,11 @@ class VariableUtility
      * @param string $className
      *
      * @return string
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function convertClassNameToTableName(string $className): string
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $docCommentParserService = $objectManager->get(DocCommentParserService::class);
+        $docCommentParserService = self::getObjectManager()->get(DocCommentParserService::class);
         $docComment = $docCommentParserService->parsePhpDocComment($className);
 
         if (isset($docComment[TcaMappingParser::ANNOTATION_TYPE]['table'])) {
@@ -185,13 +151,12 @@ class VariableUtility
      * @param string|null $className
      *
      * @return string
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
         if (null !== $className) {
-            $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-            $docCommentParserService = $objectManager->get(DocCommentParserService::class);
+            $docCommentParserService = self::getObjectManager()->get(DocCommentParserService::class);
             $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
         }
 
@@ -219,14 +184,16 @@ class VariableUtility
         }
 
         if (0 < strpos($variable, '::')) {
-            $pattern = '/\[\'?(\w*)\'?\]/';
-            if (0 < preg_match_all($pattern, $variable, $matches)) {
-                $variable = constant(preg_replace($pattern, '', $variable));
+            if (0 < preg_match_all('/\[\'?(.*)\'?(\](?=[\[])|\]$)/U', $variable, $matches)) {
+                $matches = array_map(static function ($value) {
+                    return self::convertString(trim($value, '\''));
+                }, $matches[1]);
+                $variable = constant(preg_replace('/\[\'?(.*)\'?\]/', '', $variable));
 
                 try {
-                    return ArrayUtility::getValueByPath($variable, $matches[1]);
+                    return ArrayUtility::getValueByPath($variable, $matches);
                 } catch (Exception $e) {
-                    throw new RuntimeException('Path "'.implode('->', $matches[1]).'" does not exist in array!',
+                    throw new RuntimeException('Path "'.implode('->', $matches).'" does not exist in array!',
                         1548170593);
                 }
             }
@@ -254,6 +221,27 @@ class VariableUtility
     public static function createHash(string $data): string
     {
         return hash('sha256', $data);
+    }
+
+    /**
+     * @param array $array
+     * @param array $elements
+     * @param int   $index
+     *
+     * @return array
+     */
+    public static function insertIntoArray(array $array, array $elements, int $index): array
+    {
+        if (self::isNumericArray($array)) {
+            $combinedArray = [];
+            array_push($combinedArray, ...array_slice($array, 0, $index), ...$elements,
+                ...array_slice($array, $index));
+
+            return $combinedArray;
+        }
+
+        /** @noinspection AdditionOperationOnArraysInspection */
+        return array_slice($array, 0, $index, true) + $elements + array_slice($array, $index, null, true);
     }
 
     /**

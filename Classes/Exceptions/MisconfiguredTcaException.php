@@ -6,7 +6,7 @@ namespace PS\PsFoundation\Exceptions;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
  *
  *  All rights reserved
  *
@@ -26,6 +26,11 @@ namespace PS\PsFoundation\Exceptions;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
+/**
+ * Class MisconfiguredTcaException
+ * @package PS\PsFoundation\Exceptions
+ */
 class MisconfiguredTcaException extends BaseException
 {
 }

@@ -27,6 +27,9 @@ namespace PS\PsFoundation\Services\Configuration;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use InvalidArgumentException;
+use function in_array;
+
 /**
  * Class Fields
  * @package PS\PsFoundation\Services\Configuration
@@ -40,6 +43,7 @@ class Fields
         'DOCUMENT'    => 'document',
         'FILE'        => 'file',
         'FLOAT'       => 'float',
+        'GROUP'       => 'group',
         'IMAGE'       => 'image',
         'INLINE'      => 'inline',
         'INTEGER'     => 'integer',
@@ -83,6 +87,14 @@ class Fields
             'eval' => 'double2',
             'size' => 20,
             'type' => 'input',
+        ],
+        'group'       => [
+            'allowed'       => 'pages',
+            'internal_type' => 'db',
+            'maxitems'      => 1,
+            'minitems'      => 0,
+            'size'          => 3,
+            'type'          => 'group',
         ],
         'image'       => [],
         'inline'      => [
@@ -159,8 +171,8 @@ class Fields
      */
     public static function checkFieldType(string $type): void
     {
-        if (!\in_array($type, self::FIELD_TYPES, true)) {
-            throw new \InvalidArgumentException(self::class.': Value for type must be one of those defined in constant FIELD_TYPES!',
+        if (!in_array($type, self::FIELD_TYPES, true)) {
+            throw new InvalidArgumentException(self::class.': Value for type must be one of those defined in constant FIELD_TYPES!',
                 1547452924);
         }
     }

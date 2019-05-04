@@ -47,8 +47,7 @@ trait ObjectManagerTrait
     protected function getObjectManager(): ObjectManager
     {
         if (!$this->objectManager instanceof ObjectManager) {
-            $this->setObjectManager(GeneralUtility::makeInstance(ObjectManager::class)
-                ->get(ObjectManager::class));
+            $this->setObjectManager(GeneralUtility::makeInstance(ObjectManager::class));
         }
 
         return $this->objectManager;

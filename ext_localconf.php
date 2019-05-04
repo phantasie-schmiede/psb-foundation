@@ -1,8 +1,9 @@
 <?php
+/** @noinspection PhpFullyQualifiedNameUsageInspection */
 defined('TYPO3_MODE') or die();
 
 call_user_func(
-    function ($extKey) {
+    static function ($extKey) {
         \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
              <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extKey.'/Configuration/TSConfig/PageTS.typoscript">
         ');

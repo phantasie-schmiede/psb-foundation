@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace PS\PsFoundation\Services\Configuration\ValueParsers;
 
@@ -26,6 +27,8 @@ namespace PS\PsFoundation\Services\Configuration\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
+use InvalidArgumentException;
 use PS\PsFoundation\Services\TypoScriptProviderService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -42,7 +45,7 @@ class TypoScriptParser implements ValueParserInterface
      * @param string|null $value
      *
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function processValue(?string $value)
     {
@@ -56,8 +59,8 @@ class TypoScriptParser implements ValueParserInterface
 
         try {
             $result = ArrayUtility::getValueByPath($typoscript, $typoScriptPath, '.');
-        } catch (\Exception $e) {
-            throw new \InvalidArgumentException(self::class.': FlexForm marker '.self::MARKER_TYPE.' must be followed by a valid TypoScript path!',
+        } catch (Exception $e) {
+            throw new InvalidArgumentException(self::class.': FlexForm marker '.self::MARKER_TYPE.' must be followed by a valid TypoScript path!',
                 1547210715);
         }
 

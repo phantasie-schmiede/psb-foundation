@@ -1,11 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace PS\PsFoundation\Services;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
  *
  *  All rights reserved
  *
@@ -27,6 +28,7 @@ namespace PS\PsFoundation\Services;
  ***************************************************************/
 
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use function count;
 
 /**
  * Class GlobalVariableService
@@ -35,7 +37,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 class GlobalVariableService
 {
     /**
-     * @var array<\PS\PsFoundation\Services\GlobalVariableProviderInterface>
+     * @var array
      */
     protected static $globalVariableProviders = [];
 
@@ -57,7 +59,7 @@ class GlobalVariableService
      */
     public static function getGlobalVariables(): array
     {
-        if (0 === \count(self::$globalVariables)) {
+        if (0 === count(self::$globalVariables)) {
             /** @var GlobalVariableProviderInterface $globalVariableProvider */
             foreach (self::$globalVariableProviders as $globalVariableProvider) {
                 ArrayUtility::mergeRecursiveWithOverrule(self::$globalVariables,

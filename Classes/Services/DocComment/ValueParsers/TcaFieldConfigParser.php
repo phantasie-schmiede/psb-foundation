@@ -1,11 +1,12 @@
 <?php
+declare(strict_types=1);
 
 namespace PS\PsFoundation\Services\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
  *
  *  All rights reserved
  *
@@ -46,7 +47,7 @@ class TcaFieldConfigParser extends AbstractValuePairsParser
 
         // transform associative array to simple array for TCA
         if ('select' === $result['type'] && isset ($result['items']) && is_array($result['items'])) {
-            $result['items'] = array_map(function ($key, $value) {
+            $result['items'] = array_map(static function ($key, $value) {
                 return [ucwords(str_replace('_', ' ', strtolower($key))), $value];
             }, array_keys($result['items']), array_values($result['items']));
         }

@@ -6,7 +6,7 @@ namespace PS\PsFoundation\Services\DocComment;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
  *
  *  All rights reserved
  *
@@ -31,13 +31,16 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use InvalidArgumentException;
 use PS\PsFoundation\Exceptions\ImplementationException;
 use PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
-use PS\PsFoundation\Utilities\Cache;
 use PS\PsFoundation\Utilities\VariableUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use ReflectionException;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function get_class;
+use function in_array;
+use function is_string;
 
 /**
  * Class ParserService
@@ -115,8 +118,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         ValueParserInterface $parser,
         string $valueType
     ): void {
-        if (!\defined(\get_class($parser).'::ANNOTATION_TYPE')) {
-            throw new ImplementationException(\get_class($parser).' has to define a constant named ANNOTATION_TYPE!',
+        if (!\defined(get_class($parser).'::ANNOTATION_TYPE')) {
+            throw new ImplementationException(get_class($parser).' has to define a constant named ANNOTATION_TYPE!',
                 1541107562);
         }
 
@@ -147,7 +150,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      * @param string|null   $methodOrPropertyName
      *
      * @return array|null
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function parsePhpDocComment($class, string $methodOrPropertyName = null): ?array
     {
@@ -184,16 +187,16 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                     }
 
                     switch (true) {
-                        case (\in_array($annotationType, $this->addValues, true)):
+                        case (in_array($annotationType, $this->addValues, true)):
                             $parsedDocComment[$annotationType][] = $value;
                             break;
-                        case (\in_array($annotationType, $this->mergeValues, true)):
+                        case (in_array($annotationType, $this->mergeValues, true)):
                             ArrayUtility::mergeRecursiveWithOverrule($parsedDocComment[$annotationType], $value);
                             break;
-                        case (\in_array($annotationType, $this->singleValues, true)):
+                        case (in_array($annotationType, $this->singleValues, true)):
                             if ([] !== $parsedDocComment[$annotationType]) {
-                                if (!\is_string($class)) {
-                                    $class = \get_class($class);
+                                if (!is_string($class)) {
+                                    $class = get_class($class);
                                 }
 
                                 $warning = '@'.$annotationType.' has been overridden in '.$class;

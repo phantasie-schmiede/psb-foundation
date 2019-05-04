@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\Configuration\ValueParsers;
+namespace PS\PsFoundation\Traits\Injections;
 
 /***************************************************************
  *  Copyright notice
@@ -27,21 +27,37 @@ namespace PS\PsFoundation\Services\Configuration\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\SingletonInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
- * Interface ValueParserInterface
- *
- * Your parser class also has to define a constant named MARKER_TYPE (the part bewteen the beginning "###" and ":").
- *
- * @package PS\PsFoundation\Services\Configuration\ValueParsers
+ * Trait ObjectManagerStaticTrait
+ * @package PS\PsFoundation\Traits\Injections
  */
-interface ValueParserInterface extends SingletonInterface
+trait ObjectManagerStaticTrait
 {
     /**
-     * @param string|null $value
-     *
-     * @return mixed
+     * @var ObjectManager
      */
-    public function processValue(?string $value);
+    private static $objectManager;
+
+    /**
+     * @return ObjectManager
+     */
+    protected static function getObjectManager(): ObjectManager
+    {
+        if (!self::$objectManager instanceof ObjectManager) {
+            self::setObjectManager(GeneralUtility::makeInstance(ObjectManager::class));
+        }
+
+        return self::$objectManager;
+    }
+
+    /**
+     * @param ObjectManager $objectManager
+     */
+    private static function setObjectManager(ObjectManager $objectManager): void
+    {
+        self::$objectManager = $objectManager;
+    }
 }

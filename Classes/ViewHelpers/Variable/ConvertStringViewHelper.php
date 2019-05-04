@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\Configuration\ValueParsers;
+namespace PS\PsFoundation\ViewHelpers\Variable;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
  *
  *  All rights reserved
  *
@@ -27,21 +27,32 @@ namespace PS\PsFoundation\Services\Configuration\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\SingletonInterface;
+use PS\PsFoundation\Utilities\VariableUtility;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 /**
- * Interface ValueParserInterface
- *
- * Your parser class also has to define a constant named MARKER_TYPE (the part bewteen the beginning "###" and ":").
- *
- * @package PS\PsFoundation\Services\Configuration\ValueParsers
+ * Class ConvertStringViewHelper
+ * @package PS\PsFoundation\ViewHelpers
  */
-interface ValueParserInterface extends SingletonInterface
+class ConvertStringViewHelper extends AbstractViewHelper
 {
     /**
-     * @param string|null $value
-     *
-     * @return mixed
+     * @throws Exception
      */
-    public function processValue(?string $value);
+    public function initializeArguments(): void
+    {
+        parent::initializeArguments();
+        $this->registerArgument('string', 'string', 'string to be converted');
+    }
+
+    /**
+     * @return bool|float|int|string|null
+     */
+    public function render()
+    {
+        $string = $this->arguments['string'];
+
+        return VariableUtility::convertString($string);
+    }
 }

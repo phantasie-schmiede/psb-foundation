@@ -27,9 +27,15 @@ namespace PS\PsFoundation\Controller;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use InvalidArgumentException;
 use PS\PsFoundation\Domain\Repository\AbstractRepository;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
+use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
+use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 
 /**
  * Class AbstractController
@@ -93,9 +99,9 @@ class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
+     * @throws StopActionException
+     * @throws UnsupportedRequestTypeException
+     * @throws IllegalObjectTypeException
      */
     public function createAction(AbstractEntity $record): void
     {
@@ -106,9 +112,9 @@ class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
+     * @throws StopActionException
+     * @throws UnsupportedRequestTypeException
+     * @throws IllegalObjectTypeException
      */
     public function deleteAction(AbstractEntity $record): void
     {
@@ -128,12 +134,12 @@ class AbstractController extends ActionController
     }
 
     /**
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
+     * @throws NoSuchArgumentException
      */
     public function initializeAction(): void
     {
         if ($this->request->hasArgument('record') && get_class($this->request->getArgument('record')) !== $this->getDomainModel(true)) {
-            throw new \InvalidArgumentException(__CLASS__.': Argument "record" has to be an instance of '.$this->getDomainModel(true),
+            throw new InvalidArgumentException(__CLASS__.': Argument "record" has to be an instance of '.$this->getDomainModel(true),
                 1551301206);
         }
     }
@@ -168,10 +174,10 @@ class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
+     * @throws StopActionException
+     * @throws UnsupportedRequestTypeException
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException
      */
     public function updateAction(AbstractEntity $record): void
     {
