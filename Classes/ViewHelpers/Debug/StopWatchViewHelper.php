@@ -27,7 +27,7 @@ namespace PS\PsFoundation\ViewHelpers\Debug;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Traits\Injections\ObjectManagerTrait;
+use PS\PsFoundation\Traits\InjectionTrait;
 use PS\PsFoundation\Utilities\Debug\StopWatchUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
@@ -37,7 +37,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  */
 class StopWatchViewHelper extends AbstractViewHelper
 {
-    use ObjectManagerTrait;
+    use InjectionTrait;
 
     /**
      * @var bool
@@ -56,7 +56,7 @@ class StopWatchViewHelper extends AbstractViewHelper
      */
     public function render()
     {
-        $stopWatch = $this->getObjectManager()->get(StopWatchUtility::class, $this->arguments['header'],
+        $stopWatch = $this->get(StopWatchUtility::class, $this->arguments['header'],
             $this->arguments['precision']);
         $stopWatch->start();
         $output = $this->renderChildren();

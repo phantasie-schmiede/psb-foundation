@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Traits\Injections;
+namespace PS\PsFoundation\Traits;
 
 /***************************************************************
  *  Copyright notice
@@ -31,33 +31,29 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
- * Trait ObjectManagerTrait
- * @package PS\PsFoundation\Traits\Injections
+ * Trait StaticInjectionTrait
+ * @package PS\PsFoundation\Traits
  */
-trait ObjectManagerTrait
+trait StaticInjectionTrait
 {
     /**
-     * @var ObjectManager
+     * @var array
      */
-    private $objectManager;
+    private static $instances = [];
 
     /**
-     * @return ObjectManager
+     * @param string $className
+     * @param array  $arguments
+     *
+     * @return mixed
      */
-    protected function getObjectManager(): ObjectManager
+    protected static function get(string $className, ...$arguments)
     {
-        if (!$this->objectManager instanceof ObjectManager) {
-            $this->setObjectManager(GeneralUtility::makeInstance(ObjectManager::class));
+        if (!isset(self::$instances[$className])) {
+            self::$instances[$className] = GeneralUtility::makeInstance(ObjectManager::class)
+                ->get($className, ...$arguments);
         }
 
-        return $this->objectManager;
-    }
-
-    /**
-     * @param ObjectManager $objectManager
-     */
-    private function setObjectManager(ObjectManager $objectManager): void
-    {
-        $this->objectManager = $objectManager;
+        return self::$instances[$className];
     }
 }

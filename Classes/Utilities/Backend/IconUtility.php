@@ -27,7 +27,7 @@ namespace PS\PsFoundation\Utilities\Backend;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Traits\Injections\ObjectManagerStaticTrait;
+use PS\PsFoundation\Traits\StaticInjectionTrait;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -38,7 +38,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class IconUtility
 {
-    use ObjectManagerStaticTrait;
+    use StaticInjectionTrait;
 
     /**
      * For use in ext_tables.php
@@ -56,7 +56,7 @@ class IconUtility
         $iconFiles = GeneralUtility::getFilesInDir($path, 'svg', true, '', 'ext_icon.*');
 
         if (is_iterable($iconFiles)) {
-            $iconRegistry = self::getObjectManager()->get(IconRegistry::class);
+            $iconRegistry = self::get(IconRegistry::class);
 
             foreach ($iconFiles as $iconFile) {
                 $filename = pathinfo($iconFile, PATHINFO_FILENAME);

@@ -29,6 +29,7 @@ namespace PS\PsFoundation\Controller;
 
 use InvalidArgumentException;
 use PS\PsFoundation\Domain\Repository\AbstractRepository;
+use PS\PsFoundation\Traits\InjectionTrait;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
@@ -43,6 +44,8 @@ use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
  */
 class AbstractController extends ActionController
 {
+    use InjectionTrait;
+
     /**
      * @var string
      */
@@ -68,7 +71,7 @@ class AbstractController extends ActionController
 
         $path = 'Domain\Repository';
         $className .= 'Repository';
-        $this->repository = $this->objectManager->get(implode('\\',
+        $this->repository = $this->get(implode('\\',
             [$void, $vendorName, $extensionName, $path, $className]));
     }
 

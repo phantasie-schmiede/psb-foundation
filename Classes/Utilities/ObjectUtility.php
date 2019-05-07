@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Traits\Injections;
+namespace PS\PsFoundation\Utilities;
 
 /***************************************************************
  *  Copyright notice
@@ -29,37 +29,21 @@ namespace PS\PsFoundation\Traits\Injections;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
- * Trait PersistenceManagerTrait
- * @package PS\PsFoundation\Traits\Injections
+ * Class ObjectUtility
+ * @package PS\PsFoundation\Utilities
  */
-trait PersistenceManagerTrait
+class ObjectUtility
 {
     /**
-     * @var PersistenceManager
+     * @param string $className
+     * @param array  $arguments
+     *
+     * @return object
      */
-    private $persistenceManager;
-
-    /**
-     * @return PersistenceManager
-     */
-    protected function getPersistenceManager(): PersistenceManager
+    public static function get(string $className, ...$arguments)
     {
-        if (!$this->persistenceManager instanceof PersistenceManager) {
-            $this->setPersistenceManager(GeneralUtility::makeInstance(ObjectManager::class)
-                ->get(PersistenceManager::class));
-        }
-
-        return $this->persistenceManager;
-    }
-
-    /**
-     * @param PersistenceManager $persistenceManager
-     */
-    private function setPersistenceManager(PersistenceManager $persistenceManager): void
-    {
-        $this->persistenceManager = $persistenceManager;
+        return GeneralUtility::makeInstance(ObjectManager::class)->get($className, ...$arguments);
     }
 }

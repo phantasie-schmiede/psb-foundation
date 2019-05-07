@@ -33,7 +33,7 @@ use PS\PsFoundation\Exceptions\UnsetPropertyException;
 use PS\PsFoundation\Services\DocComment\DocCommentParserService;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
-use PS\PsFoundation\Traits\Injections\ObjectManagerTrait;
+use PS\PsFoundation\Traits\InjectionTrait;
 use PS\PsFoundation\Utilities\VariableUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -50,7 +50,7 @@ use function count;
  */
 class TcaService
 {
-    use ObjectManagerTrait;
+    use InjectionTrait;
 
     private const PROTECTED_COLUMNS = [
         'crdate',
@@ -352,7 +352,7 @@ class TcaService
                 1541351524);
         }
 
-        $docCommentParserService = $this->getObjectManager()->get(DocCommentParserService::class);
+        $docCommentParserService = $this->get(DocCommentParserService::class);
 
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $this->className);
         $properties = $reflection->getProperties();

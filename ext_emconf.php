@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-$EM_CONF[$_EXTKEY] = [
+$EM_CONF['ps_foundation'] = [
     'title'                         => 'PS | Foundation',
     'description'                   => 'basic configuration for TYPO3',
     'category'                      => 'misc',
@@ -20,8 +20,8 @@ $EM_CONF[$_EXTKEY] = [
     'version'                       => '0.0.0',
     'constraints'                   => [
         'depends'   => [
-            'fluid_styled_content'   => '9.3.0-9.5.99',
-            'typo3'   => '9.3.0-9.5.99',
+            'fluid_styled_content' => '9.3.0-9.5.99',
+            'typo3'                => '9.3.0-9.5.99',
         ],
         'conflicts' => [
         ],

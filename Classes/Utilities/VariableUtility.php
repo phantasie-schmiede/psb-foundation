@@ -31,12 +31,11 @@ use Exception;
 use InvalidArgumentException;
 use PS\PsFoundation\Services\DocComment\DocCommentParserService;
 use PS\PsFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
-use PS\PsFoundation\Traits\Injections\ObjectManagerStaticTrait;
+use PS\PsFoundation\Traits\StaticInjectionTrait;
 use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class VariableUtility
@@ -44,7 +43,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class VariableUtility
 {
-    use ObjectManagerStaticTrait;
+    use StaticInjectionTrait;
 
     /**
      * Although calculated on a base of 2, the average user might be confused when he is shown the technically correct
@@ -97,7 +96,7 @@ class VariableUtility
      */
     public static function convertClassNameToTableName(string $className): string
     {
-        $docCommentParserService = self::getObjectManager()->get(DocCommentParserService::class);
+        $docCommentParserService = self::get(DocCommentParserService::class);
         $docComment = $docCommentParserService->parsePhpDocComment($className);
 
         if (isset($docComment[TcaMappingParser::ANNOTATION_TYPE]['table'])) {
@@ -156,7 +155,7 @@ class VariableUtility
     public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
         if (null !== $className) {
-            $docCommentParserService = self::getObjectManager()->get(DocCommentParserService::class);
+            $docCommentParserService = self::get(DocCommentParserService::class);
             $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
         }
 

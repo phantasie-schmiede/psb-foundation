@@ -27,7 +27,7 @@ namespace PS\PsFoundation\Services;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Traits\Injections\ObjectManagerStaticTrait;
+use PS\PsFoundation\Traits\StaticInjectionTrait;
 use PS\PsFoundation\Utilities\VariableUtility;
 use stdClass;
 use TYPO3\CMS\Core\TypoScript\TemplateService;
@@ -42,7 +42,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
  */
 class TypoScriptProviderService
 {
-    use ObjectManagerStaticTrait;
+    use StaticInjectionTrait;
 
     /**
      * @var bool
@@ -62,7 +62,7 @@ class TypoScriptProviderService
         string $extensionName = null,
         string $pluginName = null
     ): ?array {
-        $configurationManager = self::getObjectManager()->get(ConfigurationManager::class);
+        $configurationManager = self::get(ConfigurationManager::class);
         $typoScript = null;
 
         // RootlineUtility:286 requires $GLOBALS['TCA'] to be set
@@ -79,7 +79,7 @@ class TypoScriptProviderService
             return null;
         }
 
-        $typoScriptService = self::getObjectManager()->get(TypoScriptService::class);
+        $typoScriptService = self::get(TypoScriptService::class);
         $convertedTypoScript = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
 
         array_walk_recursive($convertedTypoScript, static function (&$item) {
@@ -116,7 +116,7 @@ class TypoScriptProviderService
             $resetTsfe = true;
         }
 
-        $templateService = self::getObjectManager()->get(TemplateService::class);
+        $templateService = self::get(TemplateService::class);
         $templateService->tt_track = false;
         $templateService->init();
         $templateService->runThroughTemplates([['uid' => 1]]);
