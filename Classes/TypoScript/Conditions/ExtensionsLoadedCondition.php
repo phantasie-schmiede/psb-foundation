@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\TypoScript\Conditions;
+namespace PSB\PsbFoundation\TypoScript\Conditions;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -32,7 +32,7 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /**
  * Class ExtensionsLoadedCondition
- * @package PS\PsFoundation\TypoScript\Conditions
+ * @package PSB\PsbFoundation\TypoScript\Conditions
  */
 class ExtensionsLoadedCondition extends AbstractCondition
 {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utilities;
+namespace PSB\PsbFoundation\Utilities;
 
 /***************************************************************
  *  Copyright notice
@@ -32,7 +32,7 @@ use UnexpectedValueException;
 
 /**
  * Class TypoScriptUtility
- * @package PS\PsFoundation\Utilities
+ * @package PSB\PsbFoundation\Utilities
  */
 class TypoScriptUtility
 {

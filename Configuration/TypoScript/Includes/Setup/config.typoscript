@@ -1,5 +1,5 @@
 config {
-  headerComment = Entwickelt von der Phantasie-Schmiede
+  headerComment = Entwickelt von PSbits, einer Tochter der Phantasie-Schmiede
 
   disablePrefixComment = 1
 

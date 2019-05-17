@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\ViewHelpers\Variable;
+namespace PSB\PsbFoundation\ViewHelpers\Variable;
 
 /***************************************************************
  *  Copyright notice
@@ -33,7 +33,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 /**
  * Class IncrementViewHelper
- * @package PS\PsFoundation\ViewHelpers\Variable
+ * @package PSB\PsbFoundation\ViewHelpers\Variable
  */
 class IncrementViewHelper extends AbstractViewHelper
 {

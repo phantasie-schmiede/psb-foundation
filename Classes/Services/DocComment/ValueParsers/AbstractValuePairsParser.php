@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\DocComment\ValueParsers;
+namespace PSB\PsbFoundation\Services\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -28,13 +28,13 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
  ***************************************************************/
 
 use Exception;
-use PS\PsFoundation\Exceptions\AnnotationException;
-use PS\PsFoundation\Utilities\VariableUtility;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
+use PSB\PsbFoundation\Utilities\VariableUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class AbstractValuePairsParser
- * @package PS\PsFoundation\Services\DocComment\ValueParsers
+ * @package PSB\PsbFoundation\Services\DocComment\ValueParsers
  */
 abstract class AbstractValuePairsParser implements ValueParserInterface
 {

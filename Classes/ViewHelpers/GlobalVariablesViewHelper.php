@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\ViewHelpers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,14 +27,14 @@ namespace PS\PsFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Services\GlobalVariableService;
+use PSB\PsbFoundation\Services\GlobalVariableService;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Class GlobalVariablesViewHelper
- * @package PS\PsFoundation\ViewHelpers
+ * @package PSB\PsbFoundation\ViewHelpers
  */
 class GlobalVariablesViewHelper extends AbstractViewHelper
 {

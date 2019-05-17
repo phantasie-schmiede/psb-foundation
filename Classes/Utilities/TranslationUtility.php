@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utilities;
+namespace PSB\PsbFoundation\Utilities;
 
 /***************************************************************
  *  Copyright notice
@@ -31,7 +31,7 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
  * Class TranslationUtility
- * @package PS\PsFoundation\Utilities
+ * @package PSB\PsbFoundation\Utilities
  */
 class TranslationUtility
 {

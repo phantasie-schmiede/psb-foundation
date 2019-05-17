@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services;
+namespace PSB\PsbFoundation\Services;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2018-2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,7 +29,7 @@ namespace PS\PsFoundation\Services;
 
 /**
  * Interface GlobalVariableServiceInterface
- * @package PS\PsFoundation\Services
+ * @package PSB\PsbFoundation\Services
  */
 interface GlobalVariableProviderInterface
 {

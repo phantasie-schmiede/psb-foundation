@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\Configuration\ValueParsers;
+namespace PSB\PsbFoundation\Services\Configuration\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,13 +29,13 @@ namespace PS\PsFoundation\Services\Configuration\ValueParsers;
 
 use Exception;
 use InvalidArgumentException;
-use PS\PsFoundation\Services\TypoScriptProviderService;
+use PSB\PsbFoundation\Services\TypoScriptProviderService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class TypoScriptParser
- * @package PS\PsFoundation\Services\Configuration\ValueParsers
+ * @package PSB\PsbFoundation\Services\Configuration\ValueParsers
  */
 class TypoScriptParser implements ValueParserInterface
 {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utilities\Debug;
+namespace PSB\PsbFoundation\Utilities\Debug;
 
 /***************************************************************
  *  Copyright notice
@@ -31,7 +31,7 @@ use TYPO3\CMS\Core\Utility\DebugUtility;
 
 /**
  * Class StopWatchUtility
- * @package PS\PsFoundation\Utilities\Debug
+ * @package PSB\PsbFoundation\Utilities\Debug
  */
 class StopWatchUtility
 {

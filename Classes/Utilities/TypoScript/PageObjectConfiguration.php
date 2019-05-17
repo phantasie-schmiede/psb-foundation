@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utilities;
+namespace PSB\PsbFoundation\Utilities;
 
 /***************************************************************
  *  Copyright notice
@@ -29,7 +29,7 @@ namespace PS\PsFoundation\Utilities;
 
 /**
  * Class PageObjectConfiguration
- * @package PS\PsFoundation\Utilities
+ * @package PSB\PsbFoundation\Utilities
  */
 class PageObjectConfiguration
 {

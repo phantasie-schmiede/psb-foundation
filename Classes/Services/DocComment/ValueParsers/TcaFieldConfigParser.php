@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\DocComment\ValueParsers;
+namespace PSB\PsbFoundation\Services\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,11 +29,11 @@ namespace PS\PsFoundation\Services\DocComment\ValueParsers;
 
 /**
  * Class TcaFieldConfigParser
- * @package PS\PsFoundation\Services\DocComment\ValueParsers
+ * @package PSB\PsbFoundation\Services\DocComment\ValueParsers
  */
 class TcaFieldConfigParser extends AbstractValuePairsParser
 {
-    public const ANNOTATION_TYPE = 'PS\PsFoundation\Tca\FieldConfig';
+    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Tca\FieldConfig';
 
     /**
      * @param string|null $valuePairs

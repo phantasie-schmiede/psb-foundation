@@ -9,5 +9,5 @@ call_user_func(
         \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($extensionKey, 'Configuration/TypoScript',
             'Basic configuration');
     },
-    'ps_foundation'
+    'psb_foundation'
 );

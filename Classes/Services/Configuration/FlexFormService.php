@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\Configuration;
+namespace PSB\PsbFoundation\Services\Configuration;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,9 +29,9 @@ namespace PS\PsFoundation\Services\Configuration;
 
 use Exception;
 use InvalidArgumentException;
-use PS\PsFoundation\Exceptions\ImplementationException;
-use PS\PsFoundation\Services\Configuration\ValueParsers\ValueParserInterface;
-use PS\PsFoundation\Utilities\XmlUtility;
+use PSB\PsbFoundation\Exceptions\ImplementationException;
+use PSB\PsbFoundation\Services\Configuration\ValueParsers\ValueParserInterface;
+use PSB\PsbFoundation\Utilities\XmlUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -40,7 +40,7 @@ use function get_class;
 
 /**
  * Class FlexFormService
- * @package PS\PsFoundation\Services\Configuration
+ * @package PSB\PsbFoundation\Services\Configuration
  */
 class FlexFormService
 {

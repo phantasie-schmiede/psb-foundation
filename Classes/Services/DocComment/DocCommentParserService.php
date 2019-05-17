@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\DocComment;
+namespace PSB\PsbFoundation\Services\DocComment;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,9 +29,9 @@ namespace PS\PsFoundation\Services\DocComment;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use InvalidArgumentException;
-use PS\PsFoundation\Exceptions\ImplementationException;
-use PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
-use PS\PsFoundation\Utilities\VariableUtility;
+use PSB\PsbFoundation\Exceptions\ImplementationException;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
+use PSB\PsbFoundation\Utilities\VariableUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ReflectionException;
@@ -49,15 +49,15 @@ use function is_string;
  *
  * $objectManager =
  * \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
- * $docCommentParser = $objectManager->get(\PS\PsFoundation\Services\DocComment\DocCommentParserService::class);
+ * $docCommentParser = $objectManager->get(\PSB\PsbFoundation\Services\DocComment\DocCommentParserService::class);
  * $yourOwnValueParser = $objectManager->get(\Your\Own\ValueParser::class);
  * $docCommentParser->addValueParser($yourOwnValueParser,
- * \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['...']);
+ * \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['...']);
  *
  * Keep in mind that your ValueParser has to implement
- * \PS\PsFoundation\Services\DocComment\ValueParsers\ValueParserInterface and the constant ANNOTATION_TYPE!
+ * \PSB\PsbFoundation\Services\DocComment\ValueParsers\ValueParserInterface and the constant ANNOTATION_TYPE!
  *
- * @package PS\PsFoundation\Services\DocCommentParserService
+ * @package PSB\PsbFoundation\Services\DocCommentParserService
  */
 class DocCommentParserService implements LoggerAwareInterface, SingletonInterface
 {
@@ -138,7 +138,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                 $this->singleValues[] = $annotationType;
                 break;
             default:
-                throw new InvalidArgumentException($valueType.' is no valid value type! Use a value of this constant to provide a valid type: \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES',
+                throw new InvalidArgumentException($valueType.' is no valid value type! Use a value of this constant to provide a valid type: \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES',
                     1541348283);
         }
 

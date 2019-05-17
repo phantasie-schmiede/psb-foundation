@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Traits;
+namespace PSB\PsbFoundation\Traits;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -32,7 +32,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Trait InjectionTrait
- * @package PS\PsFoundation\Traits
+ * @package PSB\PsbFoundation\Traits
  */
 trait InjectionTrait
 {

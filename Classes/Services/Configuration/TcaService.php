@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\Configuration;
+namespace PSB\PsbFoundation\Services\Configuration;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -28,13 +28,13 @@ namespace PS\PsFoundation\Services\Configuration;
  ***************************************************************/
 
 use Exception;
-use PS\PsFoundation\Exceptions\MisconfiguredTcaException;
-use PS\PsFoundation\Exceptions\UnsetPropertyException;
-use PS\PsFoundation\Services\DocComment\DocCommentParserService;
-use PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
-use PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
-use PS\PsFoundation\Traits\InjectionTrait;
-use PS\PsFoundation\Utilities\VariableUtility;
+use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
+use PSB\PsbFoundation\Exceptions\UnsetPropertyException;
+use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
+use PSB\PsbFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Utilities\VariableUtility;
 use ReflectionClass;
 use ReflectionException;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
@@ -46,7 +46,7 @@ use function count;
 
 /**
  * Class TcaService
- * @package PS\PsFoundation\Services\Configuration
+ * @package PSB\PsbFoundation\Services\Configuration
  */
 class TcaService
 {

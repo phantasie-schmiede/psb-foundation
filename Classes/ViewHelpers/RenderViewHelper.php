@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\ViewHelpers;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -28,12 +28,12 @@ namespace PS\PsFoundation\ViewHelpers;
  ***************************************************************/
 
 use Closure;
-use PS\PsFoundation\Services\GlobalVariableService;
+use PSB\PsbFoundation\Services\GlobalVariableService;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
 /**
  * Class RenderViewHelper
- * @package PS\PsFoundation\ViewHelpers
+ * @package PSB\PsbFoundation\ViewHelpers
  */
 class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
 {

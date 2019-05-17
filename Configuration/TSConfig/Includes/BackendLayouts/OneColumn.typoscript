@@ -2,7 +2,7 @@ mod {
   web_layout {
     BackendLayouts {
       1 {
-        title = LLL:EXT:ps_foundation/Resources/Private/Language/Backend/Configuration/TSconfig/Includes/BackendLayouts/OneColumn.xlf:title
+        title = LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Configuration/TSconfig/Includes/BackendLayouts/OneColumn.xlf:title
         config {
           backend_layout {
             colCount = 2
@@ -11,7 +11,7 @@ mod {
               1 {
                 columns {
                   1 {
-                    name = LLL:EXT:ps_foundation/Resources/Private/Language/Backend/Configuration/TSconfig/Includes/BackendLayouts/OneColumn.xlf:column1
+                    name = LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Configuration/TSconfig/Includes/BackendLayouts/OneColumn.xlf:column1
                     colPos = 0
                   }
                 }
@@ -20,7 +20,7 @@ mod {
           }
         }
 
-        icon = EXT:ps_foundation/Resources/Public/Icons/BackendLayouts/OneColumn.svg
+        icon = EXT:psb_foundation/Resources/Public/Icons/BackendLayouts/OneColumn.svg
       }
     }
   }

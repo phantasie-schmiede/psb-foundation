@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Domain\Model;
+namespace PSB\PsbFoundation\Domain\Model;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -32,7 +32,7 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
  * Class FrontendUserRelatedModel
- * @package PS\PsFoundation\Domain\Model
+ * @package PSB\PsbFoundation\Domain\Model
  */
 class FrontendUserRelatedModel extends AbstractEntity
 {

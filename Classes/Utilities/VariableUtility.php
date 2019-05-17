@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utilities;
+namespace PSB\PsbFoundation\Utilities;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,9 +29,9 @@ namespace PS\PsFoundation\Utilities;
 
 use Exception;
 use InvalidArgumentException;
-use PS\PsFoundation\Services\DocComment\DocCommentParserService;
-use PS\PsFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
-use PS\PsFoundation\Traits\StaticInjectionTrait;
+use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
+use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -39,7 +39,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class VariableUtility
- * @package PS\PsFoundation\Utilities
+ * @package PSB\PsbFoundation\Utilities
  */
 class VariableUtility
 {

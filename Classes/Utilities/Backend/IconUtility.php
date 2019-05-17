@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utilities\Backend;
+namespace PSB\PsbFoundation\Utilities\Backend;
 
 /***************************************************************
  *  Copyright notice
@@ -27,14 +27,14 @@ namespace PS\PsFoundation\Utilities\Backend;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Traits\StaticInjectionTrait;
+use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class IconUtility
- * @package PS\PsFoundation\Utilities\Backend
+ * @package PSB\PsbFoundation\Utilities\Backend
  */
 class IconUtility
 {

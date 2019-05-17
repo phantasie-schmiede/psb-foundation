@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\ViewHelpers\Debug;
+namespace PSB\PsbFoundation\ViewHelpers\Debug;
 
 /***************************************************************
  *  Copyright notice
@@ -27,13 +27,13 @@ namespace PS\PsFoundation\ViewHelpers\Debug;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Traits\InjectionTrait;
-use PS\PsFoundation\Utilities\Debug\StopWatchUtility;
+use PSB\PsbFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Utilities\Debug\StopWatchUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Class StopWatchViewHelper
- * @package PS\PsFoundation\ViewHelpers\Debug
+ * @package PSB\PsbFoundation\ViewHelpers\Debug
  */
 class StopWatchViewHelper extends AbstractViewHelper
 {

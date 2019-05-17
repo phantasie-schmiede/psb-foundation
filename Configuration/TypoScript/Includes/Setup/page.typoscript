@@ -7,24 +7,24 @@ page {
   }
 
   includeCSS {
-    bootstrap = {$plugin.tx_psfoundation.settings.resourcePath}Stylesheets/Vendors/bootstrap.min.css
+    bootstrap = {$plugin.tx_psbfoundation.settings.resourcePath}Stylesheets/Vendors/bootstrap.min.css
   }
 
   includeJSFooterlibs {
-    10 = {$plugin.tx_psfoundation.settings.resourcePath}JavaScript/Vendors/jquery-3.3.1.min.js
-    20 = {$plugin.tx_psfoundation.settings.resourcePath}JavaScript/Vendors/bootstrap.bundle.min.js
+    10 = {$plugin.tx_psbfoundation.settings.resourcePath}JavaScript/Vendors/jquery-3.3.1.min.js
+    20 = {$plugin.tx_psbfoundation.settings.resourcePath}JavaScript/Vendors/bootstrap.bundle.min.js
   }
 
   #includeJSFooter {
-  #  app = {$plugin.tx_psfoundation.settings.resourcePath}JavaScript/App.js
+  #  app = {$plugin.tx_psbfoundation.settings.resourcePath}JavaScript/App.js
   #}
 
   10 = FLUIDTEMPLATE
   10 {
     format = html
-    templateRootPaths.0 = {$plugin.tx_psfoundation.view.templateRootPath}Page
-    partialRootPaths.0 = {$plugin.tx_psfoundation.view.partialRootPath}Page
-    layoutRootPaths.0 = {$plugin.tx_psfoundation.view.layoutRootPath}Page
+    templateRootPaths.0 = {$plugin.tx_psbfoundation.view.templateRootPath}Page
+    partialRootPaths.0 = {$plugin.tx_psbfoundation.view.partialRootPath}Page
+    layoutRootPaths.0 = {$plugin.tx_psbfoundation.view.layoutRootPath}Page
 
     file.stdWrap.cObject = CASE
     file.stdWrap.cObject {
@@ -33,12 +33,12 @@ page {
 
       default = TEXT
       default {
-        value = {$plugin.tx_psfoundation.view.templateRootPath}Page/Default.html
+        value = {$plugin.tx_psbfoundation.view.templateRootPath}Page/Default.html
       }
 
       pagets__1 = TEXT
       pagets__1 {
-        value = {$plugin.tx_psfoundation.view.templateRootPath}Page/OneColumn.html
+        value = {$plugin.tx_psbfoundation.view.templateRootPath}Page/OneColumn.html
       }
     }
 

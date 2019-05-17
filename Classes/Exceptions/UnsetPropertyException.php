@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Exceptions;
+namespace PSB\PsbFoundation\Exceptions;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,7 +29,7 @@ namespace PS\PsFoundation\Exceptions;
 
 /**
  * Class UnsetPropertyException
- * @package PS\PsFoundation\Exceptions
+ * @package PSB\PsbFoundation\Exceptions
  */
 class UnsetPropertyException extends BaseException
 {

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services;
+namespace PSB\PsbFoundation\Services;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,8 +27,8 @@ namespace PS\PsFoundation\Services;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Traits\StaticInjectionTrait;
-use PS\PsFoundation\Utilities\VariableUtility;
+use PSB\PsbFoundation\Traits\StaticInjectionTrait;
+use PSB\PsbFoundation\Utilities\VariableUtility;
 use stdClass;
 use TYPO3\CMS\Core\TypoScript\TemplateService;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
@@ -38,7 +38,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
  * Class TypoScriptProviderService
- * @package PS\PsFoundation\Services
+ * @package PSB\PsbFoundation\Services
  */
 class TypoScriptProviderService
 {

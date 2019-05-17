@@ -2,7 +2,7 @@
 /** @noinspection UnsupportedStringOffsetOperationsInspection */
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Utilities\Backend;
+namespace PSB\PsbFoundation\Utilities\Backend;
 
 /***************************************************************
  *  Copyright notice
@@ -28,9 +28,9 @@ namespace PS\PsFoundation\Utilities\Backend;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Utilities\VariableUtility;
-use PS\PsFoundation\Services\GlobalVariableService;
-use PS\PsFoundation\Utilities\TypoScriptUtility;
+use PSB\PsbFoundation\Utilities\VariableUtility;
+use PSB\PsbFoundation\Services\GlobalVariableService;
+use PSB\PsbFoundation\Utilities\TypoScriptUtility;
 use RuntimeException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -40,7 +40,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
  * Class ContentElementUtility
- * @package PS\PsFoundation\Utilities\Backend
+ * @package PSB\PsbFoundation\Utilities\Backend
  */
 class ContentElementUtility
 {

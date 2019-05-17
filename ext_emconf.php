@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-$EM_CONF['ps_foundation'] = [
-    'title'                         => 'PS | Foundation',
-    'description'                   => 'basic configuration for TYPO3',
+$EM_CONF['psb_foundation'] = [
+    'title'                         => 'PSbits | Foundation',
+    'description'                   => 'Basic configuration for TYPO3',
     'category'                      => 'misc',
     'author_email'                  => 'dn@phantasie-schmiede.de',
     'author'                        => 'Daniel Ablass',

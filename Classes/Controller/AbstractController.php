@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Controller;
+namespace PSB\PsbFoundation\Controller;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -28,8 +28,8 @@ namespace PS\PsFoundation\Controller;
  ***************************************************************/
 
 use InvalidArgumentException;
-use PS\PsFoundation\Domain\Repository\AbstractRepository;
-use PS\PsFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Domain\Repository\AbstractRepository;
+use PSB\PsbFoundation\Traits\InjectionTrait;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
@@ -40,7 +40,7 @@ use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 
 /**
  * Class AbstractController
- * @package PS\PsFoundation\Controller
+ * @package PSB\PsbFoundation\Controller
  */
 class AbstractController extends ActionController
 {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\ViewHelpers;
 
 /***************************************************************
  *  Copyright notice
@@ -31,7 +31,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Class LoopViewHelper
- * @package PS\PsFoundation\ViewHelpers
+ * @package PSB\PsbFoundation\ViewHelpers
  */
 class LoopViewHelper extends AbstractViewHelper
 {

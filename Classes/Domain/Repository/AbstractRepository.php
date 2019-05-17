@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Domain\Repository;
+namespace PSB\PsbFoundation\Domain\Repository;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -31,7 +31,7 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
  * Class AbstractRepository
- * @package PS\PsFoundation\Domain\Repository
+ * @package PSB\PsbFoundation\Domain\Repository
  */
 class AbstractRepository extends Repository
 {

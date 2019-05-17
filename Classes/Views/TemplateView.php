@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Views;
+namespace PSB\PsbFoundation\Views;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,11 +27,11 @@ namespace PS\PsFoundation\Views;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Services\GlobalVariableService;
+use PSB\PsbFoundation\Services\GlobalVariableService;
 
 /**
  * Class TemplateView
- * @package PS\PsFoundation\Views
+ * @package PSB\PsbFoundation\Views
  */
 class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
 {

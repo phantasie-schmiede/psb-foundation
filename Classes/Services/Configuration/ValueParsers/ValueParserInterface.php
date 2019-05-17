@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\Services\Configuration\ValueParsers;
+namespace PSB\PsbFoundation\Services\Configuration\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -34,7 +34,7 @@ use TYPO3\CMS\Core\SingletonInterface;
  *
  * Your parser class also has to define a constant named MARKER_TYPE (the part bewteen the beginning "###" and ":").
  *
- * @package PS\PsFoundation\Services\Configuration\ValueParsers
+ * @package PSB\PsbFoundation\Services\Configuration\ValueParsers
  */
 interface ValueParserInterface extends SingletonInterface
 {

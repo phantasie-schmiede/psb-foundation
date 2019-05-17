@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\ViewHelpers\Variable;
+namespace PSB\PsbFoundation\ViewHelpers\Variable;
 
 /***************************************************************
  *  Copyright notice
@@ -27,13 +27,13 @@ namespace PS\PsFoundation\ViewHelpers\Variable;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PS\PsFoundation\Utilities\VariableUtility;
+use PSB\PsbFoundation\Utilities\VariableUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 /**
  * Class ConvertStringViewHelper
- * @package PS\PsFoundation\ViewHelpers
+ * @package PSB\PsbFoundation\ViewHelpers
  */
 class ConvertStringViewHelper extends AbstractViewHelper
 {

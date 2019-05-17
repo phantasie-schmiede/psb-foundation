@@ -12,19 +12,19 @@ call_user_func(
              <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extensionKey.'/Configuration/TSConfig/UserTS.typoscript">
         ');
 
-        $docCommentParser = \PS\PsFoundation\Utilities\ObjectUtility::get(\PS\PsFoundation\Services\DocComment\DocCommentParserService::class);
-        $tcaFieldConfigParser = \PS\PsFoundation\Utilities\ObjectUtility::get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser::class);
+        $docCommentParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\DocComment\DocCommentParserService::class);
+        $tcaFieldConfigParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser::class);
         $docCommentParser->addValueParser($tcaFieldConfigParser,
-            \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
-        $tcaConfigParser = \PS\PsFoundation\Utilities\ObjectUtility::get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaConfigParser::class);
+            \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
+        $tcaConfigParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaConfigParser::class);
         $docCommentParser->addValueParser($tcaConfigParser,
-            \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
-        $tcaMappingParser = \PS\PsFoundation\Utilities\ObjectUtility::get(\PS\PsFoundation\Services\DocComment\ValueParsers\TcaMappingParser::class);
+            \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
+        $tcaMappingParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaMappingParser::class);
         $docCommentParser->addValueParser($tcaMappingParser,
-            \PS\PsFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
+            \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
 
-        $typoScriptParser = \PS\PsFoundation\Utilities\ObjectUtility::get(\PS\PsFoundation\Services\Configuration\ValueParsers\TypoScriptParser::class);
-        \PS\PsFoundation\Services\Configuration\FlexFormService::addValueParser($typoScriptParser);
+        $typoScriptParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\Configuration\ValueParsers\TypoScriptParser::class);
+        \PSB\PsbFoundation\Services\Configuration\FlexFormService::addValueParser($typoScriptParser);
 
         // customize BE login style
         // $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'] = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'], ['allowed_classes' => false]);
@@ -37,5 +37,5 @@ call_user_func(
         //
         // $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'] = serialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend']);
     },
-    'ps_foundation'
+    'psb_foundation'
 );

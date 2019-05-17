@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PS\PsFoundation\ViewHelpers\Conditions;
+namespace PSB\PsbFoundation\ViewHelpers\Conditions;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 Daniel Ablass <dn@phantasie-schmiede.de>, Phantasie-Schmiede
+ *  (c) 2018-2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -32,7 +32,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Class ExtensionLoadedViewHelper
- * @package PS\PsFoundation\ViewHelpers\Conditions
+ * @package PSB\PsbFoundation\ViewHelpers\Conditions
  */
 class ExtensionLoadedViewHelper extends AbstractViewHelper
 {
