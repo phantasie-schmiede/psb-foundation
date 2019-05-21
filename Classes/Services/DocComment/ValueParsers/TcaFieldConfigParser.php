@@ -27,6 +27,8 @@ namespace PSB\PsbFoundation\Services\DocComment\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
+
 /**
  * Class TcaFieldConfigParser
  * @package PSB\PsbFoundation\Services\DocComment\ValueParsers
@@ -39,7 +41,7 @@ class TcaFieldConfigParser extends AbstractValuePairsParser
      * @param string|null $valuePairs
      *
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function processValue(?string $valuePairs)
     {
@@ -48,7 +50,12 @@ class TcaFieldConfigParser extends AbstractValuePairsParser
         // transform associative array to simple array for TCA
         if ('select' === $result['type'] && isset ($result['items']) && is_array($result['items'])) {
             $result['items'] = array_map(static function ($key, $value) {
-                return [ucwords(str_replace('_', ' ', strtolower($key))), $value];
+                if (0 === strpos($key, ' ')) {
+                    // prettify constant names
+                    return [ucwords(str_replace('_', ' ', strtolower($key))), $value];
+                }
+
+                return $key;
             }, array_keys($result['items']), array_values($result['items']));
         }
 

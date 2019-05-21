@@ -37,4 +37,12 @@ interface GlobalVariableProviderInterface
      * @return array
      */
     public function getGlobalVariables(): array;
+
+    /**
+     * This must return false on first call. Otherwise the function getGlobalVariables() will never be called. When
+     * returned data isn't supposed to change anymore, set function's return value to true.
+     *
+     * @return bool
+     */
+    public function isCacheable(): bool;
 }

@@ -59,9 +59,9 @@ class GlobalVariableService
      */
     public static function getGlobalVariables(): array
     {
-        if (0 === count(self::$globalVariables)) {
-            /** @var GlobalVariableProviderInterface $globalVariableProvider */
-            foreach (self::$globalVariableProviders as $globalVariableProvider) {
+        /** @var GlobalVariableProviderInterface $globalVariableProvider */
+        foreach (self::$globalVariableProviders as $globalVariableProvider) {
+            if (false === $globalVariableProvider->isCacheable()) {
                 ArrayUtility::mergeRecursiveWithOverrule(self::$globalVariables,
                     $globalVariableProvider->getGlobalVariables());
             }

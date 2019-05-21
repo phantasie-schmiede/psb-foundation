@@ -166,7 +166,7 @@ class VariableUtility
      * @param string|null $variable
      * @param bool        $convertEmptyStringToNull
      *
-     * @return bool|float|int|string|null
+     * @return mixed
      */
     public static function convertString(?string $variable, $convertEmptyStringToNull = false)
     {
@@ -182,7 +182,7 @@ class VariableUtility
             return (double)$variable;
         }
 
-        if (0 < strpos($variable, '::')) {
+        if ('' !== $variable && '\\' === $variable[0] && 0 < strpos($variable, '::')) {
             if (0 < preg_match_all('/\[\'?(.*)\'?(\](?=[\[])|\]$)/U', $variable, $matches)) {
                 $matches = array_map(static function ($value) {
                     return self::convertString(trim($value, '\''));
@@ -198,6 +198,14 @@ class VariableUtility
             }
 
             return constant($variable);
+        }
+
+        if ('' !== $variable && in_array($variable[0], ['{', '['], true)) {
+            $decodedString = json_decode(str_replace('\'', '"', $variable), true);
+
+            if (null !== $decodedString) {
+                return $decodedString;
+            }
         }
 
         switch ($variable) {

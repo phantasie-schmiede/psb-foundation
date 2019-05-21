@@ -343,9 +343,11 @@ class TcaService
     }
 
     /**
-     * @throws Exception
+     * @return $this
+     * @throws ReflectionException
+     * @throws UnsetPropertyException
      */
-    public function buildFromDocComment(): void
+    public function buildFromDocComment(): self
     {
         if (null === $this->className) {
             throw new UnsetPropertyException('When instantiating you must provide a class name instead of '.$this->table.' if you want to use this feature!',
@@ -359,6 +361,7 @@ class TcaService
 
         foreach ($properties as $property) {
             $docComment = $docCommentParserService->parsePhpDocComment($this->className, $property->getName());
+
             if (isset($docComment[TcaFieldConfigParser::ANNOTATION_TYPE])) {
                 $fieldConfig = $docComment[TcaFieldConfigParser::ANNOTATION_TYPE];
                 $type = $fieldConfig['type'];
@@ -370,9 +373,12 @@ class TcaService
         }
 
         $docComment = $docCommentParserService->parsePhpDocComment($this->className);
+
         if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
             $this->setCtrlProperties($docComment[TcaConfigParser::ANNOTATION_TYPE]);
         }
+
+        return $this;
     }
 
     /**
