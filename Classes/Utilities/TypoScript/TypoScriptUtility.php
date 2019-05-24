@@ -27,6 +27,7 @@ namespace PSB\PsbFoundation\Utilities;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use UnexpectedValueException;
 
@@ -131,6 +132,19 @@ class TypoScriptUtility
         ];
 
         return self::convertArrayToTypoScript($typoScript);
+    }
+
+    /**
+     * @param string $extensionKey
+     * @param string $path
+     * @param string $title
+     */
+    public static function registerTypoScript(
+        string $extensionKey,
+        string $path = 'Configuration/TypoScript',
+        string $title = 'Main configuration'
+    ): void {
+        ExtensionManagementUtility::addStaticFile($extensionKey, $path, $title);
     }
 
     /**
