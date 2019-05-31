@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,8 +27,8 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Closure;
 use PSB\PsbFoundation\Services\GlobalVariableService;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
@@ -38,10 +38,6 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  */
 class GlobalVariablesViewHelper extends AbstractViewHelper
 {
-    /**
-     * @return null|void
-     * @throws InvalidConfigurationTypeException
-     */
     public function render(): void
     {
         static::renderStatic([], $this->buildRenderChildrenClosure(), $this->renderingContext);
@@ -49,23 +45,19 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
 
     /**
      * @param array $arguments
-     * @param \Closure $renderChildrenClosure
+     * @param Closure $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
-     *
-     * @throws InvalidConfigurationTypeException
      */
     public static function renderStatic(
         array $arguments,
-        \Closure $renderChildrenClosure,
+        Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ): void {
-        if (!$renderingContext->getVariableProvider()->exists('mandator')) {
-            $globalVariables = GlobalVariableService::getGlobalVariables();
+        $globalVariables = GlobalVariableService::getGlobalVariables();
 
-            foreach ($globalVariables as $key => $value) {
-                if (!$renderingContext->getVariableProvider()->exists($key)) {
-                    $renderingContext->getVariableProvider()->add($key, $value);
-                }
+        foreach ($globalVariables as $key => $value) {
+            if (!$renderingContext->getVariableProvider()->exists($key)) {
+                $renderingContext->getVariableProvider()->add($key, $value);
             }
         }
     }

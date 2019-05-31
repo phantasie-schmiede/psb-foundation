@@ -49,16 +49,16 @@ class TypoScriptParser implements ValueParserInterface
      */
     public function processValue(?string $value)
     {
-        $typoscript = TypoScriptProviderService::getTypoScriptConfiguration();
+        $typoScript = TypoScriptProviderService::getTypoScriptConfiguration();
 
-        if (null === $typoscript) {
+        if (null === $typoScript) {
             return null;
         }
 
         $typoScriptPath = GeneralUtility::trimExplode('.', $value, true);
 
         try {
-            $result = ArrayUtility::getValueByPath($typoscript, $typoScriptPath, '.');
+            $result = ArrayUtility::getValueByPath($typoScript, $typoScriptPath, '.');
         } catch (Exception $e) {
             throw new InvalidArgumentException(self::class.': FlexForm marker '.self::MARKER_TYPE.' must be followed by a valid TypoScript path!',
                 1547210715);

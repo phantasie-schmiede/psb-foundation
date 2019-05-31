@@ -130,7 +130,7 @@ class Fields
             'autoSizeMax'   => 30,
             'foreign_table' => '',
             'maxitems'      => 9999,
-            'MM'            => '',
+            'mm'            => '',
             'multiple'      => 0,
             'renderType'    => 'selectMultipleSideBySide',
             'size'          => 10,

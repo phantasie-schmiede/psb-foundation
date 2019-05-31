@@ -20,8 +20,8 @@ $EM_CONF['psb_foundation'] = [
     'version'                       => '0.0.0',
     'constraints'                   => [
         'depends'   => [
-            'fluid_styled_content' => '9.3.0-9.5.99',
-            'typo3'                => '9.3.0-9.5.99',
+            'fluid_styled_content' => '9.5.7-9.5.99',
+            'typo3'                => '9.5.7-9.5.99',
         ],
         'conflicts' => [
         ],

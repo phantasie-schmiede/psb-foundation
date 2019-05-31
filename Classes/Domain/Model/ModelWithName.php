@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Traits;
+namespace PSB\PsbFoundation\Domain\Model;
 
 /***************************************************************
  *  Copyright notice
@@ -27,31 +27,33 @@ namespace PSB\PsbFoundation\Traits;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\ObjectUtility;
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
- * Trait InjectionTrait
- * @package PSB\PsbFoundation\Traits
+ * Class ModelWithName
+ * @package PSB\PsbFoundation\Domain\Model
  */
-trait InjectionTrait
+class ModelWithName extends AbstractEntity
 {
     /**
-     * @var array
+     * @var string
+     * @PSB\PsbFoundation\Tca\FieldConfig type=string
      */
-    private $instances = [];
+    protected $name;
 
     /**
-     * @param string $className
-     * @param array  $arguments
-     *
-     * @return object
+     * @return string
      */
-    protected function get(string $className, ...$arguments)
+    public function getName(): string
     {
-        if (!isset($this->instances[$className])) {
-            $this->instances[$className] = ObjectUtility::get($className, ...$arguments);
-        }
+        return $this->name;
+    }
 
-        return $this->instances[$className];
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

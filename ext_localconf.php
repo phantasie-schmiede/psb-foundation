@@ -12,16 +12,7 @@ call_user_func(
              <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extensionKey.'/Configuration/TSConfig/UserTS.typoscript">
         ');
 
-        $docCommentParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\DocComment\DocCommentParserService::class);
-        $tcaFieldConfigParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser::class);
-        $docCommentParser->addValueParser($tcaFieldConfigParser,
-            \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
-        $tcaConfigParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaConfigParser::class);
-        $docCommentParser->addValueParser($tcaConfigParser,
-            \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
-        $tcaMappingParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaMappingParser::class);
-        $docCommentParser->addValueParser($tcaMappingParser,
-            \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES['MERGE']);
+        \PSB\PsbFoundation\Utilities\Backend\SetupUtility::registerSetupSlots(\PSB\PsbFoundation\Slots\Setup::class);
 
         $typoScriptParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\Configuration\ValueParsers\TypoScriptParser::class);
         \PSB\PsbFoundation\Services\Configuration\FlexFormService::addValueParser($typoScriptParser);

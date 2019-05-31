@@ -28,13 +28,18 @@ namespace PSB\PsbFoundation\Services\DocComment;
  ***************************************************************/
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\DBAL\Connection;
+use Exception;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
+use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utilities\VariableUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use ReflectionClass;
 use ReflectionException;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -61,6 +66,7 @@ use function is_string;
  */
 class DocCommentParserService implements LoggerAwareInterface, SingletonInterface
 {
+    use InjectionTrait;
     use LoggerAwareTrait;
 
     public const VALUE_TYPES = [
@@ -79,6 +85,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         'VAR'         => 'var',
     ];
 
+    private const VALUE_PARSER_TABLE = 'tx_psbfoundation_services_doccomment_valueparser';
+
     /**
      * @var array
      */
@@ -86,6 +94,11 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         self::ANNOTATION_TYPES['PARAM'],
         self::ANNOTATION_TYPES['THROWS'],
     ];
+
+    /**
+     * @var Connection
+     */
+    private $connection;
 
     /**
      * @var array
@@ -104,45 +117,40 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     /**
      * @var array
      */
-    private $valueParser = [];
+    private $valueParsers = [];
+
+    public function __construct()
+    {
+        $this->loadValueParsers();
+    }
 
     /**
-     * @param ValueParserInterface $parser    Instance of your custom parser class
-     * @param string               $valueType Use constant VALUE_TYPES of this class: ADD simply adds a new item to the
-     *                                        result array; MERGE merges the item with the result array; SINGLE allows
-     *                                        only one occurrence of this type per block
+     * @param string $annotationType
+     * @param string $className      Full qualified class name of your custom parser class
+     * @param string $valueType      Use constant VALUE_TYPES of this class: ADD simply adds a new item to the result
+     *                               array; MERGE merges the item with the result array; SINGLE allows only one
+     *                               occurrence of this type per block
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function addValueParser(
-        ValueParserInterface $parser,
+        string $annotationType,
+        string $className,
         string $valueType
     ): void {
-        if (!\defined(get_class($parser).'::ANNOTATION_TYPE')) {
-            throw new ImplementationException(get_class($parser).' has to define a constant named ANNOTATION_TYPE!',
-                1541107562);
-        }
+        $this->validateAnnotationType($annotationType);
+        $this->validateParserClass($className);
+        $this->validateValueType($valueType);
 
-        /** @noinspection PhpUndefinedFieldInspection */
-        $annotationType = $parser::ANNOTATION_TYPE;
-        $this->valueParser[$annotationType] = $parser;
-
-        switch ($valueType) {
-            case self::VALUE_TYPES['ADD']:
-                $this->addValues[] = $annotationType;
-                break;
-            case self::VALUE_TYPES['MERGE']:
-                $this->mergeValues[] = $annotationType;
-                break;
-            case self::VALUE_TYPES['SINGLE']:
-                $this->singleValues[] = $annotationType;
-                break;
-            default:
-                throw new InvalidArgumentException($valueType.' is no valid value type! Use a value of this constant to provide a valid type: \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES',
-                    1541348283);
-        }
-
-        AnnotationReader::addGlobalIgnoredName($annotationType);
+        $this->get(ConnectionPool::class)
+            ->getConnectionForTable(self::VALUE_PARSER_TABLE)
+            ->insert(self::VALUE_PARSER_TABLE,
+                [
+                    'annotation_type' => $annotationType,
+                    'class_name'      => $className,
+                    'value_type'      => $valueType,
+                ]
+            );
     }
 
     /**
@@ -156,8 +164,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     {
         $parsedDocComment = null;
 
-        /** @var \ReflectionClass $reflection */
-        $reflection = GeneralUtility::makeInstance(\ReflectionClass::class, $class);
+        /** @var ReflectionClass $reflection */
+        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $class);
 
         if (null !== $methodOrPropertyName) {
             if ($reflection->hasMethod($methodOrPropertyName)) {
@@ -247,6 +255,47 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     }
 
     /**
+     * @param array $classNames
+     */
+    public function removeValueParsers(array $classNames): void
+    {
+        $connection = $this->get(ConnectionPool::class)
+            ->getConnectionForTable(self::VALUE_PARSER_TABLE);
+
+        foreach ($classNames as $className) {
+            $connection->delete(self::VALUE_PARSER_TABLE, ['class_name' => $className]);
+        }
+    }
+
+    private function loadValueParsers()
+    {
+        $statement = $this->get(ConnectionPool::class)
+            ->getConnectionForTable(self::VALUE_PARSER_TABLE)
+            ->select(['*'], self::VALUE_PARSER_TABLE);
+
+        while ($valueParser = $statement->fetch()) {
+            $this->validateParserClass($valueParser['class_name']);
+            $this->validateValueType($valueParser['value_type']);
+            $this->valueParsers[$valueParser['annotation_type']] = $this->get($valueParser['class_name']);
+            AnnotationReader::addGlobalIgnoredName($valueParser['annotation_type']);
+
+            switch ($valueParser['value_type']) {
+                case self::VALUE_TYPES['ADD']:
+                    $this->addValues[] = $valueParser['annotation_type'];
+                    break;
+                case self::VALUE_TYPES['MERGE']:
+                    $this->mergeValues[] = $valueParser['annotation_type'];
+                    break;
+                case self::VALUE_TYPES['SINGLE']:
+                    $this->singleValues[] = $valueParser['annotation_type'];
+                    break;
+                default:
+                    // this case is not possible
+            }
+        }
+    }
+
+    /**
      * @param string|null $annotationType
      * @param mixed       $value
      *
@@ -254,8 +303,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      */
     private function processValue(?string $annotationType, $value)
     {
-        if (isset($this->valueParser[$annotationType])) {
-            return $this->valueParser[$annotationType]->processValue($value);
+        if (isset($this->valueParsers[$annotationType])) {
+            return $this->valueParsers[$annotationType]->processValue($value);
         }
 
         if (null !== $value) {
@@ -284,6 +333,44 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
             }
         } else {
             return [];
+        }
+    }
+
+    /**
+     * @param string $annotationType
+     */
+    private function validateAnnotationType(string $annotationType): void
+    {
+        $count = $this->get(ConnectionPool::class)
+            ->getConnectionForTable(self::VALUE_PARSER_TABLE)
+            ->count('uid', self::VALUE_PARSER_TABLE, ['annotation_type' => $annotationType]);
+
+        if (0 < $count) {
+            throw GeneralUtility::makeInstance(ImplementationException::class,
+                __CLASS__.': "'.$annotationType.'"" has already been registered as annotation type!', 1558813720);
+        }
+    }
+
+    /**
+     * @param string $className
+     */
+    private function validateParserClass(string $className): void
+    {
+        if (!in_array(ValueParserInterface::class, class_implements($className), true)) {
+            throw GeneralUtility::makeInstance(ImplementationException::class,
+                __CLASS__.': '.$className.' has to implement ValueParserInterface!', 1541107562);
+        }
+    }
+
+    /**
+     * @param string $valueType
+     */
+    private function validateValueType(string $valueType): void
+    {
+        if (!in_array($valueType, self::VALUE_TYPES, true)) {
+            throw GeneralUtility::makeInstance(InvalidArgumentException::class,
+                __CLASS__.': "'.$valueType.'" is no valid value type! Use a value of this constant to provide a valid type: \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES',
+                1541107562);
         }
     }
 }
