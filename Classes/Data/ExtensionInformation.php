@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Traits;
+namespace PSB\PsbFoundation\Data;
 
 /***************************************************************
  *  Copyright notice
@@ -27,22 +27,14 @@ namespace PSB\PsbFoundation\Traits;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\ObjectUtility;
-
 /**
- * Trait StaticInjectionTrait
- * @package PSB\PsbFoundation\Traits
+ * Class ExtensionInformation
+ * @package PSB\PsbFoundation\Data
  */
-trait StaticInjectionTrait
+class ExtensionInformation extends AbstractExtensionInformation
 {
-    /**
-     * @param string $className
-     * @param array  $arguments
-     *
-     * @return mixed
-     */
-    protected static function get(string $className, ...$arguments)
-    {
-        return ObjectUtility::get($className, ...$arguments);
-    }
+    public const EXTENSION_INFORMATION = [
+        'EXTENSION_KEY' => 'psb_foundation',
+        'VENDOR_NAME'   => 'PSB',
+    ];
 }

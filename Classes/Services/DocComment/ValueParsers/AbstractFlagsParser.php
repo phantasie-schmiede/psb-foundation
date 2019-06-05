@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Traits;
+namespace PSB\PsbFoundation\Services\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,22 +27,30 @@ namespace PSB\PsbFoundation\Traits;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\ObjectUtility;
+use Exception;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Trait StaticInjectionTrait
- * @package PSB\PsbFoundation\Traits
+ * Class AbstractFlagsParser
+ * @package PSB\PsbFoundation\Services\DocComment\ValueParsers
  */
-trait StaticInjectionTrait
+abstract class AbstractFlagsParser implements ValueParserInterface
 {
     /**
-     * @param string $className
-     * @param array  $arguments
+     * @param string|null $flags
      *
      * @return mixed
+     * @throws Exception
      */
-    protected static function get(string $className, ...$arguments)
+    public function processValue(?string $flags)
     {
-        return ObjectUtility::get($className, ...$arguments);
+        if (null === $flags) {
+            /** @noinspection PhpUndefinedClassConstantInspection */
+            throw new AnnotationException(static::ANNOTATION_TYPE.' must be followed by a string value!',
+                1559479332);
+        }
+
+        return array_fill_keys(GeneralUtility::trimExplode(' ', $flags, true), true);
     }
 }

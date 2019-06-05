@@ -157,12 +157,12 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      * @param object|string $class
      * @param string|null   $methodOrPropertyName
      *
-     * @return array|null
+     * @return array
      * @throws ReflectionException
      */
-    public function parsePhpDocComment($class, string $methodOrPropertyName = null): ?array
+    public function parsePhpDocComment($class, string $methodOrPropertyName = null): array
     {
-        $parsedDocComment = null;
+        $parsedDocComment = [];
 
         /** @var ReflectionClass $reflection */
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $class);

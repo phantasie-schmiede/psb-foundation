@@ -231,6 +231,23 @@ class VariableUtility
     }
 
     /**
+     * @param string $string
+     * @param string $ending
+     *
+     * @return bool
+     */
+    public static function endsWith(string $string, string $ending): bool
+    {
+        $offset = strlen($ending);
+
+        if ($offset > strlen($string)) {
+            return false;
+        }
+
+        return strpos($string, $ending, -$offset) === strlen($string) - $offset;
+    }
+
+    /**
      * @param array $array
      * @param array $elements
      * @param int   $index
@@ -259,5 +276,16 @@ class VariableUtility
     public static function isNumericArray(array $array): bool
     {
         return 0 < count(array_filter($array, 'is_numeric', ARRAY_FILTER_USE_KEY));
+    }
+
+    /**
+     * @param string $string
+     * @param string $beginning
+     *
+     * @return bool
+     */
+    public static function startsWith(string $string, string $beginning): bool
+    {
+        return 0 === strrpos($string, $beginning, -strlen($string));
     }
 }

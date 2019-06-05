@@ -36,11 +36,6 @@ use PSB\PsbFoundation\Utilities\ObjectUtility;
 trait InjectionTrait
 {
     /**
-     * @var array
-     */
-    private $instances = [];
-
-    /**
      * @param string $className
      * @param array  $arguments
      *
@@ -48,10 +43,6 @@ trait InjectionTrait
      */
     protected function get(string $className, ...$arguments)
     {
-        if (!isset($this->instances[$className])) {
-            $this->instances[$className] = ObjectUtility::get($className, ...$arguments);
-        }
-
-        return $this->instances[$className];
+        return ObjectUtility::get($className, ...$arguments);
     }
 }

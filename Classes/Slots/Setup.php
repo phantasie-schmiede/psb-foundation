@@ -28,7 +28,10 @@ namespace PSB\PsbFoundation\Slots;
  ***************************************************************/
 
 use Exception;
+use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginActionParser;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
@@ -42,38 +45,44 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class Setup
 {
     /**
-     * @param string $extensionName
+     * @param string $extensionKey
      *
      * @throws Exception
      */
-    public function onInstall(string $extensionName): void
+    public function onInstall(string $extensionKey): void
     {
-        if ('psb_foundation' !== $extensionName) {
+        if (ExtensionInformation::getExtensionKey() !== $extensionKey) {
             return;
         }
 
         $docCommentParser = GeneralUtility::makeInstance(ObjectManager::class)->get(DocCommentParserService::class);
-        $docCommentParser->addValueParser(TcaFieldConfigParser::ANNOTATION_TYPE, TcaFieldConfigParser::class,
+        $docCommentParser->addValueParser(PluginActionParser::ANNOTATION_TYPE, PluginActionParser::class,
+            DocCommentParserService::VALUE_TYPES['MERGE']);
+        $docCommentParser->addValueParser(PluginConfigParser::ANNOTATION_TYPE, PluginConfigParser::class,
             DocCommentParserService::VALUE_TYPES['MERGE']);
         $docCommentParser->addValueParser(TcaConfigParser::ANNOTATION_TYPE, TcaConfigParser::class,
+            DocCommentParserService::VALUE_TYPES['MERGE']);
+        $docCommentParser->addValueParser(TcaFieldConfigParser::ANNOTATION_TYPE, TcaFieldConfigParser::class,
             DocCommentParserService::VALUE_TYPES['MERGE']);
         $docCommentParser->addValueParser(TcaMappingParser::ANNOTATION_TYPE, TcaMappingParser::class,
             DocCommentParserService::VALUE_TYPES['MERGE']);
     }
 
     /**
-     * @param string $extensionName
+     * @param string $extensionKey
      */
-    public function onUninstall(string $extensionName): void
+    public function onUninstall(string $extensionKey): void
     {
-        if ('psb_foundation' !== $extensionName) {
+        if (ExtensionInformation::getExtensionKey() !== $extensionKey) {
             return;
         }
 
         $docCommentParser = GeneralUtility::makeInstance(ObjectManager::class)->get(DocCommentParserService::class);
         $docCommentParser->removeValueParsers([
-            TcaFieldConfigParser::class,
+            PluginActionParser::class,
+            PluginConfigParser::class,
             TcaConfigParser::class,
+            TcaFieldConfigParser::class,
             TcaMappingParser::class,
         ]);
     }

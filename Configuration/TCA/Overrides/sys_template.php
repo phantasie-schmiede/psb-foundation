@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 defined('TYPO3_MODE') or die();
 
-call_user_func(
-    static function ($extensionKey) {
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($extensionKey, 'Configuration/TypoScript',
-            'Basic configuration');
-    },
-    'psb_foundation'
-);
+(static function () {
+    \PSB\PsbFoundation\Utilities\TypoScriptUtility::registerTypoScript(\PSB\PsbFoundation\Data\ExtensionInformation::class);
+})();

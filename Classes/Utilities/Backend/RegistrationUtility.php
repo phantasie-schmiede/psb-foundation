@@ -28,22 +28,41 @@ namespace PSB\PsbFoundation\Utilities\Backend;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\VariableUtility;
-use PSB\PsbFoundation\Services\GlobalVariableService;
+use InvalidArgumentException;
+use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
+use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginActionParser;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginConfigParser;
+use PSB\PsbFoundation\Traits\StaticInjectionTrait;
+use PSB\PsbFoundation\Utilities\ObjectUtility;
 use PSB\PsbFoundation\Utilities\TypoScriptUtility;
+use PSB\PsbFoundation\Utilities\VariableUtility;
+use ReflectionClass;
+use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 /**
- * Class ContentElementUtility
+ * Class RegistrationUtility
  * @package PSB\PsbFoundation\Utilities\Backend
  */
-class ContentElementUtility
+class RegistrationUtility
 {
+    use StaticInjectionTrait;
+
+    private const COLLECT_MODES = [
+        'CONFIGURE_PLUGINS' => 'configurePlugins',
+        'REGISTER_MODULES'  => 'registerModules',
+        'REGISTER_PLUGINS'  => 'registerPlugins',
+    ];
+
     /**
      * For use in ext_localconf.php
      *
@@ -51,8 +70,6 @@ class ContentElementUtility
      * @param string $group
      * @param string $pluginName
      * @param string $iconIdentifier
-     *
-     * @throws InvalidConfigurationTypeException
      */
     public static function addPluginToElementWizard(
         string $extensionKey,
@@ -118,6 +135,37 @@ class ContentElementUtility
         ];
 
         ExtensionManagementUtility::addTypoScriptSetup(TypoScriptUtility::convertArrayToTypoScript($typoScript));
+    }
+
+    /**
+     * For use in ext_localconf.php
+     *
+     * @param string $extensionInformation
+     *
+     * @throws ReflectionException
+     */
+    public static function configurePlugins(string $extensionInformation): void
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        if (self::validateExtensionInformation($extensionInformation) && is_iterable($extensionInformation::getPlugins())) {
+            /** @var ExtensionInformationInterface $extensionInformation */
+            foreach ($extensionInformation::getPlugins() as $pluginName => $controllerClassNames) {
+                if (is_iterable($controllerClassNames)) {
+                    [
+                        $controllersAndCachedActions,
+                        $controllersAndUncachedActions,
+                    ] = self::collectActionsAndConfiguration($controllerClassNames,
+                        self::COLLECT_MODES['CONFIGURE_PLUGINS']);
+
+                    ExtensionUtility::configurePlugin(
+                        $extensionInformation::getVendorName().'.'.$extensionInformation::getExtensionName(),
+                        $pluginName,
+                        $controllersAndCachedActions,
+                        $controllersAndUncachedActions
+                    );
+                }
+            }
+        }
     }
 
     /**
@@ -207,7 +255,8 @@ class ContentElementUtility
         $file = GeneralUtility::getFileAbsFileName('EXT:'.$extensionKey.'/Configuration/TCA/Content/'.$key.'.php');
 
         if (is_file($file)) {
-            $tcaOfContentType = require($file);
+            /** @noinspection PhpIncludeInspection */
+            $tcaOfContentType = require $file;
 
             if (is_array($tcaOfContentType)) {
                 $coreFields = [];
@@ -252,6 +301,87 @@ class ContentElementUtility
     }
 
     /**
+     * For use in ext_tables.php
+     *
+     * @param string $extensionInformation
+     *
+     * @throws ReflectionException
+     */
+    public static function registerModules(string $extensionInformation): void
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        if ('BE' === TYPO3_MODE && self::validateExtensionInformation($extensionInformation) && is_iterable($extensionInformation::getModules())) {
+            /** @var ExtensionInformationInterface $extensionInformation */
+            foreach ($extensionInformation::getModules() as $submoduleKey => $controllerClassNames) {
+                if (is_iterable($controllerClassNames)) {
+                    [
+                        $moduleConfiguration,
+                        $controllersAndActions,
+                    ] = self::collectActionsAndConfiguration($controllerClassNames,
+                        self::COLLECT_MODES['REGISTER_MODULES']);
+
+                    ExtensionUtility::registerModule(
+                        $extensionInformation::getVendorName().'.'.$extensionInformation::getExtensionName(),
+                        $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['mainModuleName'] ?? 'web',
+                        $submoduleKey,
+                        $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['position'] ?? '',
+                        $controllersAndActions,
+                        [
+                            'access'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['access'] ?? 'group, user',
+                            'icon'           => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['icon'] ?? null,
+                            'iconIdentifier' => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? 'module-'.$submoduleKey,
+                            'labels'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['labels'] ?? 'LLL:EXT:'.$extensionInformation::getExtensionKey().'/Resources/Private/Language/Backend/Modules/'.$submoduleKey.'.xlf',
+                        ]
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * For use in Configuration/TCA/Overrides/tt_content.php
+     *
+     * @param string $extensionInformation
+     *
+     * @throws ReflectionException
+     */
+    public static function registerPlugins(string $extensionInformation): void
+    {
+        /** @noinspection PhpUndefinedMethodInspection */
+        if (self::validateExtensionInformation($extensionInformation) && is_iterable($extensionInformation::getPlugins())) {
+            /** @var ExtensionInformationInterface $extensionInformation */
+            foreach ($extensionInformation::getPlugins() as $pluginName => $controllerClassNames) {
+                if (is_iterable($controllerClassNames)) {
+                    [$pluginConfiguration] = self::collectActionsAndConfiguration($controllerClassNames,
+                        self::COLLECT_MODES['REGISTER_PLUGINS']);
+
+                    ExtensionUtility::registerPlugin(
+                        $extensionInformation::getExtensionName(),
+                        $pluginName,
+                        $pluginConfiguration['title'] ?? 'LLL:EXT:'.$extensionInformation::getExtensionKey().'/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.'.$pluginName.'.title'
+                    );
+                }
+            }
+        }
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return bool
+     */
+    public static function validateExtensionInformation(string $className): bool
+    {
+        if (class_exists($className) && in_array(ExtensionInformationInterface::class, class_implements($className),
+                true)) {
+            return true;
+        }
+
+        throw ObjectUtility::get(InvalidArgumentException::class,
+            __CLASS__.': "'.$className.'" is not the name of a class that implements the ExtensionInformationInterface!', 1559676576, null);
+    }
+
+    /**
      * @param string $extensionKey
      * @param string $key
      */
@@ -270,8 +400,6 @@ class ContentElementUtility
      * @param string $extensionKey
      * @param string $group
      * @param string $key
-     *
-     * @throws InvalidConfigurationTypeException
      */
     private static function addElementWizardItem(
         array $configuration,
@@ -299,5 +427,88 @@ class ContentElementUtility
     private static function buildContentTypeKey(string $extensionKey, string $contentType): string
     {
         return strtolower(str_replace('_', '', $extensionKey).'_'.$contentType);
+    }
+
+    /**
+     * @param array  $controllerClassNames
+     * @param string $collectMode
+     *
+     * @return array
+     * @throws ReflectionException
+     */
+    private static function collectActionsAndConfiguration(array $controllerClassNames, string $collectMode): array
+    {
+        $configuration = [];
+        $controllersAndCachedActions = [];
+        $controllersAndUncachedActions = [];
+        $docCommentParserService = self::get(DocCommentParserService::class);
+
+        foreach ($controllerClassNames as $controllerClassName) {
+            if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
+                $controller = self::get(ReflectionClass::class, $controllerClassName);
+                $methods = $controller->getMethods();
+
+                foreach ($methods as $method) {
+                    $methodName = $method->getName();
+                    if (!VariableUtility::endsWith($methodName,
+                            'Action') || VariableUtility::startsWith($methodName,
+                            'initialize') || in_array($method->getDeclaringClass()->getName(),
+                            [AbstractModuleController::class, ActionController::class], true)) {
+                        continue;
+                    }
+
+                    $docComment = $docCommentParserService->parsePhpDocComment($controllerClassName,
+                        $methodName);
+
+                    if (!isset($docComment[PluginActionParser::ANNOTATION_TYPE]['ignore'])) {
+                        $actionName = substr($methodName, 0, -6);
+
+                        if ($docComment[PluginActionParser::ANNOTATION_TYPE]['default']) {
+                            array_unshift($controllersAndCachedActions[$controllerClassName::CONTROLLER_NAME],
+                                $actionName);
+                        } else {
+                            $controllersAndCachedActions[$controllerClassName::CONTROLLER_NAME][] = $actionName;
+                        }
+
+                        if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode && isset($docComment[PluginActionParser::ANNOTATION_TYPE]['uncached'])) {
+                            $controllersAndUncachedActions[$controllerClassName::CONTROLLER_NAME][] = $actionName;
+                        }
+                    }
+                }
+            }
+
+            if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] !== $collectMode) {
+                ArrayUtility::mergeRecursiveWithOverrule($configuration,
+                    $docCommentParserService->parsePhpDocComment($controllerClassName));
+            }
+        }
+
+        if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
+            array_walk($controllersAndCachedActions, static function (&$value) {
+                $value = implode(', ', $value);
+            });
+
+            if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode) {
+                array_walk($controllersAndUncachedActions, static function (&$value) {
+                    $value = implode(', ', $value);
+                });
+            }
+        }
+
+        switch ($collectMode) {
+            case self::COLLECT_MODES['CONFIGURE_PLUGINS']:
+                return [$controllersAndCachedActions, $controllersAndUncachedActions];
+                break;
+            case self::COLLECT_MODES['REGISTER_MODULES']:
+                return [$configuration, $controllersAndCachedActions];
+                break;
+            case self::COLLECT_MODES['REGISTER_PLUGINS']:
+                return [$configuration];
+                break;
+            default:
+                throw self::get(InvalidArgumentException::class,
+                    __CLASS__.': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "'.$collectMode.'""!',
+                    1559627862);
+        }
     }
 }

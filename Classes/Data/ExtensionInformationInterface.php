@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Traits;
+namespace PSB\PsbFoundation\Data;
 
 /***************************************************************
  *  Copyright notice
@@ -27,22 +27,36 @@ namespace PSB\PsbFoundation\Traits;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\ObjectUtility;
+use TYPO3\CMS\Core\SingletonInterface;
 
 /**
- * Trait StaticInjectionTrait
- * @package PSB\PsbFoundation\Traits
+ * Interface ExtensionInformationInterface
+ * @package PSB\PsbFoundation\Data
  */
-trait StaticInjectionTrait
+interface ExtensionInformationInterface extends SingletonInterface
 {
     /**
-     * @param string $className
-     * @param array  $arguments
-     *
-     * @return mixed
+     * @return string
      */
-    protected static function get(string $className, ...$arguments)
-    {
-        return ObjectUtility::get($className, ...$arguments);
-    }
+    public static function getExtensionKey(): string;
+
+    /**
+     * @return string
+     */
+    public static function getExtensionName(): string;
+
+    /**
+     * @return array|null
+     */
+    public static function getModules(): ?array;
+
+    /**
+     * @return array|null
+     */
+    public static function getPlugins(): ?array;
+
+    /**
+     * @return string
+     */
+    public static function getVendorName(): string;
 }

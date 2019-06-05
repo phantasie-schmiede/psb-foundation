@@ -27,6 +27,8 @@ namespace PSB\PsbFoundation\Utilities;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Utilities\Backend\RegistrationUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use UnexpectedValueException;
@@ -49,21 +51,18 @@ class TypoScriptUtility
         'IMPORT'      => '_import',
         'OBJECT_TYPE' => '_objectType',
     ];
-
-    /**
-     * @var string
-     */
-    private static $objectPath = '';
-
     /**
      * @var string
      */
     private static $lineBreakAfterCurlyBracketClose = '';
-
     /**
      * @var string
      */
     private static $lineBreakBeforeCurlyBracketOpen = '';
+    /**
+     * @var string
+     */
+    private static $objectPath = '';
 
     /**
      * @param array $array
@@ -135,16 +134,19 @@ class TypoScriptUtility
     }
 
     /**
-     * @param string $extensionKey
+     * @param string $extensionInformation
      * @param string $path
      * @param string $title
      */
     public static function registerTypoScript(
-        string $extensionKey,
+        string $extensionInformation,
         string $path = 'Configuration/TypoScript',
         string $title = 'Main configuration'
     ): void {
-        ExtensionManagementUtility::addStaticFile($extensionKey, $path, $title);
+        if (RegistrationUtility::validateExtensionInformation($extensionInformation)) {
+            /** @var ExtensionInformationInterface $extensionInformation */
+            ExtensionManagementUtility::addStaticFile($extensionInformation::getExtensionKey(), $path, $title);
+        }
     }
 
     /**

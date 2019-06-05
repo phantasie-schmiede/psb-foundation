@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Traits;
+namespace PSB\PsbFoundation\Services\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,22 +27,11 @@ namespace PSB\PsbFoundation\Traits;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\ObjectUtility;
-
 /**
- * Trait StaticInjectionTrait
- * @package PSB\PsbFoundation\Traits
+ * Class PluginConfigParser
+ * @package PSB\PsbFoundation\Services\DocComment\ValueParsers
  */
-trait StaticInjectionTrait
+class PluginConfigParser extends AbstractValuePairsParser
 {
-    /**
-     * @param string $className
-     * @param array  $arguments
-     *
-     * @return mixed
-     */
-    protected static function get(string $className, ...$arguments)
-    {
-        return ObjectUtility::get($className, ...$arguments);
-    }
+    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Plugin';
 }
