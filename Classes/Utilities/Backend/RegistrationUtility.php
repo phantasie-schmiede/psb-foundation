@@ -330,6 +330,8 @@ class RegistrationUtility
                     ] = self::collectActionsAndConfiguration($controllerClassNames,
                         self::COLLECT_MODES['REGISTER_MODULES']);
 
+                    $iconIdentifier = $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? 'module-'.$submoduleKey;
+
                     ExtensionUtility::registerModule(
                         $extensionInformation::getVendorName().'.'.$extensionInformation::getExtensionName(),
                         $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['mainModuleName'] ?? 'web',
@@ -339,7 +341,8 @@ class RegistrationUtility
                         [
                             'access'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['access'] ?? 'group, user',
                             'icon'           => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['icon'] ?? null,
-                            'iconIdentifier' => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? 'module-'.$submoduleKey,
+                            'iconIdentifier' => self::get(IconRegistry::class)
+                                ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
                             'labels'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['labels'] ?? 'LLL:EXT:'.$extensionInformation::getExtensionKey().'/Resources/Private/Language/Backend/Modules/'.$submoduleKey.'.xlf',
                         ]
                     );
