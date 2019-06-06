@@ -42,12 +42,13 @@ use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
  * Class RegistrationUtility
@@ -77,12 +78,16 @@ class RegistrationUtility
         string $pluginName,
         string $iconIdentifier = null
     ): void {
+        $iconIdentifier = $iconIdentifier ?? str_replace('_', '-',
+                GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
         $listType = str_replace('_', '', $extensionKey).'_'.strtolower($pluginName);
+        $title = 'LLL:EXT:'.$extensionKey.'/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:'.$group.'.elements.'.lcfirst($pluginName).'.title';
+
         $configuration = [
             'description'          => 'LLL:EXT:'.$extensionKey.'/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:'.$group.'.elements.'.lcfirst($pluginName).'.description',
-            'iconIdentifier'       => $iconIdentifier ?? str_replace('_', '-',
-                    GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName)),
-            'title'                => 'LLL:EXT:'.$extensionKey.'/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:'.$group.'.elements.'.lcfirst($pluginName).'.title',
+            'iconIdentifier'       => self::get(IconRegistry::class)
+                ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
+            'title'                => LocalizationUtility::translate($title) ? $title : $pluginName,
             'tt_content_defValues' => [
                 'CType'     => 'list',
                 'list_type' => $listType,
@@ -100,8 +105,6 @@ class RegistrationUtility
      * @param string      $group
      * @param string|null $iconIdentifier
      * @param string|null $templatePath
-     *
-     * @throws InvalidConfigurationTypeException
      */
     public static function configureContentType(
         string $contentType,
@@ -146,12 +149,14 @@ class RegistrationUtility
      */
     public static function configurePlugins(string $extensionInformation): void
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        if (self::validateExtensionInformation($extensionInformation) && is_iterable($extensionInformation::getPlugins())) {
-            /** @var ExtensionInformationInterface $extensionInformation */
+        self::validateExtensionInformation($extensionInformation);
+
+        /** @var ExtensionInformationInterface $extensionInformation */
+        if (is_iterable($extensionInformation::getPlugins())) {
             foreach ($extensionInformation::getPlugins() as $pluginName => $controllerClassNames) {
                 if (is_iterable($controllerClassNames)) {
                     [
+                        $pluginConfiguration,
                         $controllersAndCachedActions,
                         $controllersAndUncachedActions,
                     ] = self::collectActionsAndConfiguration($controllerClassNames,
@@ -163,6 +168,10 @@ class RegistrationUtility
                         $controllersAndCachedActions,
                         $controllersAndUncachedActions
                     );
+
+                    self::addPluginToElementWizard($extensionInformation::getExtensionKey(),
+                        $pluginConfiguration['group'] ?? strtolower($extensionInformation::getVendorName()),
+                        $pluginName, $pluginConfiguration['iconIdentifier'] ?? null);
                 }
             }
         }
@@ -309,9 +318,10 @@ class RegistrationUtility
      */
     public static function registerModules(string $extensionInformation): void
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        if ('BE' === TYPO3_MODE && self::validateExtensionInformation($extensionInformation) && is_iterable($extensionInformation::getModules())) {
-            /** @var ExtensionInformationInterface $extensionInformation */
+        self::validateExtensionInformation($extensionInformation);
+
+        /** @var ExtensionInformationInterface $extensionInformation */
+        if ('BE' === TYPO3_MODE && is_iterable($extensionInformation::getModules())) {
             foreach ($extensionInformation::getModules() as $submoduleKey => $controllerClassNames) {
                 if (is_iterable($controllerClassNames)) {
                     [
@@ -347,9 +357,10 @@ class RegistrationUtility
      */
     public static function registerPlugins(string $extensionInformation): void
     {
-        /** @noinspection PhpUndefinedMethodInspection */
-        if (self::validateExtensionInformation($extensionInformation) && is_iterable($extensionInformation::getPlugins())) {
-            /** @var ExtensionInformationInterface $extensionInformation */
+        self::validateExtensionInformation($extensionInformation);
+
+        /** @var ExtensionInformationInterface $extensionInformation */
+        if (is_iterable($extensionInformation::getPlugins())) {
             foreach ($extensionInformation::getPlugins() as $pluginName => $controllerClassNames) {
                 if (is_iterable($controllerClassNames)) {
                     [$pluginConfiguration] = self::collectActionsAndConfiguration($controllerClassNames,
@@ -367,18 +378,15 @@ class RegistrationUtility
 
     /**
      * @param string $className
-     *
-     * @return bool
      */
-    public static function validateExtensionInformation(string $className): bool
+    public static function validateExtensionInformation(string $className): void
     {
-        if (class_exists($className) && in_array(ExtensionInformationInterface::class, class_implements($className),
+        if (!class_exists($className) || !in_array(ExtensionInformationInterface::class, class_implements($className),
                 true)) {
-            return true;
+            throw ObjectUtility::get(InvalidArgumentException::class,
+                __CLASS__.': "'.$className.'" is not the name of a class that implements the ExtensionInformationInterface!',
+                1559676576, null);
         }
-
-        throw ObjectUtility::get(InvalidArgumentException::class,
-            __CLASS__.': "'.$className.'" is not the name of a class that implements the ExtensionInformationInterface!', 1559676576, null);
     }
 
     /**
@@ -387,8 +395,10 @@ class RegistrationUtility
      */
     private static function addElementWizardGroup(string $extensionKey, string $key): void
     {
+        $header = 'LLL:EXT:'.$extensionKey.'/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:'.$key.'.header';
+
         $pageTS['mod']['wizards']['newContentElement']['wizardItems'][$key] = [
-            'header' => 'LLL:EXT:'.$extensionKey.'/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:'.$key.'.header',
+            'header' => LocalizationUtility::translate($header) ? $header : ucfirst($key),
             'show'   => '*',
         ];
 
@@ -497,7 +507,7 @@ class RegistrationUtility
 
         switch ($collectMode) {
             case self::COLLECT_MODES['CONFIGURE_PLUGINS']:
-                return [$controllersAndCachedActions, $controllersAndUncachedActions];
+                return [$configuration, $controllersAndCachedActions, $controllersAndUncachedActions];
                 break;
             case self::COLLECT_MODES['REGISTER_MODULES']:
                 return [$configuration, $controllersAndCachedActions];

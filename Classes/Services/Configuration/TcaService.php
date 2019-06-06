@@ -28,12 +28,14 @@ namespace PSB\PsbFoundation\Services\Configuration;
  ***************************************************************/
 
 use Exception;
+use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Exceptions\UnsetPropertyException;
 use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Utilities\Backend\RegistrationUtility;
 use PSB\PsbFoundation\Utilities\VariableUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -121,122 +123,24 @@ class TcaService
     }
 
     /**
-     * 'main' function
+     * For usage in ext_tables.php
      *
-     * Use the return of this function as return in your TCA-file
-     *
-     * @param bool $autoCreateShowItemList
-     *
-     * @return array
-     * @throws Exception
+     * @param string $extensionInformation
      */
-    public function getConfiguration(bool $autoCreateShowItemList = true): array
+    public static function registerNewTablesInGlobalTca(string $extensionInformation): void
     {
-        // configuration must have at least one type defined
-        if ($autoCreateShowItemList) {
-            if ('' === $this->configuration['types'][0]) {
-                $columns = array_keys($this->configuration['columns']);
-                foreach ($columns as $column) {
-                    if (!in_array($column, $this->getPreDefinedColumns(), true)) {
-                        $this->addFieldToType($column);
-                    }
-                }
-            }
+        RegistrationUtility::validateExtensionInformation($extensionInformation);
+        /** @var ExtensionInformationInterface $extensionInformation */
+        $identifier = 'tx_'.strtolower($extensionInformation::getExtensionName()).'_domain_model_';
 
-            // add default access fields to all types
-            $types = array_keys($this->configuration['types']);
-            foreach ($types as $type) {
-                $this->addFieldToType('--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
-                    $type);
-            }
-        }
+        $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
+            return VariableUtility::startsWith($key, $identifier);
+        });
 
-        $this->validateConfiguration();
-
-        return $this->configuration;
-    }
-
-    /**
-     * @param array $configuration
-     * @param bool  $merge
-     */
-    public function setConfiguration(array $configuration, bool $merge = false): void
-    {
-        if ($merge) {
-            ArrayUtility::mergeRecursiveWithOverrule($this->configuration, $configuration);
-        } else {
-            $this->configuration = $configuration;
-        }
-    }
-
-    /**
-     * @param string $property
-     *
-     * @return mixed
-     */
-    public function getCtrlProperty(string $property)
-    {
-        return $this->configuration['ctrl'][$property];
-    }
-
-    /**
-     * @param array $ctrlProperties
-     *
-     * @return $this
-     */
-    public function setCtrlProperties(array $ctrlProperties): self
-    {
-        foreach ($ctrlProperties as $property => $value) {
-            $this->configuration['ctrl'][$property] = $value;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDefaultLabelPath(): string
-    {
-        return $this->defaultLabelPath;
-    }
-
-    /**
-     * @param string $defaultLabelPath
-     */
-    public function setDefaultLabelPath(string $defaultLabelPath): void
-    {
-        $this->defaultLabelPath = $defaultLabelPath;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPreDefinedColumns(): array
-    {
-        return $this->preDefinedColumns;
-    }
-
-    /**
-     * @param array $preDefinedColumns
-     */
-    public function setPreDefinedColumns(array $preDefinedColumns): void
-    {
-        $this->preDefinedColumns = $preDefinedColumns;
-    }
-
-    /**
-     * Use this function in ext_tables.php
-     *
-     * @param string $extensionKey
-     * @param array  $tables
-     */
-    public static function registerNewTablesInGlobalTca(string $extensionKey, array $tables): void
-    {
-        foreach ($tables as $table) {
+        foreach ($newTables as $table) {
             ExtensionManagementUtility::allowTableOnStandardPages($table);
             ExtensionManagementUtility::addLLrefForTCAdescr($table,
-                'EXT:'.$extensionKey.'/Resources/Private/Language/Backend/CSH/'.$table.'.xlf');
+                'EXT:'.$extensionInformation::getExtensionKey().'/Resources/Private/Language/Backend/CSH/'.$table.'.xlf');
         }
     }
 
@@ -422,6 +326,111 @@ class TcaService
     {
         $this->configuration['ctrl']['default_sortby'] = null;
         $this->configuration['ctrl']['sortby'] = $column;
+    }
+
+    /**
+     * 'main' function
+     *
+     * Use the return of this function as return in your TCA-file
+     *
+     * @param bool $autoCreateShowItemList
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getConfiguration(bool $autoCreateShowItemList = true): array
+    {
+        // configuration must have at least one type defined
+        if ($autoCreateShowItemList) {
+            if ('' === $this->configuration['types'][0]) {
+                $columns = array_keys($this->configuration['columns']);
+                foreach ($columns as $column) {
+                    if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                        $this->addFieldToType($column);
+                    }
+                }
+            }
+
+            // add default access fields to all types
+            $types = array_keys($this->configuration['types']);
+            foreach ($types as $type) {
+                $this->addFieldToType('--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
+                    $type);
+            }
+        }
+
+        $this->validateConfiguration();
+
+        return $this->configuration;
+    }
+
+    /**
+     * @param array $configuration
+     * @param bool  $merge
+     */
+    public function setConfiguration(array $configuration, bool $merge = false): void
+    {
+        if ($merge) {
+            ArrayUtility::mergeRecursiveWithOverrule($this->configuration, $configuration);
+        } else {
+            $this->configuration = $configuration;
+        }
+    }
+
+    /**
+     * @param string $property
+     *
+     * @return mixed
+     */
+    public function getCtrlProperty(string $property)
+    {
+        return $this->configuration['ctrl'][$property];
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultLabelPath(): string
+    {
+        return $this->defaultLabelPath;
+    }
+
+    /**
+     * @param string $defaultLabelPath
+     */
+    public function setDefaultLabelPath(string $defaultLabelPath): void
+    {
+        $this->defaultLabelPath = $defaultLabelPath;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPreDefinedColumns(): array
+    {
+        return $this->preDefinedColumns;
+    }
+
+    /**
+     * @param array $preDefinedColumns
+     */
+    public function setPreDefinedColumns(array $preDefinedColumns): void
+    {
+        $this->preDefinedColumns = $preDefinedColumns;
+    }
+
+    /**
+     * @param array $ctrlProperties
+     *
+     * @return $this
+     */
+    public function setCtrlProperties(array $ctrlProperties): self
+    {
+        foreach ($ctrlProperties as $property => $value) {
+            $this->configuration['ctrl'][$property] = $value;
+        }
+
+        return $this;
     }
 
     /**

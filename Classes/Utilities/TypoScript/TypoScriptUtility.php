@@ -143,10 +143,9 @@ class TypoScriptUtility
         string $path = 'Configuration/TypoScript',
         string $title = 'Main configuration'
     ): void {
-        if (RegistrationUtility::validateExtensionInformation($extensionInformation)) {
-            /** @var ExtensionInformationInterface $extensionInformation */
-            ExtensionManagementUtility::addStaticFile($extensionInformation::getExtensionKey(), $path, $title);
-        }
+        RegistrationUtility::validateExtensionInformation($extensionInformation);
+        /** @var ExtensionInformationInterface $extensionInformation */
+        ExtensionManagementUtility::addStaticFile($extensionInformation::getExtensionKey(), $path, $title);
     }
 
     /**
