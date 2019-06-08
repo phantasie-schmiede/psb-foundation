@@ -17,6 +17,16 @@ defined('TYPO3_MODE') or die();
     $typoScriptParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\Configuration\ValueParsers\TypoScriptParser::class);
     \PSB\PsbFoundation\Services\Configuration\FlexFormService::addValueParser($typoScriptParser);
 
+    $docCommentCacheIdentifier = \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::getCacheIdentifier();
+
+    if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier])) {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier] = [];
+    }
+
+    if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier]['backend'])) {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier]['backend'] = \TYPO3\CMS\Core\Cache\Backend\SimpleFileBackend::class;
+    }
+
     // customize BE login style
     // $GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'] = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf']['backend'], ['allowed_classes' => false]);
     //

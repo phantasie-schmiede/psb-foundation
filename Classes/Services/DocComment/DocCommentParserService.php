@@ -31,6 +31,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use Exception;
 use InvalidArgumentException;
+use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
@@ -39,6 +40,10 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ReflectionClass;
 use ReflectionException;
+use TYPO3\CMS\Core\Cache\CacheManager;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -96,6 +101,11 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     ];
 
     /**
+     * @var FrontendInterface
+     */
+    private $cache;
+
+    /**
      * @var Connection
      */
     private $connection;
@@ -122,6 +132,14 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     public function __construct()
     {
         $this->loadValueParsers();
+    }
+
+    /**
+     * @return string
+     */
+    public static function getCacheIdentifier(): string
+    {
+        return ExtensionInformation::getExtensionKey().'_docComments';
     }
 
     /**
@@ -159,9 +177,17 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      *
      * @return array
      * @throws ReflectionException
+     * @throws NoSuchCacheException
      */
     public function parsePhpDocComment($class, string $methodOrPropertyName = null): array
     {
+        $entryIdentifier = VariableUtility::createHash($class.$methodOrPropertyName);
+        $cachedDocComment = $this->readFromCache($entryIdentifier);
+
+        if (false !== $cachedDocComment) {
+            return $cachedDocComment;
+        }
+
         $parsedDocComment = [];
 
         /** @var ReflectionClass $reflection */
@@ -251,6 +277,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
             }
         }
 
+        $this->writeToCache($entryIdentifier, $parsedDocComment);
+
         return $parsedDocComment;
     }
 
@@ -265,6 +293,15 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         foreach ($classNames as $className) {
             $connection->delete(self::VALUE_PARSER_TABLE, ['class_name' => $className]);
         }
+    }
+
+    /**
+     * @return string
+     * @see \TYPO3\CMS\Core\Cache\Backend\SimpleFileBackend::setCache()
+     */
+    private function getCacheDirectory(): string
+    {
+        return Environment::getVarPath().'/cache/data/'.self::getCacheIdentifier().'/';
     }
 
     private function loadValueParsers()
@@ -337,6 +374,36 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     }
 
     /**
+     * @param string $entryIdentifier
+     *
+     * @return mixed
+     * @throws NoSuchCacheException
+     */
+    private function readFromCache(string $entryIdentifier)
+    {
+        // this service may be used before the caching framework is available
+        if ($this->cache instanceof FrontendInterface) {
+            return $this->cache->get($entryIdentifier);
+        }
+
+        $cacheManager = $this->get(CacheManager::class);
+
+        if ($cacheManager->hasCache(self::getCacheIdentifier())) {
+            $this->cache = $cacheManager->getCache(self::getCacheIdentifier());
+
+            return $this->cache->get($entryIdentifier);
+        }
+
+        $cacheDirectory = $this->getCacheDirectory();
+
+        if (is_readable($cacheDirectory.$entryIdentifier)) {
+            return unserialize(file_get_contents($cacheDirectory.$entryIdentifier), ['allowed_classes' => false]);
+        }
+
+        return false;
+    }
+
+    /**
      * @param string $annotationType
      */
     private function validateAnnotationType(string $annotationType): void
@@ -371,6 +438,25 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
             throw GeneralUtility::makeInstance(InvalidArgumentException::class,
                 __CLASS__.': "'.$valueType.'" is no valid value type! Use a value of this constant to provide a valid type: \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::VALUE_TYPES',
                 1541107562);
+        }
+    }
+
+    /**
+     * @param string $entryIdentifier
+     * @param array  $parsedDocComment
+     */
+    private function writeToCache(string $entryIdentifier, array $parsedDocComment)
+    {
+        if ($this->cache instanceof FrontendInterface) {
+            $this->cache->set($entryIdentifier, $parsedDocComment);
+        } else {
+            $cacheDirectory = $this->getCacheDirectory();
+
+            if (!is_writable($cacheDirectory)) {
+                GeneralUtility::mkdir_deep($cacheDirectory);
+            }
+
+            file_put_contents($cacheDirectory.$entryIdentifier, serialize($parsedDocComment));
         }
     }
 }
