@@ -27,36 +27,34 @@ namespace PSB\PsbFoundation\Data;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\SingletonInterface;
-
 /**
  * Interface ExtensionInformationInterface
  * @package PSB\PsbFoundation\Data
  */
-interface ExtensionInformationInterface extends SingletonInterface
+interface ExtensionInformationInterface
 {
     /**
      * @return string
      */
-    public static function getExtensionKey(): string;
+    public function getExtensionKey(): string;
 
     /**
      * @return string
      */
-    public static function getExtensionName(): string;
+    public function getExtensionName(): string;
 
     /**
-     * @return array|null
+     * @return array
      */
-    public static function getModules(): ?array;
+    public function getModules(): array;
 
     /**
-     * @return array|null
+     * @return array
      */
-    public static function getPlugins(): ?array;
+    public function getPlugins(): array;
 
     /**
      * @return string
      */
-    public static function getVendorName(): string;
+    public function getVendorName(): string;
 }

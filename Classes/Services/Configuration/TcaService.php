@@ -35,7 +35,6 @@ use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utilities\Backend\RegistrationUtility;
 use PSB\PsbFoundation\Utilities\VariableUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -43,7 +42,9 @@ use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use function count;
 
 /**
@@ -87,13 +88,8 @@ class TcaService
     private $table;
 
     /**
-     * TcaService constructor.
-     *
      * @param string      $classOrTableName
      * @param string|null $extensionKey
-     *
-     * @throws ReflectionException
-     * @throws NoSuchCacheException
      */
     public function __construct(
         string $classOrTableName,
@@ -103,7 +99,7 @@ class TcaService
 
         if (false !== strpos($classOrTableName, '\\')) {
             $this->className = $classOrTableName;
-            $this->table = VariableUtility::convertClassNameToTableName($this->className);
+            $this->table = $this->get(DataMapper::class)->convertClassNameToTableName($this->className);
             $this->configuration = $this->getDummyConfiguration($this->table);
             $this->setDefaultLabelPath($this->getDefaultLabelPath().$this->table.'.xlf:');
             $this->setCtrlProperties([
@@ -125,13 +121,11 @@ class TcaService
     /**
      * For usage in ext_tables.php
      *
-     * @param string $extensionInformation
+     * @param ExtensionInformationInterface $extensionInformation
      */
-    public static function registerNewTablesInGlobalTca(string $extensionInformation): void
+    public static function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
     {
-        RegistrationUtility::validateExtensionInformation($extensionInformation);
-        /** @var ExtensionInformationInterface $extensionInformation */
-        $identifier = 'tx_'.strtolower($extensionInformation::getExtensionName()).'_domain_model_';
+        $identifier = 'tx_'.strtolower($extensionInformation->getExtensionName()).'_domain_model_';
 
         $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
             return VariableUtility::startsWith($key, $identifier);
@@ -140,7 +134,7 @@ class TcaService
         foreach ($newTables as $table) {
             ExtensionManagementUtility::allowTableOnStandardPages($table);
             ExtensionManagementUtility::addLLrefForTCAdescr($table,
-                'EXT:'.$extensionInformation::getExtensionKey().'/Resources/Private/Language/Backend/CSH/'.$table.'.xlf');
+                'EXT:'.$extensionInformation->getExtensionKey().'/Resources/Private/Language/Backend/CSH/'.$table.'.xlf');
         }
     }
 
@@ -201,7 +195,7 @@ class TcaService
         ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
         $propertyConfiguration = [
             'exclude' => 0,
-            'label'   => $this->getDefaultLabelPath().$property,
+            'label'   => LocalizationUtility::translate($this->getDefaultLabelPath().$property) ? $this->getDefaultLabelPath().$property : $property,
             'config'  => $fieldConfiguration,
         ];
 
@@ -248,6 +242,7 @@ class TcaService
 
     /**
      * @return $this
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      * @throws UnsetPropertyException
      */
@@ -271,7 +266,7 @@ class TcaService
                 $type = $fieldConfig['type'];
                 unset($fieldConfig['type']);
                 $config = $docComment[TcaConfigParser::ANNOTATION_TYPE] ?? [];
-                $this->addColumn(VariableUtility::convertPropertyNameToColumnName($property->getName(),
+                $this->addColumn($this->get(DataMapper::class)->convertPropertyNameToColumnName($property->getName(),
                     $this->className), $type, $fieldConfig, $config);
             }
         }

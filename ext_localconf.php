@@ -3,13 +3,13 @@
 defined('TYPO3_MODE') or die();
 
 (static function () {
-    $extensionKey = \PSB\PsbFoundation\Data\ExtensionInformation::getExtensionKey();
+    $extensionInformation = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Data\ExtensionInformation::class);
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
-             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extensionKey.'/Configuration/TSConfig/PageTS.typoscript">
+             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extensionInformation->getExtensionKey().'/Configuration/TSConfig/PageTS.tsconfig">
         ');
 
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('
-             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extensionKey.'/Configuration/TSConfig/UserTS.typoscript">
+             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extensionInformation->getExtensionKey().'/Configuration/TSConfig/UserTS.tsconfig">
         ');
 
     \PSB\PsbFoundation\Utilities\Backend\SetupUtility::registerSetupSlots(\PSB\PsbFoundation\Slots\Setup::class);

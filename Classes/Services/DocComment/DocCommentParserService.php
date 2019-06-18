@@ -35,6 +35,7 @@ use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\ValueParserInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Utilities\ObjectUtility;
 use PSB\PsbFoundation\Utilities\VariableUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -139,7 +140,9 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      */
     public static function getCacheIdentifier(): string
     {
-        return ExtensionInformation::getExtensionKey().'_docComments';
+        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
+
+        return $extensionInformation->getExtensionKey().'_docComments';
     }
 
     /**
@@ -413,8 +416,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
             ->count('uid', self::VALUE_PARSER_TABLE, ['annotation_type' => $annotationType]);
 
         if (0 < $count) {
-            throw GeneralUtility::makeInstance(ImplementationException::class,
-                __CLASS__.': "'.$annotationType.'"" has already been registered as annotation type!', 1558813720);
+            $this->logger->warning(__CLASS__.': "'.$annotationType.'" has already been registered as annotation type and is now overridden!');
         }
     }
 

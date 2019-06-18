@@ -35,13 +35,14 @@ use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginActionParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
-use PSB\PsbFoundation\Utilities\ObjectUtility;
+use PSB\PsbFoundation\Utilities\TypoScript\Library;
 use PSB\PsbFoundation\Utilities\TypoScriptUtility;
 use PSB\PsbFoundation\Utilities\VariableUtility;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -65,7 +66,12 @@ class RegistrationUtility
     ];
 
     /**
-     * For use in ext_localconf.php
+     * @var string[]
+     */
+    private static $contentElementWizardGroups = [];
+
+    /**
+     * For use in ext_localconf.php files
      *
      * @param string $extensionKey
      * @param string $group
@@ -98,7 +104,7 @@ class RegistrationUtility
     }
 
     /**
-     * For use in ext_localconf.php
+     * For use in ext_localconf.php files
      *
      * @param string      $contentType
      * @param string      $extensionKey
@@ -141,19 +147,17 @@ class RegistrationUtility
     }
 
     /**
-     * For use in ext_localconf.php
+     * For use in ext_localconf.php files
      *
-     * @param string $extensionInformation
+     * @param ExtensionInformationInterface $extensionInformation
      *
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
-    public static function configurePlugins(string $extensionInformation): void
+    public static function configurePlugins(ExtensionInformationInterface $extensionInformation): void
     {
-        self::validateExtensionInformation($extensionInformation);
-
-        /** @var ExtensionInformationInterface $extensionInformation */
-        if (is_iterable($extensionInformation::getPlugins())) {
-            foreach ($extensionInformation::getPlugins() as $pluginName => $controllerClassNames) {
+        if (is_iterable($extensionInformation->getPlugins())) {
+            foreach ($extensionInformation->getPlugins() as $pluginName => $controllerClassNames) {
                 if (is_iterable($controllerClassNames)) {
                     [
                         $pluginConfiguration,
@@ -163,14 +167,14 @@ class RegistrationUtility
                         self::COLLECT_MODES['CONFIGURE_PLUGINS']);
 
                     ExtensionUtility::configurePlugin(
-                        $extensionInformation::getVendorName().'.'.$extensionInformation::getExtensionName(),
+                        $extensionInformation->getVendorName().'.'.$extensionInformation->getExtensionName(),
                         $pluginName,
                         $controllersAndCachedActions,
                         $controllersAndUncachedActions
                     );
 
-                    self::addPluginToElementWizard($extensionInformation::getExtensionKey(),
-                        $pluginConfiguration['group'] ?? strtolower($extensionInformation::getVendorName()),
+                    self::addPluginToElementWizard($extensionInformation->getExtensionKey(),
+                        $pluginConfiguration['group'] ?? strtolower($extensionInformation->getVendorName()),
                         $pluginName, $pluginConfiguration['iconIdentifier'] ?? null);
                 }
             }
@@ -178,7 +182,7 @@ class RegistrationUtility
     }
 
     /**
-     * For use in Configuration/TCA/Overrides/tt_content.php
+     * For use in Configuration/TCA/Overrides/tt_content.php files
      *
      * @param string      $extensionKey
      * @param string      $group
@@ -310,19 +314,17 @@ class RegistrationUtility
     }
 
     /**
-     * For use in ext_tables.php
+     * For use in ext_tables.php files
      *
-     * @param string $extensionInformation
+     * @param ExtensionInformationInterface $extensionInformation
      *
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
-    public static function registerModules(string $extensionInformation): void
+    public static function registerModules(ExtensionInformationInterface $extensionInformation): void
     {
-        self::validateExtensionInformation($extensionInformation);
-
-        /** @var ExtensionInformationInterface $extensionInformation */
-        if ('BE' === TYPO3_MODE && is_iterable($extensionInformation::getModules())) {
-            foreach ($extensionInformation::getModules() as $submoduleKey => $controllerClassNames) {
+        if ('BE' === TYPO3_MODE && is_iterable($extensionInformation->getModules())) {
+            foreach ($extensionInformation->getModules() as $submoduleKey => $controllerClassNames) {
                 if (is_iterable($controllerClassNames)) {
                     [
                         $moduleConfiguration,
@@ -333,7 +335,7 @@ class RegistrationUtility
                     $iconIdentifier = $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? 'module-'.$submoduleKey;
 
                     ExtensionUtility::registerModule(
-                        $extensionInformation::getVendorName().'.'.$extensionInformation::getExtensionName(),
+                        $extensionInformation->getVendorName().'.'.$extensionInformation->getExtensionName(),
                         $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['mainModuleName'] ?? 'web',
                         $submoduleKey,
                         $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['position'] ?? '',
@@ -343,7 +345,7 @@ class RegistrationUtility
                             'icon'           => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['icon'] ?? null,
                             'iconIdentifier' => self::get(IconRegistry::class)
                                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-                            'labels'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['labels'] ?? 'LLL:EXT:'.$extensionInformation::getExtensionKey().'/Resources/Private/Language/Backend/Modules/'.$submoduleKey.'.xlf',
+                            'labels'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['labels'] ?? 'LLL:EXT:'.$extensionInformation->getExtensionKey().'/Resources/Private/Language/Backend/Modules/'.$submoduleKey.'.xlf',
                         ]
                     );
                 }
@@ -352,43 +354,27 @@ class RegistrationUtility
     }
 
     /**
-     * For use in Configuration/TCA/Overrides/tt_content.php
+     * For use in Configuration/TCA/Overrides/tt_content.php files
      *
-     * @param string $extensionInformation
+     * @param ExtensionInformationInterface $extensionInformation
      *
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
-    public static function registerPlugins(string $extensionInformation): void
+    public static function registerPlugins(ExtensionInformationInterface $extensionInformation): void
     {
-        self::validateExtensionInformation($extensionInformation);
-
-        /** @var ExtensionInformationInterface $extensionInformation */
-        if (is_iterable($extensionInformation::getPlugins())) {
-            foreach ($extensionInformation::getPlugins() as $pluginName => $controllerClassNames) {
+        if (is_iterable($extensionInformation->getPlugins())) {
+            foreach ($extensionInformation->getPlugins() as $pluginName => $controllerClassNames) {
                 if (is_iterable($controllerClassNames)) {
                     [$pluginConfiguration] = self::collectActionsAndConfiguration($controllerClassNames,
                         self::COLLECT_MODES['REGISTER_PLUGINS']);
-
                     ExtensionUtility::registerPlugin(
-                        $extensionInformation::getExtensionName(),
+                        $extensionInformation->getExtensionName(),
                         $pluginName,
-                        $pluginConfiguration['title'] ?? 'LLL:EXT:'.$extensionInformation::getExtensionKey().'/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.'.$pluginName.'.title'
+                        $pluginConfiguration['title'] ?? 'LLL:EXT:'.$extensionInformation->getExtensionKey().'/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.'.$pluginName.'.title'
                     );
                 }
             }
-        }
-    }
-
-    /**
-     * @param string $className
-     */
-    public static function validateExtensionInformation(string $className): void
-    {
-        if (!class_exists($className) || !in_array(ExtensionInformationInterface::class, class_implements($className),
-                true)) {
-            throw ObjectUtility::get(InvalidArgumentException::class,
-                __CLASS__.': "'.$className.'" is not the name of a class that implements the ExtensionInformationInterface!',
-                1559676576, null);
         }
     }
 
@@ -406,6 +392,7 @@ class RegistrationUtility
         ];
 
         ExtensionManagementUtility::addPageTSConfig(TypoScriptUtility::convertArrayToTypoScript($pageTS));
+        self::$contentElementWizardGroups[] = $key;
     }
 
     /**
@@ -423,7 +410,8 @@ class RegistrationUtility
         // @TODO: find root page dynamically
         $pageTS = BackendUtility::getPagesTSconfig(1);
 
-        if (!isset($pageTS['mod']['wizards']['newContentElement']['wizardItems'][$group])) {
+        if (!in_array($group, self::$contentElementWizardGroups,
+                true) && !isset($pageTS['mod']['wizards']['newContentElement']['wizardItems'][$group])) {
             self::addElementWizardGroup($extensionKey, $group);
         }
 
@@ -448,6 +436,7 @@ class RegistrationUtility
      *
      * @return array
      * @throws ReflectionException
+     * @throws NoSuchCacheException
      */
     private static function collectActionsAndConfiguration(array $controllerClassNames, string $collectMode): array
     {
@@ -459,6 +448,7 @@ class RegistrationUtility
         foreach ($controllerClassNames as $controllerClassName) {
             if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
                 $controller = self::get(ReflectionClass::class, $controllerClassName);
+                $controllerName = VariableUtility::convertClassNameToControllerName($controllerClassName);
                 $methods = $controller->getMethods();
 
                 foreach ($methods as $method) {
@@ -477,14 +467,14 @@ class RegistrationUtility
                         $actionName = substr($methodName, 0, -6);
 
                         if ($docComment[PluginActionParser::ANNOTATION_TYPE]['default']) {
-                            array_unshift($controllersAndCachedActions[$controllerClassName::CONTROLLER_NAME],
+                            array_unshift($controllersAndCachedActions[$controllerName],
                                 $actionName);
                         } else {
-                            $controllersAndCachedActions[$controllerClassName::CONTROLLER_NAME][] = $actionName;
+                            $controllersAndCachedActions[$controllerName][] = $actionName;
                         }
 
                         if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode && isset($docComment[PluginActionParser::ANNOTATION_TYPE]['uncached'])) {
-                            $controllersAndUncachedActions[$controllerClassName::CONTROLLER_NAME][] = $actionName;
+                            $controllersAndUncachedActions[$controllerName][] = $actionName;
                         }
                     }
                 }

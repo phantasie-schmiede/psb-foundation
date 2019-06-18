@@ -35,6 +35,7 @@ use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
+use PSB\PsbFoundation\Utilities\ObjectUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -51,7 +52,9 @@ class Setup
      */
     public function onInstall(string $extensionKey): void
     {
-        if (ExtensionInformation::getExtensionKey() !== $extensionKey) {
+        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
+
+        if ($extensionInformation->getExtensionKey() !== $extensionKey) {
             return;
         }
 
@@ -73,7 +76,9 @@ class Setup
      */
     public function onUninstall(string $extensionKey): void
     {
-        if (ExtensionInformation::getExtensionKey() !== $extensionKey) {
+        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
+
+        if ($extensionInformation->getExtensionKey() !== $extensionKey) {
             return;
         }
 

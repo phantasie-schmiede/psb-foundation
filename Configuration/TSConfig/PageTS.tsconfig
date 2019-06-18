@@ -1,1 +1,1 @@
-<INCLUDE_TYPOSCRIPT: source="DIR:EXT:psb_foundation/Configuration/TSConfig/Includes/BackendLayouts" extensions="typoscript">
+<INCLUDE_TYPOSCRIPT: source="DIR:EXT:psb_foundation/Configuration/TSConfig/Includes/BackendLayouts" extensions="tsconfig">

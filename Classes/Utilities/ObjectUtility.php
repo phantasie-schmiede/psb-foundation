@@ -37,6 +37,11 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 class ObjectUtility
 {
     /**
+     * @var ObjectManager
+     */
+    protected static $objectManager;
+
+    /**
      * @param string $className
      * @param array  $arguments
      *
@@ -44,6 +49,10 @@ class ObjectUtility
      */
     public static function get(string $className, ...$arguments)
     {
-        return GeneralUtility::makeInstance(ObjectManager::class)->get($className, ...$arguments);
+        if (!self::$objectManager instanceof ObjectManager) {
+            self::$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        }
+
+        return self::$objectManager->get($className, ...$arguments);
     }
 }

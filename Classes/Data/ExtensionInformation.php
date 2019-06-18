@@ -33,8 +33,4 @@ namespace PSB\PsbFoundation\Data;
  */
 class ExtensionInformation extends AbstractExtensionInformation
 {
-    public const EXTENSION_INFORMATION = [
-        'EXTENSION_KEY' => 'psb_foundation',
-        'VENDOR_NAME'   => 'PSB',
-    ];
 }

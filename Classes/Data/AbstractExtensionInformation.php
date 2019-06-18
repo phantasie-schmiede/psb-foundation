@@ -27,8 +27,6 @@ namespace PSB\PsbFoundation\Data;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Utilities\ObjectUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -37,80 +35,78 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 abstract class AbstractExtensionInformation implements ExtensionInformationInterface
 {
-    public const EXTENSION_INFORMATION = [
-        //        'EXTENSION_KEY' => '',
-        //        'MODULES'       => [
-        //            'submoduleKey' => [\Your\Module\Controller::class, \Your\Module\AnotherController::class]
-        //        ],
-        //        'PLUGINS'       => [
-        //            'pluginName' => [\Your\Plugin\Controller::class, \Your\Plugin\AnotherController::class]
-        //        ],
-        //        'VENDOR_NAME'   => '',
+    /**
+     * may be overridden in extending class
+     */
+    public const MODULES = [
+        //        'submoduleKey' => [\Your\Module\Controller::class, \Your\Module\AnotherController::class],
     ];
 
     /**
-     * @return string
+     * may be overridden in extending class
      */
-    public static function getExtensionKey(): string
-    {
-        if (isset(static::EXTENSION_INFORMATION['EXTENSION_KEY'])) {
-            return static::EXTENSION_INFORMATION['EXTENSION_KEY'];
-        }
+    public const PLUGINS = [
+        //        'pluginName' => [\Your\Plugin\Controller::class, \Your\Plugin\AnotherController::class],
+    ];
 
-        // @TODO: find out, why third parameter has to be passed although it is optional
-        throw ObjectUtility::get(ImplementationException::class,
-            static::getExceptionMessage('EXTENSION_KEY'), 1559635462, null);
+    /**
+     * @var string
+     */
+    protected $extensionKey;
+
+    /**
+     * @var string
+     */
+    protected $extensionName;
+
+    /**
+     * @var string
+     */
+    protected $vendorName;
+
+    public function __construct()
+    {
+        [$this->vendorName, $this->extensionName] = explode('\\', get_class($this));
+        $this->extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored($this->extensionName);
     }
 
     /**
      * @return string
      */
-    public static function getExtensionName(): string
+    public function getExtensionKey(): string
     {
-        if (isset(static::EXTENSION_INFORMATION['EXTENSION_KEY'])) {
-            return GeneralUtility::underscoredToUpperCamelCase(static::EXTENSION_INFORMATION['EXTENSION_KEY']);
-        }
-
-        throw ObjectUtility::get(ImplementationException::class,
-            static::getExceptionMessage('EXTENSION_KEY'), null);
-    }
-
-    /**
-     * @return array|null
-     */
-    public static function getModules(): ?array
-    {
-        return static::EXTENSION_INFORMATION['MODULES'] ?? null;
-    }
-
-    /**
-     * @return array|null
-     */
-    public static function getPlugins(): ?array
-    {
-        return static::EXTENSION_INFORMATION['PLUGINS'] ?? null;
+        return $this->extensionKey;
     }
 
     /**
      * @return string
      */
-    public static function getVendorName(): string
+    public function getExtensionName(): string
     {
-        if (isset(static::EXTENSION_INFORMATION['VENDOR_NAME'])) {
-            return static::EXTENSION_INFORMATION['VENDOR_NAME'];
-        }
-
-        throw ObjectUtility::get(ImplementationException::class,
-            static::getExceptionMessage('VENDOR_NAME'), null);
+        return $this->extensionName;
     }
 
     /**
-     * @param string $arrayKey
-     *
+     * @return array
+     */
+    public function getModules(): array
+    {
+        return static::MODULES;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPlugins(): array
+    {
+        return static::PLUGINS;
+    }
+
+    /**
      * @return string
      */
-    private static function getExceptionMessage(string $arrayKey): string
+    public function getVendorName(): string
     {
-        return static::class.' has to define the constant EXTENSION_INFORMATION[\''.$arrayKey.'\']!';
+        return $this->vendorName;
     }
 }

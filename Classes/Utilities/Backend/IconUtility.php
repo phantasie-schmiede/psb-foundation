@@ -41,7 +41,7 @@ class IconUtility
     use StaticInjectionTrait;
 
     /**
-     * For use in ext_tables.php
+     * For use in ext_tables.php files
      *
      * @param string $extensionKey
      * @param array  $iconNames

@@ -193,11 +193,19 @@ class StopWatchUtility
 
     /**
      * @param string $comment
+     * @param bool   $noHtml
      */
-    public function stop(string $comment = ''): void
+    public function stop(string $comment = '', bool $noHtml = false): void
     {
         $this->addLogEntry(microtime(true), $comment);
-        DebugUtility::debug($this->getTimeLog(), $this->getHeader());
+
+        if ($noHtml) {
+            print_r($this->getHeader().LF);
+            print_r($this->getTimeLog());
+            print_r(LF);
+        } else {
+            DebugUtility::debug($this->getTimeLog(), $this->getHeader());
+        }
         $this->reset();
     }
 
