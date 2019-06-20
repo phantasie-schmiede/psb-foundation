@@ -28,6 +28,7 @@ namespace PSB\PsbFoundation\Utilities;
  ***************************************************************/
 
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use UnexpectedValueException;
@@ -46,6 +47,13 @@ class TypoScriptUtility
     public const CONTENT_TYPES = [
         'HTML' => 'text/html',
         'XML'  => 'text/xml',
+    ];
+
+    public const FILE_ENDING = '.typoscript';
+
+    public const FILE_NAMES = [
+        'CONSTANTS' => 'constants',
+        'SETUP'     => 'setup',
     ];
 
     public const INDENTATION = '    ';
@@ -73,37 +81,55 @@ class TypoScriptUtility
     private static $objectPath = '';
 
     /**
-     * For use in ext_localconf.php files
+     * For use in Classes/Slots/Setup.php files
      *
      * @param ExtensionInformationInterface $extensionInformation
      */
     public static function addDefaultTypoScriptForPlugins(ExtensionInformationInterface $extensionInformation): void
     {
         if (!empty($extensionInformation->getPlugins())) {
-            $constants = self::getDefaultConstants($extensionInformation, self::COMPONENTS['PLUGIN']);
-            ExtensionManagementUtility::addTypoScriptConstants(self::convertArrayToTypoScript($constants));
-            $setup = self::getDefaultSetup($extensionInformation, self::COMPONENTS['PLUGIN']);
-            ExtensionManagementUtility::addTypoScriptSetup(self::convertArrayToTypoScript($setup));
+            $constantsArray = self::getDefaultConstants($extensionInformation, self::COMPONENTS['PLUGIN']);
+            $constantsTypoScript = self::convertArrayToTypoScript($constantsArray);
+            $setupArray = self::getDefaultSetup($extensionInformation, self::COMPONENTS['PLUGIN']);
+            $setupTypoScript = self::convertArrayToTypoScript($setupArray);
         }
 
         if (!empty($extensionInformation->getModules())) {
             if (!empty($extensionInformation->getPlugins())) {
                 $key = 'tx_'.strtolower($extensionInformation->getExtensionName());
-                $setup = [
+                $setupArray = [
                     self::COMPONENTS['MODULE'] => [
                         $key => [
-                            self::TYPO_SCRIPT_KEYS['IMPORT'],
-                            self::COMPONENTS['PLUGIN'].'.'.$key,
+                            self::TYPO_SCRIPT_KEYS['IMPORT'] => self::COMPONENTS['PLUGIN'].'.'.$key,
                         ],
                     ],
                 ];
+                /** @noinspection PhpUndefinedVariableInspection */
+                $setupTypoScript .= LF.self::convertArrayToTypoScript($setupArray);
             } else {
-                $constants = self::getDefaultConstants($extensionInformation, self::COMPONENTS['MODULE']);
-                ExtensionManagementUtility::addTypoScriptConstants(self::convertArrayToTypoScript($constants));
-                $setup = self::getDefaultSetup($extensionInformation, self::COMPONENTS['MODULE']);
+                $constantsArray = self::getDefaultConstants($extensionInformation, self::COMPONENTS['MODULE']);
+                $constantsTypoScript = self::convertArrayToTypoScript($constantsArray);
+                $setupArray = self::getDefaultSetup($extensionInformation, self::COMPONENTS['MODULE']);
+                $setupTypoScript = self::convertArrayToTypoScript($setupArray);
+            }
+        }
+
+        $typoScriptDirectory = Environment::getExtensionsPath().'/'.$extensionInformation->getExtensionKey().'/Configuration/TypoScript/';
+
+        if (isset($constantsTypoScript) && !file_exists($typoScriptDirectory.self::FILE_NAMES['CONSTANTS'].self::FILE_ENDING)) {
+            if (!is_dir($typoScriptDirectory)) {
+                GeneralUtility::mkdir_deep($typoScriptDirectory);
             }
 
-            ExtensionManagementUtility::addTypoScriptSetup(self::convertArrayToTypoScript($setup));
+            GeneralUtility::writeFile($typoScriptDirectory.self::FILE_NAMES['CONSTANTS'].self::FILE_ENDING, $constantsTypoScript, true);
+        }
+
+        if (isset($setupTypoScript) && !file_exists($typoScriptDirectory.self::FILE_NAMES['SETUP'].self::FILE_ENDING)) {
+            if (!is_dir($typoScriptDirectory)) {
+                GeneralUtility::mkdir_deep($typoScriptDirectory);
+            }
+
+            GeneralUtility::writeFile($typoScriptDirectory.self::FILE_NAMES['SETUP'].self::FILE_ENDING, $setupTypoScript, true);
         }
     }
 
@@ -246,11 +272,11 @@ class TypoScriptUtility
 
                 if (is_array($value)) {
                     if (isset($value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']])) {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ? : self::$lineBreakBeforeCurlyBracketOpen).$indentation.$key.' = '.$value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']].LF;
+                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ? : self::$lineBreakBeforeCurlyBracketOpen).$indentation.self::$objectPath.$key.' = '.$value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']].LF;
                         unset($value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']]);
                         $typoScript .= self::processRemainingArray($indentationLevel, $key, $value);
                     } elseif (isset($value[self::TYPO_SCRIPT_KEYS['IMPORT']])) {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ? : self::$lineBreakBeforeCurlyBracketOpen).$indentation.$key.' < '.$value[self::TYPO_SCRIPT_KEYS['IMPORT']].LF;
+                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ? : self::$lineBreakBeforeCurlyBracketOpen).$indentation.self::$objectPath.$key.' < '.$value[self::TYPO_SCRIPT_KEYS['IMPORT']].LF;
                         unset($value[self::TYPO_SCRIPT_KEYS['IMPORT']]);
                         $typoScript .= self::processRemainingArray($indentationLevel, $key, $value);
                     } elseif (1 === count($value)) {
