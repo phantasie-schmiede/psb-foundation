@@ -32,6 +32,7 @@ use PSB\PsbFoundation\Utilities\VariableUtility;
 use stdClass;
 use TYPO3\CMS\Core\TypoScript\TemplateService;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
@@ -50,25 +51,45 @@ class TypoScriptProviderService
     public static $fullTypoScriptAvailable = false;
 
     /**
+     * @var array
+     */
+    private static $cachedTypoScript;
+
+    /**
+     * @var array
+     */
+    private static $preliminaryTypoScript;
+
+    /**
+     * @param string|null $path
      * @param string      $configurationType
      * @param string|null $extensionName
      * @param string|null $pluginName
      *
-     * @return array|null
+     * @return mixed
      * @throws InvalidConfigurationTypeException
      */
     public static function getTypoScriptConfiguration(
+        string $path = null,
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
         string $extensionName = null,
         string $pluginName = null
-    ): ?array {
-        $configurationManager = self::get(ConfigurationManager::class);
+    ) {
         $typoScript = null;
+
+        if (true === self::$fullTypoScriptAvailable && isset(self::$cachedTypoScript[$configurationType][$extensionName][$pluginName])) {
+            return self::getDemandedTypoScript(self::$cachedTypoScript[$configurationType][$extensionName][$pluginName],
+                $path);
+        }
 
         // RootlineUtility:286 requires $GLOBALS['TCA'] to be set
         if (null !== $GLOBALS['TCA']) {
-            $typoScript = $configurationManager->getConfiguration($configurationType, $extensionName, $pluginName);
+            $typoScript = self::get(ConfigurationManager::class)
+                ->getConfiguration($configurationType, $extensionName, $pluginName);
             self::$fullTypoScriptAvailable = true;
+        } elseif (isset(self::$preliminaryTypoScript[$configurationType][$extensionName][$pluginName])) {
+            return self::getDemandedTypoScript(self::$preliminaryTypoScript[$configurationType][$extensionName][$pluginName],
+                $path);
         }
 
         if (!is_array($typoScript)) {
@@ -79,10 +100,9 @@ class TypoScriptProviderService
             return null;
         }
 
-        $typoScriptService = self::get(TypoScriptService::class);
-        $convertedTypoScript = $typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
+        $typoScript = self::get(TypoScriptService::class)->convertTypoScriptArrayToPlainArray($typoScript);
 
-        array_walk_recursive($convertedTypoScript, static function (&$item) {
+        array_walk_recursive($typoScript, static function (&$item) {
             // if constants are unset
             if (0 === strpos($item, '{$')) {
                 $item = null;
@@ -91,7 +111,13 @@ class TypoScriptProviderService
             }
         });
 
-        return $convertedTypoScript;
+        if (true === self::$fullTypoScriptAvailable) {
+            self::$cachedTypoScript[$configurationType][$extensionName][$pluginName] = $typoScript;
+        } else {
+            self::$preliminaryTypoScript[$configurationType][$extensionName][$pluginName] = $typoScript;
+        }
+
+        return self::getDemandedTypoScript($typoScript, $path);
     }
 
     /**
@@ -149,5 +175,20 @@ class TypoScriptProviderService
                 return $typoScript;
                 break;
         }
+    }
+
+    /**
+     * @param array       $typoScript
+     * @param string|null $path
+     *
+     * @return array|mixed
+     */
+    private static function getDemandedTypoScript(array $typoScript, string $path = null)
+    {
+        if (null !== $path) {
+            return ArrayUtility::getValueByPath($typoScript, $path, '.');
+        }
+
+        return $typoScript;
     }
 }

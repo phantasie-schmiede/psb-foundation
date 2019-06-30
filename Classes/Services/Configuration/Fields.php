@@ -32,7 +32,13 @@ use function in_array;
 
 /**
  * Class Fields
+ *
+ * This helper class holds default configurations for a variety of field types. Use it to register fields in FlexForms
+ * or TCA.
+ *
  * @package PSB\PsbFoundation\Services\Configuration
+ * @see     \PSB\PsbFoundation\Services\Configuration\FlexFormService
+ * @see     \PSB\PsbFoundation\Services\Configuration\TcaService
  */
 class Fields
 {

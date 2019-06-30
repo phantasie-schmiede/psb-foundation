@@ -32,14 +32,16 @@ use TYPO3\CMS\Core\SingletonInterface;
 /**
  * Interface ValueParserInterface
  *
- * Your parser class also has to define a constant named MARKER_TYPE (the part bewteen the beginning "###" and ":").
+ * Your parser class also has to define a constant named MARKER_TYPE (the part between the beginning "###" and ":").
+ * Example: const MARKER_TYPE = 'EXAMPLE';
+ * Usage: ###EXAMPLE:value###
  *
  * @package PSB\PsbFoundation\Services\Configuration\ValueParsers
  */
 interface ValueParserInterface extends SingletonInterface
 {
     /**
-     * @param string|null $value
+     * @param string|null $value the string between ':' and '###'
      *
      * @return mixed
      */

@@ -31,6 +31,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class AbstractExtensionInformation
+ *
+ * You only need to extend this class to be able to provide the extension_key, the ExtensionName and the VendorName.
+ * This information is extracted within the constructor using the namespaced class name of your class. If you want to
+ * use module or plugin services, make sure to overwrite the constants MODULES and PLUGINS with your own information
+ * (see examples below).
+ *
  * @package PSB\PsbFoundation\Data
  */
 abstract class AbstractExtensionInformation implements ExtensionInformationInterface
@@ -39,14 +45,14 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
      * may be overridden in extending class
      */
     public const MODULES = [
-        //        'submoduleKey' => [\Your\Module\Controller::class, \Your\Module\AnotherController::class],
+        // 'submoduleKey' => [\Your\Module\Controller::class, \Your\Module\AnotherController::class],
     ];
 
     /**
      * may be overridden in extending class
      */
     public const PLUGINS = [
-        //        'pluginName' => [\Your\Plugin\Controller::class, \Your\Plugin\AnotherController::class],
+        // 'pluginName' => [\Your\Plugin\Controller::class, \Your\Plugin\AnotherController::class],
     ];
 
     /**

@@ -29,6 +29,10 @@ namespace PSB\PsbFoundation\Exceptions;
 
 /**
  * Class UnsetPropertyException
+ *
+ * This exception should be thrown when the initialization of an object obviously didn't result in setting all
+ * necessary properties.
+ *
  * @package PSB\PsbFoundation\Exceptions
  */
 class UnsetPropertyException extends BaseException

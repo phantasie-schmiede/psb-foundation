@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\Controller\Backend;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2018-2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
  *
  *  All rights reserved
  *
@@ -29,6 +29,7 @@ namespace PSB\PsbFoundation\Controller\Backend;
 
 use InvalidArgumentException;
 use PSB\PsbFoundation\Module\ButtonConfiguration;
+use PSB\PsbFoundation\Utilities\VariableUtility;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -41,7 +42,16 @@ use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use function count;
+use function in_array;
 
+/**
+ * Class AbstractModuleController
+ *
+ * Extend this class with your backend module controller to add features like the bookmark icon, action menu and
+ * buttons.
+ *
+ * @package PSB\PsbFoundation\Controller\Backend
+ */
 abstract class AbstractModuleController extends ActionController
 {
     protected const HEADER_COMPONENTS = [
@@ -62,6 +72,13 @@ abstract class AbstractModuleController extends ActionController
     protected $defaultViewObjectName = BackendTemplateView::class;
 
     /**
+     * Configuration that defines the rendering of the module header
+     *
+     * The first level keys of this array correspond to the values of self::HEADER_COMPONENTS. The associated keys are:
+     * actionButtons => buttons, render
+     * actionMenu => items, render
+     * shortcutButton => bookmarkLabel, render
+     *
      * @var array
      */
     protected $headerConfiguration;
@@ -72,7 +89,8 @@ abstract class AbstractModuleController extends ActionController
     protected $view;
 
     /**
-     * AbstractModuleController constructor.
+     * All header components are activated by default. This can be overridden in your module's constructor. Simply call
+     * setHeaderComponents() by yourself and pass the desired arguments.
      */
     public function __construct()
     {
@@ -90,6 +108,17 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * This controller needs to know, after which action a view has to be rendered. You can register those actions with
+     * this method.
+     *
+     * @param string $templateAction
+     */
+    public function addTemplateAction(string $templateAction): void
+    {
+        $this->headerConfiguration[self::HEADER_SETTINGS['TEMPLATE_ACTIONS']][] = $templateAction;
+    }
+
+    /**
      * @return array
      */
     public function getActionButtons(): array
@@ -98,9 +127,49 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * This getter includes a fallback for a default label if none is given.
+     *
+     * @return string|null
+     */
+    public function getBookmarkLabel(): ?string
+    {
+        return $this->headerConfiguration[self::HEADER_COMPONENTS['SHORTCUT_BUTTON']]['bookmarkLabel'] ?? $this->buildBookmarkLabel();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaderConfiguration(): array
+    {
+        return $this->headerConfiguration;
+    }
+
+    /**
+     * @return array
+     * @throws ReflectionException
+     */
+    public function getMenuItems(): array
+    {
+        return $this->headerConfiguration[self::HEADER_COMPONENTS['ACTION_MENU']]['items'] ?? $this->buildMenuItems();
+    }
+
+    /**
+     * @return array
+     * @throws ReflectionException
+     */
+    public function getTemplateActions(): array
+    {
+        return $this->headerConfiguration[self::HEADER_SETTINGS['TEMPLATE_ACTIONS']] ?? $this->buildTemplateActions();
+    }
+
+    /**
+     * This method accepts an array of objects that have to be instances of
+     * \PSB\PsbFoundation\Module\ButtonConfiguration.
+     *
      * @param array $buttonConfigurations Array of ButtonConfiguration-objects
      *
      * @throws InvalidArgumentException
+     * @see \PSB\PsbFoundation\Module\ButtonConfiguration
      */
     public function setActionButtons(array $buttonConfigurations): void
     {
@@ -115,14 +184,6 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @return string|null
-     */
-    public function getBookmarkLabel(): ?string
-    {
-        return $this->headerConfiguration[self::HEADER_COMPONENTS['SHORTCUT_BUTTON']]['bookmarkLabel'] ?? $this->buildBookmarkLabel();
-    }
-
-    /**
      * @param string $shortcutName
      */
     public function setBookmarkLabel(string $shortcutName): void
@@ -131,14 +192,8 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @return array
-     */
-    public function getHeaderConfiguration(): array
-    {
-        return $this->headerConfiguration;
-    }
-
-    /**
+     * This methods allows to define the components which should be rendered.
+     *
      * @param bool $renderActionButtons
      * @param bool $renderActionMenu
      * @param bool $renderShortCutButton
@@ -154,38 +209,12 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @return array
-     * @throws ReflectionException
-     */
-    public function getMenuItems(): array
-    {
-        return $this->headerConfiguration[self::HEADER_COMPONENTS['ACTION_MENU']]['items'] ?? $this->buildMenuItems();
-    }
-
-    /**
      * @param array $menuItems Array of associative arrays which have to contain these keys: action, controller and
      *                         label
      */
     public function setMenuItems(array $menuItems): void
     {
         $this->headerConfiguration[self::HEADER_COMPONENTS['ACTION_MENU']]['items'] = $menuItems;
-    }
-
-    /**
-     * @param string $templateAction
-     */
-    public function addTemplateAction(string $templateAction): void
-    {
-        $this->headerConfiguration[self::HEADER_SETTINGS['TEMPLATE_ACTIONS']][] = $templateAction;
-    }
-
-    /**
-     * @return array
-     * @throws ReflectionException
-     */
-    public function getTemplateActions(): array
-    {
-        return $this->headerConfiguration[self::HEADER_SETTINGS['TEMPLATE_ACTIONS']] ?? $this->buildTemplateActions();
     }
 
     /**
@@ -197,7 +226,7 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @param string $component Use constant HEADER_COMPONENTS for this argument
+     * @param string $component Use constant self::HEADER_COMPONENTS for this argument
      *
      * @return bool
      */
@@ -215,7 +244,7 @@ abstract class AbstractModuleController extends ActionController
     {
         parent::initializeView($view);
 
-        if (!\in_array($this->request->getControllerActionName(), $this->getTemplateActions(), true)) {
+        if (!in_array($this->request->getControllerActionName(), $this->getTemplateActions(), true)) {
             return;
         }
 
@@ -242,17 +271,24 @@ abstract class AbstractModuleController extends ActionController
 
         $this->view->getModuleTemplate()->setFlashMessageQueue($this->controllerContext->getFlashMessageQueue());
 
+        // @TODO: Test!
+        // @TODO: Can this be moved to a ViewHelper?
         if ($view instanceof BackendTemplateView) {
             $view->getModuleTemplate()->getPageRenderer()->addRequireJsConfiguration([
                 'paths' => [
-                    'datetimepicker' => '/typo3conf/ext/psg_siteconf/Resources/Public/Scripts/Backend/datetimepicker',
+                    'datetimepicker' => '/typo3/sysext/backend/Resources/Public/JavaScript/DateTimePicker',
                 ],
             ]);
-            $view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('datetimepicker');
+            $view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('DateTimePicker');
         }
     }
 
     /**
+     * Fallback method if no bookmark label has been given. At first, default label path is checked:
+     * EXT:your_extension/Resources/Private/Language/Backend/Modules/shortControllerName.xlf:bookmarkLabel
+     * If no label is found, module label is used (if defined at default position), and if there is an action menu, the
+     * current action will be appended in brackets.
+     *
      * @return string|null
      */
     private function buildBookmarkLabel(): ?string
@@ -298,6 +334,9 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * Fallback method if no templateActions were registered. All methods whose name ends with "Action" are registered
+     * automatically (except for addTemplateAction).
+     *
      * @return array
      * @throws ReflectionException
      */
@@ -382,7 +421,7 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @TODO: Action is not saved correctly. Shortcut always calls the default action.
+     * @TODO: Action is not saved correctly. Shortcut always calls the default action. ($getVars should contain action)
      */
     private function generateShortcutButton(): void
     {
@@ -406,11 +445,11 @@ abstract class AbstractModuleController extends ActionController
     /**
      * @return string
      */
-    private function getControllerShortName(): string
+    private function getDefaultLanguageFile(): string
     {
-        $controllerNameParts = explode('\\', $this->request->getControllerName());
+        $fileName = lcfirst(VariableUtility::convertClassNameToControllerName(get_class($this))).'.xlf';
 
-        return array_pop($controllerNameParts);
+        return 'LLL:EXT:'.$this->request->getControllerExtensionKey().'/Resources/Private/Language/Backend/Modules/'.$fileName;
     }
 
     /**
@@ -428,15 +467,5 @@ abstract class AbstractModuleController extends ActionController
         $uriBuilder->setRequest($this->request);
 
         return $uriBuilder->reset()->uriFor($action, $parameters, $controller);
-    }
-
-    /**
-     * @return string
-     */
-    private function getDefaultLanguageFile(): string
-    {
-        $fileName = lcfirst($this->getControllerShortName()).'.xlf';
-
-        return 'LLL:EXT:'.$this->request->getControllerExtensionKey().'/Resources/Private/Language/Backend/Modules/'.$fileName;
     }
 }

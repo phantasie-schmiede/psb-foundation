@@ -30,6 +30,8 @@ namespace PSB\PsbFoundation\Controller;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Domain\Repository\AbstractRepository;
 use PSB\PsbFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Utilities\VariableUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
@@ -37,12 +39,17 @@ use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
+use function get_class;
 
 /**
  * Class AbstractController
+ *
+ * This abstract controller provides all basic methods for FE-editable domain models: list, show, new, create, edit,
+ * update and delete. If you follow the naming conventions of Extbase, you only need to extend this class.
+ *
  * @package PSB\PsbFoundation\Controller
  */
-class AbstractController extends ActionController
+abstract class AbstractController extends ActionController
 {
     use InjectionTrait;
 
@@ -57,46 +64,18 @@ class AbstractController extends ActionController
     protected $repository;
 
     /**
-     * AbstractController constructor.
-     * Determines related model and repository classes from controller
+     * The constructor determines the related model and repository classes from controller.
      */
     public function __construct()
     {
         parent::__construct();
 
-        [$void, $vendorName, $extensionName, $path, $className] = explode('\\', \get_class($this));
-        $path = 'Domain\Model';
-        $className = substr($className, 0, -10); // remove 'Controller'
-        $this->setDomainModel(implode('\\', [$void, $vendorName, $extensionName, $path, $className]));
+        [$vendorName, $extensionName, $rest] = GeneralUtility::trimExplode('\\', get_class($this), false, 3);
+        $className = VariableUtility::convertClassNameToControllerName(array_pop($rest));
+        $this->setDomainModel(implode('\\', [$vendorName, $extensionName, 'Domain\Model', $className]));
 
-        $path = 'Domain\Repository';
-        $className .= 'Repository';
         $this->repository = $this->get(implode('\\',
-            [$void, $vendorName, $extensionName, $path, $className]));
-    }
-
-    /**
-     * @param bool $fqcn If set to true, function returns the full qualified class name
-     *
-     * @return string
-     */
-    public function getDomainModel(bool $fqcn = false): string
-    {
-        if (false === $fqcn) {
-            $classNameParts = explode('\\', $this->domainModel);
-
-            return array_pop($classNameParts);
-        }
-
-        return $this->domainModel;
-    }
-
-    /**
-     * @param string $domainModel
-     */
-    public function setDomainModel(string $domainModel): void
-    {
-        $this->domainModel = $domainModel;
+            [$vendorName, $extensionName, 'Domain\Repository', $className.'Repository']));
     }
 
     /**
@@ -134,6 +113,30 @@ class AbstractController extends ActionController
             'domainModel' => $this->getDomainModel(),
             'record'      => $record,
         ]);
+    }
+
+    /**
+     * @param bool $fqcn If set to true, function returns the full qualified class name
+     *
+     * @return string
+     */
+    public function getDomainModel(bool $fqcn = false): string
+    {
+        if (false === $fqcn) {
+            $classNameParts = explode('\\', $this->domainModel);
+
+            return array_pop($classNameParts);
+        }
+
+        return $this->domainModel;
+    }
+
+    /**
+     * @param string $domainModel
+     */
+    public function setDomainModel(string $domainModel): void
+    {
+        $this->domainModel = $domainModel;
     }
 
     /**

@@ -42,7 +42,6 @@ use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Persistence\Generic\Mapper\DataMapper;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use function count;
@@ -90,6 +89,9 @@ class TcaService
     /**
      * @param string      $classOrTableName
      * @param string|null $extensionKey
+     *
+     * @throws NoSuchCacheException
+     * @throws ReflectionException
      */
     public function __construct(
         string $classOrTableName,
@@ -99,7 +101,7 @@ class TcaService
 
         if (false !== strpos($classOrTableName, '\\')) {
             $this->className = $classOrTableName;
-            $this->table = $this->get(DataMapper::class)->convertClassNameToTableName($this->className);
+            $this->table = VariableUtility::convertClassNameToTableName($this->className);
             $this->configuration = $this->getDummyConfiguration($this->table);
             $this->setDefaultLabelPath($this->getDefaultLabelPath().$this->table.'.xlf:');
             $this->setCtrlProperties([
@@ -266,7 +268,7 @@ class TcaService
                 $type = $fieldConfig['type'];
                 unset($fieldConfig['type']);
                 $config = $docComment[TcaConfigParser::ANNOTATION_TYPE] ?? [];
-                $this->addColumn($this->get(DataMapper::class)->convertPropertyNameToColumnName($property->getName(),
+                $this->addColumn(VariableUtility::convertPropertyNameToColumnName($property->getName(),
                     $this->className), $type, $fieldConfig, $config);
             }
         }

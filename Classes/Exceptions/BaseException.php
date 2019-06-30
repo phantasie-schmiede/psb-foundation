@@ -27,11 +27,13 @@ namespace PSB\PsbFoundation\Exceptions;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
+
 /**
  * Class BaseException
  * @package PSB\PsbFoundation\Exceptions
  */
-class BaseException extends \Exception
+class BaseException extends Exception
 {
     public function __toString()
     {

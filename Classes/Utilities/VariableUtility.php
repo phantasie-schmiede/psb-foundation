@@ -29,8 +29,12 @@ namespace PSB\PsbFoundation\Utilities;
 
 use Exception;
 use InvalidArgumentException;
+use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
+use ReflectionException;
 use RuntimeException;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -111,6 +115,28 @@ class VariableUtility
     }
 
     /**
+     * @param string $className
+     *
+     * @return string
+     * @throws ReflectionException
+     * @throws NoSuchCacheException
+     */
+    public static function convertClassNameToTableName(string $className): string
+    {
+        $docCommentParserService = self::get(DocCommentParserService::class);
+        $docComment = $docCommentParserService->parsePhpDocComment($className);
+
+        if (isset($docComment[TcaMappingParser::ANNOTATION_TYPE]['table'])) {
+            return $docComment[TcaMappingParser::ANNOTATION_TYPE]['table'];
+        }
+
+        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+        $classNameParts[0] = 'tx';
+
+        return strtolower(implode('_', $classNameParts));
+    }
+
+    /**
      * Convert file size to a human readable string
      *
      * To enforce a specific unit use a value of FILE_SIZE_UNITS as second parameter
@@ -144,6 +170,24 @@ class VariableUtility
         $unitString = array_search($power ?? $unit, self::FILE_SIZE_UNITS, true);
 
         return number_format($bytes, $decimals, $decimalSeparator, $thousandsSeparator).' '.$unitString;
+    }
+
+    /**
+     * @param string      $propertyName
+     * @param string|null $className
+     *
+     * @return string
+     * @throws NoSuchCacheException
+     * @throws ReflectionException
+     */
+    public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
+    {
+        if (null !== $className) {
+            $docCommentParserService = self::get(DocCommentParserService::class);
+            $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
+        }
+
+        return $docComment[TcaMappingParser::ANNOTATION_TYPE]['column'] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
     }
 
     /**

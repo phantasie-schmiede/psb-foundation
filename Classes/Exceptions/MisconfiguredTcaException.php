@@ -29,6 +29,9 @@ namespace PSB\PsbFoundation\Exceptions;
 
 /**
  * Class MisconfiguredTcaException
+ *
+ * This exception should be thrown when there is something wrong with the TCA of a model.
+ *
  * @package PSB\PsbFoundation\Exceptions
  */
 class MisconfiguredTcaException extends BaseException

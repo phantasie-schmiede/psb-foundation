@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Domain\Repository;
+namespace PSB\PsbFoundation\Domain\Model;
 
 /***************************************************************
  *  Copyright notice
@@ -27,27 +27,36 @@ namespace PSB\PsbFoundation\Domain\Repository;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Extbase\Persistence\Generic\Query;
-use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
-use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
- * Class FrontendUserRelatedRepository
- * @package PSB\PsbFoundation\Domain\Repository
+ * Class ModelWithName
+ *
+ * Adds a property "name" to your model.
+ *
+ * @package PSB\PsbFoundation\Domain\Model
  */
-class FrontendUserRelatedRepository extends Repository
+abstract class AbstractModelWithName extends AbstractEntity
 {
     /**
-     * @param int $frontendUserId
-     *
-     * @return QueryResultInterface
+     * @var string
+     * @PSB\PsbFoundation\Tca\FieldConfig type=string
      */
-    public function findByFrontendUser(int $frontendUserId): QueryResultInterface
-    {
-        /** @var Query $query */
-        $query = $this->createQuery();
-        $query->matching($query->equals('frontendUser', $frontendUserId));
+    protected $name;
 
-        return $query->execute();
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Domain\Model;
+namespace PSB\PsbFoundation\Domain\Repository;
 
 /***************************************************************
  *  Copyright notice
@@ -27,33 +27,30 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use TYPO3\CMS\Extbase\Persistence\Generic\Query;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
 /**
- * Class FrontendUserRelatedModel
- * @package PSB\PsbFoundation\Domain\Model
+ * Class FrontendUserRelatedRepository
+ *
+ * This repository lets you find records that are connected to a certain frontend user. Goes hand in hand with a model
+ * extending \PSB\PsbFoundation\Domain\Model\AbstractFrontendUserRelatedModel
+ *
+ * @package PSB\PsbFoundation\Domain\Repository
  */
-class FrontendUserRelatedModel extends AbstractEntity
+abstract class AbstractFrontendUserRelatedRepository extends AbstractRepository
 {
     /**
-     * @var FrontendUser
+     * @param int $frontendUserId
+     *
+     * @return QueryResultInterface
      */
-    protected $frontendUser;
-
-    /**
-     * @return FrontendUser
-     */
-    public function getFrontendUser(): FrontendUser
+    public function findByFrontendUser(int $frontendUserId): QueryResultInterface
     {
-        return $this->frontendUser;
-    }
+        /** @var Query $query */
+        $query = $this->createQuery();
+        $query->matching($query->equals('frontendUser', $frontendUserId));
 
-    /**
-     * @param FrontendUser $frontendUser
-     */
-    public function setFrontendUser(FrontendUser $frontendUser): void
-    {
-        $this->frontendUser = $frontendUser;
+        return $query->execute();
     }
 }

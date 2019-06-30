@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Data;
 
+use TYPO3\CMS\Core\SingletonInterface;
+
 /***************************************************************
  *  Copyright notice
  *

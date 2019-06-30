@@ -33,6 +33,6 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  * Class AbstractRepository
  * @package PSB\PsbFoundation\Domain\Repository
  */
-class AbstractRepository extends Repository
+abstract class AbstractRepository extends Repository
 {
 }

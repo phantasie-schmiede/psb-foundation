@@ -29,6 +29,9 @@ namespace PSB\PsbFoundation\Exceptions;
 
 /**
  * Class ImplementationException
+ *
+ * This exception should be thrown when Service or Utility classes are not used as intended.
+ *
  * @package PSB\PsbFoundation\Exceptions
  */
 class ImplementationException extends BaseException

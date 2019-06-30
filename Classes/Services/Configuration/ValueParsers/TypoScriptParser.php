@@ -35,13 +35,20 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class TypoScriptParser
+ *
+ * This parser allows to dynamically inject TypoScript values into a string, which can especially be useful for
+ * FlexForms. Example:
+ * 'Your TypoScript value is: ###PSB:TS:your.typoscript.value###'
+ *
  * @package PSB\PsbFoundation\Services\Configuration\ValueParsers
  */
 class TypoScriptParser implements ValueParserInterface
 {
-    public const MARKER_TYPE = 'PS:TS';
+    public const MARKER_TYPE = 'PSB:TS';
 
     /**
+     * @TODO: Allow passing of $path to getTypoScriptConfiguration()
+     *
      * @param string|null $value
      *
      * @return mixed
@@ -60,7 +67,7 @@ class TypoScriptParser implements ValueParserInterface
         try {
             $result = ArrayUtility::getValueByPath($typoScript, $typoScriptPath, '.');
         } catch (Exception $e) {
-            throw new InvalidArgumentException(self::class.': FlexForm marker '.self::MARKER_TYPE.' must be followed by a valid TypoScript path!',
+            throw new InvalidArgumentException(self::class.': Marker '.self::MARKER_TYPE.' must be followed by a valid TypoScript path!',
                 1547210715);
         }
 

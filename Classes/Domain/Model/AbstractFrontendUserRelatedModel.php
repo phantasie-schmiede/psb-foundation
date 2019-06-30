@@ -27,33 +27,36 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
- * Class ModelWithName
+ * Class FrontendUserRelatedModel
+ *
+ * By extending this class you can connect your model with a frontend user.
+ *
  * @package PSB\PsbFoundation\Domain\Model
  */
-class ModelWithName extends AbstractEntity
+abstract class AbstractFrontendUserRelatedModel extends AbstractEntity
 {
     /**
-     * @var string
-     * @PSB\PsbFoundation\Tca\FieldConfig type=string
+     * @var FrontendUser
      */
-    protected $name;
+    protected $frontendUser;
 
     /**
-     * @return string
+     * @return FrontendUser
      */
-    public function getName(): string
+    public function getFrontendUser(): FrontendUser
     {
-        return $this->name;
+        return $this->frontendUser;
     }
 
     /**
-     * @param string $name
+     * @param FrontendUser $frontendUser
      */
-    public function setName(string $name): void
+    public function setFrontendUser(FrontendUser $frontendUser): void
     {
-        $this->name = $name;
+        $this->frontendUser = $frontendUser;
     }
 }

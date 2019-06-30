@@ -29,6 +29,9 @@ namespace PSB\PsbFoundation\Exceptions;
 
 /**
  * Class AnnotationException
+ *
+ * This exception should be thrown when there is a problem with parsing annotations
+ *
  * @package PSB\PsbFoundation\Exceptions
  */
 class AnnotationException extends BaseException

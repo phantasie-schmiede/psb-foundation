@@ -27,8 +27,9 @@ namespace PSB\PsbFoundation\Services;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use function count;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class GlobalVariableService
@@ -47,17 +48,23 @@ class GlobalVariableService
     protected static $globalVariables = [];
 
     /**
-     * @param GlobalVariableProviderInterface $globalVariableProvider
+     * @param string $path
+     *
+     * @return array
      */
-    public static function registerGlobalVariableProvider(GlobalVariableProviderInterface $globalVariableProvider): void
+    public static function getExplodedCsv(string $path): array
     {
-        self::$globalVariableProviders[] = $globalVariableProvider;
+        $csv = ArrayUtility::getValueByPath(self::$globalVariables, $path, '.');
+
+        return GeneralUtility::trimExplode(',', $csv, true);
     }
 
     /**
+     * @param string|null $path
+     *
      * @return array
      */
-    public static function getGlobalVariables(): array
+    public static function getGlobalVariables(string $path = null): array
     {
         /** @var GlobalVariableProviderInterface $globalVariableProvider */
         foreach (self::$globalVariableProviders as $globalVariableProvider) {
@@ -67,6 +74,34 @@ class GlobalVariableService
             }
         }
 
+        if (null !== $path) {
+            return ArrayUtility::getValueByPath(self::$globalVariables, $path, '.');
+        }
+
         return self::$globalVariables;
+    }
+
+    /**
+     * @param string $path
+     *
+     * @return bool
+     */
+    public static function has(string $path): bool
+    {
+        try {
+            ArrayUtility::getValueByPath(self::getGlobalVariables(), $path, '.');
+
+            return true;
+        } catch (Exception $exception) {
+            return false;
+        }
+    }
+
+    /**
+     * @param GlobalVariableProviderInterface $globalVariableProvider
+     */
+    public static function registerGlobalVariableProvider(GlobalVariableProviderInterface $globalVariableProvider): void
+    {
+        self::$globalVariableProviders[] = $globalVariableProvider;
     }
 }
