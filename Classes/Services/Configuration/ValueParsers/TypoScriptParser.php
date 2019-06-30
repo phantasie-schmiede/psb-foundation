@@ -30,8 +30,6 @@ namespace PSB\PsbFoundation\Services\Configuration\ValueParsers;
 use Exception;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Services\TypoScriptProviderService;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class TypoScriptParser
@@ -47,8 +45,6 @@ class TypoScriptParser implements ValueParserInterface
     public const MARKER_TYPE = 'PSB:TS';
 
     /**
-     * @TODO: Allow passing of $path to getTypoScriptConfiguration()
-     *
      * @param string|null $value
      *
      * @return mixed
@@ -56,21 +52,13 @@ class TypoScriptParser implements ValueParserInterface
      */
     public function processValue(?string $value)
     {
-        $typoScript = TypoScriptProviderService::getTypoScriptConfiguration();
-
-        if (null === $typoScript) {
-            return null;
-        }
-
-        $typoScriptPath = GeneralUtility::trimExplode('.', $value, true);
-
         try {
-            $result = ArrayUtility::getValueByPath($typoScript, $typoScriptPath, '.');
+            $typoScript = TypoScriptProviderService::getTypoScriptConfiguration($value);
         } catch (Exception $e) {
             throw new InvalidArgumentException(self::class.': Marker '.self::MARKER_TYPE.' must be followed by a valid TypoScript path!',
                 1547210715);
         }
 
-        return $result;
+        return $typoScript;
     }
 }
