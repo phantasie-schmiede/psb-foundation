@@ -96,7 +96,7 @@ class TypoScriptUtility
 
         if (!empty($extensionInformation->getModules())) {
             if (!empty($extensionInformation->getPlugins())) {
-                $key = 'tx_'.strtolower($extensionInformation->getExtensionName());
+                $key = 'tx_'.mb_strtolower($extensionInformation->getExtensionName());
                 $setupArray = [
                     self::COMPONENTS['MODULE'] => [
                         $key => [
@@ -330,7 +330,7 @@ class TypoScriptUtility
         ExtensionInformationInterface $extensionInformation,
         string $component
     ): array {
-        $key = 'tx_'.strtolower($extensionInformation->getExtensionName());
+        $key = 'tx_'.mb_strtolower($extensionInformation->getExtensionName());
 
         return [
             $component => [
@@ -370,7 +370,7 @@ class TypoScriptUtility
         ExtensionInformationInterface $extensionInformation,
         string $component
     ): array {
-        $key = 'tx_'.strtolower($extensionInformation->getExtensionName());
+        $key = 'tx_'.mb_strtolower($extensionInformation->getExtensionName());
 
         return [
             $component => [

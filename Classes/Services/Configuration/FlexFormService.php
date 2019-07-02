@@ -205,7 +205,7 @@ class FlexFormService
             self::setPluginName($pluginName);
         }
 
-        $pluginKey = str_replace('_', '', self::getExtensionKey()).'_'.strtolower(self::getPluginName());
+        $pluginKey = str_replace('_', '', self::getExtensionKey()).'_'.mb_strtolower(self::getPluginName());
 
         if (null === $dataStructure) {
             $xmlPath = 'EXT:'.self::getExtensionKey().'/Configuration/FlexForms/'.self::getPluginName().'.xml';

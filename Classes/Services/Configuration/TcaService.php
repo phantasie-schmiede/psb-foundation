@@ -99,7 +99,7 @@ class TcaService
     ) {
         $this->setDefaultLabelPath('LLL:EXT:'.($extensionKey ?? VariableUtility::convertClassNameToExtensionKey($classOrTableName)).'/Resources/Private/Language/Backend/Configuration/TCA/');
 
-        if (false !== strpos($classOrTableName, '\\')) {
+        if (false !== mb_strpos($classOrTableName, '\\')) {
             $this->className = $classOrTableName;
             $this->table = VariableUtility::convertClassNameToTableName($this->className);
             $this->configuration = $this->getDummyConfiguration($this->table);
@@ -127,7 +127,7 @@ class TcaService
      */
     public static function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
     {
-        $identifier = 'tx_'.strtolower($extensionInformation->getExtensionName()).'_domain_model_';
+        $identifier = 'tx_'.mb_strtolower($extensionInformation->getExtensionName()).'_domain_model_';
 
         $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
             return VariableUtility::startsWith($key, $identifier);

@@ -50,9 +50,9 @@ class TcaFieldConfigParser extends AbstractValuePairsParser
         // transform associative array to simple array for TCA
         if ('select' === $result['type'] && isset ($result['items']) && is_array($result['items'])) {
             $result['items'] = array_map(static function ($key, $value) {
-                if (0 === strpos($key, ' ')) {
+                if (0 === mb_strpos($key, ' ')) {
                     // prettify constant names
-                    return [ucwords(str_replace('_', ' ', strtolower($key))), $value];
+                    return [ucwords(str_replace('_', ' ', mb_strtolower($key))), $value];
                 }
 
                 return $key;

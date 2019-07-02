@@ -94,7 +94,7 @@ class VariableUtility
                 1560233166);
         }
 
-        return substr($fullControllerName, 0, -10);
+        return mb_substr($fullControllerName, 0, -10);
     }
 
     /**
@@ -133,7 +133,7 @@ class VariableUtility
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
         $classNameParts[0] = 'tx';
 
-        return strtolower(implode('_', $classNameParts));
+        return mb_strtolower(implode('_', $classNameParts));
     }
 
     /**
@@ -203,14 +203,14 @@ class VariableUtility
         }
 
         if (is_numeric($variable)) {
-            if (false === strpos($variable, '.')) {
+            if (false === mb_strpos($variable, '.')) {
                 return (int)$variable;
             }
 
             return (double)$variable;
         }
 
-        if ('' !== $variable && '\\' === $variable[0] && 0 < strpos($variable, '::')) {
+        if ('' !== $variable && '\\' === $variable[0] && 0 < mb_strpos($variable, '::')) {
             if (0 < preg_match_all('/\[\'?(.*)\'?(\](?=[\[])|\]$)/U', $variable, $matches)) {
                 $matches = array_map(static function ($value) {
                     return self::convertString(trim($value, '\''));
@@ -266,13 +266,13 @@ class VariableUtility
      */
     public static function endsWith(string $string, string $ending): bool
     {
-        $offset = strlen($ending);
+        $offset = mb_strlen($ending);
 
-        if ($offset > strlen($string)) {
+        if ($offset > mb_strlen($string)) {
             return false;
         }
 
-        return strpos($string, $ending, -$offset) === strlen($string) - $offset;
+        return mb_strpos($string, $ending, -$offset) === mb_strlen($string) - $offset;
     }
 
     /**
@@ -314,6 +314,6 @@ class VariableUtility
      */
     public static function startsWith(string $string, string $beginning): bool
     {
-        return 0 === strrpos($string, $beginning, -strlen($string));
+        return 0 === mb_strrpos($string, $beginning, -mb_strlen($string));
     }
 }

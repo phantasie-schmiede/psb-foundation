@@ -35,7 +35,6 @@ use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginActionParser;
 use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
-use PSB\PsbFoundation\Utilities\TypoScript\Library;
 use PSB\PsbFoundation\Utilities\TypoScriptUtility;
 use PSB\PsbFoundation\Utilities\VariableUtility;
 use ReflectionClass;
@@ -86,7 +85,7 @@ class RegistrationUtility
     ): void {
         $iconIdentifier = $iconIdentifier ?? str_replace('_', '-',
                 GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
-        $listType = str_replace('_', '', $extensionKey).'_'.strtolower($pluginName);
+        $listType = str_replace('_', '', $extensionKey).'_'.mb_strtolower($pluginName);
         $title = 'LLL:EXT:'.$extensionKey.'/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:'.$group.'.elements.'.lcfirst($pluginName).'.title';
 
         $configuration = [
@@ -174,7 +173,7 @@ class RegistrationUtility
                     );
 
                     self::addPluginToElementWizard($extensionInformation->getExtensionKey(),
-                        $pluginConfiguration['group'] ?? strtolower($extensionInformation->getVendorName()),
+                        $pluginConfiguration['group'] ?? mb_strtolower($extensionInformation->getVendorName()),
                         $pluginName, $pluginConfiguration['iconIdentifier'] ?? null);
                 }
             }
@@ -427,7 +426,7 @@ class RegistrationUtility
      */
     private static function buildContentTypeKey(string $extensionKey, string $contentType): string
     {
-        return strtolower(str_replace('_', '', $extensionKey).'_'.$contentType);
+        return mb_strtolower(str_replace('_', '', $extensionKey).'_'.$contentType);
     }
 
     /**
@@ -464,7 +463,7 @@ class RegistrationUtility
                         $methodName);
 
                     if (!isset($docComment[PluginActionParser::ANNOTATION_TYPE]['ignore'])) {
-                        $actionName = substr($methodName, 0, -6);
+                        $actionName = mb_substr($methodName, 0, -6);
 
                         if ($docComment[PluginActionParser::ANNOTATION_TYPE]['default']) {
                             array_unshift($controllersAndCachedActions[$controllerName],

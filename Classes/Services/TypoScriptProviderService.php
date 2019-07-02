@@ -104,7 +104,7 @@ class TypoScriptProviderService
 
         array_walk_recursive($typoScript, static function (&$item) {
             // if constants are unset
-            if (0 === strpos($item, '{$')) {
+            if (0 === mb_strpos($item, '{$')) {
                 $item = null;
             } else {
                 $item = VariableUtility::convertString($item);
@@ -155,10 +155,10 @@ class TypoScriptProviderService
         }
 
         if (null !== $extensionName) {
-            $key = 'tx_'.strtolower($extensionName);
+            $key = 'tx_'.mb_strtolower($extensionName);
 
             if (null !== $pluginName) {
-                $key .= '_'.strtolower($pluginName);
+                $key .= '_'.mb_strtolower($pluginName);
             }
 
             $key .= '.';

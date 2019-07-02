@@ -214,8 +214,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
             foreach ($commentLines as $commentLine) {
                 $commentLine = ltrim(trim($commentLine), '/* ');
 
-                if (0 === strpos($commentLine, '@')) {
-                    $parts = GeneralUtility::trimExplode(' ', substr($commentLine, 1), true, 2);
+                if (0 === mb_strpos($commentLine, '@')) {
+                    $parts = GeneralUtility::trimExplode(' ', mb_substr($commentLine, 1), true, 2);
                     [$annotationType, $parameters] = $parts;
                     $value = $this->processValue($annotationType, $parameters);
 
@@ -272,7 +272,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                     }
 
                     // summary ends with a period or a blank line
-                    if (self::ANNOTATION_TYPES['SUMMARY '] === $annotationType && ('.' === substr($commentLine,
+                    if (self::ANNOTATION_TYPES['SUMMARY '] === $annotationType && ('.' === mb_substr($commentLine,
                                 -1) || ('' === $commentLine && isset($parsedDocComment[$annotationType])))) {
                         $annotationType = self::ANNOTATION_TYPES['DESCRIPTION'];
                     }

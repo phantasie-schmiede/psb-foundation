@@ -431,7 +431,7 @@ abstract class AbstractModuleController extends ActionController
         $moduleName = $this->request->getPluginName();
 
         if (0 === count($getVars)) {
-            $modulePrefix = strtolower('tx_'.$extensionName.'_'.$moduleName);
+            $modulePrefix = mb_strtolower('tx_'.$extensionName.'_'.$moduleName);
             $getVars = ['id', 'M', $modulePrefix];
         }
 
