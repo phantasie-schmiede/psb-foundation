@@ -63,6 +63,30 @@ class VariableUtility
     ];
 
     /**
+     * @param array  $constant
+     * @param string $key
+     */
+    public static function checkKeyAgainstConstant(array $constant, string $key): void
+    {
+        if (!isset($constant[$key])) {
+            throw new InvalidArgumentException(self::class.': Key "'.$key.'" is not present in constant. Possible keys: '.implode(', ',
+                    array_keys($constant)), 1564122378);
+        }
+    }
+
+    /**
+     * @param array $constant
+     * @param       $value
+     */
+    public static function checkValueAgainstConstant(array $constant, $value): void
+    {
+        if (!in_array($value, $constant, true)) {
+            throw new InvalidArgumentException(self::class.': Value "'.$value.'" is not present in constant. Possible values: '.implode(', ',
+                    $constant), 1564068237);
+        }
+    }
+
+    /**
      * @param $url
      *
      * @return string
@@ -73,6 +97,7 @@ class VariableUtility
     }
 
     /**
+     * @TODO: check if necessary
      * @param string $className
      *
      * @return string The controller name for Extbase-configurations (without the 'Controller'-part)
@@ -260,6 +285,91 @@ class VariableUtility
 
     /**
      * @param string $string
+     * @param int    $length
+     * @param string $appendix
+     * @param bool   $respectWordBoundaries
+     * @param bool   $respectHtml Increases length of output string until all opened tags are properly closed
+     *
+     * @return string
+     */
+    public static function crop(
+        string $string,
+        int $length,
+        string $appendix = '…',
+        bool $respectWordBoundaries = true,
+        bool $respectHtml = true
+    ): string {
+        if (mb_strlen($string) <= $length) {
+            return $string;
+        }
+
+        $lastCharacterBeforeTruncation = '';
+
+        if (true === $respectHtml) {
+            $preparedString = preg_replace_callback('/<.*>/U', static function ($matches) {
+                return '###TAG###'.$matches[0].'###TAG###';
+            }, $string);
+
+            $stringParts = array_filter(explode('###TAG###', $preparedString));
+            $openedTags = [];
+            $pureTextLength = 0;
+            $outputString = '';
+
+            foreach ($stringParts as $stringPart) {
+                if ('/>' !== mb_substr($stringPart, -2)) {
+                    if (0 === mb_strpos($stringPart, '</')) {
+                        $lastOpenedTag = array_pop($openedTags);
+                        preg_match('/<\/(.+)>/U', $stringPart, $matches);
+                        $closedTag = $matches[1];
+
+                        if ($lastOpenedTag !== $closedTag) {
+                            throw new RuntimeException(__CLASS__.': HTML tags in the input string are not properly nested.',
+                                1565696694);
+                        }
+                    } elseif (0 === mb_strpos($stringPart, '<')) {
+                        // extract the tag name
+                        preg_match('/<(.+)[\s>]/U', $stringPart, $matches);
+                        $openedTags[] = $matches[1];
+                    } else {
+                        if (empty($openedTags)) {
+                            $stringPart = mb_substr($stringPart, 0, $length - $pureTextLength);
+                        }
+
+                        $lastCharacterBeforeTruncation = mb_substr($stringPart, -1);
+                        $pureTextLength += mb_strlen($stringPart);
+                    }
+                }
+
+                $outputString .= $stringPart;
+
+                if (empty($openedTags) && $pureTextLength >= $length) {
+                    $length = mb_strlen($outputString);
+                    break;
+                }
+            }
+        }
+
+        if (true === $respectWordBoundaries) {
+            $notMultiByteLength = strlen(mb_substr($string, 0, $length));
+            preg_match('/[\n|\s]/', $string, $matches, 0, $notMultiByteLength);
+
+            if (!empty($matches)) {
+                $length = mb_strpos($string, $matches[0], $length);
+            }
+
+            $lastCharacterBeforeTruncation = mb_substr($string, $length - 1, 1);
+        }
+
+        if (in_array($lastCharacterBeforeTruncation, ['.', '!', '?'], true)) {
+            $appendix = '';
+        }
+
+        return mb_substr($string, 0, $length).$appendix;
+    }
+
+    /**
+     * @TODO: check if necessary
+     * @param string $string
      * @param string $ending
      *
      * @return bool
@@ -273,6 +383,36 @@ class VariableUtility
         }
 
         return strpos($string, $ending, -$offset) === strlen($string) - $offset;
+    }
+
+    /**
+     * @param array $haystack
+     * @param mixed $needle
+     * @param bool  $returnIndex
+     * @param bool  $searchForSubstring
+     *
+     * @return bool|int
+     */
+    public static function inArrayRecursive(
+        array $haystack,
+        $needle,
+        bool $returnIndex = false,
+        bool $searchForSubstring = false
+    ) {
+        foreach ($haystack as $key => $value) {
+            if ($value === $needle || (true === $searchForSubstring && is_string($value) && false !== strpos($value,
+                        $needle))) {
+                return $returnIndex ? $key : true;
+            }
+
+            if (is_array($value)) {
+                $result = self::inArrayRecursive($value, $needle, $returnIndex, $searchForSubstring);
+
+                return ($result && $returnIndex) ? $key : $result;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -307,6 +447,7 @@ class VariableUtility
     }
 
     /**
+     * @TODO: check if necessary
      * @param string $string
      * @param string $beginning
      *

@@ -7,7 +7,7 @@ namespace PSB\PsbFoundation\Utilities\Backend;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *

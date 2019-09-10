@@ -1,7 +1,6 @@
 <?php
-declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers\Variable;
+namespace PSB\PsbFoundation\TypoScript\Conditions;
 
 /***************************************************************
  *  Copyright notice
@@ -27,30 +26,39 @@ namespace PSB\PsbFoundation\ViewHelpers\Variable;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\VariableUtility;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Configuration\TypoScript\ConditionMatching\AbstractCondition;
 
 /**
- * Class ConvertStringViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class UserGroupSettingsCondition
+ * @package PSB\PsbFoundation\TypoScript\Conditions
  */
-class ConvertStringViewHelper extends AbstractViewHelper
+class UserGroupSettingsCondition extends AbstractCondition
 {
     /**
-     * @throws Exception
+     * Evaluate condition
+     *
+     * @param array $parameters
+     *
+     * @return bool
      */
-    public function initializeArguments(): void
+    public function matchCondition(array $parameters): bool
     {
-        parent::initializeArguments();
-        $this->registerArgument('string', 'string', 'string to be converted');
-    }
+        if (!empty($parameters && isset($parameters[0]))) {
+            $property = $parameters[0];
 
-    /**
-     * @return bool|float|int|string|null
-     */
-    public function render()
-    {
-        return VariableUtility::convertString($this->arguments['string']);
+            /** @var BackendUserAuthentication $beUser */
+            $beUser = $GLOBALS['BE_USER'];
+
+            if (is_iterable($beUser->userGroups)) {
+                foreach ($beUser->userGroups as $userGroup) {
+                    if (true === (bool)$userGroup[$property]) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

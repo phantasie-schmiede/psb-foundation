@@ -1,7 +1,6 @@
 <?php
-declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers\Variable;
+namespace PSB\PsbFoundation\TypoScript\Conditions;
 
 /***************************************************************
  *  Copyright notice
@@ -27,30 +26,32 @@ namespace PSB\PsbFoundation\ViewHelpers\Variable;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\VariableUtility;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3\CMS\Core\Configuration\TypoScript\ConditionMatching\AbstractCondition;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class ConvertStringViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class FileExistsCondition
+ * @package PSB\PsbFoundation\TypoScript\Conditions
  */
-class ConvertStringViewHelper extends AbstractViewHelper
+class FileExistsCondition extends AbstractCondition
 {
     /**
-     * @throws Exception
+     * Evaluate condition
+     *
+     * @param array<string> $filePaths
+     *
+     * @return bool
      */
-    public function initializeArguments(): void
+    public function matchCondition(array $filePaths): bool
     {
-        parent::initializeArguments();
-        $this->registerArgument('string', 'string', 'string to be converted');
-    }
+        foreach ($filePaths as $filePath) {
+            $filePath = GeneralUtility::getFileAbsFileName(trim(strip_tags($filePath), ' ='));
 
-    /**
-     * @return bool|float|int|string|null
-     */
-    public function render()
-    {
-        return VariableUtility::convertString($this->arguments['string']);
+            if (!file_exists($filePath)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

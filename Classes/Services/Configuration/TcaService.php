@@ -233,7 +233,7 @@ class TcaService
     public function addType(string $fieldList, int $index = null): void
     {
         if (null === $index) {
-            if (count($this->configuration['types']) > 0) {
+            if (0 < count($this->configuration['types'])) {
                 $index = max(array_keys($this->configuration['types'])) + 1;
             } else {
                 $index = 0;

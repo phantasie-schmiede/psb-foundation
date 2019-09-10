@@ -186,7 +186,11 @@ class TypoScriptProviderService
     private static function getDemandedTypoScript(array $typoScript, string $path = null)
     {
         if (null !== $path) {
-            return ArrayUtility::getValueByPath($typoScript, $path, '.');
+            try {
+                return ArrayUtility::getValueByPath($typoScript, $path, '.');
+            } catch (Exception $e) {
+                throw new RuntimeException(__CLASS__.': Path "'.$path.'" does not exist in array', 1562225431);
+            }
         }
 
         return $typoScript;

@@ -75,7 +75,11 @@ class GlobalVariableService
         }
 
         if (null !== $path) {
-            return ArrayUtility::getValueByPath(self::$globalVariables, $path, '.');
+            try {
+                return ArrayUtility::getValueByPath(self::$globalVariables, $path, '.');
+            } catch (Exception $e) {
+                throw new RuntimeException(__CLASS__.': Path "'.$path.'" does not exist in array', 1562136068);
+            }
         }
 
         return self::$globalVariables;

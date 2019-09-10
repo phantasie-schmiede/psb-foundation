@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\Utilities;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,13 +27,17 @@ namespace PSB\PsbFoundation\Utilities;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use RuntimeException;
+use SimpleXMLElement;
+
 /**
  * Class XmlUtility
  * @package PSB\PsbFoundation\Utilities
  */
 class XmlUtility
 {
-    public const ATTRIBUTES_KEY = '_attributes';
+    public const ATTRIBUTES_KEY = '@attributes';
+    public const NODE_VALUE_KEY = '@nodeValue';
 
     /**
      * @param array $array
@@ -71,5 +75,102 @@ class XmlUtility
         }
 
         return $xml;
+    }
+
+    /**
+     * @param SimpleXMLElement|string $xml
+     *
+     * @return array
+     */
+    public static function convertXmlToArray($xml): array
+    {
+        if (is_string($xml)) {
+            $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
+        }
+
+        if (!$xml instanceof SimpleXMLElement) {
+            throw new RuntimeException(__CLASS__.': No valid XML provided!');
+        }
+
+        return self::buildArrayFromXml($xml);
+    }
+
+    /**
+     * @param SimpleXMLElement|string $xml
+     * @param bool                    $rootLevel
+     *
+     * @return array|string
+     */
+    public static function buildArrayFromXml($xml, bool $rootLevel = true): array
+    {
+        if (is_string($xml)) {
+            return $xml;
+        }
+
+        $array = [];
+
+        foreach ($xml->attributes() as $attributeName => $value) {
+            $array[self::ATTRIBUTES_KEY][$attributeName] = VariableUtility::convertString(trim((string)$value));
+        }
+
+        $namespaces = $xml->getDocNamespaces();
+        $namespaces[] = '';
+
+        foreach ($namespaces as $prefix => $namespace) {
+            if (0 === $prefix) {
+                $prefix = '';
+            } else {
+                $prefix .= ':';
+            }
+
+            foreach ($xml->children($namespace) as $childTagName => $child) {
+                $childTagName = $prefix.$childTagName;
+
+                if (0 < $child->count()) {
+                    $parsedChild = self::buildArrayFromXml($child, false);
+                } else {
+                    $parsedChild = self::parseTextNode($child);
+                }
+
+                if (!isset($array[$childTagName])) {
+                    $array[$childTagName] = $parsedChild;
+                } elseif (is_array($array[$childTagName]) && VariableUtility::isNumericArray($array[$childTagName])) {
+                    $array[$childTagName][] = $parsedChild;
+                } else {
+                    $array[$childTagName] = [
+                        $array[$childTagName],
+                        $parsedChild,
+                    ];
+                }
+            }
+        }
+
+        ksort($array);
+
+        if (true === $rootLevel) {
+            return [$xml->getName() => $array];
+        }
+
+        return $array;
+    }
+
+    /**
+     * @param SimpleXMLElement $node
+     *
+     * @return array|bool|float|int|string|null
+     */
+    private static function parseTextNode(SimpleXMLElement $node)
+    {
+        if (count($node->attributes())) {
+            foreach ($node->attributes() as $attributeName => $value) {
+                $parsedNode[self::ATTRIBUTES_KEY][$attributeName] = VariableUtility::convertString(trim((string)$value));
+            }
+
+            $parsedNode[self::NODE_VALUE_KEY] = VariableUtility::convertString(trim((string)$node));
+        } else {
+            $parsedNode = VariableUtility::convertString(trim((string)$node));
+        }
+
+        return $parsedNode;
     }
 }

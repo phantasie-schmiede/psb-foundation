@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\Controller\Backend;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018-2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -254,7 +254,7 @@ abstract class AbstractModuleController extends ActionController
             if ($view instanceof BackendTemplateView) {
                 $view->getModuleTemplate()->getPageRenderer()->addRequireJsConfiguration([
                     'paths' => [
-                        'fixHeaderDocInputButtons' => '/typo3conf/ext/psg_siteconf/Resources/Public/Scripts/Backend/fixHeaderDocInputButtons',
+                        'fixHeaderDocInputButtons' => '/typo3conf/ext/psb_foundation/Resources/Public/Scripts/Backend/fixHeaderDocInputButtons',
                     ],
                 ]);
                 $view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('fixHeaderDocInputButtons');
