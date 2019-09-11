@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,36 +27,38 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use Exception;
 
 /**
- * Class RenderViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class TcaFieldConfigParser
+ * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+class TcaFieldConfigParser extends AbstractValuePairsParser
 {
+    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Tca\FieldConfig';
+
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
+     * @param string|null $valuePairs
      *
      * @return mixed
+     * @throws Exception
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+    public function processValue(?string $valuePairs)
+    {
+        $result = parent::processValue($valuePairs);
 
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
-            }
+        // transform associative array to simple array for TCA
+        if ('select' === $result['type'] && isset ($result['items']) && is_array($result['items'])) {
+            $result['items'] = array_map(static function ($key, $value) {
+                if (0 === strpos($key, ' ')) {
+                    // prettify constant names
+                    return [ucwords(str_replace('_', ' ', strtolower($key))), $value];
+                }
+
+                return $key;
+            }, array_keys($result['items']), array_values($result['items']));
         }
 
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+        return $result;
     }
 }

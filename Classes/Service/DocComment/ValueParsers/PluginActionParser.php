@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Exceptions;
+namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,16 +27,11 @@ namespace PSB\PsbFoundation\Exceptions;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Exception;
-
 /**
- * Class BaseException
- * @package PSB\PsbFoundation\Exceptions
+ * Class PluginParser
+ * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
-class BaseException extends Exception
+class PluginActionParser extends AbstractFlagsParser
 {
-    public function __toString()
-    {
-        return __CLASS__ . ': [' . $this->code . ']: ' . $this->message . LF;
-    }
+    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Plugin\Action';
 }

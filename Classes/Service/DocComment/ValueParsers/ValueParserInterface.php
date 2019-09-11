@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,36 +27,22 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3\CMS\Core\SingletonInterface;
 
 /**
- * Class RenderViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Interface ValueParserInterface
+ *
+ * Your parser class also has to define a constant named ANNOTATION_TYPE!
+ * (The first part after the @-symbol, e.g. return or var)
+ *
+ * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+interface ValueParserInterface extends SingletonInterface
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
+     * @param string|null $value
      *
      * @return mixed
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
-
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
-            }
-        }
-
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
-    }
+    public function processValue(?string $value);
 }

@@ -27,7 +27,7 @@ namespace PSB\PsbFoundation\Views;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Services\GlobalVariableService;
+use PSB\PsbFoundation\Service\GlobalVariableService;
 
 /**
  * Class TemplateView
@@ -42,9 +42,9 @@ class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
     }
 
     /**
-     * @param string $partialName
-     * @param string $sectionName
-     * @param array $variables
+     * @param string  $partialName
+     * @param string  $sectionName
+     * @param array   $variables
      * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
      *
      * @return string

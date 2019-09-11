@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers\Variable;
+namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,30 +27,39 @@ namespace PSB\PsbFoundation\ViewHelpers\Variable;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Utility\VariableUtility;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class ConvertStringViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class AbstractValuePairsParser
+ * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
-class ConvertStringViewHelper extends AbstractViewHelper
+abstract class AbstractValuePairsParser implements ValueParserInterface
 {
     /**
+     * @param string|null $valuePairs
+     *
+     * @return mixed
      * @throws Exception
      */
-    public function initializeArguments(): void
+    public function processValue(?string $valuePairs)
     {
-        parent::initializeArguments();
-        $this->registerArgument('string', 'string', 'string to be converted');
-    }
+        if (null === $valuePairs) {
+            /** @noinspection PhpUndefinedClassConstantInspection */
+            throw new AnnotationException(static::ANNOTATION_TYPE . ' must be followed by value pairs like "key=value"!',
+                1541619320);
+        }
 
-    /**
-     * @return bool|float|int|string|null
-     */
-    public function render()
-    {
-        return VariableUtility::convertString($this->arguments['string']);
+        $result = [];
+        $valueParts = GeneralUtility::trimExplode(';', $valuePairs, true);
+
+        foreach ($valueParts as $part) {
+            [$key, $value] = GeneralUtility::trimExplode('=', $part, false, 2);
+            $result[$key] = VariableUtility::convertString($value);
+        }
+
+        return $result;
     }
 }

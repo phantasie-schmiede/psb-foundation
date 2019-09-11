@@ -29,7 +29,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
 
 use InvalidArgumentException;
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utilities\VariableUtility;
+use PSB\PsbFoundation\Utility\VariableUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
@@ -62,7 +62,7 @@ class MathViewHelper extends AbstractViewHelper
         }
 
         if (!is_numeric($a) && !is_numeric($b)) {
-            throw $this->get(InvalidArgumentException::class, __CLASS__.': At least one argument is not numeric!',
+            throw $this->get(InvalidArgumentException::class, __CLASS__ . ': At least one argument is not numeric!',
                 1558773027);
         }
 
@@ -78,7 +78,7 @@ class MathViewHelper extends AbstractViewHelper
             case '**':
                 return $a ** $b;
             default:
-                throw $this->get(InvalidArgumentException::class, __CLASS__.': Operator not allowed!',
+                throw $this->get(InvalidArgumentException::class, __CLASS__ . ': Operator not allowed!',
                     1558773161);
         }
     }

@@ -37,7 +37,7 @@ use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
  * This class is a property container for action buttons in backend modules.
  *
  * @package PSB\PsbFoundation\Module
- * @see \PSB\PsbFoundation\Controller\Backend\AbstractModuleController
+ * @see     \PSB\PsbFoundation\Controller\Backend\AbstractModuleController
  */
 class ButtonConfiguration
 {

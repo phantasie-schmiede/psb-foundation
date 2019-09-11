@@ -28,7 +28,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
  ***************************************************************/
 
 use Closure;
-use PSB\PsbFoundation\Services\GlobalVariableService;
+use PSB\PsbFoundation\Service\GlobalVariableService;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
@@ -44,8 +44,8 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
     }
 
     /**
-     * @param array $arguments
-     * @param Closure $renderChildrenClosure
+     * @param array                     $arguments
+     * @param Closure                   $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
      */
     public static function renderStatic(

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\Utility;
 
 /***************************************************************
  *  Copyright notice
@@ -27,36 +27,32 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
- * Class RenderViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class ObjectUtility
+ * @package PSB\PsbFoundation\Utility
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+class ObjectUtility
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
-     * @return mixed
+     * @var ObjectManager
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+    protected static $objectManager;
 
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
-            }
+    /**
+     * @param string $className
+     * @param array  $arguments
+     *
+     * @return object
+     */
+    public static function get(string $className, ...$arguments)
+    {
+        if (!self::$objectManager instanceof ObjectManager) {
+            self::$objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         }
 
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+        return self::$objectManager->get($className, ...$arguments);
     }
 }

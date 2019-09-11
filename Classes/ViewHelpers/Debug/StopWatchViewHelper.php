@@ -28,7 +28,7 @@ namespace PSB\PsbFoundation\ViewHelpers\Debug;
  ***************************************************************/
 
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utilities\Debug\StopWatchUtility;
+use PSB\PsbFoundation\Utility\Debug\StopWatchUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**

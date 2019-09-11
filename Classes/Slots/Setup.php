@@ -29,13 +29,13 @@ namespace PSB\PsbFoundation\Slots;
 
 use Exception;
 use PSB\PsbFoundation\Data\ExtensionInformation;
-use PSB\PsbFoundation\Services\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginActionParser;
-use PSB\PsbFoundation\Services\DocComment\ValueParsers\PluginConfigParser;
-use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaConfigParser;
-use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaFieldConfigParser;
-use PSB\PsbFoundation\Services\DocComment\ValueParsers\TcaMappingParser;
-use PSB\PsbFoundation\Utilities\ObjectUtility;
+use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser;
+use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginConfigParser;
+use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaConfigParser;
+use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaFieldConfigParser;
+use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaMappingParser;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
