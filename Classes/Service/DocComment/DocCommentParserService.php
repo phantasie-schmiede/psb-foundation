@@ -35,8 +35,9 @@ use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\ValueParserInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\ObjectUtility;
-use PSB\PsbFoundation\Utility\VariableUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ReflectionClass;
@@ -47,7 +48,7 @@ use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function get_class;
 use function in_array;
@@ -91,7 +92,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         'VAR'         => 'var',
     ];
 
-    private const VALUE_PARSER_TABLE = 'tx_psbfoundation_services_doccomment_valueparser';
+    private const VALUE_PARSER_TABLE = 'tx_psbfoundation_service_doccomment_valueparser';
 
     /**
      * @var array
@@ -184,7 +185,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      */
     public function parsePhpDocComment($class, string $methodOrPropertyName = null): array
     {
-        $entryIdentifier = VariableUtility::createHash($class . $methodOrPropertyName);
+        $entryIdentifier = StringUtility::createHash($class . $methodOrPropertyName);
         $cachedDocComment = $this->readFromCache($entryIdentifier);
 
         if (false !== $cachedDocComment) {
@@ -228,7 +229,8 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                             $parsedDocComment[$annotationType][] = $value;
                             break;
                         case (in_array($annotationType, $this->mergeValues, true)):
-                            ArrayUtility::mergeRecursiveWithOverrule($parsedDocComment[$annotationType], $value);
+                            Typo3CoreArrayUtility::mergeRecursiveWithOverrule($parsedDocComment[$annotationType],
+                                $value);
                             break;
                         case (in_array($annotationType, $this->singleValues, true)):
                             if ([] !== $parsedDocComment[$annotationType]) {
@@ -256,7 +258,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                         if (isset($parsedDocComment[$annotationType])) {
                             $parameters = ($parameters ?? '') . ' ' . $commentLine;
 
-                            if (is_array($parsedDocComment[$annotationType]) && VariableUtility::isNumericArray($parsedDocComment[$annotationType])) {
+                            if (is_array($parsedDocComment[$annotationType]) && ArrayUtility::isNumericArray($parsedDocComment[$annotationType])) {
                                 $indexOfLastElement = count($parsedDocComment[$annotationType]) - 1;
                                 $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($parameters,
                                     $annotationType);

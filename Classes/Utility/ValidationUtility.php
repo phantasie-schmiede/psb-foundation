@@ -27,23 +27,35 @@ namespace PSB\PsbFoundation\Utility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use InvalidArgumentException;
 
 /**
- * Class ObjectUtility
+ * Class ValidationUtility
  * @package PSB\PsbFoundation\Utility
  */
-class ObjectUtility
+class ValidationUtility
 {
     /**
-     * @param string $className
-     * @param array  $arguments
-     *
-     * @return object
+     * @param array  $constant
+     * @param string $key
      */
-    public static function get(string $className, ...$arguments)
+    public static function checkKeyAgainstConstant(array $constant, string $key): void
     {
-        return GeneralUtility::makeInstance(ObjectManager::class)->get($className, ...$arguments);
+        if (!isset($constant[$key])) {
+            throw new InvalidArgumentException(self::class . ': Key "' . $key . '" is not present in constant. Possible keys: ' . implode(', ',
+                    array_keys($constant)), 1564122378);
+        }
+    }
+
+    /**
+     * @param array $constant
+     * @param       $value
+     */
+    public static function checkValueAgainstConstant(array $constant, $value): void
+    {
+        if (!in_array($value, $constant, true)) {
+            throw new InvalidArgumentException(self::class . ': Value "' . $value . '" is not present in constant. Possible values: ' . implode(', ',
+                    $constant), 1564068237);
+        }
     }
 }

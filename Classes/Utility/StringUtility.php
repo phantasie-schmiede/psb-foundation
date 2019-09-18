@@ -28,21 +28,15 @@ namespace PSB\PsbFoundation\Utility;
  ***************************************************************/
 
 use Exception;
-use InvalidArgumentException;
-use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaMappingParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
-use ReflectionException;
 use RuntimeException;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class VariableUtility
+ * Class StringUtility
  * @package PSB\PsbFoundation\Utility
  */
-class VariableUtility
+class StringUtility
 {
     use StaticInjectionTrait;
 
@@ -63,30 +57,6 @@ class VariableUtility
     ];
 
     /**
-     * @param array  $constant
-     * @param string $key
-     */
-    public static function checkKeyAgainstConstant(array $constant, string $key): void
-    {
-        if (!isset($constant[$key])) {
-            throw new InvalidArgumentException(self::class . ': Key "' . $key . '" is not present in constant. Possible keys: ' . implode(', ',
-                    array_keys($constant)), 1564122378);
-        }
-    }
-
-    /**
-     * @param array $constant
-     * @param       $value
-     */
-    public static function checkValueAgainstConstant(array $constant, $value): void
-    {
-        if (!in_array($value, $constant, true)) {
-            throw new InvalidArgumentException(self::class . ': Value "' . $value . '" is not present in constant. Possible values: ' . implode(', ',
-                    $constant), 1564068237);
-        }
-    }
-
-    /**
      * @param $url
      *
      * @return string
@@ -94,72 +64,6 @@ class VariableUtility
     public static function cleanUrl($url): string
     {
         return html_entity_decode(urldecode($url));
-    }
-
-    /**
-     * @TODO: check if necessary
-     *
-     * @param string $className
-     *
-     * @return string The controller name for Extbase-configurations (without the 'Controller'-part)
-     */
-    public static function convertClassNameToControllerName(string $className): string
-    {
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        if (4 > count($classNameParts)) {
-            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-                1560233275);
-        }
-
-        $controllerNameParts = array_slice($classNameParts, 3);
-        $fullControllerName = implode('\\', $controllerNameParts);
-
-        if (!self::endsWith($fullControllerName, 'Controller')) {
-            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a controller class!',
-                1560233166);
-        }
-
-        return substr($fullControllerName, 0, -10);
-    }
-
-    /**
-     * @param string $className
-     *
-     * @return string
-     */
-    public static function convertClassNameToExtensionKey(string $className): string
-    {
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        if (isset($classNameParts[1])) {
-            return GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]);
-        }
-
-        throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-            1547120513);
-    }
-
-    /**
-     * @param string $className
-     *
-     * @return string
-     * @throws ReflectionException
-     * @throws NoSuchCacheException
-     */
-    public static function convertClassNameToTableName(string $className): string
-    {
-        $docCommentParserService = self::get(DocCommentParserService::class);
-        $docComment = $docCommentParserService->parsePhpDocComment($className);
-
-        if (isset($docComment[TcaMappingParser::ANNOTATION_TYPE]['table'])) {
-            return $docComment[TcaMappingParser::ANNOTATION_TYPE]['table'];
-        }
-
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-        $classNameParts[0] = 'tx';
-
-        return strtolower(implode('_', $classNameParts));
     }
 
     /**
@@ -196,24 +100,6 @@ class VariableUtility
         $unitString = array_search($power ?? $unit, self::FILE_SIZE_UNITS, true);
 
         return number_format($bytes, $decimals, $decimalSeparator, $thousandsSeparator) . ' ' . $unitString;
-    }
-
-    /**
-     * @param string      $propertyName
-     * @param string|null $className
-     *
-     * @return string
-     * @throws NoSuchCacheException
-     * @throws ReflectionException
-     */
-    public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
-    {
-        if (null !== $className) {
-            $docCommentParserService = self::get(DocCommentParserService::class);
-            $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
-        }
-
-        return $docComment[TcaMappingParser::ANNOTATION_TYPE]['column'] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
     }
 
     /**
@@ -369,8 +255,6 @@ class VariableUtility
     }
 
     /**
-     * @TODO: check if necessary
-     *
      * @param string $string
      * @param string $ending
      *
@@ -388,69 +272,6 @@ class VariableUtility
     }
 
     /**
-     * @param array $haystack
-     * @param mixed $needle
-     * @param bool  $returnIndex
-     * @param bool  $searchForSubstring
-     *
-     * @return bool|int
-     */
-    public static function inArrayRecursive(
-        array $haystack,
-        $needle,
-        bool $returnIndex = false,
-        bool $searchForSubstring = false
-    ) {
-        foreach ($haystack as $key => $value) {
-            if ($value === $needle || (true === $searchForSubstring && is_string($value) && false !== strpos($value,
-                        $needle))) {
-                return $returnIndex ? $key : true;
-            }
-
-            if (is_array($value)) {
-                $result = self::inArrayRecursive($value, $needle, $returnIndex, $searchForSubstring);
-
-                return ($result && $returnIndex) ? $key : $result;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param array $array
-     * @param array $elements
-     * @param int   $index
-     *
-     * @return array
-     */
-    public static function insertIntoArray(array $array, array $elements, int $index): array
-    {
-        if (self::isNumericArray($array)) {
-            $combinedArray = [];
-            array_push($combinedArray, ...array_slice($array, 0, $index), ...$elements,
-                ...array_slice($array, $index));
-
-            return $combinedArray;
-        }
-
-        /** @noinspection AdditionOperationOnArraysInspection */
-        return array_slice($array, 0, $index, true) + $elements + array_slice($array, $index, null, true);
-    }
-
-    /**
-     * @param array $array
-     *
-     * @return bool
-     */
-    public static function isNumericArray(array $array): bool
-    {
-        return 0 < count(array_filter($array, 'is_numeric', ARRAY_FILTER_USE_KEY));
-    }
-
-    /**
-     * @TODO: check if necessary
-     *
      * @param string $string
      * @param string $beginning
      *

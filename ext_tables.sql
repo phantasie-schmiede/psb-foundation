@@ -1,7 +1,7 @@
 #
-# Table structure for table 'tx_psbfoundation_services_doccomment_valueparser'
+# Table structure for table 'tx_psbfoundation_service_doccomment_valueparser'
 #
-CREATE TABLE tx_psbfoundation_services_doccomment_valueparser (
+CREATE TABLE tx_psbfoundation_service_doccomment_valueparser (
     uid int(11) NOT NULL auto_increment,
 
     annotation_type varchar(255) DEFAULT '' NOT NULL,

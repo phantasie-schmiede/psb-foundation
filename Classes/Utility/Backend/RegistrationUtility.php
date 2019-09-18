@@ -35,16 +35,17 @@ use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
-use PSB\PsbFoundation\Utility\TypoScript\Library;
+use PSB\PsbFoundation\Utility\ArrayUtility;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScriptUtility;
-use PSB\PsbFoundation\Utility\VariableUtility;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -134,8 +135,8 @@ class RegistrationUtility
         self::addElementWizardItem($configuration, $extensionKey, $group, $internalContentType);
 
         $directory = 'EXT:' . $extensionKey . '/Resources/Private/Templates/Content/';
-        $filename = GeneralUtility::underscoredToUpperCamelCase($contentType) . '.html';
-        $previewTemplate = GeneralUtility::getFileAbsFileName($directory . 'Preview/' . $filename);
+        $fileName = GeneralUtility::underscoredToUpperCamelCase($contentType) . '.html';
+        $previewTemplate = GeneralUtility::getFileAbsFileName($directory . 'Preview/' . $fileName);
 
         if (is_file($previewTemplate)) {
             $pageTS['mod']['web_layout']['tt_content']['preview'][$internalContentType] = $previewTemplate;
@@ -144,7 +145,7 @@ class RegistrationUtility
 
         $typoScript['tt_content'][$internalContentType] = [
             TypoScriptUtility::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'FLUIDTEMPLATE',
-            'file'                                             => $templatePath ?? $directory . $filename,
+            'file'                                             => $templatePath ?? $directory . $fileName,
         ];
 
         ExtensionManagementUtility::addTypoScriptSetup(TypoScriptUtility::convertArrayToTypoScript($typoScript));
@@ -248,13 +249,13 @@ class RegistrationUtility
             $contentTypeGroups[$target][] = $newContentTypeConfiguration;
         } else {
             [$group, $index] = explode('.',
-                array_search($target, ArrayUtility::flatten($contentTypeGroups), true));
+                array_search($target, Typo3CoreArrayUtility::flatten($contentTypeGroups), true));
 
             if ('after' === $operator) {
                 $index++;
             }
 
-            $contentTypeGroups[$group] = VariableUtility::insertIntoArray($contentTypeGroups[$group],
+            $contentTypeGroups[$group] = ArrayUtility::insertIntoArray($contentTypeGroups[$group],
                 [$newContentTypeConfiguration], $index);
         }
 
@@ -452,13 +453,13 @@ class RegistrationUtility
         foreach ($controllerClassNames as $controllerClassName) {
             if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
                 $controller = self::get(ReflectionClass::class, $controllerClassName);
-                $controllerName = VariableUtility::convertClassNameToControllerName($controllerClassName);
+                $controllerName = ExtensionInformationUtility::convertClassNameToControllerName($controllerClassName);
                 $methods = $controller->getMethods();
 
                 foreach ($methods as $method) {
                     $methodName = $method->getName();
-                    if (!VariableUtility::endsWith($methodName,
-                            'Action') || VariableUtility::startsWith($methodName,
+                    if (!StringUtility::endsWith($methodName,
+                            'Action') || StringUtility::startsWith($methodName,
                             'initialize') || in_array($method->getDeclaringClass()->getName(),
                             [AbstractModuleController::class, ActionController::class], true)) {
                         continue;
@@ -485,7 +486,7 @@ class RegistrationUtility
             }
 
             if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] !== $collectMode) {
-                ArrayUtility::mergeRecursiveWithOverrule($configuration,
+                Typo3CoreArrayUtility::mergeRecursiveWithOverrule($configuration,
                     $docCommentParserService->parsePhpDocComment($controllerClassName));
             }
         }

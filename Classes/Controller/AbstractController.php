@@ -30,7 +30,7 @@ namespace PSB\PsbFoundation\Controller;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Domain\Repository\AbstractRepository;
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\VariableUtility;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -71,7 +71,7 @@ abstract class AbstractController extends ActionController
         parent::__construct();
 
         [$vendorName, $extensionName, $rest] = GeneralUtility::trimExplode('\\', get_class($this), false, 3);
-        $className = VariableUtility::convertClassNameToControllerName(array_pop($rest));
+        $className = ExtensionInformationUtility::convertClassNameToControllerName(array_pop($rest));
         $this->setDomainModel(implode('\\', [$vendorName, $extensionName, 'Domain\Model', $className]));
 
         $this->repository = $this->get(implode('\\',

@@ -29,7 +29,7 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 use Exception;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
-use PSB\PsbFoundation\Utility\VariableUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -57,7 +57,7 @@ abstract class AbstractValuePairsParser implements ValueParserInterface
 
         foreach ($valueParts as $part) {
             [$key, $value] = GeneralUtility::trimExplode('=', $part, false, 2);
-            $result[$key] = VariableUtility::convertString($value);
+            $result[$key] = StringUtility::convertString($value);
         }
 
         return $result;

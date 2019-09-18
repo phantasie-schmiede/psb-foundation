@@ -29,7 +29,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
 
 use InvalidArgumentException;
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\VariableUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
@@ -54,11 +54,11 @@ class MathViewHelper extends AbstractViewHelper
         $b = $this->arguments['b'];
 
         if (is_string($a)) {
-            $a = VariableUtility::convertString($a);
+            $a = StringUtility::convertString($a);
         }
 
         if (is_string($b)) {
-            $b = VariableUtility::convertString($b);
+            $b = StringUtility::convertString($b);
         }
 
         if (!is_numeric($a) && !is_numeric($b)) {

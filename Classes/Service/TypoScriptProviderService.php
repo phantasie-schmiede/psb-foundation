@@ -29,7 +29,8 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
-use PSB\PsbFoundation\Utility\VariableUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
+use RuntimeException;
 use stdClass;
 use TYPO3\CMS\Core\TypoScript\TemplateService;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
@@ -108,7 +109,7 @@ class TypoScriptProviderService
             if (0 === strpos($item, '{$')) {
                 $item = null;
             } else {
-                $item = VariableUtility::convertString($item);
+                $item = StringUtility::convertString($item);
             }
         });
 

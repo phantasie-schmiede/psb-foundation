@@ -29,7 +29,7 @@ namespace PSB\PsbFoundation\Controller\Backend;
 
 use InvalidArgumentException;
 use PSB\PsbFoundation\Module\ButtonConfiguration;
-use PSB\PsbFoundation\Utility\VariableUtility;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -447,7 +447,7 @@ abstract class AbstractModuleController extends ActionController
      */
     private function getDefaultLanguageFile(): string
     {
-        $fileName = lcfirst(VariableUtility::convertClassNameToControllerName(get_class($this))) . '.xlf';
+        $fileName = lcfirst(ExtensionInformationUtility::convertClassNameToControllerName(get_class($this))) . '.xlf';
 
         return 'LLL:EXT:' . $this->request->getControllerExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $fileName;
     }

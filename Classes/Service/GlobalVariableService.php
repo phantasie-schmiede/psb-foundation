@@ -28,6 +28,7 @@ namespace PSB\PsbFoundation\Service;
  ***************************************************************/
 
 use Exception;
+use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 

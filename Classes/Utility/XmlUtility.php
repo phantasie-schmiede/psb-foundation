@@ -40,6 +40,65 @@ class XmlUtility
     public const NODE_VALUE_KEY = '@nodeValue';
 
     /**
+     * @param SimpleXMLElement|string $xml
+     * @param bool                    $rootLevel
+     *
+     * @return array|string
+     */
+    public static function buildArrayFromXml($xml, bool $rootLevel = true): array
+    {
+        if (is_string($xml)) {
+            return $xml;
+        }
+
+        $array = [];
+
+        foreach ($xml->attributes() as $attributeName => $value) {
+            $array[self::ATTRIBUTES_KEY][$attributeName] = StringUtility::convertString(trim((string)$value));
+        }
+
+        $namespaces = $xml->getDocNamespaces();
+        $namespaces[] = '';
+
+        foreach ($namespaces as $prefix => $namespace) {
+            if (0 === $prefix) {
+                $prefix = '';
+            } else {
+                $prefix .= ':';
+            }
+
+            foreach ($xml->children($namespace) as $childTagName => $child) {
+                $childTagName = $prefix . $childTagName;
+
+                if (0 < $child->count()) {
+                    $parsedChild = self::buildArrayFromXml($child, false);
+                } else {
+                    $parsedChild = self::parseTextNode($child);
+                }
+
+                if (!isset($array[$childTagName])) {
+                    $array[$childTagName] = $parsedChild;
+                } elseif (is_array($array[$childTagName]) && ArrayUtility::isNumericArray($array[$childTagName])) {
+                    $array[$childTagName][] = $parsedChild;
+                } else {
+                    $array[$childTagName] = [
+                        $array[$childTagName],
+                        $parsedChild,
+                    ];
+                }
+            }
+        }
+
+        ksort($array);
+
+        if (true === $rootLevel) {
+            return [$xml->getName() => $array];
+        }
+
+        return $array;
+    }
+
+    /**
      * @param array $array
      *
      * @return string
@@ -96,65 +155,6 @@ class XmlUtility
     }
 
     /**
-     * @param SimpleXMLElement|string $xml
-     * @param bool                    $rootLevel
-     *
-     * @return array|string
-     */
-    public static function buildArrayFromXml($xml, bool $rootLevel = true): array
-    {
-        if (is_string($xml)) {
-            return $xml;
-        }
-
-        $array = [];
-
-        foreach ($xml->attributes() as $attributeName => $value) {
-            $array[self::ATTRIBUTES_KEY][$attributeName] = VariableUtility::convertString(trim((string)$value));
-        }
-
-        $namespaces = $xml->getDocNamespaces();
-        $namespaces[] = '';
-
-        foreach ($namespaces as $prefix => $namespace) {
-            if (0 === $prefix) {
-                $prefix = '';
-            } else {
-                $prefix .= ':';
-            }
-
-            foreach ($xml->children($namespace) as $childTagName => $child) {
-                $childTagName = $prefix . $childTagName;
-
-                if (0 < $child->count()) {
-                    $parsedChild = self::buildArrayFromXml($child, false);
-                } else {
-                    $parsedChild = self::parseTextNode($child);
-                }
-
-                if (!isset($array[$childTagName])) {
-                    $array[$childTagName] = $parsedChild;
-                } elseif (is_array($array[$childTagName]) && VariableUtility::isNumericArray($array[$childTagName])) {
-                    $array[$childTagName][] = $parsedChild;
-                } else {
-                    $array[$childTagName] = [
-                        $array[$childTagName],
-                        $parsedChild,
-                    ];
-                }
-            }
-        }
-
-        ksort($array);
-
-        if (true === $rootLevel) {
-            return [$xml->getName() => $array];
-        }
-
-        return $array;
-    }
-
-    /**
      * @param SimpleXMLElement $node
      *
      * @return array|bool|float|int|string|null
@@ -163,12 +163,12 @@ class XmlUtility
     {
         if (count($node->attributes())) {
             foreach ($node->attributes() as $attributeName => $value) {
-                $parsedNode[self::ATTRIBUTES_KEY][$attributeName] = VariableUtility::convertString(trim((string)$value));
+                $parsedNode[self::ATTRIBUTES_KEY][$attributeName] = StringUtility::convertString(trim((string)$value));
             }
 
-            $parsedNode[self::NODE_VALUE_KEY] = VariableUtility::convertString(trim((string)$node));
+            $parsedNode[self::NODE_VALUE_KEY] = StringUtility::convertString(trim((string)$node));
         } else {
-            $parsedNode = VariableUtility::convertString(trim((string)$node));
+            $parsedNode = StringUtility::convertString(trim((string)$node));
         }
 
         return $parsedNode;

@@ -35,7 +35,8 @@ use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaConfigParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\VariableUtility;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
@@ -97,11 +98,11 @@ class TcaService
         string $classOrTableName,
         string $extensionKey = null
     ) {
-        $this->setDefaultLabelPath('LLL:EXT:' . ($extensionKey ?? VariableUtility::convertClassNameToExtensionKey($classOrTableName)) . '/Resources/Private/Language/Backend/Configuration/TCA/');
+        $this->setDefaultLabelPath('LLL:EXT:' . ($extensionKey ?? ExtensionInformationUtility::convertClassNameToExtensionKey($classOrTableName)) . '/Resources/Private/Language/Backend/Configuration/TCA/');
 
         if (false !== strpos($classOrTableName, '\\')) {
             $this->className = $classOrTableName;
-            $this->table = VariableUtility::convertClassNameToTableName($this->className);
+            $this->table = ExtensionInformationUtility::convertClassNameToTableName($this->className);
             $this->configuration = $this->getDummyConfiguration($this->table);
             $this->setDefaultLabelPath($this->getDefaultLabelPath() . $this->table . '.xlf:');
             $this->setCtrlProperties([
@@ -130,7 +131,7 @@ class TcaService
         $identifier = 'tx_' . strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
 
         $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
-            return VariableUtility::startsWith($key, $identifier);
+            return StringUtility::startsWith($key, $identifier);
         });
 
         foreach ($newTables as $table) {
@@ -268,7 +269,7 @@ class TcaService
                 $type = $fieldConfig['type'];
                 unset($fieldConfig['type']);
                 $config = $docComment[TcaConfigParser::ANNOTATION_TYPE] ?? [];
-                $this->addColumn(VariableUtility::convertPropertyNameToColumnName($property->getName(),
+                $this->addColumn(ExtensionInformationUtility::convertPropertyNameToColumnName($property->getName(),
                     $this->className), $type, $fieldConfig, $config);
             }
         }

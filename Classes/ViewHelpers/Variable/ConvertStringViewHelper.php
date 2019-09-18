@@ -27,7 +27,7 @@ namespace PSB\PsbFoundation\ViewHelpers\Variable;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utility\VariableUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
@@ -51,6 +51,6 @@ class ConvertStringViewHelper extends AbstractViewHelper
      */
     public function render()
     {
-        return VariableUtility::convertString($this->arguments['string']);
+        return StringUtility::convertString($this->arguments['string']);
     }
 }

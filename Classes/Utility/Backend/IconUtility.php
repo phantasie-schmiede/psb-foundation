@@ -59,11 +59,11 @@ class IconUtility
             $iconRegistry = self::get(IconRegistry::class);
 
             foreach ($iconFiles as $iconFile) {
-                $filename = pathinfo($iconFile, PATHINFO_FILENAME);
+                $fileName = pathinfo($iconFile, PATHINFO_FILENAME);
 
-                if ([] === $iconNames || in_array($filename, $iconNames, true)) {
+                if ([] === $iconNames || in_array($fileName, $iconNames, true)) {
                     $iconRegistry->registerIcon(
-                        $filename,
+                        $fileName,
                         SvgIconProvider::class,
                         ['source' => $iconFile]
                     );
