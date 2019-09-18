@@ -68,7 +68,7 @@ class ExtensionInformationUtility
         $controllerNameParts = array_slice($classNameParts, 3);
         $fullControllerName = implode('\\', $controllerNameParts);
 
-        if (!self::endsWith($fullControllerName, 'Controller')) {
+        if (!StringUtility::endsWith($fullControllerName, 'Controller')) {
             throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a controller class!',
                 1560233166);
         }
@@ -134,25 +134,27 @@ class ExtensionInformationUtility
     }
 
     /**
-     * @param string $extensionKey
+     * @param string $fileName
      *
-     * @return string
+     * @return string|null
      */
-    public static function extractVendorNameFromFile(string $extensionKey): string
+    public static function extractVendorNameFromFile(string $fileName): ?string
     {
-        $fileName = GeneralUtility::getFileAbsFileName('EXT:' . $extensionKey . '/Classes/Data/ExtensionInformation.php');
+        $vendorName = null;
 
         if (file_exists($fileName)) {
-            $file = fopen($fileName);
+            $file = fopen($fileName, 'rb');
 
-            while ($line = fread($file)) {
+            while ($line = fgets($file)) {
                 if (StringUtility::startsWith($line, 'namespace ')) {
                     $namespace = rtrim(GeneralUtility::trimExplode($line, ' ')[1], ';');
-                    $vendor = explode('\\', $namespace)[0];
+                    $vendorName = explode('\\', $namespace)[0];
                     break;
                 }
             }
         }
+
+        return $vendorName;
     }
 
     /**
@@ -180,7 +182,7 @@ class ExtensionInformationUtility
             );
     }
 
-    public static function unregister(string $extensionKey): void
+    public static function deregister(string $extensionKey): void
     {
         $connection = self::get(ConnectionPool::class)
             ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE);

@@ -35,6 +35,7 @@ use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaConfigParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaMappingParser;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -52,6 +53,19 @@ class Setup
      */
     public function onInstall(string $extensionKey): void
     {
+        $fileName = GeneralUtility::getFileAbsFileName('EXT:' . $extensionKey . '/Classes/Data/ExtensionInformation.php');
+        $vendorName = ExtensionInformationUtility::extractVendorNameFromFile($fileName);
+
+        if (null !== $vendorName) {
+            $extensionInformationClassName = implode('\\', [
+                $vendorName,
+                GeneralUtility::underscoredToUpperCamelCase($extensionKey),
+                'Data',
+                'ExtensionInformation',
+            ]);
+            ExtensionInformationUtility::register($extensionInformationClassName, $extensionKey);
+        }
+
         $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
 
         if ($extensionInformation->getExtensionKey() !== $extensionKey) {
@@ -76,6 +90,7 @@ class Setup
      */
     public function onUninstall(string $extensionKey): void
     {
+        ExtensionInformationUtility::deregister($extensionKey);
         $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
 
         if ($extensionInformation->getExtensionKey() !== $extensionKey) {
