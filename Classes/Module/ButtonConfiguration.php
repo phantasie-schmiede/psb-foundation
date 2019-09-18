@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\Module;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018-2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -36,8 +36,8 @@ use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
  *
  * This class is a property container for action buttons in backend modules.
  *
- * @package PSG\PsgSiteconf\Module
- * @see \PSB\PsbFoundation\Controller\Backend\AbstractModuleController
+ * @package PSB\PsbFoundation\Module
+ * @see     \PSB\PsbFoundation\Controller\Backend\AbstractModuleController
  */
 class ButtonConfiguration
 {

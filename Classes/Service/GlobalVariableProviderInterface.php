@@ -1,12 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\Exceptions;
+namespace PSB\PsbFoundation\Service;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2018-2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,16 +27,22 @@ namespace PSB\PsbFoundation\Exceptions;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Exception;
-
 /**
- * Class BaseException
- * @package PSB\PsbFoundation\Exceptions
+ * Interface GlobalVariableServiceInterface
+ * @package PSB\PsbFoundation\Service
  */
-class BaseException extends Exception
+interface GlobalVariableProviderInterface
 {
-    public function __toString()
-    {
-        return __CLASS__ . ': [' . $this->code . ']: ' . $this->message . LF;
-    }
+    /**
+     * @return array
+     */
+    public function getGlobalVariables(): array;
+
+    /**
+     * This must return false on first call. Otherwise the function getGlobalVariables() will never be called. When
+     * returned data isn't supposed to change anymore, set function's return value to true.
+     *
+     * @return bool
+     */
+    public function isCacheable(): bool;
 }

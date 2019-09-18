@@ -27,7 +27,7 @@ namespace PSB\PsbFoundation\Traits;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utilities\ObjectUtility;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 
 /**
  * Trait StaticInjectionTrait

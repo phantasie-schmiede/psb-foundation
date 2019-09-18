@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\ViewHelpers\Debug;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -28,7 +28,7 @@ namespace PSB\PsbFoundation\ViewHelpers\Debug;
  ***************************************************************/
 
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utilities\Debug\StopWatchUtility;
+use PSB\PsbFoundation\Utility\Debug\StopWatchUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**

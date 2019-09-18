@@ -3,21 +3,21 @@
 defined('TYPO3_MODE') or die();
 
 (static function () {
-    $extensionInformation = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Data\ExtensionInformation::class);
+    $extensionInformation = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Data\ExtensionInformation::class);
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
-             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extensionInformation->getExtensionKey().'/Configuration/TSConfig/PageTS.tsconfig">
+             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/PageTS.tsconfig">
         ');
 
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('
-             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:'.$extensionInformation->getExtensionKey().'/Configuration/TSConfig/UserTS.tsconfig">
+             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/UserTS.tsconfig">
         ');
 
-    \PSB\PsbFoundation\Utilities\Backend\SetupUtility::registerSetupSlots(\PSB\PsbFoundation\Slots\Setup::class);
+    \PSB\PsbFoundation\Utility\Backend\SetupUtility::registerSetupSlots(\PSB\PsbFoundation\Slots\Setup::class);
 
-    $typoScriptParser = \PSB\PsbFoundation\Utilities\ObjectUtility::get(\PSB\PsbFoundation\Services\Configuration\ValueParsers\TypoScriptParser::class);
-    \PSB\PsbFoundation\Services\Configuration\FlexFormService::addValueParser($typoScriptParser);
+    $typoScriptParser = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
+    \PSB\PsbFoundation\Service\Configuration\FlexFormService::addValueParser($typoScriptParser);
 
-    $docCommentCacheIdentifier = \PSB\PsbFoundation\Services\DocComment\DocCommentParserService::getCacheIdentifier();
+    $docCommentCacheIdentifier = \PSB\PsbFoundation\Service\DocComment\DocCommentParserService::getCacheIdentifier();
 
     if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier])) {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier] = [];

@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\ViewHelpers\Variable;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -53,14 +53,14 @@ class IncrementViewHelper extends AbstractViewHelper
 
         if (!$templateVariableContainer->exists($this->arguments['variable'])) {
             throw new InvalidArgumentException(
-                __CLASS__.': Variable "'.$this->arguments['variable'].'" has not been defined in this context!',
+                __CLASS__ . ': Variable "' . $this->arguments['variable'] . '" has not been defined in this context!',
                 1549454307
             );
         }
 
         if (!is_numeric($this->arguments['step'])) {
             throw new InvalidArgumentException(
-                __CLASS__.': Argument "step" is not numeric (value: "'.$this->arguments['step'].'")!',
+                __CLASS__ . ': Argument "step" is not numeric (value: "' . $this->arguments['step'] . '")!',
                 1549455466
             );
         }
@@ -69,7 +69,7 @@ class IncrementViewHelper extends AbstractViewHelper
 
         if (!is_numeric($value)) {
             throw new InvalidArgumentException(
-                __CLASS__.': Variable "'.$this->arguments['variable'].'" is not numeric!',
+                __CLASS__ . ': Variable "' . $this->arguments['variable'] . '" is not numeric!',
                 1549454962
             );
         }

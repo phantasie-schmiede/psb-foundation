@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\Service\Configuration\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,36 +27,38 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use Exception;
+use InvalidArgumentException;
+use PSB\PsbFoundation\Service\TypoScriptProviderService;
 
 /**
- * Class RenderViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class TypoScriptParser
+ *
+ * This parser allows to dynamically inject TypoScript values into a string, which can especially be useful for
+ * FlexForms. Example:
+ * 'Your TypoScript value is: ###PSB:TS:your.typoscript.value###'
+ *
+ * @package PSB\PsbFoundation\Service\Configuration\ValueParsers
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+class TypoScriptParser implements ValueParserInterface
 {
+    public const MARKER_TYPE = 'PSB:TS';
+
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
+     * @param string|null $value
      *
      * @return mixed
+     * @throws Exception
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
-
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
-            }
+    public function processValue(?string $value)
+    {
+        try {
+            $typoScript = TypoScriptProviderService::getTypoScriptConfiguration($value);
+        } catch (Exception $e) {
+            throw new InvalidArgumentException(self::class . ': Marker ' . self::MARKER_TYPE . ' must be followed by a valid TypoScript path!',
+                1547210715);
         }
 
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+        return $typoScript;
     }
 }

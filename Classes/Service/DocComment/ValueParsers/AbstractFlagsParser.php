@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
@@ -27,36 +27,30 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use Exception;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class RenderViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class AbstractFlagsParser
+ * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+abstract class AbstractFlagsParser implements ValueParserInterface
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
+     * @param string|null $flags
      *
      * @return mixed
+     * @throws Exception
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
-
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
-            }
+    public function processValue(?string $flags)
+    {
+        if (null === $flags) {
+            /** @noinspection PhpUndefinedClassConstantInspection */
+            throw new AnnotationException(static::ANNOTATION_TYPE . ' must be followed by a string value!',
+                1559479332);
         }
 
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+        return array_fill_keys(GeneralUtility::trimExplode(' ', $flags, true), true);
     }
 }

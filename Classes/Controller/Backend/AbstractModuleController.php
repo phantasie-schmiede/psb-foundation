@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\Controller\Backend;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018-2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2018-2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,7 +29,7 @@ namespace PSB\PsbFoundation\Controller\Backend;
 
 use InvalidArgumentException;
 use PSB\PsbFoundation\Module\ButtonConfiguration;
-use PSB\PsbFoundation\Utilities\VariableUtility;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -254,7 +254,7 @@ abstract class AbstractModuleController extends ActionController
             if ($view instanceof BackendTemplateView) {
                 $view->getModuleTemplate()->getPageRenderer()->addRequireJsConfiguration([
                     'paths' => [
-                        'fixHeaderDocInputButtons' => '/typo3conf/ext/psg_siteconf/Resources/Public/Scripts/Backend/fixHeaderDocInputButtons',
+                        'fixHeaderDocInputButtons' => '/typo3conf/ext/psb_foundation/Resources/Public/Scripts/Backend/fixHeaderDocInputButtons',
                     ],
                 ]);
                 $view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('fixHeaderDocInputButtons');
@@ -295,14 +295,14 @@ abstract class AbstractModuleController extends ActionController
     {
         $actionName = $this->request->getControllerActionName();
         $languageFile = $this->getDefaultLanguageFile();
-        $bookmarkLabel = LocalizationUtility::translate($languageFile.':bookmarkLabel.'.$actionName);
+        $bookmarkLabel = LocalizationUtility::translate($languageFile . ':bookmarkLabel.' . $actionName);
 
         if (null === $bookmarkLabel) {
-            $bookmarkLabel = LocalizationUtility::translate($languageFile.':bookmarkLabel')
-                ?? LocalizationUtility::translate($languageFile.':mlang_tabs_tab');
+            $bookmarkLabel = LocalizationUtility::translate($languageFile . ':bookmarkLabel')
+                ?? LocalizationUtility::translate($languageFile . ':mlang_tabs_tab');
 
             if ($this->shallBeRendered(self::HEADER_COMPONENTS['ACTION_MENU'])) {
-                $bookmarkLabel .= ' ('.ucfirst($actionName).')';
+                $bookmarkLabel .= ' (' . ucfirst($actionName) . ')';
             }
         }
 
@@ -324,7 +324,7 @@ abstract class AbstractModuleController extends ActionController
             $items[] = [
                 'action'     => $action,
                 'controller' => $this->request->getControllerName(),
-                'label'      => LocalizationUtility::translate($this->getDefaultLanguageFile().':menu.'.$action) ?? $action,
+                'label'      => LocalizationUtility::translate($this->getDefaultLanguageFile() . ':menu.' . $action) ?? $action,
             ];
         }
 
@@ -371,12 +371,12 @@ abstract class AbstractModuleController extends ActionController
                 $action = $buttonConfiguration->getAction();
                 $link = $this->getHref($action,
                     $buttonConfiguration->getController() ?? $this->request->getControllerName());
-                $title = $buttonConfiguration->getTitle() ?? LocalizationUtility::translate($this->getDefaultLanguageFile().':button.'.$action) ?? '';
+                $title = $buttonConfiguration->getTitle() ?? LocalizationUtility::translate($this->getDefaultLanguageFile() . ':button.' . $action) ?? '';
                 $button->setHref($link);
             }
 
             if ($button instanceof InputButton) {
-                $title = $buttonConfiguration->getTitle() ?? LocalizationUtility::translate($this->getDefaultLanguageFile().':button.'.$buttonConfiguration->getForm()) ?? '';
+                $title = $buttonConfiguration->getTitle() ?? LocalizationUtility::translate($this->getDefaultLanguageFile() . ':button.' . $buttonConfiguration->getForm()) ?? '';
                 $button->setForm($buttonConfiguration->getForm())
                     ->setName($buttonConfiguration->getName())
                     ->setValue($buttonConfiguration->getValue());
@@ -399,7 +399,7 @@ abstract class AbstractModuleController extends ActionController
         $uriBuilder->setRequest($this->request);
 
         $menu = $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->makeMenu();
-        $identifier = (new ReflectionClass($this))->getShortName().'Menu';
+        $identifier = (new ReflectionClass($this))->getShortName() . 'Menu';
         $menu->setIdentifier($identifier);
         $menuItems = $this->getMenuItems();
 
@@ -431,7 +431,7 @@ abstract class AbstractModuleController extends ActionController
         $moduleName = $this->request->getPluginName();
 
         if (0 === count($getVars)) {
-            $modulePrefix = mb_strtolower('tx_'.$extensionName.'_'.$moduleName);
+            $modulePrefix = mb_strtolower('tx_' . $extensionName . '_' . $moduleName);
             $getVars = ['id', 'M', $modulePrefix];
         }
 
@@ -447,9 +447,9 @@ abstract class AbstractModuleController extends ActionController
      */
     private function getDefaultLanguageFile(): string
     {
-        $fileName = lcfirst(VariableUtility::convertClassNameToControllerName(get_class($this))).'.xlf';
+        $fileName = lcfirst(ExtensionInformationUtility::convertClassNameToControllerName(get_class($this))) . '.xlf';
 
-        return 'LLL:EXT:'.$this->request->getControllerExtensionKey().'/Resources/Private/Language/Backend/Modules/'.$fileName;
+        return 'LLL:EXT:' . $this->request->getControllerExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $fileName;
     }
 
     /**

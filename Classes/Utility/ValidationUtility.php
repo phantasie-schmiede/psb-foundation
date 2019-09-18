@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\Utility;
 
 /***************************************************************
  *  Copyright notice
@@ -27,36 +27,35 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use InvalidArgumentException;
 
 /**
- * Class RenderViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class ValidationUtility
+ * @package PSB\PsbFoundation\Utility
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+class ValidationUtility
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
-     * @return mixed
+     * @param array  $constant
+     * @param string $key
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
-
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
-            }
+    public static function checkKeyAgainstConstant(array $constant, string $key): void
+    {
+        if (!isset($constant[$key])) {
+            throw new InvalidArgumentException(self::class . ': Key "' . $key . '" is not present in constant. Possible keys: ' . implode(', ',
+                    array_keys($constant)), 1564122378);
         }
+    }
 
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+    /**
+     * @param array $constant
+     * @param       $value
+     */
+    public static function checkValueAgainstConstant(array $constant, $value): void
+    {
+        if (!in_array($value, $constant, true)) {
+            throw new InvalidArgumentException(self::class . ': Value "' . $value . '" is not present in constant. Possible values: ' . implode(', ',
+                    $constant), 1564068237);
+        }
     }
 }

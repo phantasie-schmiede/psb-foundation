@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\ViewHelpers\Variable;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 PSG Web Team <webdev@plan.de>, PSG Plan Service Gesellschaft mbH
+ *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -54,15 +54,17 @@ class ArrayMergeViewHelper extends AbstractViewHelper
 
         if (!$this->arguments['overwrite'] && $templateVariableContainer->exists($this->arguments['as'])) {
             throw new InvalidArgumentException(
-                __CLASS__.': Variable "'.$this->arguments['as'].'" already exists!',
+                __CLASS__ . ': Variable "' . $this->arguments['as'] . '" already exists!',
                 1549520834
             );
         }
-        array_walk($this->arguments['arrays'], function (&$value) {
+
+        array_walk($this->arguments['arrays'], static function (&$value) {
             if (!is_array($value)) {
                 $value = [];
             }
         });
+
         $templateVariableContainer->add($this->arguments['as'], array_merge(...$this->arguments['arrays']));
     }
 }

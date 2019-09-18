@@ -1,7 +1,6 @@
 <?php
-declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\TypoScript\Conditions;
 
 /***************************************************************
  *  Copyright notice
@@ -27,36 +26,32 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3\CMS\Core\Configuration\TypoScript\ConditionMatching\AbstractCondition;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class RenderViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class FileExistsCondition
+ * @package PSB\PsbFoundation\TypoScript\Conditions
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+class FileExistsCondition extends AbstractCondition
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
+     * Evaluate condition
      *
-     * @return mixed
+     * @param array<string> $filePaths
+     *
+     * @return bool
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+    public function matchCondition(array $filePaths): bool
+    {
+        foreach ($filePaths as $filePath) {
+            $filePath = GeneralUtility::getFileAbsFileName(trim(strip_tags($filePath), ' ='));
 
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
+            if (!file_exists($filePath)) {
+                return false;
             }
         }
 
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+        return true;
     }
 }

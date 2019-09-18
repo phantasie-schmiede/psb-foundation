@@ -1,7 +1,6 @@
 <?php
-declare(strict_types=1);
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\TypoScript\Conditions;
 
 /***************************************************************
  *  Copyright notice
@@ -27,36 +26,39 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Core\Configuration\TypoScript\ConditionMatching\AbstractCondition;
 
 /**
- * Class RenderViewHelper
- * @package PSB\PsbFoundation\ViewHelpers
+ * Class UserGroupSettingsCondition
+ * @package PSB\PsbFoundation\TypoScript\Conditions
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+class UserGroupSettingsCondition extends AbstractCondition
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
+     * Evaluate condition
      *
-     * @return mixed
+     * @param array $parameters
+     *
+     * @return bool
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+    public function matchCondition(array $parameters): bool
+    {
+        if (!empty($parameters && isset($parameters[0]))) {
+            $property = $parameters[0];
 
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
+            /** @var BackendUserAuthentication $beUser */
+            $beUser = $GLOBALS['BE_USER'];
+
+            if (is_iterable($beUser->userGroups)) {
+                foreach ($beUser->userGroups as $userGroup) {
+                    if (true === (bool)$userGroup[$property]) {
+                        return true;
+                    }
+                }
             }
         }
 
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+        return false;
     }
 }
