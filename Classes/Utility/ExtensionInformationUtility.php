@@ -27,6 +27,7 @@ namespace PSB\PsbFoundation\Utility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
@@ -133,6 +134,13 @@ class ExtensionInformationUtility
         return $docComment[TcaMappingParser::ANNOTATION_TYPE]['column'] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
     }
 
+    public static function deregister(string $extensionKey): void
+    {
+        $connection = self::get(ConnectionPool::class)
+            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE);
+        $connection->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
+    }
+
     /**
      * @param string $fileName
      *
@@ -155,6 +163,14 @@ class ExtensionInformationUtility
         }
 
         return $vendorName;
+    }
+
+    public static function getRegisteredClassNames()
+    {
+        return self::get(ConnectionPool::class)
+            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
+            ->select(['class_name'], self::EXTENSION_INFORMATION_MAPPING_TABLE)
+            ->fetchAll(FetchMode::COLUMN, 0);
     }
 
     /**
@@ -180,13 +196,6 @@ class ExtensionInformationUtility
                     'extension_key' => $extensionKey,
                 ]
             );
-    }
-
-    public static function deregister(string $extensionKey): void
-    {
-        $connection = self::get(ConnectionPool::class)
-            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE);
-        $connection->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
     }
 
     /**
