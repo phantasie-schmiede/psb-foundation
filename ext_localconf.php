@@ -3,6 +3,16 @@
 defined('TYPO3_MODE') or die();
 
 (static function () {
+    // configure all plugins of those extensions which provide an ExtensionInformation-class and add TypoScript if missing
+    $extensionInformationClassNames = PSB\PsbFoundation\Utility\ExtensionInformationUtility::getRegisteredClassNames();
+
+    foreach ($extensionInformationClassNames as $className) {
+        /** @var PSB\PsbFoundation\Data\ExtensionInformationInterface $extensionInformation */
+        $extensionInformation = \PSB\PsbFoundation\Utility\ObjectUtility::get($className);
+        \PSB\PsbFoundation\Utility\Backend\RegistrationUtility::configurePlugins($extensionInformation);
+        \PSB\PsbFoundation\Utility\TypoScriptUtility::addDefaultTypoScriptForPlugins($extensionInformation);
+    }
+
     $extensionInformation = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Data\ExtensionInformation::class);
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
              <INCLUDE_TYPOSCRIPT: source="FILE:EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/PageTS.tsconfig">
