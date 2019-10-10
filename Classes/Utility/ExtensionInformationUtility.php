@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Utility;
 
 /***************************************************************
@@ -137,8 +136,8 @@ class ExtensionInformationUtility
     public static function deregister(string $extensionKey): void
     {
         $connection = self::get(ConnectionPool::class)
-            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE);
-        $connection->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
+            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
+            ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
     }
 
     /**
@@ -155,7 +154,7 @@ class ExtensionInformationUtility
 
             while ($line = fgets($file)) {
                 if (StringUtility::startsWith($line, 'namespace ')) {
-                    $namespace = rtrim(GeneralUtility::trimExplode($line, ' ')[1], ';');
+                    $namespace = rtrim(GeneralUtility::trimExplode(' ', $line)[1], ';');
                     $vendorName = explode('\\', $namespace)[0];
                     break;
                 }
