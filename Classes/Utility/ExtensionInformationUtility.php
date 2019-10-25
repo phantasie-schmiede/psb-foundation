@@ -26,6 +26,7 @@ namespace PSB\PsbFoundation\Utility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
@@ -35,7 +36,11 @@ use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaMappingParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use ReflectionException;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -164,12 +169,42 @@ class ExtensionInformationUtility
         return $vendorName;
     }
 
-    public static function getRegisteredClassNames()
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $path
+     *
+     * @return mixed
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
+    public static function getConfiguration(
+        ExtensionInformationInterface $extensionInformation,
+        string $path = ''
+    ) {
+        $path = str_replace('.', '/', $path);
+        $extensionConfiguration = self::get(ExtensionConfiguration::class)
+            ->get($extensionInformation->getExtensionKey(), $path);
+
+        if (is_array($extensionConfiguration)) {
+            return self::get(TypoScriptService::class)->convertTypoScriptArrayToPlainArray($extensionConfiguration);
+        }
+
+        return $extensionConfiguration;
+    }
+
+    /**
+     * @return array
+     */
+    public static function getRegisteredClassNames(): array
     {
-        return self::get(ConnectionPool::class)
-            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
-            ->select(['class_name'], self::EXTENSION_INFORMATION_MAPPING_TABLE)
-            ->fetchAll(FetchMode::COLUMN, 0);
+        try {
+            return GeneralUtility::makeInstance(ConnectionPool::class)
+                ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
+                ->select(['class_name'], self::EXTENSION_INFORMATION_MAPPING_TABLE)
+                ->fetchAll(FetchMode::COLUMN, 0);
+        } catch (TableNotFoundException $tableNotFoundException) {
+            return [];
+        }
     }
 
     /**

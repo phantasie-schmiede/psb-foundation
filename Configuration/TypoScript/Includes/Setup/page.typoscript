@@ -36,8 +36,8 @@ page {
         value = {$plugin.tx_psbfoundation.view.templateRootPath}Page/Default.html
       }
 
-      pagets__1 = TEXT
-      pagets__1 {
+      pagets__psbOneColumn = TEXT
+      pagets__psbOneColumn {
         value = {$plugin.tx_psbfoundation.view.templateRootPath}Page/OneColumn.html
       }
     }

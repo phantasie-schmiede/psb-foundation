@@ -4,16 +4,16 @@ defined('TYPO3_MODE') or die();
 
 (static function () {
     // configure all plugins of those extensions which provide an ExtensionInformation-class and add TypoScript if missing
-    $extensionInformationClassNames = PSB\PsbFoundation\Utility\ExtensionInformationUtility::getRegisteredClassNames();
+    $extensionInformationClassNames = \PSB\PsbFoundation\Utility\ExtensionInformationUtility::getRegisteredClassNames();
 
     foreach ($extensionInformationClassNames as $className) {
         /** @var PSB\PsbFoundation\Data\ExtensionInformationInterface $extensionInformation */
-        $extensionInformation = \PSB\PsbFoundation\Utility\ObjectUtility::get($className);
+        $extensionInformation = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance($className);
         \PSB\PsbFoundation\Utility\Backend\RegistrationUtility::configurePlugins($extensionInformation);
-        \PSB\PsbFoundation\Utility\TypoScriptUtility::addDefaultTypoScriptForPlugins($extensionInformation);
+        \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPlugins($extensionInformation);
     }
 
-    $extensionInformation = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Data\ExtensionInformation::class);
+    $extensionInformation = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Data\ExtensionInformation::class);
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
              <INCLUDE_TYPOSCRIPT: source="FILE:EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/PageTS.tsconfig">
         ');
@@ -24,7 +24,7 @@ defined('TYPO3_MODE') or die();
 
     \PSB\PsbFoundation\Utility\Backend\SetupUtility::registerSetupSlots(\PSB\PsbFoundation\Slots\Setup::class);
 
-    $typoScriptParser = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
+    $typoScriptParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
     \PSB\PsbFoundation\Service\Configuration\FlexFormService::addValueParser($typoScriptParser);
 
     $docCommentCacheIdentifier = \PSB\PsbFoundation\Service\DocComment\DocCommentParserService::getCacheIdentifier();

@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Service\DocComment;
 
 /***************************************************************
@@ -36,13 +35,11 @@ use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\ValueParserInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
-use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ReflectionClass;
 use ReflectionException;
-use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Core\Environment;
@@ -141,7 +138,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      */
     public static function getCacheIdentifier(): string
     {
-        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
+        $extensionInformation = GeneralUtility::makeInstance(ExtensionInformation::class);
 
         return $extensionInformation->getExtensionKey() . '_docComments';
     }
@@ -391,13 +388,13 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
             return $this->cache->get($entryIdentifier);
         }
 
-        $cacheManager = $this->get(CacheManager::class);
-
-        if ($cacheManager->hasCache(self::getCacheIdentifier())) {
-            $this->cache = $cacheManager->getCache(self::getCacheIdentifier());
-
-            return $this->cache->get($entryIdentifier);
-        }
+        //        $cacheManager = $this->get(CacheManager::class);
+        //
+        //        if ($cacheManager->hasCache(self::getCacheIdentifier())) {
+        //            $this->cache = $cacheManager->getCache(self::getCacheIdentifier());
+        //
+        //            return $this->cache->get($entryIdentifier);
+        //        }
 
         $cacheDirectory = $this->getCacheDirectory();
 
@@ -427,6 +424,11 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      */
     private function validateParserClass(string $className): void
     {
+        if (!class_exists($className)) {
+            throw GeneralUtility::makeInstance(ImplementationException::class,
+                __CLASS__ . ': ' . $className . ' doesn\'t exist!', 1570749841);
+        }
+
         if (!in_array(ValueParserInterface::class, class_implements($className), true)) {
             throw GeneralUtility::makeInstance(ImplementationException::class,
                 __CLASS__ . ': ' . $className . ' has to implement ValueParserInterface!', 1541107562);

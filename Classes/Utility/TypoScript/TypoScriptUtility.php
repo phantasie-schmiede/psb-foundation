@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
-
-namespace PSB\PsbFoundation\Utility;
+namespace PSB\PsbFoundation\Utility\TypoScript;
 
 /***************************************************************
  *  Copyright notice

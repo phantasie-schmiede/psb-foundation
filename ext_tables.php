@@ -8,7 +8,7 @@ defined('TYPO3_MODE') or die();
 
     foreach ($extensionInformationClassNames as $className) {
         /** @var PSB\PsbFoundation\Data\ExtensionInformationInterface $extensionInformation */
-        $extensionInformation = \PSB\PsbFoundation\Utility\ObjectUtility::get($className);
+        $extensionInformation = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance($className);
         \PSB\PsbFoundation\Utility\Backend\RegistrationUtility::registerModules($extensionInformation);
         \PSB\PsbFoundation\Service\Configuration\TcaService::registerNewTablesInGlobalTca($extensionInformation);
     }

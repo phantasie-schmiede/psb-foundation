@@ -8,8 +8,8 @@ $EM_CONF['psb_foundation'] = [
     'clearCacheOnLoad' => false,
     'constraints'      => [
         'depends'   => [
-            'fluid_styled_content' => '9.5.7-9.5.99',
-            'typo3'                => '9.5.7-9.5.99',
+            'fluid_styled_content' => '10.1.0-10.4.99',
+            'typo3'                => '10.1.0-10.4.99',
         ],
         'conflicts' => [
         ],
@@ -18,7 +18,7 @@ $EM_CONF['psb_foundation'] = [
     ],
     'createDirs'       => '',
     'description'      => 'Basic configuration for TYPO3',
-    'state'            => 'alpha',
+    'state'            => 'beta',
     'title'            => 'PSbits | Foundation',
     'uploadfolder'     => false,
     'version'          => '0.0.0',

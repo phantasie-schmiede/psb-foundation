@@ -1,7 +1,6 @@
 <?php
 /** @noinspection UnsupportedStringOffsetOperationsInspection */
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Utility\Backend;
 
 /***************************************************************
@@ -36,9 +35,8 @@ use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
-use PSB\PsbFoundation\Utility\TypoScriptUtility;
+use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
@@ -172,7 +170,7 @@ class RegistrationUtility
                         self::COLLECT_MODES['CONFIGURE_PLUGINS']);
 
                     ExtensionUtility::configurePlugin(
-                        $extensionInformation->getVendorName() . '.' . $extensionInformation->getExtensionName(),
+                        $extensionInformation->getExtensionName(),
                         $pluginName,
                         $controllersAndCachedActions,
                         $controllersAndUncachedActions
@@ -340,7 +338,7 @@ class RegistrationUtility
                     $iconIdentifier = $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? 'module-' . $submoduleKey;
 
                     ExtensionUtility::registerModule(
-                        $extensionInformation->getVendorName() . '.' . $extensionInformation->getExtensionName(),
+                        $extensionInformation->getExtensionName(),
                         $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['mainModuleName'] ?? 'web',
                         $submoduleKey,
                         $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['position'] ?? '',
@@ -348,7 +346,7 @@ class RegistrationUtility
                         [
                             'access'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['access'] ?? 'group, user',
                             'icon'           => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['icon'] ?? null,
-                            'iconIdentifier' => self::get(IconRegistry::class)
+                            'iconIdentifier' => GeneralUtility::makeInstance(IconRegistry::class)
                                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
                             'labels'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['labels'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf',
                         ]
@@ -453,7 +451,6 @@ class RegistrationUtility
         foreach ($controllerClassNames as $controllerClassName) {
             if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
                 $controller = self::get(ReflectionClass::class, $controllerClassName);
-                $controllerName = ExtensionInformationUtility::convertClassNameToControllerName($controllerClassName);
                 $methods = $controller->getMethods();
 
                 foreach ($methods as $method) {
@@ -472,14 +469,14 @@ class RegistrationUtility
                         $actionName = mb_substr($methodName, 0, -6);
 
                         if ($docComment[PluginActionParser::ANNOTATION_TYPE]['default']) {
-                            array_unshift($controllersAndCachedActions[$controllerName],
+                            array_unshift($controllersAndCachedActions[$controllerClassName],
                                 $actionName);
                         } else {
-                            $controllersAndCachedActions[$controllerName][] = $actionName;
+                            $controllersAndCachedActions[$controllerClassName][] = $actionName;
                         }
 
                         if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode && isset($docComment[PluginActionParser::ANNOTATION_TYPE]['uncached'])) {
-                            $controllersAndUncachedActions[$controllerName][] = $actionName;
+                            $controllersAndUncachedActions[$controllerClassName][] = $actionName;
                         }
                     }
                 }

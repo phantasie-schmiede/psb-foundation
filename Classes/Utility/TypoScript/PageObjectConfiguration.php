@@ -1,7 +1,6 @@
 <?php
 declare(strict_types=1);
-
-namespace PSB\PsbFoundation\Utility;
+namespace PSB\PsbFoundation\Utility\TypoScript;
 
 /***************************************************************
  *  Copyright notice
@@ -29,7 +28,7 @@ namespace PSB\PsbFoundation\Utility;
 
 /**
  * Class PageObjectConfiguration
- * @package PSB\PsbFoundation\Utility
+ * @package PSB\PsbFoundation\Utility\TypoScript
  */
 class PageObjectConfiguration
 {
