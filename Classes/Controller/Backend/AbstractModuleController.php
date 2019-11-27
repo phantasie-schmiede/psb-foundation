@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Controller\Backend;
 
 /***************************************************************
@@ -29,6 +28,9 @@ namespace PSB\PsbFoundation\Controller\Backend;
 
 use InvalidArgumentException;
 use PSB\PsbFoundation\Module\ButtonConfiguration;
+use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Service\DocComment\ValueParsers\ModuleActionParser;
+use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -36,7 +38,9 @@ use ReflectionMethod;
 use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
@@ -54,6 +58,8 @@ use function in_array;
  */
 abstract class AbstractModuleController extends ActionController
 {
+    use InjectionTrait;
+
     protected const HEADER_COMPONENTS = [
         'ACTION_BUTTONS'  => 'actionButtons',
         'ACTION_MENU'     => 'actionMenu',
@@ -112,6 +118,8 @@ abstract class AbstractModuleController extends ActionController
      * this method.
      *
      * @param string $templateAction
+     *
+     * @PSB\PsbFoundation\Module\Action doNotRender
      */
     public function addTemplateAction(string $templateAction): void
     {
@@ -335,20 +343,27 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * Fallback method if no templateActions were registered. All methods whose name ends with "Action" are registered
-     * automatically (except for addTemplateAction).
+     * automatically. This can be prevented with the following
+     * DocComment line: @PSB\PsbFoundation\Module\Action doNotRender (@see addTemplateAction)
      *
      * @return array
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
     private function buildTemplateActions(): array
     {
-        $actions = (new ReflectionClass($this))->getMethods(ReflectionMethod::IS_PUBLIC);
+        $actions = GeneralUtility::makeInstance(ReflectionClass::class, $this)->getMethods(ReflectionMethod::IS_PUBLIC);
 
         foreach ($actions as $action) {
-            $action = preg_replace('/Action$/', '', $action->getName(), 1, $count);
+            $actionName = $action->getName();
+            $action = preg_replace('/Action$/', '', $actionName, 1, $count);
 
-            if (1 === $count && 'addTemplate' !== $action) {
-                $this->addTemplateAction($action);
+            if (1 === $count) {
+                $docComment = $this->get(DocCommentParserService::class)->parsePhpDocComment($this, $actionName);
+
+                if (!$docComment[ModuleActionParser::ANNOTATION_TYPE][ModuleActionParser::FLAGS['DO_NOT_RENDER']]) {
+                    $this->addTemplateAction($action);
+                }
             }
         }
 

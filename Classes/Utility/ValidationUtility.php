@@ -36,6 +36,28 @@ use InvalidArgumentException;
 class ValidationUtility
 {
     /**
+     * @param array $constant
+     * @param array $keys
+     */
+    public static function checkArrayAgainstConstantKeys(array $constant, array $keys): void
+    {
+        foreach ($keys as $key) {
+            self::checkKeyAgainstConstant($constant, $key);
+        }
+    }
+
+    /**
+     * @param array $constant
+     * @param array $values
+     */
+    public static function checkArrayAgainstConstantValues(array $constant, array $values): void
+    {
+        foreach ($values as $value) {
+            self::checkValueAgainstConstant($constant, $value);
+        }
+    }
+
+    /**
      * @param array  $constant
      * @param string $key
      */

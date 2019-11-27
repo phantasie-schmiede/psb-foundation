@@ -29,28 +29,40 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 use Exception;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
+use PSB\PsbFoundation\Utility\ValidationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class AbstractFlagsParser
+ *
+ * Your parser class has to overwrite the constant FLAGS with a list of all possible values as an array.
+ *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
 abstract class AbstractFlagsParser implements ValueParserInterface
 {
+    public const FLAGS = [
+        // 'EXAMPLE_FLAG' => 'example flag'
+    ];
+
     /**
-     * @param string|null $flags
+     * @param string|null $stringOfFlags
      *
      * @return mixed
      * @throws Exception
      */
-    public function processValue(?string $flags)
+    public function processValue(?string $stringOfFlags)
     {
-        if (null === $flags) {
+        if (null === $stringOfFlags) {
             /** @noinspection PhpUndefinedClassConstantInspection */
             throw new AnnotationException(static::ANNOTATION_TYPE . ' must be followed by a string value!',
                 1559479332);
         }
 
-        return array_fill_keys(GeneralUtility::trimExplode(' ', $flags, true), true);
+        $flags = GeneralUtility::trimExplode(' ', $stringOfFlags, true);
+        /** @noinspection PhpUndefinedClassConstantInspection */
+        ValidationUtility::checkArrayAgainstConstantValues(static::FLAGS, $flags);
+
+        return array_fill_keys($flags, true);
     }
 }

@@ -27,19 +27,17 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  ***************************************************************/
 
 /**
- * Class PluginParser
+ * Class ModuleActionParser
  *
- * Use this annotation for methods in a plugin controller. It has to be followed by at least one keyword as defined in
+ * Use this annotation for methods in a module controller. It has to be followed by at least one keyword as defined in
  * FLAGS.
  *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
-class PluginActionParser extends AbstractFlagsParser
+class ModuleActionParser extends AbstractFlagsParser
 {
-    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Plugin\Action';
+    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Module\Action';
     public const FLAGS           = [
-        'DEFAULT'  => 'default',
-        'IGNORE'   => 'ignore',
-        'UNCACHED' => 'uncached',
+        'DO_NOT_RENDER' => 'doNotRender',
     ];
 }

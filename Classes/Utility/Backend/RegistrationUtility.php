@@ -465,17 +465,18 @@ class RegistrationUtility
                     $docComment = $docCommentParserService->parsePhpDocComment($controllerClassName,
                         $methodName);
 
-                    if (!isset($docComment[PluginActionParser::ANNOTATION_TYPE]['ignore'])) {
+                    if (!isset($docComment[PluginActionParser::ANNOTATION_TYPE][PluginActionParser::FLAGS['IGNORE']])) {
                         $actionName = mb_substr($methodName, 0, -6);
 
-                        if ($docComment[PluginActionParser::ANNOTATION_TYPE]['default']) {
+                        if ($docComment[PluginActionParser::ANNOTATION_TYPE][PluginActionParser::FLAGS['DEFAULT']]) {
                             array_unshift($controllersAndCachedActions[$controllerClassName],
                                 $actionName);
                         } else {
                             $controllersAndCachedActions[$controllerClassName][] = $actionName;
                         }
 
-                        if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode && isset($docComment[PluginActionParser::ANNOTATION_TYPE]['uncached'])) {
+                        if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode
+                            && isset($docComment[PluginActionParser::ANNOTATION_TYPE][PluginActionParser::FLAGS['UNCACHED']])) {
                             $controllersAndUncachedActions[$controllerClassName][] = $actionName;
                         }
                     }

@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /***************************************************************
@@ -27,8 +26,6 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\SingletonInterface;
-
 /**
  * Interface ValueParserInterface
  *
@@ -37,7 +34,7 @@ use TYPO3\CMS\Core\SingletonInterface;
  *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
-interface ValueParserInterface extends SingletonInterface
+interface ValueParserInterface
 {
     /**
      * @param string|null $value
