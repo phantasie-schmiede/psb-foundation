@@ -413,8 +413,8 @@ class RegistrationUtility
         // @TODO: find root page dynamically
         $pageTS = BackendUtility::getPagesTSconfig(1);
 
-        if (!in_array($group, self::$contentElementWizardGroups,
-                true) && !isset($pageTS['mod']['wizards']['newContentElement']['wizardItems'][$group])) {
+        if (!isset($pageTS['mod']['wizards']['newContentElement']['wizardItems'][$group])
+            && !in_array($group, self::$contentElementWizardGroups, true)) {
             self::addElementWizardGroup($extensionKey, $group);
         }
 

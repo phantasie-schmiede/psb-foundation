@@ -84,7 +84,7 @@ class TypoScriptUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      */
-    public static function addDefaultTypoScriptForPlugins(ExtensionInformationInterface $extensionInformation): void
+    public static function addDefaultTypoScriptForPluginsAndModules(ExtensionInformationInterface $extensionInformation): void
     {
         if (!empty($extensionInformation->getPlugins())) {
             $constantsArray = self::getDefaultConstants($extensionInformation, self::COMPONENTS['PLUGIN']);

@@ -10,7 +10,7 @@ defined('TYPO3_MODE') or die();
         /** @var PSB\PsbFoundation\Data\ExtensionInformationInterface $extensionInformation */
         $extensionInformation = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance($className);
         \PSB\PsbFoundation\Utility\Backend\RegistrationUtility::configurePlugins($extensionInformation);
-        \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPlugins($extensionInformation);
+        \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPluginsAndModules($extensionInformation);
     }
 
     $extensionInformation = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Data\ExtensionInformation::class);

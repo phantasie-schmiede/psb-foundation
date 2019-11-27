@@ -72,16 +72,17 @@ class Setup
             return;
         }
 
-        $docCommentParser = GeneralUtility::makeInstance(ObjectManager::class)->get(DocCommentParserService::class);
-        $docCommentParser->addValueParser(PluginActionParser::ANNOTATION_TYPE, PluginActionParser::class,
+        $docCommentParserService = GeneralUtility::makeInstance(ObjectManager::class)
+            ->get(DocCommentParserService::class);
+        $docCommentParserService->addValueParser(PluginActionParser::ANNOTATION_TYPE, PluginActionParser::class,
             DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParser->addValueParser(PluginConfigParser::ANNOTATION_TYPE, PluginConfigParser::class,
+        $docCommentParserService->addValueParser(PluginConfigParser::ANNOTATION_TYPE, PluginConfigParser::class,
             DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParser->addValueParser(TcaConfigParser::ANNOTATION_TYPE, TcaConfigParser::class,
+        $docCommentParserService->addValueParser(TcaConfigParser::ANNOTATION_TYPE, TcaConfigParser::class,
             DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParser->addValueParser(TcaFieldConfigParser::ANNOTATION_TYPE, TcaFieldConfigParser::class,
+        $docCommentParserService->addValueParser(TcaFieldConfigParser::ANNOTATION_TYPE, TcaFieldConfigParser::class,
             DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParser->addValueParser(TcaMappingParser::ANNOTATION_TYPE, TcaMappingParser::class,
+        $docCommentParserService->addValueParser(TcaMappingParser::ANNOTATION_TYPE, TcaMappingParser::class,
             DocCommentParserService::VALUE_TYPES['MERGE']);
     }
 
@@ -97,8 +98,9 @@ class Setup
             return;
         }
 
-        $docCommentParser = GeneralUtility::makeInstance(ObjectManager::class)->get(DocCommentParserService::class);
-        $docCommentParser->removeValueParsers([
+        $docCommentParserService = GeneralUtility::makeInstance(ObjectManager::class)
+            ->get(DocCommentParserService::class);
+        $docCommentParserService->removeValueParsers([
             PluginActionParser::class,
             PluginConfigParser::class,
             TcaConfigParser::class,
