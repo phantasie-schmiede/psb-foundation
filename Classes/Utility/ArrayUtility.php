@@ -93,4 +93,35 @@ class ArrayUtility
     {
         return 0 === count(array_filter($array, 'is_numeric', ARRAY_FILTER_USE_KEY));
     }
+
+    /**
+     * @param array $array
+     * @param bool  $recursive
+     */
+    public static function shuffle(array &$array, bool $recursive = false): void
+    {
+        if ($recursive) {
+            foreach ($array as &$item) {
+                if (is_array($item)) {
+                    self::shuffle($item, true);
+                }
+            }
+        }
+
+        unset($item);
+
+        if (self::isAssociativeArray($array)) {
+            $shuffledArray = [];
+            $keys = array_keys($array);
+            shuffle($keys);
+
+            foreach ($keys as $key) {
+                $shuffledArray[$key] = $array[$key];
+            }
+
+            $array = $shuffledArray;
+        } else {
+            shuffle($array);
+        }
+    }
 }
