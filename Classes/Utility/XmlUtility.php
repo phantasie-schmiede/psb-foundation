@@ -78,7 +78,7 @@ class XmlUtility
 
                 if (!isset($array[$childTagName])) {
                     $array[$childTagName] = $parsedChild;
-                } elseif (is_array($array[$childTagName]) && ArrayUtility::isNumericArray($array[$childTagName])) {
+                } elseif (is_array($array[$childTagName]) && !ArrayUtility::isAssociativeArray($array[$childTagName])) {
                     $array[$childTagName][] = $parsedChild;
                 } else {
                     $array[$childTagName] = [

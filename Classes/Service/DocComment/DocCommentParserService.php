@@ -255,7 +255,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                         if (isset($parsedDocComment[$annotationType])) {
                             $parameters = ($parameters ?? '') . ' ' . $commentLine;
 
-                            if (is_array($parsedDocComment[$annotationType]) && ArrayUtility::isNumericArray($parsedDocComment[$annotationType])) {
+                            if (is_array($parsedDocComment[$annotationType]) && !ArrayUtility::isAssociativeArray($parsedDocComment[$annotationType])) {
                                 $indexOfLastElement = count($parsedDocComment[$annotationType]) - 1;
                                 $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($parameters,
                                     $annotationType);

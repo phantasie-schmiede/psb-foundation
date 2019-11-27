@@ -72,7 +72,7 @@ class ArrayUtility
      */
     public static function insertIntoArray(array $array, array $elements, int $index): array
     {
-        if (self::isNumericArray($array)) {
+        if (!self::isAssociativeArray($array)) {
             $combinedArray = [];
             array_push($combinedArray, ...array_slice($array, 0, $index), ...$elements,
                 ...array_slice($array, $index));
@@ -89,8 +89,8 @@ class ArrayUtility
      *
      * @return bool
      */
-    public static function isNumericArray(array $array): bool
+    public static function isAssociativeArray(array $array): bool
     {
-        return 0 < count(array_filter($array, 'is_numeric', ARRAY_FILTER_USE_KEY));
+        return 0 === count(array_filter($array, 'is_numeric', ARRAY_FILTER_USE_KEY));
     }
 }
