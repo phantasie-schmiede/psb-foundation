@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Utility;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -37,7 +36,49 @@ use SimpleXMLElement;
 class XmlUtility
 {
     public const ATTRIBUTES_KEY = '@attributes';
+    public const INDENTATION    = '    ';
     public const NODE_VALUE_KEY = '@nodeValue';
+
+    /**
+     * @param array $array
+     * @param int   $indentationLevel
+     *
+     * @return string
+     */
+    public static function convertArrayToXml(array $array, int $indentationLevel = 0): string
+    {
+        $xml = '';
+
+        foreach ($array as $key => $value) {
+            if (is_array($value) && !ArrayUtility::isAssociativeArray($value)) {
+                foreach ($value as $tagSibling) {
+                    $xml .= self::buildTag($key, $tagSibling, $indentationLevel);
+                }
+            } else {
+                $xml .= self::buildTag($key, $value, $indentationLevel);
+            }
+        }
+
+        return $xml;
+    }
+
+    /**
+     * @param SimpleXMLElement|string $xml
+     *
+     * @return array
+     */
+    public static function convertXmlToArray($xml): array
+    {
+        if (is_string($xml)) {
+            $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
+        }
+
+        if (!$xml instanceof SimpleXMLElement) {
+            throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
+        }
+
+        return self::buildArrayFromXml($xml);
+    }
 
     /**
      * @param SimpleXMLElement|string $xml
@@ -45,7 +86,7 @@ class XmlUtility
      *
      * @return array|string
      */
-    public static function buildArrayFromXml($xml, bool $rootLevel = true): array
+    private static function buildArrayFromXml($xml, bool $rootLevel = true): array
     {
         if (is_string($xml)) {
             return $xml;
@@ -54,7 +95,11 @@ class XmlUtility
         $array = [];
 
         foreach ($xml->attributes() as $attributeName => $value) {
-            $array[self::ATTRIBUTES_KEY][$attributeName] = StringUtility::convertString(trim((string)$value));
+            if ('version' !== $attributeName) {
+                $value = StringUtility::convertString(trim((string)$value));
+            }
+
+            $array[self::ATTRIBUTES_KEY][$attributeName] = $value;
         }
 
         $namespaces = $xml->getDocNamespaces();
@@ -99,37 +144,43 @@ class XmlUtility
     }
 
     /**
-     * @param array $array
+     * @param string $key
+     * @param mixed  $value
+     * @param int    $indentationLevel
      *
      * @return string
      */
-    public static function convertArrayToXml(array $array): string
+    private static function buildTag(string $key, $value, int $indentationLevel): string
     {
         $xml = '';
+        $indentation = self::createIndentation($indentationLevel);
 
-        foreach ($array as $key => $value) {
-            if (is_string($key)) {
-                $xml .= '<' . $key;
+        if (is_string($key)) {
+            $xml .= $indentation . '<' . $key;
 
-                if (is_array($value) && isset($value[self::ATTRIBUTES_KEY]) && is_array($value[self::ATTRIBUTES_KEY])) {
-                    foreach ($value[self::ATTRIBUTES_KEY] as $attributeName => $attributeValue) {
-                        $xml .= ' ' . $attributeName . '="' . $attributeValue . '"';
-                    }
-
-                    unset($value[self::ATTRIBUTES_KEY]);
+            if (is_array($value) && isset($value[self::ATTRIBUTES_KEY]) && is_array($value[self::ATTRIBUTES_KEY])) {
+                foreach ($value[self::ATTRIBUTES_KEY] as $attributeName => $attributeValue) {
+                    $xml .= ' ' . $attributeName . '="' . $attributeValue . '"';
                 }
 
-                $xml .= '>';
+                unset($value[self::ATTRIBUTES_KEY]);
             }
 
-            if (is_array($value)) {
-                $xml .= self::convertArrayToXml($value);
+            $xml .= '>';
+        }
+
+        if (is_array($value)) {
+            $xml .= LF . self::convertArrayToXml($value, ++$indentationLevel) . $indentation;
+        } else {
+            $xml .= $value;
+        }
+
+        if (is_string($key)) {
+            if ('' === $value) {
+                $xml = rtrim($xml, '>');
+                $xml .= ' />' . LF;
             } else {
-                $xml .= $value;
-            }
-
-            if (is_string($key)) {
-                $xml .= '</' . $key . '>';
+                $xml .= '</' . $key . '>' . LF;
             }
         }
 
@@ -137,21 +188,19 @@ class XmlUtility
     }
 
     /**
-     * @param SimpleXMLElement|string $xml
+     * @param int $indentationLevel
      *
-     * @return array
+     * @return string
      */
-    public static function convertXmlToArray($xml): array
+    private static function createIndentation(int $indentationLevel): string
     {
-        if (is_string($xml)) {
-            $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
+        $indentation = '';
+
+        for ($i = 0; $i < $indentationLevel; $i++) {
+            $indentation .= self::INDENTATION;
         }
 
-        if (!$xml instanceof SimpleXMLElement) {
-            throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
-        }
-
-        return self::buildArrayFromXml($xml);
+        return $indentation;
     }
 
     /**

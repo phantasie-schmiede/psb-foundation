@@ -7,11 +7,11 @@ $EM_CONF['psb_foundation'] = [
     'category'         => 'misc',
     'clearCacheOnLoad' => false,
     'constraints'      => [
+        'conflicts' => [
+        ],
         'depends'   => [
             'fluid_styled_content' => '10.1.0-10.4.99',
             'typo3'                => '10.1.0-10.4.99',
-        ],
-        'conflicts' => [
         ],
         'suggests'  => [
         ],

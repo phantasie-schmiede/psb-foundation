@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Controller\Backend;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2018-2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2018-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -100,8 +100,6 @@ abstract class AbstractModuleController extends ActionController
      */
     public function __construct()
     {
-        parent::__construct();
-
         $this->setHeaderComponents();
     }
 
@@ -154,6 +152,7 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @return array
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
     public function getMenuItems(): array
@@ -163,6 +162,7 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @return array
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
     public function getTemplateActions(): array
@@ -247,6 +247,7 @@ abstract class AbstractModuleController extends ActionController
      * @param ViewInterface $view
      *
      * @throws ReflectionException
+     * @throws NoSuchCacheException
      */
     protected function initializeView(ViewInterface $view): void
     {
@@ -258,15 +259,6 @@ abstract class AbstractModuleController extends ActionController
 
         if ($this->shallBeRendered(self::HEADER_COMPONENTS['ACTION_BUTTONS'])) {
             $this->generateActionButtons();
-
-            if ($view instanceof BackendTemplateView) {
-                $view->getModuleTemplate()->getPageRenderer()->addRequireJsConfiguration([
-                    'paths' => [
-                        'fixHeaderDocInputButtons' => '/typo3conf/ext/psb_foundation/Resources/Public/Scripts/Backend/fixHeaderDocInputButtons',
-                    ],
-                ]);
-                $view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('fixHeaderDocInputButtons');
-            }
         }
 
         if ($this->shallBeRendered(self::HEADER_COMPONENTS['ACTION_MENU'])) {
@@ -278,17 +270,6 @@ abstract class AbstractModuleController extends ActionController
         }
 
         $this->view->getModuleTemplate()->setFlashMessageQueue($this->controllerContext->getFlashMessageQueue());
-
-        // @TODO: Test!
-        // @TODO: Can this be moved to a ViewHelper?
-        if ($view instanceof BackendTemplateView) {
-            $view->getModuleTemplate()->getPageRenderer()->addRequireJsConfiguration([
-                'paths' => [
-                    'datetimepicker' => '/typo3/sysext/backend/Resources/Public/JavaScript/DateTimePicker',
-                ],
-            ]);
-            $view->getModuleTemplate()->getPageRenderer()->loadRequireJsModule('DateTimePicker');
-        }
     }
 
     /**
@@ -321,6 +302,7 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @return array
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
     private function buildMenuItems(): array
@@ -406,6 +388,7 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
     private function generateMenu(): void

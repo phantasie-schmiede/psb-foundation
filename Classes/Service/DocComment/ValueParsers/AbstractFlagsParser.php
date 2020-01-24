@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,6 +28,7 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 use Exception;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
+use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -60,6 +60,10 @@ abstract class AbstractFlagsParser implements ValueParserInterface
         }
 
         $flags = GeneralUtility::trimExplode(' ', $stringOfFlags, true);
+        array_walk($flags, static function(&$item) {
+            $item = StringUtility::convertString($item);
+        });
+
         /** @noinspection PhpUndefinedClassConstantInspection */
         ValidationUtility::checkArrayAgainstConstantValues(static::FLAGS, $flags);
 

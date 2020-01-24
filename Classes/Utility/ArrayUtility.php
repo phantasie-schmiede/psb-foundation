@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Utility;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -47,6 +46,8 @@ class ArrayUtility
         bool $returnIndex = false,
         bool $searchForSubstring = false
     ) {
+        $result = false;
+
         foreach ($haystack as $key => $value) {
             if ($value === $needle || (true === $searchForSubstring && is_string($value) && false !== strpos($value,
                         $needle))) {
@@ -56,11 +57,13 @@ class ArrayUtility
             if (is_array($value)) {
                 $result = self::inArrayRecursive($value, $needle, $returnIndex, $searchForSubstring);
 
-                return ($result && $returnIndex) ? $key : $result;
+                if (false !== $result) {
+                    return $returnIndex ? ($key . '.' . $result) : true;
+                }
             }
         }
 
-        return false;
+        return $result;
     }
 
     /**

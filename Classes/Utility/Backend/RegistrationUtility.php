@@ -6,7 +6,7 @@ namespace PSB\PsbFoundation\Utility\Backend;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -31,8 +31,8 @@ use InvalidArgumentException;
 use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Service\DocComment\ValueParsers\ModuleConfigParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -335,20 +335,21 @@ class RegistrationUtility
                     ] = self::collectActionsAndConfiguration($controllerClassNames,
                         self::COLLECT_MODES['REGISTER_MODULES']);
 
-                    $iconIdentifier = $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? 'module-' . $submoduleKey;
+                    $iconIdentifier = $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? 'module-' . $submoduleKey;
 
                     ExtensionUtility::registerModule(
                         $extensionInformation->getExtensionName(),
-                        $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['mainModuleName'] ?? 'web',
+                        $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['mainModuleName'] ?? 'web',
                         $submoduleKey,
-                        $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['position'] ?? '',
+                        $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['position'] ?? '',
                         $controllersAndActions,
                         [
-                            'access'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['access'] ?? 'group, user',
-                            'icon'           => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['icon'] ?? null,
-                            'iconIdentifier' => GeneralUtility::makeInstance(IconRegistry::class)
+                            'access'                => $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['access'] ?? 'group, user',
+                            'icon'                  => $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['icon'] ?? null,
+                            'iconIdentifier'        => GeneralUtility::makeInstance(IconRegistry::class)
                                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-                            'labels'         => $moduleConfiguration[PluginConfigParser::ANNOTATION_TYPE]['labels'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf',
+                            'labels'                => $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['labels'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf',
+                            'navigationComponentId' => $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['navigationComponentId'] ?? null,
                         ]
                     );
                 }

@@ -4,11 +4,9 @@ defined('TYPO3_MODE') or die();
 
 (static function () {
     // configure all plugins of those extensions which provide an ExtensionInformation-class and add TypoScript if missing
-    $extensionInformationClassNames = \PSB\PsbFoundation\Utility\ExtensionInformationUtility::getRegisteredClassNames();
+    $allExtensionInformation = \PSB\PsbFoundation\Utility\ExtensionInformationUtility::getExtensionInformation();
 
-    foreach ($extensionInformationClassNames as $className) {
-        /** @var PSB\PsbFoundation\Data\ExtensionInformationInterface $extensionInformation */
-        $extensionInformation = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance($className);
+    foreach ($allExtensionInformation as $extensionInformation) {
         \PSB\PsbFoundation\Utility\Backend\RegistrationUtility::configurePlugins($extensionInformation);
         \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPluginsAndModules($extensionInformation);
     }

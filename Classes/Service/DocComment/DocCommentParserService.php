@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Service\DocComment;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -29,13 +29,13 @@ namespace PSB\PsbFoundation\Service\DocComment;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\Connection;
 use Exception;
-use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\ValueParserInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
+use PSB\PsbFoundation\Utility\ValidationUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ReflectionClass;
@@ -159,7 +159,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     ): void {
         $this->validateAnnotationType($annotationType);
         $this->validateParserClass($className);
-        $this->validateValueType($valueType);
+        ValidationUtility::checkValueAgainstConstant(self::VALUE_TYPES, $valueType);
 
         $this->get(ConnectionPool::class)
             ->getConnectionForTable(self::VALUE_PARSER_TABLE)
@@ -173,16 +173,20 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     }
 
     /**
-     * @param object|string $class
+     * @param object|string $className
      * @param string|null   $methodOrPropertyName
      *
      * @return array
      * @throws ReflectionException
      * @throws NoSuchCacheException
      */
-    public function parsePhpDocComment($class, string $methodOrPropertyName = null): array
+    public function parsePhpDocComment($className, string $methodOrPropertyName = null): array
     {
-        $entryIdentifier = StringUtility::createHash($class . $methodOrPropertyName);
+        if (!is_string($className)) {
+            $className = get_class($className);
+        }
+
+        $entryIdentifier = StringUtility::createHash($className . $methodOrPropertyName);
         $cachedDocComment = $this->readFromCache($entryIdentifier);
 
         if (false !== $cachedDocComment) {
@@ -192,7 +196,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         $parsedDocComment = [];
 
         /** @var ReflectionClass $reflection */
-        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $class);
+        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
 
         if (null !== $methodOrPropertyName) {
             if ($reflection->hasMethod($methodOrPropertyName)) {
@@ -231,11 +235,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                             break;
                         case (in_array($annotationType, $this->singleValues, true)):
                             if ([] !== $parsedDocComment[$annotationType]) {
-                                if (!is_string($class)) {
-                                    $class = get_class($class);
-                                }
-
-                                $warning = '@' . $annotationType . ' has been overridden in ' . $class;
+                                $warning = '@' . $annotationType . ' has been overridden in ' . $className;
 
                                 if ($methodOrPropertyName) {
                                     $warning .= ' at ' . $methodOrPropertyName;
@@ -314,7 +314,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
 
         while ($valueParser = $statement->fetch()) {
             $this->validateParserClass($valueParser['class_name']);
-            $this->validateValueType($valueParser['value_type']);
+            ValidationUtility::checkValueAgainstConstant(self::VALUE_TYPES, $valueParser['value_type']);
             $this->valueParsers[$valueParser['annotation_type']] = $this->get($valueParser['class_name']);
             AnnotationReader::addGlobalIgnoredName($valueParser['annotation_type']);
 
@@ -432,18 +432,6 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         if (!in_array(ValueParserInterface::class, class_implements($className), true)) {
             throw GeneralUtility::makeInstance(ImplementationException::class,
                 __CLASS__ . ': ' . $className . ' has to implement ValueParserInterface!', 1541107562);
-        }
-    }
-
-    /**
-     * @param string $valueType
-     */
-    private function validateValueType(string $valueType): void
-    {
-        if (!in_array($valueType, self::VALUE_TYPES, true)) {
-            throw GeneralUtility::makeInstance(InvalidArgumentException::class,
-                __CLASS__ . ': "' . $valueType . '" is no valid value type! Use a value of this constant to provide a valid type: \PSB\PsbFoundation\Service\DocComment\DocCommentParserService::VALUE_TYPES',
-                1541107562);
         }
     }
 

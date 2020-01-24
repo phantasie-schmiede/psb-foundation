@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Utility;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -39,6 +39,7 @@ use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -193,6 +194,33 @@ class ExtensionInformationUtility
     }
 
     /**
+     * @return ExtensionInformationInterface[]
+     */
+    public static function getExtensionInformation(): array
+    {
+        $extensionInformationClassNames = self::getRegisteredClassNames();
+        $extensionInformation = [];
+
+        foreach ($extensionInformationClassNames as $className) {
+            /** @var ExtensionInformationInterface $extensionInformationClass */
+            $extensionInformationClass = GeneralUtility::makeInstance($className);
+            $extensionInformation[$extensionInformationClass->getExtensionKey()] = $extensionInformationClass;
+        }
+
+        return $extensionInformation;
+    }
+
+    /**
+     * @param string $extensionKey
+     *
+     * @return string
+     */
+    public static function getLanguageFilePath(string $extensionKey): string
+    {
+        return self::getResourcePath($extensionKey) . 'Private/Language/';
+    }
+
+    /**
      * @return array
      */
     public static function getRegisteredClassNames(): array
@@ -205,6 +233,23 @@ class ExtensionInformationUtility
         } catch (TableNotFoundException $tableNotFoundException) {
             return [];
         }
+    }
+
+    /**
+     * @param string $extensionKey
+     *
+     * @return string
+     */
+    public static function getResourcePath(string $extensionKey): string
+    {
+        $subDirectoryPath =  '/' . $extensionKey . '/Resources/';
+        $resourcePath = Environment::getExtensionsPath() . $subDirectoryPath;
+
+        if (is_dir($resourcePath)) {
+            return $resourcePath;
+        }
+
+        return Environment::getFrameworkBasePath() . $subDirectoryPath;
     }
 
     /**

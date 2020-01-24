@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,10 +27,10 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  ***************************************************************/
 
 /**
- * Class TcaMappingParser
+ * Class ModuleConfigParser
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
-class TcaMappingParser extends AbstractValuePairsParser
+class ModuleConfigParser extends AbstractValuePairsParser
 {
-    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Tca\Mapping';
+    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Module';
 }

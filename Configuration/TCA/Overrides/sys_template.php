@@ -6,11 +6,9 @@ defined('TYPO3_MODE') or die();
 
 (static function () {
     // register TypoScript of those extensions which provide an ExtensionInformation-class
-    $extensionInformationClassNames = PSB\PsbFoundation\Utility\ExtensionInformationUtility::getRegisteredClassNames();
+    $allExtensionInformation = \PSB\PsbFoundation\Utility\ExtensionInformationUtility::getExtensionInformation();
 
-    foreach ($extensionInformationClassNames as $className) {
-        /** @var PSB\PsbFoundation\Data\ExtensionInformationInterface $extensionInformation */
-        $extensionInformation = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance($className);
+    foreach ($allExtensionInformation as $extensionInformation) {
         \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::registerTypoScript($extensionInformation);
     }
 })();

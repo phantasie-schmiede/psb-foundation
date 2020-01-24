@@ -1,11 +1,11 @@
 plugin.tx_psbfoundation {
   view {
-    # cat=plugin.tx_psbfoundation/file; type=string; label=Path to template root (FE)
-    templateRootPath = EXT:psb_foundation/Resources/Private/Templates/
-    # cat=plugin.tx_psbfoundation/file; type=string; label=Path to template partials (FE)
-    partialRootPath = EXT:psb_foundation/Resources/Private/Partials/
     # cat=plugin.tx_psbfoundation/file; type=string; label=Path to template layouts (FE)
     layoutRootPath = EXT:psb_foundation/Resources/Private/Layouts/
+    # cat=plugin.tx_psbfoundation/file; type=string; label=Path to template partials (FE)
+    partialRootPath = EXT:psb_foundation/Resources/Private/Partials/
+    # cat=plugin.tx_psbfoundation/file; type=string; label=Path to template root (FE)
+    templateRootPath = EXT:psb_foundation/Resources/Private/Templates/
   }
 
   settings {
