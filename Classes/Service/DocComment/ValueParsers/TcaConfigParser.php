@@ -28,6 +28,11 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /**
  * Class TcaConfigParser
+ *
+ * Use this in the annotations of your domain model properties. Possible attributes are all those listed in the
+ * official TCA documentation: https://docs.typo3.org/m/typo3/reference-tca/master/en-us/Columns/Index.html EXCEPT
+ * "config". To define those values use the TcaFieldConfigParser annotation.
+ *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
 class TcaConfigParser extends AbstractValuePairsParser

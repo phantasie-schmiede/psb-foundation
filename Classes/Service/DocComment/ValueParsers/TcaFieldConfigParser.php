@@ -30,6 +30,11 @@ use Exception;
 
 /**
  * Class TcaFieldConfigParser
+ *
+ * Use this in the annotations of your domain model properties. Possible attributes are all those listed in the
+ * official TCA documentation (depends on the type you defined with the TcaConfigParser annotation):
+ * https://docs.typo3.org/m/typo3/reference-tca/master/en-us/ColumnsConfig/Index.html#columns-types
+ *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
 class TcaFieldConfigParser extends AbstractValuePairsParser

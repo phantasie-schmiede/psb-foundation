@@ -28,6 +28,13 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /**
  * Class TcaMappingParser
+ *
+ * Use this annotation at class level to assign your domain model to a table not matching the naming convention, or at
+ * property level to assign a property to a database field that does not match the naming convention.
+ * Possible attributes:
+ * column
+ * table
+ *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
 class TcaMappingParser extends AbstractValuePairsParser

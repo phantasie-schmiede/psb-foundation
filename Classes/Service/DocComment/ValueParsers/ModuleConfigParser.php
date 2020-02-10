@@ -28,6 +28,17 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /**
  * Class ModuleConfigParser
+ *
+ * Use this annotation for a module controller class.
+ * Possible attributes:
+ * access
+ * icon
+ * iconIdentifier
+ * labels
+ * mainModuleName
+ * navigationComponentId
+ * position
+ *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
 class ModuleConfigParser extends AbstractValuePairsParser

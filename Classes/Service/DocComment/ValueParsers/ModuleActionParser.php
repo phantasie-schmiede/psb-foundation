@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -38,6 +38,7 @@ class ModuleActionParser extends AbstractFlagsParser
 {
     public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Module\Action';
     public const FLAGS           = [
+        // use this one for actions that don't have an associated template
         'DO_NOT_RENDER' => 'doNotRender',
     ];
 }
