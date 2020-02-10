@@ -33,6 +33,7 @@ use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\ModuleConfigParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser;
+use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -375,7 +376,7 @@ class RegistrationUtility
                     ExtensionUtility::registerPlugin(
                         $extensionInformation->getExtensionName(),
                         $pluginName,
-                        $pluginConfiguration['title'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title'
+                        $pluginConfiguration[PluginConfigParser::ANNOTATION_TYPE]['title'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title'
                     );
                 }
             }

@@ -28,6 +28,11 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 
 /**
  * Class PluginConfigParser
+ *
+ * Use this annotation for a plugin controller class.
+ * Possible attributes:
+ * title
+ *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
 class PluginConfigParser extends AbstractValuePairsParser
