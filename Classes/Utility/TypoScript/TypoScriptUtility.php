@@ -43,11 +43,6 @@ class TypoScriptUtility
         'PLUGIN' => 'plugin',
     ];
 
-    public const CONTENT_TYPES = [
-        'HTML' => 'text/html',
-        'XML'  => 'text/xml',
-    ];
-
     public const FILE_ENDING = '.typoscript';
 
     public const FILE_NAMES = [
@@ -167,7 +162,7 @@ class TypoScriptUtility
      */
     public static function getPreparedTypoScriptConstant(string $key): string
     {
-        return '${' . $key . '}';
+        return '{$' . $key . '}';
     }
 
     /**

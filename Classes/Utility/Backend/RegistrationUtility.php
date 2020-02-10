@@ -41,7 +41,6 @@ use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
@@ -49,7 +48,6 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
  * Class RegistrationUtility
@@ -66,9 +64,19 @@ class RegistrationUtility
     ];
 
     /**
+     * This static variable is used to keep track of already registered wizard groups and is pre-filled with TYPO3's
+     * default groups as defined in
+     * typo3\sysext\backend\Configuration\TSconfig\Page\Mod\Wizards\NewContentElement.tsconfig
+     *
      * @var string[]
      */
-    private static $contentElementWizardGroups = [];
+    private static $contentElementWizardGroups = [
+        'common',
+        'forms',
+        'menu',
+        'plugins',
+        'special',
+    ];
 
     /**
      * For use in ext_localconf.php files
@@ -88,13 +96,12 @@ class RegistrationUtility
                 GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
         $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
         $listType = str_replace('_', '', $extensionKey) . '_' . mb_strtolower($pluginName);
-        $title = $ll . '.title';
 
         $configuration = [
             'description'          => $ll . '.description',
             'iconIdentifier'       => self::get(IconRegistry::class)
                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-            'title'                => LocalizationUtility::translate($title) ? $title : $pluginName,
+            'title'                => $ll . '.title',
             'tt_content_defValues' => [
                 'CType'     => 'list',
                 'list_type' => $listType,
@@ -178,8 +185,9 @@ class RegistrationUtility
                     );
 
                     self::addPluginToElementWizard($extensionInformation->getExtensionKey(),
-                        $pluginConfiguration['group'] ?? mb_strtolower($extensionInformation->getVendorName()),
-                        $pluginName, $pluginConfiguration['iconIdentifier'] ?? null);
+                        $pluginConfiguration[PluginConfigParser::ANNOTATION_TYPE]['group'] ?? mb_strtolower($extensionInformation->getVendorName()),
+                        $pluginName,
+                        $pluginConfiguration[PluginConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? null);
                 }
             }
         }
@@ -389,10 +397,8 @@ class RegistrationUtility
      */
     private static function addElementWizardGroup(string $extensionKey, string $key): void
     {
-        $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $key . '.header';
-
         $pageTS['mod']['wizards']['newContentElement']['wizardItems'][$key] = [
-            'header' => LocalizationUtility::translate($header) ? $header : ucfirst($key),
+            'header' => 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $key . '.header',
             'show'   => '*',
         ];
 
@@ -412,11 +418,7 @@ class RegistrationUtility
         string $group,
         string $key
     ): void {
-        // @TODO: find root page dynamically
-        $pageTS = BackendUtility::getPagesTSconfig(1);
-
-        if (!isset($pageTS['mod']['wizards']['newContentElement']['wizardItems'][$group])
-            && !in_array($group, self::$contentElementWizardGroups, true)) {
+        if (!in_array($group, self::$contentElementWizardGroups, true)) {
             self::addElementWizardGroup($extensionKey, $group);
         }
 
@@ -451,6 +453,8 @@ class RegistrationUtility
         $docCommentParserService = self::get(DocCommentParserService::class);
 
         foreach ($controllerClassNames as $controllerClassName) {
+            $controllersAndCachedActions[$controllerClassName] = [];
+
             if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
                 $controller = self::get(ReflectionClass::class, $controllerClassName);
                 $methods = $controller->getMethods();

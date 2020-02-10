@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Utility;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -28,6 +27,7 @@ namespace PSB\PsbFoundation\Utility;
  ***************************************************************/
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
@@ -41,9 +41,14 @@ class ObjectUtility
      * @param array  $arguments
      *
      * @return object
+     * @throws Exception
      */
     public static function get(string $className, ...$arguments)
     {
-        return GeneralUtility::makeInstance(ObjectManager::class)->get($className, ...$arguments);
+        if (GeneralUtility::getContainer()->get('boot.state')->done) {
+            return GeneralUtility::makeInstance(ObjectManager::class)->get($className, ...$arguments);
+        }
+
+        return GeneralUtility::makeInstance($className, ...$arguments);
     }
 }

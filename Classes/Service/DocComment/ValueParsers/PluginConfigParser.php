@@ -31,6 +31,8 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  *
  * Use this annotation for a plugin controller class.
  * Possible attributes:
+ * group
+ * iconIdentifier
  * title
  *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers

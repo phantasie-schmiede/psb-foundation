@@ -62,8 +62,8 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      */
     public static function translate(
         $key,
-        $extensionName = null,
-        $arguments = null,
+        ?string $extensionName = null,
+        array $arguments = null,
         string $languageKey = null,
         array $alternativeLanguageKeys = null
     ): ?string {
