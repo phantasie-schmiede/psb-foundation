@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Service\Configuration;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -36,15 +35,17 @@ use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaConfigParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use function count;
 
 /**
@@ -160,6 +161,8 @@ class TcaService
      * @param bool   $autoAddToDefaultType        whether field shall be appended to the 'showitem'-list of type 0
      *
      * @return array|null
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public function addColumn(
         string $property,
@@ -245,6 +248,8 @@ class TcaService
 
     /**
      * @return $this
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws NoSuchCacheException
      * @throws ReflectionException
      * @throws UnsetPropertyException

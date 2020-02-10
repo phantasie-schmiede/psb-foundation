@@ -32,6 +32,7 @@ use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\ModuleActionParser;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -39,12 +40,13 @@ use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException as ExtensionConfigurationExtensionNotConfiguredExceptionAlias;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use function count;
 use function in_array;
 
@@ -246,8 +248,10 @@ abstract class AbstractModuleController extends ActionController
     /**
      * @param ViewInterface $view
      *
-     * @throws ReflectionException
+     * @throws ExtensionConfigurationExtensionNotConfiguredExceptionAlias
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws NoSuchCacheException
+     * @throws ReflectionException
      */
     protected function initializeView(ViewInterface $view): void
     {
@@ -279,6 +283,8 @@ abstract class AbstractModuleController extends ActionController
      * current action will be appended in brackets.
      *
      * @return string|null
+     * @throws ExtensionConfigurationExtensionNotConfiguredExceptionAlias
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     private function buildBookmarkLabel(): ?string
     {
@@ -302,6 +308,8 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @return array
+     * @throws ExtensionConfigurationExtensionNotConfiguredExceptionAlias
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws NoSuchCacheException
      * @throws ReflectionException
      */
@@ -352,6 +360,10 @@ abstract class AbstractModuleController extends ActionController
         return $this->headerConfiguration[self::HEADER_SETTINGS['TEMPLATE_ACTIONS']];
     }
 
+    /**
+     * @throws ExtensionConfigurationExtensionNotConfiguredExceptionAlias
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
     private function generateActionButtons(): void
     {
         $buttonBar = $this->view->getModuleTemplate()->getDocHeaderComponent()->getButtonBar();
