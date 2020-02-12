@@ -36,3 +36,7 @@ config {
   # no standard page title
   noPageTitle = 2
 }
+
+[applicationContext == "Development"]
+  config.contentObjectExceptionHandler = 0
+[END]

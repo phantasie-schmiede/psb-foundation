@@ -26,7 +26,11 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Exception;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use ReflectionException;
+use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class TcaFieldConfigParser
@@ -42,25 +46,42 @@ class TcaFieldConfigParser extends AbstractValuePairsParser
     public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Tca\FieldConfig';
 
     /**
+     * @param string      $className
      * @param string|null $valuePairs
      *
      * @return mixed
-     * @throws Exception
+     * @throws AnnotationException
+     * @throws NoSuchCacheException
+     * @throws ReflectionException
      */
-    public function processValue(?string $valuePairs)
+    public function processValue(string $className, ?string $valuePairs)
     {
-        $result = parent::processValue($valuePairs);
+        $result = parent::processValue($className, $valuePairs);
 
-        // transform associative array to simple array for TCA
-        if ('select' === $result['type'] && isset ($result['items']) && is_array($result['items'])) {
-            $result['items'] = array_map(static function ($key, $value) {
-                if (0 === mb_strpos($key, ' ')) {
-                    // prettify constant names
-                    return [ucwords(str_replace('_', ' ', mb_strtolower($key))), $value];
+        if ('select' === $result['type']) {
+            // instead of directly specifying a foreign table, it is possible to specify a domain model class instead
+            if (isset ($result['linked_model'])) {
+                // allow shorthand syntax for simple relations between models in the same domain
+                if (false === mb_strpos($result['linked_model'], 'Domain\Model')) {
+                    [$vendorName, $extensionName] = GeneralUtility::trimExplode('\\', $className);
+                    $result['linked_model'] = implode('\\',
+                        [$vendorName, $extensionName, 'Domain\Model', $result['linked_model']]);
                 }
 
-                return $key;
-            }, array_keys($result['items']), array_values($result['items']));
+                $domainModelTable = ExtensionInformationUtility::convertClassNameToTableName($result['linked_model']);
+                $result['foreign_table'] = $domainModelTable;
+                unset($result['linked_model']);
+            } elseif (isset ($result['items']) && is_array($result['items'])) {
+                // transform associative array to simple array for TCA
+                $result['items'] = array_map(static function ($key, $value) {
+                    if (0 === mb_strpos($key, ' ')) {
+                        // prettify constant names
+                        return [ucwords(str_replace('_', ' ', mb_strtolower($key))), $value];
+                    }
+
+                    return $key;
+                }, array_keys($result['items']), array_values($result['items']));
+            }
         }
 
         return $result;

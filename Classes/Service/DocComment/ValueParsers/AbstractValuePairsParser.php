@@ -38,12 +38,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 abstract class AbstractValuePairsParser implements ValueParserInterface
 {
     /**
+     * @param string      $className
      * @param string|null $valuePairs
      *
      * @return mixed
-     * @throws Exception
+     * @throws AnnotationException
      */
-    public function processValue(?string $valuePairs)
+    public function processValue(string $className, ?string $valuePairs)
     {
         if (null === $valuePairs) {
             /** @noinspection PhpUndefinedClassConstantInspection */
@@ -56,6 +57,7 @@ abstract class AbstractValuePairsParser implements ValueParserInterface
 
         foreach ($valueParts as $part) {
             [$key, $value] = GeneralUtility::trimExplode('=', $part, false, 2);
+            $value = str_replace('self::', $className . '::', $value);
             $result[$key] = StringUtility::convertString($value);
         }
 

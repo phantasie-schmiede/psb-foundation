@@ -26,7 +26,6 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Exception;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
@@ -46,12 +45,13 @@ abstract class AbstractFlagsParser implements ValueParserInterface
     ];
 
     /**
+     * @param string      $className
      * @param string|null $stringOfFlags
      *
      * @return mixed
-     * @throws Exception
+     * @throws AnnotationException
      */
-    public function processValue(?string $stringOfFlags)
+    public function processValue(string $className, ?string $stringOfFlags)
     {
         if (null === $stringOfFlags) {
             /** @noinspection PhpUndefinedClassConstantInspection */
@@ -60,7 +60,7 @@ abstract class AbstractFlagsParser implements ValueParserInterface
         }
 
         $flags = GeneralUtility::trimExplode(' ', $stringOfFlags, true);
-        array_walk($flags, static function(&$item) {
+        array_walk($flags, static function (&$item) {
             $item = StringUtility::convertString($item);
         });
 

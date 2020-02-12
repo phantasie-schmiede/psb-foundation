@@ -37,9 +37,10 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 interface ValueParserInterface
 {
     /**
+     * @param string $className
      * @param string|null $value
      *
      * @return mixed
      */
-    public function processValue(?string $value);
+    public function processValue(string $className, ?string $value);
 }

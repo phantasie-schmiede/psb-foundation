@@ -457,7 +457,7 @@ abstract class AbstractModuleController extends ActionController
      */
     private function getDefaultLanguageFile(): string
     {
-        $fileName = lcfirst(ExtensionInformationUtility::convertClassNameToControllerName(get_class($this))) . '.xlf';
+        $fileName = lcfirst(ExtensionInformationUtility::convertControllerClassToBaseName(get_class($this))) . '.xlf';
 
         return 'LLL:EXT:' . $this->request->getControllerExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $fileName;
     }

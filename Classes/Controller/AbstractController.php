@@ -27,18 +27,21 @@ namespace PSB\PsbFoundation\Controller;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use InvalidArgumentException;
 use PSB\PsbFoundation\Domain\Repository\AbstractRepository;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\Exception\InvalidArgumentNameException;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
+use TYPO3\CMS\Extbase\Property\Exception;
+use TYPO3\CMS\Extbase\Property\PropertyMapper;
+use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationBuilder;
 use function get_class;
 
 /**
@@ -64,22 +67,21 @@ abstract class AbstractController extends ActionController
     protected $repository;
 
     /**
-     * The constructor determines the related model and repository classes from controller.
+     * The constructor determines the related model and repository classes of the instantiated controller following
+     * Extbase conventions.
      */
     public function __construct()
     {
-        parent::__construct();
-
-        [$vendorName, $extensionName, $rest] = GeneralUtility::trimExplode('\\', get_class($this), false, 3);
-        $className = ExtensionInformationUtility::convertClassNameToControllerName(array_pop($rest));
-        $this->setDomainModel(implode('\\', [$vendorName, $extensionName, 'Domain\Model', $className]));
-
+        [$vendorName, $extensionName] = GeneralUtility::trimExplode('\\', get_class($this));
+        $domainModelName = ExtensionInformationUtility::convertControllerClassToBaseName(get_class($this));
+        $this->setDomainModel(implode('\\', [$vendorName, $extensionName, 'Domain\Model', $domainModelName]));
         $this->repository = $this->get(implode('\\',
-            [$vendorName, $extensionName, 'Domain\Repository', $className . 'Repository']));
+            [$vendorName, $extensionName, 'Domain\Repository', $domainModelName . 'Repository']));
     }
 
     /**
      * @param AbstractEntity $record
+     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[UNCACHED]
      *
      * @throws StopActionException
      * @throws UnsupportedRequestTypeException
@@ -93,6 +95,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[UNCACHED]
      *
      * @throws StopActionException
      * @throws UnsupportedRequestTypeException
@@ -106,6 +109,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[UNCACHED]
      */
     public function editAction(AbstractEntity $record): void
     {
@@ -116,13 +120,13 @@ abstract class AbstractController extends ActionController
     }
 
     /**
-     * @param bool $fqcn If set to true, function returns the full qualified class name
+     * @param bool $fullQualifiedClassName If set to true, function returns the full qualified class name
      *
      * @return string
      */
-    public function getDomainModel(bool $fqcn = false): string
+    public function getDomainModel(bool $fullQualifiedClassName = false): string
     {
-        if (false === $fqcn) {
+        if (false === $fullQualifiedClassName) {
             $classNameParts = explode('\\', $this->domainModel);
 
             return array_pop($classNameParts);
@@ -140,13 +144,25 @@ abstract class AbstractController extends ActionController
     }
 
     /**
+     * Incoming form data is mapped to the correct domain model.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentNameException
      * @throws NoSuchArgumentException
      */
     public function initializeAction(): void
     {
-        if ($this->request->hasArgument('record') && get_class($this->request->getArgument('record')) !== $this->getDomainModel(true)) {
-            throw new InvalidArgumentException(__CLASS__ . ': Argument "record" has to be an instance of ' . $this->getDomainModel(true),
-                1551301206);
+        if ($this->request->hasArgument('record')
+            && is_array($this->request->getArgument('record'))
+        ) {
+            $mappingConfiguration = $this->get(PropertyMappingConfigurationBuilder::class)->build();
+            $mappingConfiguration->allowAllProperties();
+            $record = $this->objectManager->get(PropertyMapper::class)->convert(
+                $this->request->getArgument('record'),
+                $this->getDomainModel(true),
+                $mappingConfiguration
+            );
+            $this->request->setArgument('record', $record);
         }
     }
 
@@ -179,6 +195,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[UNCACHED]
      *
      * @throws StopActionException
      * @throws UnsupportedRequestTypeException

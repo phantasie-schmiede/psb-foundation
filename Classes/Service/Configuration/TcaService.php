@@ -200,9 +200,9 @@ class TcaService
 
         ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
         $propertyConfiguration = [
-            'exclude' => 0,
-            'label'   => LocalizationUtility::translate($this->getDefaultLabelPath() . $property) ? $this->getDefaultLabelPath() . $property : $property,
             'config'  => $fieldConfiguration,
+            'exclude' => 0,
+            'label'   => $this->getDefaultLabelPath() . $property,
         ];
 
         ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration, $customPropertyConfiguration);

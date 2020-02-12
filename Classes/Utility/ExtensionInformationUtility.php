@@ -56,13 +56,12 @@ class ExtensionInformationUtility
     private const EXTENSION_INFORMATION_MAPPING_TABLE = 'tx_psbfoundation_extension_information_mapping';
 
     /**
-     * @TODO: check if necessary
-     *
      * @param string $className
      *
-     * @return string The controller name for Extbase-configurations (without the 'Controller'-part)
+     * @return string The controller name (without the 'Controller'-part at the end) or respectively the name of the
+     *                related domain model
      */
-    public static function convertClassNameToControllerName(string $className): string
+    public static function convertControllerClassToBaseName(string $className): string
     {
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
 
@@ -116,6 +115,8 @@ class ExtensionInformationUtility
         }
 
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+
+        // overwrite vendor name with extension prefix
         $classNameParts[0] = 'tx';
 
         return strtolower(implode('_', $classNameParts));
@@ -242,7 +243,7 @@ class ExtensionInformationUtility
      */
     public static function getResourcePath(string $extensionKey): string
     {
-        $subDirectoryPath =  '/' . $extensionKey . '/Resources/';
+        $subDirectoryPath = '/' . $extensionKey . '/Resources/';
         $resourcePath = Environment::getExtensionsPath() . $subDirectoryPath;
 
         if (is_dir($resourcePath)) {

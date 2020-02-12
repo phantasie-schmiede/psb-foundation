@@ -219,7 +219,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                 if (0 === mb_strpos($commentLine, '@')) {
                     $parts = GeneralUtility::trimExplode(' ', mb_substr($commentLine, 1), true, 2);
                     [$annotationType, $parameters] = $parts;
-                    $value = $this->processValue($annotationType, $parameters);
+                    $value = $this->processValue($annotationType, $className, $parameters);
 
                     if (!isset($parsedDocComment[$annotationType])) {
                         $parsedDocComment[$annotationType] = [];
@@ -257,10 +257,9 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
 
                             if (is_array($parsedDocComment[$annotationType]) && !ArrayUtility::isAssociativeArray($parsedDocComment[$annotationType])) {
                                 $indexOfLastElement = count($parsedDocComment[$annotationType]) - 1;
-                                $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($parameters,
-                                    $annotationType);
+                                $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($annotationType, $className, $parameters);
                             } else {
-                                $parsedDocComment[$annotationType] = $this->processValue($annotationType, $parameters);
+                                $parsedDocComment[$annotationType] = $this->processValue($annotationType, $className, $parameters);
                             }
                         } else {
                             $parameters = $commentLine;
@@ -336,14 +335,15 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
 
     /**
      * @param string|null $annotationType
+     * @param string      $className
      * @param mixed       $value
      *
      * @return mixed
      */
-    private function processValue(?string $annotationType, $value)
+    private function processValue(?string $annotationType, string $className, $value)
     {
         if (isset($this->valueParsers[$annotationType])) {
-            return $this->valueParsers[$annotationType]->processValue($value);
+            return $this->valueParsers[$annotationType]->processValue($className, $value);
         }
 
         if (null !== $value) {
