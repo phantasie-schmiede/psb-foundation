@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Controller;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -37,6 +36,7 @@ use TYPO3\CMS\Extbase\Mvc\Exception\InvalidArgumentNameException;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
+use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Property\Exception;
@@ -113,10 +113,7 @@ abstract class AbstractController extends ActionController
      */
     public function editAction(AbstractEntity $record): void
     {
-        $this->view->assignMultiple([
-            'domainModel' => $this->getDomainModel(),
-            'record'      => $record,
-        ]);
+        $this->view->assign('record', $record);
     }
 
     /**
@@ -157,7 +154,7 @@ abstract class AbstractController extends ActionController
         ) {
             $mappingConfiguration = $this->get(PropertyMappingConfigurationBuilder::class)->build();
             $mappingConfiguration->allowAllProperties();
-            $record = $this->objectManager->get(PropertyMapper::class)->convert(
+            $record = $this->get(PropertyMapper::class)->convert(
                 $this->request->getArgument('record'),
                 $this->getDomainModel(true),
                 $mappingConfiguration
@@ -166,12 +163,23 @@ abstract class AbstractController extends ActionController
         }
     }
 
-    public function listAction(): void
+    /**
+     * @param ViewInterface $view
+     */
+    public function initializeView(ViewInterface $view): void
     {
         $this->view->assignMultiple([
-            'domainModel' => $this->getDomainModel(),
-            'records'     => $this->repository->findAll(),
+            'domainModel'  => $this->getDomainModel(),
+            'extensionKey' => $this->request->getControllerExtensionKey(),
         ]);
+    }
+
+    /**
+     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[DEFAULT]
+     */
+    public function listAction(): void
+    {
+        $this->view->assign('records', $this->repository->findAll());
     }
 
     /**
@@ -179,10 +187,7 @@ abstract class AbstractController extends ActionController
      */
     public function newAction(AbstractEntity $record = null): void
     {
-        $this->view->assignMultiple([
-            'domainModel' => $this->getDomainModel(),
-            'record'      => $record,
-        ]);
+        $this->view->assign('record', $record);
     }
 
     /**
