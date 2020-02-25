@@ -1,0 +1,37 @@
+<section data-namespace-typo3-fluid="true"
+         xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+         xmlns:psb="http://typo3.org/ns/PSB/PsbFoundation/ViewHelpers"
+>
+    <div class="row">
+        <div class="col-12 text-center">
+            <h2>
+                <psb:translate id="LLL:EXT:{extensionKey}/Resources/Private/Language/Frontend/DomainModels/{domainModel}/{languageFile}.xlf:heading" />
+            </h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <f:form action="{action}" method="post" name="record" object="{record}">
+                <psb:domainModel.getTcaConfiguration domainModel="\PSB\PsbRiskAssessment\Domain\Model\Location" />
+
+                <f:for as="configuration" each="{properties}" key="propertyName">
+                    <div class="form-group">
+                        <label for="{propertyName}">
+                            <psb:translate id="LLL:EXT:{extensionKey}/Resources/Private/Language/Frontend/DomainModels/{domainModel}/formFields.xlf:{propertyName}" />
+                        </label>
+
+                        <f:render arguments="{configuration: configuration, domainModel: domainModel, extensionKey: extensionKey, propertyName: propertyName}" partial="FormFields/{configuration.type}" />
+                        <f:variable name="helpText" value="{psb:translate(id: 'LLL:EXT:{extensionKey}/Resources/Private/Language/Frontend/DomainModels/{domainModel}/formFields.xlf:{propertyName}.help')}" />
+
+                        <f:if condition="{helpText}">
+                            <small class="form-text text-muted">{helpText}</small>
+                        </f:if>
+                    </div>
+                </f:for>
+
+                <f:variable name="submitButtonValue" value="{psb:translate(id: 'LLL:EXT:{extensionKey}/Resources/Private/Language/Frontend/DomainModels/{domainModel}/{languageFile}.xlf:submit')}" />
+                <f:render arguments="{value: submitButtonValue}" partial="FormFields/Submit" />
+            </f:form>
+        </div>
+    </div>
+</section>

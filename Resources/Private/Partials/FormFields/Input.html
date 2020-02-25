@@ -1,0 +1,23 @@
+<section data-namespace-typo3-fluid="true"
+         xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+         xmlns:psb="http://typo3.org/ns/PSB/PsbFoundation/ViewHelpers"
+>
+    <div class="input-group">
+        <f:variable name="prependText" value="{psb:translate(id: 'LLL:EXT:{extensionKey}/Resources/Private/Language/Frontend/DomainModels/{domainModel}/formFields.xlf:{propertyName}.prepend')}" />
+
+        <f:if condition="{prependText}">
+            <div class="input-group-prepend">
+                <span class="input-group-text">{prependText}</span>
+            </div>
+        </f:if>
+
+        <f:comment>
+            <!-- @TODO: Add support for input type (e.g. tel, num) -->
+        </f:comment>
+        <f:form.textfield
+            class="form-control"
+            id="{propertyName}"
+            property="{propertyName}"
+        />
+    </div>
+</section>
