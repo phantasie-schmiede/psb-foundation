@@ -70,7 +70,7 @@ class RegistrationUtility
      *
      * @var string[]
      */
-    private static $contentElementWizardGroups = [
+    private static array $contentElementWizardGroups = [
         'common',
         'forms',
         'menu',

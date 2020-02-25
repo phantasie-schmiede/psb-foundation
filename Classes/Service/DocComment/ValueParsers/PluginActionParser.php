@@ -37,12 +37,13 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
 class PluginActionParser extends AbstractFlagsParser
 {
     public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Plugin\Action';
-    public const FLAGS           = [
+
+    public const FLAGS = [
         // the default action of the controller (executed, when no specific action is given in a request)
         'DEFAULT'  => 'default',
         // don't add this action to the list of allowed actions for the plugin
         'IGNORE'   => 'ignore',
-        // add this action to list of uncached actions
+        // add this action to the list of uncached actions
         'UNCACHED' => 'uncached',
     ];
 }

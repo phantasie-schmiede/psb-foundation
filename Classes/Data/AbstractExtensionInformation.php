@@ -57,17 +57,17 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
     /**
      * @var string
      */
-    protected $extensionKey;
+    protected string $extensionKey;
 
     /**
      * @var string
      */
-    protected $extensionName;
+    protected string $extensionName;
 
     /**
      * @var string
      */
-    protected $vendorName;
+    protected string $vendorName;
 
     public function __construct()
     {
