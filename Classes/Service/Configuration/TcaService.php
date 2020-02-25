@@ -29,19 +29,15 @@ namespace PSB\PsbFoundation\Service\Configuration;
 use Exception;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
-use PSB\PsbFoundation\Exceptions\UnsetPropertyException;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaConfigParser;
 use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
-use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
-use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
-use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -66,58 +62,60 @@ class TcaService
     /**
      * @var string
      */
-    private $className;
+    private string $className;
 
     /**
      * @var array
      */
-    private $configuration;
+    private array $configuration;
 
     /**
      * @var string
      */
-    private $defaultLabelPath;
+    private string $defaultLabelPath;
+
+    /**
+     * @var bool
+     */
+    private bool $overrideMode = false;
 
     /**
      * @var array
      */
-    private $preDefinedColumns;
+    private array $preDefinedColumns;
 
     /**
      * @var string
      */
-    private $table;
+    private string $table;
 
     /**
-     * @param string      $classOrTableName
-     * @param string|null $extensionKey
+     * @param string $className Has to be a full qualified class name
      *
      * @throws NoSuchCacheException
      * @throws ReflectionException
      */
-    public function __construct(
-        string $classOrTableName,
-        string $extensionKey = null
-    ) {
-        $this->setDefaultLabelPath('LLL:EXT:' . ($extensionKey ?? ExtensionInformationUtility::convertClassNameToExtensionKey($classOrTableName)) . '/Resources/Private/Language/Backend/Configuration/TCA/');
+    public function __construct(string $className)
+    {
+        $this->table = ExtensionInformationUtility::convertClassNameToTableName($this->className);
+        $this->setDefaultLabelPath('LLL:EXT:' . (ExtensionInformationUtility::convertClassNameToExtensionKey($className)) . '/Resources/Private/Language/Backend/Configuration/TCA/');
 
-        if (false !== mb_strpos($classOrTableName, '\\')) {
-            $this->className = $classOrTableName;
-            $this->table = ExtensionInformationUtility::convertClassNameToTableName($this->className);
+        if (isset($GLOBALS['TCA'][$this->table])) {
+            $this->overrideMode = true;
+            $this->setDefaultLabelPath($this->getDefaultLabelPath() . 'Overrides/' . $this->table . '.xlf:');
+            $this->configuration = $GLOBALS['TCA'][$this->table];
+        } else {
+            $this->className = $className;
             $this->configuration = $this->getDummyConfiguration($this->table);
             $this->setDefaultLabelPath($this->getDefaultLabelPath() . $this->table . '.xlf:');
             $this->setCtrlProperties([
                 'title' => $this->getDefaultLabelPath() . 'domain.model',
             ]);
-        } else {
-            $this->table = $classOrTableName;
-            $this->setDefaultLabelPath($this->getDefaultLabelPath() . 'Overrides/' . $this->table . '.xlf:');
-            $this->configuration = $GLOBALS['TCA'][$this->table];
         }
 
         /**
-         * remember the predefined columns (e.g. for versioning, translating) in order to exclude them when
-         * auto-creating the showItemList
+         * Remember the predefined columns (e.g. for versioning, translating or when overriding an existing TCA entry)
+         * in order to exclude them when auto-creating the showItemList.
          */
         $this->setPreDefinedColumns(array_keys($this->configuration['columns']));
     }
@@ -143,91 +141,20 @@ class TcaService
     }
 
     /**
-     * adds a property's configuration to the ['columns'] section of the TCA
-     * also returns the field configuration, e.g. needed when adding columns to existing tables in TCA/Overrides
-     *
-     * Example:
-     * $tempColumns = array_merge(
-     *     $tcaService->addColumn(...),
-     *     $tcaService->addColumn(...),
-     *     $tcaService->addColumn(...)
-     * );
-     *
-     * @param string $property                    name of the database column
-     * @param string $type                        use constants of this class to see what is available and to avoid
-     *                                            typos
-     * @param array  $customFieldConfiguration    override array keys within the 'config'-part
-     * @param array  $customPropertyConfiguration override array keys on the same level as 'config'
-     * @param bool   $autoAddToDefaultType        whether field shall be appended to the 'showitem'-list of type 0
-     *
-     * @return array|null
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     */
-    public function addColumn(
-        string $property,
-        string $type,
-        array $customFieldConfiguration = [],
-        array $customPropertyConfiguration = [],
-        bool $autoAddToDefaultType = true
-    ): ?array {
-        if (in_array($type, Fields::FAL_PLACEHOLDER_TYPES, true)) {
-            switch ($type) {
-                case Fields::FIELD_TYPES['DOCUMENT']:
-                    $allowedFileTypes = 'pdf';
-                    break;
-                case Fields::FIELD_TYPES['FILE']:
-                    $allowedFileTypes = '*';
-                    break;
-                case Fields::FIELD_TYPES['IMAGE']:
-                    $allowedFileTypes = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
-                    break;
-                default:
-                    $allowedFileTypes = '';
-            }
-
-            /** @noinspection TranslationMissingInspection */
-            $fieldConfiguration = ExtensionManagementUtility::getFileFieldTCAConfig($property,
-                [
-                    'appearance' => [
-                        'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference',
-                    ],
-                    'maxitems'   => 9999,
-                ], $allowedFileTypes);
-        } else {
-            $fieldConfiguration = Fields::getDefaultConfiguration($type);
-        }
-
-        ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
-        $propertyConfiguration = [
-            'config'  => $fieldConfiguration,
-            'exclude' => 0,
-            'label'   => $this->getDefaultLabelPath() . $property,
-        ];
-
-        ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration, $customPropertyConfiguration);
-        $this->configuration['columns'][$property] = $propertyConfiguration;
-
-        if ($autoAddToDefaultType) {
-            $this->addFieldToType($property);
-        }
-
-        return [$property => $propertyConfiguration];
-    }
-
-    /**
      * @param string $field
-     * @param int    $index
+     * @param int    $typeIndex
      */
-    public function addFieldToType(string $field, int $index = 0): void
+    public function addFieldToType(string $field, int $typeIndex = 0): void
     {
         $separator = '';
 
-        if (isset($this->configuration['types'][$index]['showitem']) && '' !== $this->configuration['types'][$index]['showitem']) {
+        if (isset($this->configuration['types'][$typeIndex]['showitem'])
+            && '' !== $this->configuration['types'][$typeIndex]['showitem']
+        ) {
             $separator = ', ';
         }
 
-        $this->configuration['types'][$index]['showitem'] .= $separator . $field;
+        $this->configuration['types'][$typeIndex]['showitem'] .= $separator . $field;
     }
 
     /**
@@ -247,21 +174,90 @@ class TcaService
     }
 
     /**
+     * adds a property's configuration to the ['columns'] section of the TCA
+     * also returns the field configuration, e.g. needed when adding columns to existing tables in TCA/Overrides
+     *
+     * Example:
+     * $tempColumns = array_merge(
+     *     $tcaService->buildColumnConfiguration(...),
+     *     $tcaService->buildColumnConfiguration(...),
+     *     $tcaService->buildColumnConfiguration(...)
+     * );
+     *
+     * @param string $columnName                  name of the database column
+     * @param string $type                        use constants of this class to see what is available and to avoid
+     *                                            typos
+     * @param array  $customFieldConfiguration    override array keys within the 'config'-part
+     * @param array  $customPropertyConfiguration override array keys on the same level as 'config'
+     *
+     * @return array
+     */
+    public function buildColumnConfiguration(
+        string $columnName,
+        string $type,
+        array $customFieldConfiguration = [],
+        array $customPropertyConfiguration = []
+    ): ?array {
+        if (in_array($type, Fields::FAL_PLACEHOLDER_TYPES, true)) {
+            switch ($type) {
+                case Fields::FIELD_TYPES['DOCUMENT']:
+                    $allowedFileTypes = 'pdf';
+                    break;
+                case Fields::FIELD_TYPES['FILE']:
+                    $allowedFileTypes = '*';
+                    break;
+                case Fields::FIELD_TYPES['IMAGE']:
+                    $allowedFileTypes = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+                    break;
+                default:
+                    $allowedFileTypes = '';
+            }
+
+            /** @noinspection TranslationMissingInspection */
+            $fieldConfiguration = ExtensionManagementUtility::getFileFieldTCAConfig($columnName,
+                [
+                    'appearance' => [
+                        'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference',
+                    ],
+                    'maxitems'   => 9999,
+                ], $allowedFileTypes);
+        } else {
+            $fieldConfiguration = Fields::getDefaultConfiguration($type);
+        }
+
+        ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
+        $propertyConfiguration = [
+            'config'  => $fieldConfiguration,
+            'exclude' => 0,
+            'label'   => $this->getDefaultLabelPath() . $columnName,
+        ];
+
+        ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration, $customPropertyConfiguration);
+
+        return $propertyConfiguration;
+    }
+
+    /**
      * @return $this
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws NoSuchCacheException
      * @throws ReflectionException
-     * @throws UnsetPropertyException
      */
     public function buildFromDocComment(): self
     {
-        if (null === $this->className) {
-            throw new UnsetPropertyException('When instantiating you must provide a class name instead of ' . $this->table . ' if you want to use this feature!',
-                1541351524);
-        }
-
         $docCommentParserService = $this->get(DocCommentParserService::class);
+        $docComment = $docCommentParserService->parsePhpDocComment($this->className);
+        $editableInFrontend = false;
+
+        if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
+            if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']])
+                && true === $docComment[TcaConfigParser::ANNOTATION_TYPE][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']]
+            ) {
+                $editableInFrontend = true;
+                unset ($docComment[TcaConfigParser::ANNOTATION_TYPE][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']]);
+            }
+
+            $this->setCtrlProperties($docComment[TcaConfigParser::ANNOTATION_TYPE]);
+        }
 
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $this->className);
         $properties = $reflection->getProperties();
@@ -274,15 +270,22 @@ class TcaService
                 $type = $fieldConfig['type'];
                 unset($fieldConfig['type']);
                 $config = $docComment[TcaConfigParser::ANNOTATION_TYPE] ?? [];
-                $this->addColumn(ExtensionInformationUtility::convertPropertyNameToColumnName($property->getName(),
-                    $this->className), $type, $fieldConfig, $config);
+
+                if (true === $editableInFrontend) {
+                    $config[TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']] = true;
+                }
+
+                $columnName = ExtensionInformationUtility::convertPropertyNameToColumnName($property->getName(),
+                    $this->className);
+
+                if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
+                    $this->configuration['columns'][$columnName] = $this->buildColumnConfiguration($columnName, $type,
+                        $fieldConfig, $config);
+                    $this->addFieldToType($columnName);
+                } elseif (true === $editableInFrontend) {
+                    $GLOBALS['TCA'][$this->table]['columns'][$columnName][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']] = true;
+                }
             }
-        }
-
-        $docComment = $docCommentParserService->parsePhpDocComment($this->className);
-
-        if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
-            $this->setCtrlProperties($docComment[TcaConfigParser::ANNOTATION_TYPE]);
         }
 
         return $this;
@@ -343,22 +346,38 @@ class TcaService
      */
     public function getConfiguration(bool $autoCreateShowItemList = true): array
     {
-        // configuration must have at least one type defined
-        if ($autoCreateShowItemList) {
-            if ('' === $this->configuration['types'][0]) {
-                $columns = array_keys($this->configuration['columns']);
-                foreach ($columns as $column) {
-                    if (!in_array($column, $this->getPreDefinedColumns(), true)) {
-                        $this->addFieldToType($column);
-                    }
+        if (true === $this->overrideMode) {
+            $columns = array_keys($this->configuration['columns']);
+
+            foreach ($columns as $column) {
+                // only add new columns
+                if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                    ExtensionManagementUtility::addToAllTCAtypes(
+                        $this->table,
+                        $column
+                    );
                 }
             }
+        } else {
+            // configuration must have at least one type defined
+            if ($autoCreateShowItemList) {
+                if ('' === $this->configuration['types'][0]) {
+                    $columns = array_keys($this->configuration['columns']);
 
-            // add default access fields to all types
-            $types = array_keys($this->configuration['types']);
-            foreach ($types as $type) {
-                $this->addFieldToType('--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
-                    $type);
+                    foreach ($columns as $column) {
+                        if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                            $this->addFieldToType($column);
+                        }
+                    }
+                }
+
+                // add default access fields to all types
+                $types = array_keys($this->configuration['types']);
+
+                foreach ($types as $type) {
+                    $this->addFieldToType('--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
+                        $type);
+                }
             }
         }
 

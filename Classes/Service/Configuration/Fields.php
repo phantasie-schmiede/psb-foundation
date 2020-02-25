@@ -146,10 +146,11 @@ class Fields
             'type' => 'passthrough',
         ],
         'select'      => [
-            'foreign_table' => '',
-            'maxitems'      => 1,
-            'renderType'    => 'selectSingle',
-            'type'          => 'select',
+            // 'foreign_table' => '',
+            // 'items' => [],
+            'maxitems'   => 1,
+            'renderType' => 'selectSingle',
+            'type'       => 'select',
         ],
         'string'      => [
             'eval' => 'trim',
@@ -164,7 +165,7 @@ class Fields
             'type'           => 'text',
         ],
         'user'        => [
-            'eval'       => 'trim,required',
+            'eval'       => 'required,trim',
             'parameters' => [],
             'size'       => 50,
             'type'       => 'user',

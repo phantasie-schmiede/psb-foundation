@@ -32,10 +32,19 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  * Use this in the annotations of your domain model properties. Possible attributes are all those listed in the
  * official TCA documentation: https://docs.typo3.org/m/typo3/reference-tca/master/en-us/Columns/Index.html EXCEPT
  * "config". To define those values use the TcaFieldConfigParser annotation.
+ * Additional attributes:
+ * editableInFrontend - if set to true, \PSB\PsbFoundation\ViewHelpers\Form\BuildFromTcaViewHelper can be used for
+ *                      this domain model. If used in class annotation, this attribute applies to all properties
+ *                      annotated with @PSB\PsbFoundation\Tca\FieldConfig. But it can also be set for each property
+ *                      individually.
  *
  * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
  */
 class TcaConfigParser extends AbstractValuePairsParser
 {
     public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Tca\Config';
+
+    public const ATTRIBUTES = [
+        'EDITABLE_IN_FRONTEND' => 'editableInFrontend',
+    ];
 }

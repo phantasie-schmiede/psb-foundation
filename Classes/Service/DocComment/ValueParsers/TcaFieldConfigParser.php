@@ -71,15 +71,12 @@ class TcaFieldConfigParser extends AbstractValuePairsParser
                 $domainModelTable = ExtensionInformationUtility::convertClassNameToTableName($result['linked_model']);
                 $result['foreign_table'] = $domainModelTable;
                 unset($result['linked_model']);
-            } elseif (isset ($result['items']) && is_array($result['items'])) {
+            }
+
+            if (isset ($result['items']) && is_array($result['items'])) {
                 // transform associative array to simple array for TCA
                 $result['items'] = array_map(static function ($key, $value) {
-                    if (0 === mb_strpos($key, ' ')) {
-                        // prettify constant names
-                        return [ucwords(str_replace('_', ' ', mb_strtolower($key))), $value];
-                    }
-
-                    return $key;
+                    return [ucwords(str_replace('_', ' ', mb_strtolower($key))), $value];
                 }, array_keys($result['items']), array_values($result['items']));
             }
         }
