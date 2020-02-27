@@ -31,11 +31,10 @@ use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TcaMapping;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaMappingParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use ReflectionException;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
@@ -44,6 +43,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class ExtensionInformationUtility
@@ -54,6 +54,50 @@ class ExtensionInformationUtility
     use StaticInjectionTrait;
 
     private const EXTENSION_INFORMATION_MAPPING_TABLE = 'tx_psbfoundation_extension_information_mapping';
+
+    /**
+     * @param string $className
+     *
+     * @return string
+     */
+    public static function convertClassNameToExtensionKey(string $className): string
+    {
+        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+
+        if (isset($classNameParts[1])) {
+            return GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]);
+        }
+
+        throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
+            1547120513);
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return string
+     * @throws Exception
+     * @throws ReflectionException
+     */
+    public static function convertClassNameToTableName(string $className): string
+    {
+        $docCommentParserService = self::get(DocCommentParserService::class);
+        $docComment = $docCommentParserService->parsePhpDocComment($className);
+
+        if (isset($docComment[TcaMapping::class])) {
+            /** @var TcaMapping $tcaMapping */
+            $tcaMapping = $docComment[TcaMapping::class];
+
+            return $tcaMapping->getTable();
+        }
+
+        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+
+        // overwrite vendor name with extension prefix
+        $classNameParts[0] = 'tx';
+
+        return strtolower(implode('_', $classNameParts));
+    }
 
     /**
      * @param string $className
@@ -82,52 +126,11 @@ class ExtensionInformationUtility
     }
 
     /**
-     * @param string $className
-     *
-     * @return string
-     */
-    public static function convertClassNameToExtensionKey(string $className): string
-    {
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        if (isset($classNameParts[1])) {
-            return GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]);
-        }
-
-        throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-            1547120513);
-    }
-
-    /**
-     * @param string $className
-     *
-     * @return string
-     * @throws ReflectionException
-     * @throws NoSuchCacheException
-     */
-    public static function convertClassNameToTableName(string $className): string
-    {
-        $docCommentParserService = self::get(DocCommentParserService::class);
-        $docComment = $docCommentParserService->parsePhpDocComment($className);
-
-        if (isset($docComment[TcaMappingParser::ANNOTATION_TYPE]['table'])) {
-            return $docComment[TcaMappingParser::ANNOTATION_TYPE]['table'];
-        }
-
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        // overwrite vendor name with extension prefix
-        $classNameParts[0] = 'tx';
-
-        return strtolower(implode('_', $classNameParts));
-    }
-
-    /**
      * @param string      $propertyName
      * @param string|null $className
      *
      * @return string
-     * @throws NoSuchCacheException
+     * @throws Exception
      * @throws ReflectionException
      */
     public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
@@ -135,14 +138,26 @@ class ExtensionInformationUtility
         if (null !== $className) {
             $docCommentParserService = self::get(DocCommentParserService::class);
             $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
+
+            if (isset($docComment[TcaMapping::class])) {
+                /** @var TcaMapping $tcaMapping */
+                $tcaMapping = $docComment[TcaMapping::class];
+
+                return $tcaMapping->getColumn();
+            }
         }
 
-        return $docComment[TcaMappingParser::ANNOTATION_TYPE]['column'] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
+        return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
     }
 
+    /**
+     * @param string $extensionKey
+     *
+     * @throws Exception
+     */
     public static function deregister(string $extensionKey): void
     {
-        $connection = self::get(ConnectionPool::class)
+        self::get(ConnectionPool::class)
             ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
             ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
     }
@@ -176,6 +191,7 @@ class ExtensionInformationUtility
      * @param string                        $path
      *
      * @return mixed
+     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -259,6 +275,7 @@ class ExtensionInformationUtility
      *                          \PSB\PsbFoundation\Data\AbstractExtensionInformation)
      * @param string $extensionKey
      *
+     * @throws Exception
      * @throws ImplementationException
      */
     public static function register(

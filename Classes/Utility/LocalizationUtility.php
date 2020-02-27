@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Utility;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -31,6 +31,7 @@ use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Extbase\Object\Exception;
 use function array_slice;
 
 /**
@@ -56,6 +57,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      *                                             setup will be used
      *
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
+     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @see \TYPO3\CMS\Extbase\Utility\LocalizationUtility
@@ -96,6 +98,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      *                                   be removed
      *
      * @return string
+     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -118,6 +121,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      * @param string|null $extension
      *
      * @return string
+     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -126,7 +130,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
         $translation = self::translate($key, $extension);
 
         // split string by linebreaks and remove surrounding whitespaces for each line
-        $lines = array_map('trim', explode("\n", $translation));
+        $lines = array_map('trim', explode(LF, $translation));
 
         // remove first and/or last element if they are empty
         if ('' === $lines[0]) {

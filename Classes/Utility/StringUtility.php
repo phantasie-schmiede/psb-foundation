@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Utility;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -105,10 +104,11 @@ class StringUtility
     /**
      * @param string|null $variable
      * @param bool        $convertEmptyStringToNull
+     * @param array       $namespaces
      *
      * @return mixed
      */
-    public static function convertString(?string $variable, $convertEmptyStringToNull = false)
+    public static function convertString(?string $variable, $convertEmptyStringToNull = false, array $namespaces = [])
     {
         if (null === $variable || ($convertEmptyStringToNull && '' === $variable)) {
             return null;
@@ -122,7 +122,18 @@ class StringUtility
             return (double)$variable;
         }
 
-        if ('' !== $variable && '\\' === $variable[0] && 0 < mb_strpos($variable, '::')) {
+        if ('' !== $variable && 0 < mb_strpos($variable, '::')) {
+            [$className, $constantName] = explode('::', $variable);
+            $className = ObjectUtility::getFullQualifiedClassName($className, $namespaces);
+
+            if (false !== $className) {
+                if ('class' === $constantName) {
+                    return $className;
+                }
+
+                $variable = $className . '::' . $constantName;
+            }
+
             if (0 < preg_match_all('/\[\'?(.*)\'?(\](?=[\[])|\]$)/U', $variable, $matches)) {
                 $matches = array_map(static function ($value) {
                     return self::convertString(trim($value, '\''));
@@ -141,7 +152,7 @@ class StringUtility
         }
 
         if ('' !== $variable && in_array($variable[0], ['{', '['], true)) {
-            $decodedString = json_decode(str_replace('\'', '"', $variable), true);
+            $decodedString = json_decode(str_replace('\'', '"', $variable), true, 512, JSON_THROW_ON_ERROR);
 
             if (null !== $decodedString) {
                 return $decodedString;

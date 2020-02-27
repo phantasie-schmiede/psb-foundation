@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Domain\Model;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,6 +26,7 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PSB\PsbFoundation\Service\DocComment\Annotations\TcaFieldConfig;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
@@ -40,9 +40,9 @@ abstract class AbstractModelWithName extends AbstractEntity
 {
     /**
      * @var string
-     * @PSB\PsbFoundation\Tca\FieldConfig type=string
+     * @TcaFieldConfig (type=string)
      */
-    protected $name;
+    protected string $name;
 
     /**
      * @return string

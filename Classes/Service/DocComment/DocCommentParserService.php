@@ -26,27 +26,20 @@ namespace PSB\PsbFoundation\Service\DocComment;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\DBAL\Connection;
-use Exception;
 use PSB\PsbFoundation\Data\ExtensionInformation;
-use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\ValueParserInterface;
+use PSB\PsbFoundation\Php\ExtendedReflectionClass;
+use PSB\PsbFoundation\Service\DocComment\Annotations\PreProcessorInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
-use PSB\PsbFoundation\Utility\ValidationUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use ReflectionClass;
 use ReflectionException;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 use function get_class;
 use function in_array;
 use function is_string;
@@ -54,30 +47,12 @@ use function is_string;
 /**
  * Class ParserService
  *
- * You can register your parser for custom comments in this way (e.g. in ext_localconf.php):
- *
- * $objectManager =
- * \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\ObjectManager::class);
- * $docCommentParser = $objectManager->get(\PSB\PsbFoundation\Service\DocComment\DocCommentParserService::class);
- * $yourOwnValueParser = $objectManager->get(\Your\Own\ValueParser::class);
- * $docCommentParser->addValueParser($yourOwnValueParser,
- * \PSB\PsbFoundation\Service\DocComment\DocCommentParserService::VALUE_TYPES['...']);
- *
- * Keep in mind that your ValueParser has to implement
- * \PSB\PsbFoundation\Service\DocComment\ValueParsers\ValueParserInterface and the constant ANNOTATION_TYPE!
- *
  * @package PSB\PsbFoundation\Service\DocCommentParserService
  */
-class DocCommentParserService implements LoggerAwareInterface, SingletonInterface
+class DocCommentParserService implements LoggerAwareInterface
 {
     use InjectionTrait;
     use LoggerAwareTrait;
-
-    public const VALUE_TYPES = [
-        'ADD'    => 'add',
-        'MERGE'  => 'merge',
-        'SINGLE' => 'single',
-    ];
 
     private const ANNOTATION_TYPES = [
         'DESCRIPTION' => 'description',
@@ -89,49 +64,32 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         'VAR'         => 'var',
     ];
 
-    private const VALUE_PARSER_TABLE = 'tx_psbfoundation_service_doccomment_valueparser';
-
     /**
      * @var array
      */
-    private $addValues = [
+    private const ADD_VALUES = [
         self::ANNOTATION_TYPES['PARAM'],
         self::ANNOTATION_TYPES['THROWS'],
     ];
 
     /**
-     * @var FrontendInterface
-     */
-    private $cache;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var array
      */
-    private $mergeValues = [];
-
-    /**
-     * @var array
-     */
-    private $singleValues = [
+    private const SINGLE_VALUES = [
         self::ANNOTATION_TYPES['PACKAGE'],
         self::ANNOTATION_TYPES['RETURN'],
         self::ANNOTATION_TYPES['VAR'],
     ];
 
     /**
+     * @var FrontendInterface
+     */
+    private FrontendInterface $cache;
+
+    /**
      * @var array
      */
-    private $valueParsers = [];
-
-    public function __construct()
-    {
-        $this->loadValueParsers();
-    }
+    private array $namespaces;
 
     /**
      * @return string
@@ -144,41 +102,12 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     }
 
     /**
-     * @param string $annotationType
-     * @param string $className      Full qualified class name of your custom parser class
-     * @param string $valueType      Use constant VALUE_TYPES of this class: ADD simply adds a new item to the result
-     *                               array; MERGE merges the item with the result array; SINGLE allows only one
-     *                               occurrence of this type per block
-     *
-     * @throws Exception
-     */
-    public function addValueParser(
-        string $annotationType,
-        string $className,
-        string $valueType
-    ): void {
-        $this->validateAnnotationType($annotationType);
-        $this->validateParserClass($className);
-        ValidationUtility::checkValueAgainstConstant(self::VALUE_TYPES, $valueType);
-
-        $this->get(ConnectionPool::class)
-            ->getConnectionForTable(self::VALUE_PARSER_TABLE)
-            ->insert(self::VALUE_PARSER_TABLE,
-                [
-                    'annotation_type' => $annotationType,
-                    'class_name'      => $className,
-                    'value_type'      => $valueType,
-                ]
-            );
-    }
-
-    /**
-     * @param object|string $className
-     * @param string|null   $methodOrPropertyName
+     * @param             $className
+     * @param string|null $methodOrPropertyName
      *
      * @return array
+     * @throws Exception
      * @throws ReflectionException
-     * @throws NoSuchCacheException
      */
     public function parsePhpDocComment($className, string $methodOrPropertyName = null): array
     {
@@ -189,14 +118,15 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         $entryIdentifier = StringUtility::createHash($className . $methodOrPropertyName);
         $cachedDocComment = $this->readFromCache($entryIdentifier);
 
-        if (false !== $cachedDocComment) {
-            return $cachedDocComment;
-        }
+//        if (false !== $cachedDocComment) {
+//            return $cachedDocComment;
+//        }
 
         $parsedDocComment = [];
 
-        /** @var ReflectionClass $reflection */
-        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
+        $reflection = GeneralUtility::makeInstance(ExtendedReflectionClass::class, $className);
+        $this->namespaces = $reflection->getImportedNamespaces();
+        $this->namespaces[ObjectUtility::NAMESPACE_FALLBACK_KEY] = $reflection->getNamespaceName();
 
         if (null !== $methodOrPropertyName) {
             if ($reflection->hasMethod($methodOrPropertyName)) {
@@ -216,24 +146,24 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
             foreach ($commentLines as $commentLine) {
                 $commentLine = ltrim(trim($commentLine), '/* ');
 
-                if (0 === mb_strpos($commentLine, '@')) {
-                    $parts = GeneralUtility::trimExplode(' ', mb_substr($commentLine, 1), true, 2);
-                    [$annotationType, $parameters] = $parts;
+                if (StringUtility::startsWith($commentLine, '@')) {
+                    [$annotationType, $parameters] = GeneralUtility::trimExplode(' ', mb_substr($commentLine, 1), true,
+                        2);
                     $value = $this->processValue($annotationType, $className, $parameters);
+
+                    if (is_object($value)) {
+                        $annotationType = get_class(($value));
+                    }
 
                     if (!isset($parsedDocComment[$annotationType])) {
                         $parsedDocComment[$annotationType] = [];
                     }
 
                     switch (true) {
-                        case (in_array($annotationType, $this->addValues, true)):
+                        case (in_array($annotationType, self::ADD_VALUES, true)):
                             $parsedDocComment[$annotationType][] = $value;
                             break;
-                        case (in_array($annotationType, $this->mergeValues, true)):
-                            Typo3CoreArrayUtility::mergeRecursiveWithOverrule($parsedDocComment[$annotationType],
-                                $value);
-                            break;
-                        case (in_array($annotationType, $this->singleValues, true)):
+                        case (in_array($annotationType, self::SINGLE_VALUES, true)):
                             if ([] !== $parsedDocComment[$annotationType]) {
                                 $warning = '@' . $annotationType . ' has been overridden in ' . $className;
 
@@ -247,7 +177,7 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
                             $parsedDocComment[$annotationType] = $value;
                             break;
                         default:
-                            // this case is not possible
+                            $parsedDocComment[$annotationType] = $value;
                     }
                 } else {
                     // extract summary and description if given
@@ -257,9 +187,11 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
 
                             if (is_array($parsedDocComment[$annotationType]) && !ArrayUtility::isAssociativeArray($parsedDocComment[$annotationType])) {
                                 $indexOfLastElement = count($parsedDocComment[$annotationType]) - 1;
-                                $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($annotationType, $className, $parameters);
+                                $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($annotationType,
+                                    $className, $parameters);
                             } else {
-                                $parsedDocComment[$annotationType] = $this->processValue($annotationType, $className, $parameters);
+                                $parsedDocComment[$annotationType] = $this->processValue($annotationType, $className,
+                                    $parameters);
                             }
                         } else {
                             $parameters = $commentLine;
@@ -284,16 +216,22 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     }
 
     /**
-     * @param array $classNames
+     * @param string $value
+     *
+     * @return array
      */
-    public function removeValueParsers(array $classNames): void
+    private function convertValueStringToPropertiesArray(string $value): array
     {
-        $connection = $this->get(ConnectionPool::class)
-            ->getConnectionForTable(self::VALUE_PARSER_TABLE);
+        $properties = [];
+        $value = trim($value, '()');
+        $valueParts = GeneralUtility::trimExplode(';', $value);
 
-        foreach ($classNames as $className) {
-            $connection->delete(self::VALUE_PARSER_TABLE, ['class_name' => $className]);
+        foreach ($valueParts as $property) {
+            [$propertyName, $propertyValue] = GeneralUtility::trimExplode('=', $property);
+            $properties[$propertyName] = $propertyValue;
         }
+
+        return $properties;
     }
 
     /**
@@ -305,73 +243,61 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
         return Environment::getVarPath() . '/cache/data/' . self::getCacheIdentifier() . '/';
     }
 
-    private function loadValueParsers()
-    {
-        $statement = $this->get(ConnectionPool::class)
-            ->getConnectionForTable(self::VALUE_PARSER_TABLE)
-            ->select(['*'], self::VALUE_PARSER_TABLE);
-
-        while ($valueParser = $statement->fetch()) {
-            $this->validateParserClass($valueParser['class_name']);
-            ValidationUtility::checkValueAgainstConstant(self::VALUE_TYPES, $valueParser['value_type']);
-            $this->valueParsers[$valueParser['annotation_type']] = $this->get($valueParser['class_name']);
-            AnnotationReader::addGlobalIgnoredName($valueParser['annotation_type']);
-
-            switch ($valueParser['value_type']) {
-                case self::VALUE_TYPES['ADD']:
-                    $this->addValues[] = $valueParser['annotation_type'];
-                    break;
-                case self::VALUE_TYPES['MERGE']:
-                    $this->mergeValues[] = $valueParser['annotation_type'];
-                    break;
-                case self::VALUE_TYPES['SINGLE']:
-                    $this->singleValues[] = $valueParser['annotation_type'];
-                    break;
-                default:
-                    // this case is not possible
-            }
-        }
-    }
-
     /**
      * @param string|null $annotationType
      * @param string      $className
-     * @param mixed       $value
+     * @param string      $value
      *
      * @return mixed
+     * @throws Exception
      */
-    private function processValue(?string $annotationType, string $className, $value)
+    private function processValue(?string $annotationType, string $className, string $value)
     {
-        if (isset($this->valueParsers[$annotationType])) {
-            return $this->valueParsers[$annotationType]->processValue($className, $value);
-        }
+        $value = str_replace('self::', $className . '::', $value);
 
-        if (null !== $value) {
-            switch ($annotationType) {
-                case self::ANNOTATION_TYPES['PARAM']:
-                    $parts = GeneralUtility::trimExplode(' ', $value, true, 3);
-                    [$variableType, $name, $description] = $parts;
+        switch ($annotationType) {
+            case self::ANNOTATION_TYPES['PARAM']:
+                $parts = GeneralUtility::trimExplode(' ', $value, true, 3);
+                [$variableType, $name, $description] = $parts;
 
-                    return [
-                        'description' => $description,
-                        'name'        => $name,
-                        'type'        => $variableType,
-                    ];
-                case self::ANNOTATION_TYPES['RETURN']:
-                case self::ANNOTATION_TYPES['THROWS']:
-                case self::ANNOTATION_TYPES['VAR']:
-                    $parts = GeneralUtility::trimExplode(' ', $value, true, 2);
-                    [$type, $description] = $parts;
+                return [
+                    'description' => $description,
+                    'name'        => $name,
+                    'type'        => StringUtility::convertString($variableType, true, $this->namespaces),
+                ];
+            case self::ANNOTATION_TYPES['RETURN']:
+            case self::ANNOTATION_TYPES['THROWS']:
+            case self::ANNOTATION_TYPES['VAR']:
+                $parts = GeneralUtility::trimExplode(' ', $value, true, 2);
+                [$type, $description] = $parts;
 
-                    return [
-                        'description' => $description,
-                        'type'        => $type,
-                    ];
-                default:
-                    return $value;
-            }
-        } else {
-            return [];
+                return [
+                    'description' => $description,
+                    'type'        => StringUtility::convertString($type, true, $this->namespaces),
+                ];
+            default:
+                // check if annotation is referencing a class
+                $annotationClass = ObjectUtility::getFullQualifiedClassName($annotationType, $this->namespaces);
+
+                if (false !== $annotationClass) {
+                    $properties = $this->convertValueStringToPropertiesArray($value);
+
+                    if (in_array(PreProcessorInterface::class, class_implements($annotationClass), true)) {
+                        /** @var PreProcessorInterface $annotationClass */
+                        $properties = $annotationClass::processProperties($properties);
+                    }
+
+                    $namespaces = $this->namespaces;
+                    $properties = array_map(static function ($propertyValue) use ($namespaces) {
+                        return StringUtility::convertString($propertyValue, true, $namespaces);
+                    }, $properties);
+
+                    $object = $this->get($annotationClass, $properties);
+
+                    return $this->get($annotationClass, $properties);
+                }
+
+                return StringUtility::convertString($value, true, $this->namespaces);
         }
     }
 
@@ -379,12 +305,11 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
      * @param string $entryIdentifier
      *
      * @return mixed
-     * @throws NoSuchCacheException
      */
     private function readFromCache(string $entryIdentifier)
     {
         // this service may be used before the caching framework is available
-        if ($this->cache instanceof FrontendInterface) {
+        if (isset($this->cache) && $this->cache instanceof FrontendInterface) {
             return $this->cache->get($entryIdentifier);
         }
 
@@ -406,42 +331,12 @@ class DocCommentParserService implements LoggerAwareInterface, SingletonInterfac
     }
 
     /**
-     * @param string $annotationType
-     */
-    private function validateAnnotationType(string $annotationType): void
-    {
-        $count = $this->get(ConnectionPool::class)
-            ->getConnectionForTable(self::VALUE_PARSER_TABLE)
-            ->count('uid', self::VALUE_PARSER_TABLE, ['annotation_type' => $annotationType]);
-
-        if (0 < $count) {
-            $this->logger->warning(__CLASS__ . ': "' . $annotationType . '" has already been registered as annotation type and is now overridden!');
-        }
-    }
-
-    /**
-     * @param string $className
-     */
-    private function validateParserClass(string $className): void
-    {
-        if (!class_exists($className)) {
-            throw GeneralUtility::makeInstance(ImplementationException::class,
-                __CLASS__ . ': ' . $className . ' doesn\'t exist!', 1570749841);
-        }
-
-        if (!in_array(ValueParserInterface::class, class_implements($className), true)) {
-            throw GeneralUtility::makeInstance(ImplementationException::class,
-                __CLASS__ . ': ' . $className . ' has to implement ValueParserInterface!', 1541107562);
-        }
-    }
-
-    /**
      * @param string $entryIdentifier
      * @param array  $parsedDocComment
      */
-    private function writeToCache(string $entryIdentifier, array $parsedDocComment)
+    private function writeToCache(string $entryIdentifier, array $parsedDocComment): void
     {
-        if ($this->cache instanceof FrontendInterface) {
+        if (isset($this->cache) && $this->cache instanceof FrontendInterface) {
             $this->cache->set($entryIdentifier, $parsedDocComment);
         } else {
             $cacheDirectory = $this->getCacheDirectory();

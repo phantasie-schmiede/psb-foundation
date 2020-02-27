@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
+namespace PSB\PsbFoundation\Service\DocComment\Annotations;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,23 +27,15 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  ***************************************************************/
 
 /**
- * Class PluginParser
- *
- * Use this annotation for methods in a plugin controller. It has to be followed by at least one keyword as defined in
- * FLAGS.
- *
- * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
+ * Interface PreProcessorInterface
+ * @package PSB\PsbFoundation\Service\DocComment\Annotations
  */
-class PluginActionParser extends AbstractFlagsParser
+interface PreProcessorInterface
 {
-    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Plugin\Action';
-
-    public const FLAGS = [
-        // the default action of the controller (executed, when no specific action is given in a request)
-        'DEFAULT'  => 'default',
-        // don't add this action to the list of allowed actions for the plugin
-        'IGNORE'   => 'ignore',
-        // add this action to the list of uncached actions
-        'UNCACHED' => 'uncached',
-    ];
+    /**
+     * @param array $value
+     *
+     * @return array
+     */
+    public static function processProperties(array $value): array;
 }

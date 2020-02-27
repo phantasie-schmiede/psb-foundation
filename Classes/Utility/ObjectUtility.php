@@ -36,6 +36,8 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  */
 class ObjectUtility
 {
+    public const NAMESPACE_FALLBACK_KEY = '__fallback';
+
     /**
      * @param string $className
      * @param array  $arguments
@@ -50,5 +52,32 @@ class ObjectUtility
         }
 
         return GeneralUtility::makeInstance($className, ...$arguments);
+    }
+
+    /**
+     * @param string $className
+     * @param array  $namespaces
+     *
+     * @return bool|string
+     */
+    public static function getFullQualifiedClassName(string $className, array $namespaces)
+    {
+        if (class_exists($className)) {
+            return $className;
+        }
+
+        if (isset($namespaces[$className])) {
+            return $namespaces[$className];
+        }
+
+        if (isset($namespaces[self::NAMESPACE_FALLBACK_KEY])) {
+            $fallbackClassName = $namespaces[self::NAMESPACE_FALLBACK_KEY] . '\\' . $className;
+
+            if (class_exists($fallbackClassName)) {
+                return $fallbackClassName;
+            }
+        }
+
+        return false;
     }
 }

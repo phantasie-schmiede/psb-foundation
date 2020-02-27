@@ -26,20 +26,12 @@ namespace PSB\PsbFoundation\Slots;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Exception;
 use PSB\PsbFoundation\Data\ExtensionInformation;
-use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\ModuleActionParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\ModuleConfigParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginConfigParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaConfigParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaFieldConfigParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaMappingParser;
+use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class Setup
@@ -50,6 +42,7 @@ class Setup
     /**
      * @param string $extensionKey
      *
+     * @throws ImplementationException
      * @throws Exception
      */
     public function onInstall(string $extensionKey): void
@@ -72,29 +65,12 @@ class Setup
         if ($extensionInformation->getExtensionKey() !== $extensionKey) {
             return;
         }
-
-        $docCommentParserService = GeneralUtility::makeInstance(ObjectManager::class)
-            ->get(DocCommentParserService::class);
-        $docCommentParserService->addValueParser(ModuleActionParser::ANNOTATION_TYPE, ModuleActionParser::class,
-            DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParserService->addValueParser(ModuleConfigParser::ANNOTATION_TYPE, ModuleConfigParser::class,
-            DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParserService->addValueParser(PluginActionParser::ANNOTATION_TYPE, PluginActionParser::class,
-            DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParserService->addValueParser(PluginConfigParser::ANNOTATION_TYPE, PluginConfigParser::class,
-            DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParserService->addValueParser(TcaConfigParser::ANNOTATION_TYPE, TcaConfigParser::class,
-            DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParserService->addValueParser(TcaFieldConfigParser::ANNOTATION_TYPE, TcaFieldConfigParser::class,
-            DocCommentParserService::VALUE_TYPES['MERGE']);
-        $docCommentParserService->addValueParser(TcaMappingParser::ANNOTATION_TYPE, TcaMappingParser::class,
-            DocCommentParserService::VALUE_TYPES['MERGE']);
     }
 
     /**
      * @param string $extensionKey
      *
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     * @throws Exception
      */
     public function onUninstall(string $extensionKey): void
     {
@@ -104,17 +80,5 @@ class Setup
         if ($extensionInformation->getExtensionKey() !== $extensionKey) {
             return;
         }
-
-        $docCommentParserService = GeneralUtility::makeInstance(ObjectManager::class)
-            ->get(DocCommentParserService::class);
-        $docCommentParserService->removeValueParsers([
-            ModuleActionParser::class,
-            ModuleConfigParser::class,
-            PluginActionParser::class,
-            PluginConfigParser::class,
-            TcaConfigParser::class,
-            TcaFieldConfigParser::class,
-            TcaMappingParser::class,
-        ]);
     }
 }

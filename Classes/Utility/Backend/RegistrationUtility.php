@@ -30,10 +30,10 @@ namespace PSB\PsbFoundation\Utility\Backend;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleConfig;
+use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
+use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\ModuleConfigParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginConfigParser;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -47,6 +47,7 @@ use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 /**
@@ -85,6 +86,8 @@ class RegistrationUtility
      * @param string $group
      * @param string $pluginName
      * @param string $iconIdentifier
+     *
+     * @throws Exception
      */
     public static function addPluginToElementWizard(
         string $extensionKey,
@@ -162,6 +165,7 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
+     * @throws Exception
      * @throws NoSuchCacheException
      * @throws ReflectionException
      */
@@ -184,10 +188,17 @@ class RegistrationUtility
                         $controllersAndUncachedActions
                     );
 
+                    if (isset($pluginConfiguration[PluginConfig::class])) {
+                        /** @var PluginConfig $pluginConfig */
+                        $pluginConfig = $pluginConfiguration[PluginConfig::class];
+                        $group = $pluginConfig->getGroup();
+                        $iconIdentifier = $pluginConfig->getIconIdentifier();
+                    }
+
                     self::addPluginToElementWizard($extensionInformation->getExtensionKey(),
-                        $pluginConfiguration[PluginConfigParser::ANNOTATION_TYPE]['group'] ?? mb_strtolower($extensionInformation->getVendorName()),
+                        $group ?? mb_strtolower($extensionInformation->getVendorName()),
                         $pluginName,
-                        $pluginConfiguration[PluginConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? null);
+                        $iconIdentifier ?? null);
                 }
             }
         }
@@ -330,7 +341,7 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @throws NoSuchCacheException
+     * @throws Exception
      * @throws ReflectionException
      */
     public static function registerModules(ExtensionInformationInterface $extensionInformation): void
@@ -344,21 +355,33 @@ class RegistrationUtility
                     ] = self::collectActionsAndConfiguration($controllerClassNames,
                         self::COLLECT_MODES['REGISTER_MODULES']);
 
-                    $iconIdentifier = $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['iconIdentifier'] ?? 'module-' . $submoduleKey;
+                    if (isset($moduleConfiguration[ModuleConfig::class])) {
+                        /** @var ModuleConfig $moduleConfig */
+                        $moduleConfig = $moduleConfiguration[ModuleConfig::class];
+                        $iconIdentifier = $moduleConfig->getIconIdentifier();
+                        $mainModuleName = $moduleConfig->getMainModuleName();
+                        $position = $moduleConfig->getPosition();
+                        $access = $moduleConfig->getAccess();
+                        $icon = $moduleConfig->getIcon();
+                        $labels = $moduleConfig->getLabels();
+                        $navigationComponentId = $moduleConfig->getNavigationComponentId();
+                    }
+
+                    $iconIdentifier = $iconIdentifier ?? 'module-' . $submoduleKey;
 
                     ExtensionUtility::registerModule(
                         $extensionInformation->getExtensionName(),
-                        $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['mainModuleName'] ?? 'web',
+                        $mainModuleName ?? 'web',
                         $submoduleKey,
-                        $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['position'] ?? '',
+                        $position ?? '',
                         $controllersAndActions,
                         [
-                            'access'                => $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['access'] ?? 'group, user',
-                            'icon'                  => $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['icon'] ?? null,
+                            'access'                => $access ?? 'group, user',
+                            'icon'                  => $icon ?? null,
                             'iconIdentifier'        => GeneralUtility::makeInstance(IconRegistry::class)
                                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-                            'labels'                => $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['labels'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf',
-                            'navigationComponentId' => $moduleConfiguration[ModuleConfigParser::ANNOTATION_TYPE]['navigationComponentId'] ?? null,
+                            'labels'                => $labels ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf',
+                            'navigationComponentId' => $navigationComponentId ?? null,
                         ]
                     );
                 }
@@ -371,7 +394,7 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @throws NoSuchCacheException
+     * @throws Exception
      * @throws ReflectionException
      */
     public static function registerPlugins(ExtensionInformationInterface $extensionInformation): void
@@ -381,10 +404,17 @@ class RegistrationUtility
                 if (is_iterable($controllerClassNames)) {
                     [$pluginConfiguration] = self::collectActionsAndConfiguration($controllerClassNames,
                         self::COLLECT_MODES['REGISTER_PLUGINS']);
+
+                    if (isset($pluginConfiguration[PluginConfig::class])) {
+                        /** @var PluginConfig $pluginConfig */
+                        $pluginConfig = $pluginConfiguration[PluginConfig::class];
+                        $title = $pluginConfig->getTitle();
+                    }
+
                     ExtensionUtility::registerPlugin(
                         $extensionInformation->getExtensionName(),
                         $pluginName,
-                        $pluginConfiguration[PluginConfigParser::ANNOTATION_TYPE]['title'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title'
+                        $title ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title'
                     );
                 }
             }
@@ -442,8 +472,8 @@ class RegistrationUtility
      * @param string $collectMode
      *
      * @return array
+     * @throws Exception
      * @throws ReflectionException
-     * @throws NoSuchCacheException
      */
     private static function collectActionsAndConfiguration(array $controllerClassNames, string $collectMode): array
     {
@@ -471,19 +501,24 @@ class RegistrationUtility
                     $docComment = $docCommentParserService->parsePhpDocComment($controllerClassName,
                         $methodName);
 
-                    if (!isset($docComment[PluginActionParser::ANNOTATION_TYPE][PluginActionParser::FLAGS['IGNORE']])) {
-                        $actionName = mb_substr($methodName, 0, -6);
+                    if (isset($docComment[PluginAction::class])) {
+                        /** @var PluginAction $pluginAction */
+                        $pluginAction = $docComment[PluginAction::class];
 
-                        if ($docComment[PluginActionParser::ANNOTATION_TYPE][PluginActionParser::FLAGS['DEFAULT']]) {
-                            array_unshift($controllersAndCachedActions[$controllerClassName],
-                                $actionName);
-                        } else {
-                            $controllersAndCachedActions[$controllerClassName][] = $actionName;
-                        }
+                        if (false === $pluginAction->isIgnore()) {
+                            $actionName = mb_substr($methodName, 0, -6);
 
-                        if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode
-                            && isset($docComment[PluginActionParser::ANNOTATION_TYPE][PluginActionParser::FLAGS['UNCACHED']])) {
-                            $controllersAndUncachedActions[$controllerClassName][] = $actionName;
+                            if (true === $pluginAction->isDefault()) {
+                                array_unshift($controllersAndCachedActions[$controllerClassName],
+                                    $actionName);
+                            } else {
+                                $controllersAndCachedActions[$controllerClassName][] = $actionName;
+                            }
+
+                            if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode
+                                && true === $pluginAction->isUncached()) {
+                                $controllersAndUncachedActions[$controllerClassName][] = $actionName;
+                            }
                         }
                     }
                 }

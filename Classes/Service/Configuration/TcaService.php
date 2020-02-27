@@ -29,9 +29,9 @@ namespace PSB\PsbFoundation\Service\Configuration;
 use Exception;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TcaConfig;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TcaFieldConfig;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaConfigParser;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaFieldConfigParser;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -41,6 +41,7 @@ use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use function count;
 
@@ -97,6 +98,7 @@ class TcaService
      */
     public function __construct(string $className)
     {
+        $this->className = $className;
         $this->table = ExtensionInformationUtility::convertClassNameToTableName($this->className);
         $this->setDefaultLabelPath('LLL:EXT:' . (ExtensionInformationUtility::convertClassNameToExtensionKey($className)) . '/Resources/Private/Language/Backend/Configuration/TCA/');
 
@@ -105,7 +107,6 @@ class TcaService
             $this->setDefaultLabelPath($this->getDefaultLabelPath() . 'Overrides/' . $this->table . '.xlf:');
             $this->configuration = $GLOBALS['TCA'][$this->table];
         } else {
-            $this->className = $className;
             $this->configuration = $this->getDummyConfiguration($this->table);
             $this->setDefaultLabelPath($this->getDefaultLabelPath() . $this->table . '.xlf:');
             $this->setCtrlProperties([
@@ -240,6 +241,7 @@ class TcaService
     /**
      * @return $this
      * @throws NoSuchCacheException
+     * @throws ObjectException
      * @throws ReflectionException
      */
     public function buildFromDocComment(): self
@@ -248,15 +250,15 @@ class TcaService
         $docComment = $docCommentParserService->parsePhpDocComment($this->className);
         $editableInFrontend = false;
 
-        if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE])) {
-            if (isset($docComment[TcaConfigParser::ANNOTATION_TYPE][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']])
-                && true === $docComment[TcaConfigParser::ANNOTATION_TYPE][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']]
-            ) {
+        if (isset($docComment[TcaConfig::class])) {
+            /** @var TcaConfig $tcaConfig */
+            $tcaConfig = $docComment[TcaConfig::class];
+
+            if (true === $tcaConfig->isEditableInFrontend()) {
                 $editableInFrontend = true;
-                unset ($docComment[TcaConfigParser::ANNOTATION_TYPE][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']]);
             }
 
-            $this->setCtrlProperties($docComment[TcaConfigParser::ANNOTATION_TYPE]);
+            $this->setCtrlProperties($tcaConfig->toArray());
         }
 
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $this->className);
@@ -265,25 +267,26 @@ class TcaService
         foreach ($properties as $property) {
             $docComment = $docCommentParserService->parsePhpDocComment($this->className, $property->getName());
 
-            if (isset($docComment[TcaFieldConfigParser::ANNOTATION_TYPE])) {
-                $fieldConfig = $docComment[TcaFieldConfigParser::ANNOTATION_TYPE];
-                $type = $fieldConfig['type'];
-                unset($fieldConfig['type']);
-                $config = $docComment[TcaConfigParser::ANNOTATION_TYPE] ?? [];
+            if (isset($docComment[TcaFieldConfig::class])) {
+                /** @var TcaFieldConfig $tcaFieldConfig */
+                $tcaFieldConfig = $docComment[TcaFieldConfig::class];
+                $tcaConfig = $docComment[TcaConfig::class] ?? $this->get(TcaConfig::class, []);
 
                 if (true === $editableInFrontend) {
-                    $config[TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']] = true;
+                    $tcaConfig->setEditableInFrontend(true);
                 }
 
                 $columnName = ExtensionInformationUtility::convertPropertyNameToColumnName($property->getName(),
                     $this->className);
 
                 if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
-                    $this->configuration['columns'][$columnName] = $this->buildColumnConfiguration($columnName, $type,
-                        $fieldConfig, $config);
+                    $this->configuration['columns'][$columnName] = $this->buildColumnConfiguration($columnName,
+                        $tcaFieldConfig->getType(),
+                        $tcaFieldConfig->toArray(), $tcaConfig->toArray());
                     $this->addFieldToType($columnName);
                 } elseif (true === $editableInFrontend) {
-                    $GLOBALS['TCA'][$this->table]['columns'][$columnName][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']] = true;
+                    // @TODO: use a constant for 'editableInFrontend'?
+                    $GLOBALS['TCA'][$this->table]['columns'][$columnName]['editableInFrontend'] = true;
                 }
             }
         }

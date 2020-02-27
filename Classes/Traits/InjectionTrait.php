@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Traits;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -28,6 +27,7 @@ namespace PSB\PsbFoundation\Traits;
  ***************************************************************/
 
 use PSB\PsbFoundation\Utility\ObjectUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Trait InjectionTrait
@@ -37,9 +37,10 @@ trait InjectionTrait
 {
     /**
      * @param string $className
-     * @param array  $arguments
+     * @param mixed  ...$arguments
      *
      * @return object
+     * @throws Exception
      */
     protected function get(string $className, ...$arguments)
     {

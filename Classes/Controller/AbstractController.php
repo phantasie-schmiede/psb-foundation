@@ -27,6 +27,7 @@ namespace PSB\PsbFoundation\Controller;
  ***************************************************************/
 
 use PSB\PsbFoundation\Domain\Repository\AbstractRepository;
+use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -35,8 +36,8 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\InvalidArgumentNameException;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
-use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
+use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Property\Exception;
@@ -59,32 +60,35 @@ abstract class AbstractController extends ActionController
     /**
      * @var string
      */
-    protected $domainModel;
+    protected string $domainModel;
 
     /**
      * @var AbstractRepository
      */
-    protected $repository;
+    protected AbstractRepository $repository;
 
     /**
      * The constructor determines the related model and repository classes of the instantiated controller following
      * Extbase conventions.
+     *
+     * @throws ObjectException
      */
     public function __construct()
     {
         [$vendorName, $extensionName] = GeneralUtility::trimExplode('\\', get_class($this));
         $domainModelName = ExtensionInformationUtility::convertControllerClassToBaseName(get_class($this));
         $this->setDomainModel(implode('\\', [$vendorName, $extensionName, 'Domain\Model', $domainModelName]));
+
+        /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
         $this->repository = $this->get(implode('\\',
             [$vendorName, $extensionName, 'Domain\Repository', $domainModelName . 'Repository']));
     }
 
     /**
      * @param AbstractEntity $record
-     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[UNCACHED]
+     * @PluginAction (uncached=true)
      *
      * @throws StopActionException
-     * @throws UnsupportedRequestTypeException
      * @throws IllegalObjectTypeException
      */
     public function createAction(AbstractEntity $record): void
@@ -95,10 +99,9 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
-     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[UNCACHED]
+     * @PluginAction (uncached=true)
      *
      * @throws StopActionException
-     * @throws UnsupportedRequestTypeException
      * @throws IllegalObjectTypeException
      */
     public function deleteAction(AbstractEntity $record): void
@@ -109,7 +112,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
-     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[UNCACHED]
+     * @PluginAction (uncached=true)
      */
     public function editAction(AbstractEntity $record): void
     {
@@ -146,6 +149,7 @@ abstract class AbstractController extends ActionController
      * @throws Exception
      * @throws InvalidArgumentNameException
      * @throws NoSuchArgumentException
+     * @throws ObjectException
      */
     public function initializeAction(): void
     {
@@ -175,7 +179,7 @@ abstract class AbstractController extends ActionController
     }
 
     /**
-     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[DEFAULT]
+     * @PluginAction (default=true)
      */
     public function listAction(): void
     {
@@ -200,12 +204,12 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
-     * @PSB\PsbFoundation\Plugin\Action \PSB\PsbFoundation\Service\DocComment\ValueParsers\PluginActionParser::FLAGS[UNCACHED]
      *
-     * @throws StopActionException
-     * @throws UnsupportedRequestTypeException
      * @throws IllegalObjectTypeException
+     * @throws StopActionException
      * @throws UnknownObjectException
+     * @PluginAction (uncached=true)
+     *
      */
     public function updateAction(AbstractEntity $record): void
     {

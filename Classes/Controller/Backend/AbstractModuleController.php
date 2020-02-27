@@ -28,8 +28,8 @@ namespace PSB\PsbFoundation\Controller\Backend;
 
 use InvalidArgumentException;
 use PSB\PsbFoundation\Module\ButtonConfiguration;
+use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleAction;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\ModuleActionParser;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\LocalizationUtility;
@@ -40,13 +40,14 @@ use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
-use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException as ExtensionConfigurationExtensionNotConfiguredExceptionAlias;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
+use TYPO3\CMS\Extbase\Object\Exception;
 use function count;
 use function in_array;
 
@@ -89,7 +90,7 @@ abstract class AbstractModuleController extends ActionController
      *
      * @var array
      */
-    protected $headerConfiguration;
+    protected array $headerConfiguration;
 
     /**
      * @var BackendTemplateView
@@ -119,7 +120,7 @@ abstract class AbstractModuleController extends ActionController
      *
      * @param string $templateAction
      *
-     * @PSB\PsbFoundation\Module\Action doNotRender
+     * @ModuleAction (doNotRender=true)
      */
     public function addTemplateAction(string $templateAction): void
     {
@@ -138,6 +139,7 @@ abstract class AbstractModuleController extends ActionController
      * This getter includes a fallback for a default label if none is given.
      *
      * @return string|null
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public function getBookmarkLabel(): ?string
     {
@@ -154,6 +156,7 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @return array
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws NoSuchCacheException
      * @throws ReflectionException
      */
@@ -164,7 +167,7 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @return array
-     * @throws NoSuchCacheException
+     * @throws Exception
      * @throws ReflectionException
      */
     public function getTemplateActions(): array
@@ -248,7 +251,7 @@ abstract class AbstractModuleController extends ActionController
     /**
      * @param ViewInterface $view
      *
-     * @throws ExtensionConfigurationExtensionNotConfiguredExceptionAlias
+     * @throws Exception
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws NoSuchCacheException
      * @throws ReflectionException
@@ -283,7 +286,7 @@ abstract class AbstractModuleController extends ActionController
      * current action will be appended in brackets.
      *
      * @return string|null
-     * @throws ExtensionConfigurationExtensionNotConfiguredExceptionAlias
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
     private function buildBookmarkLabel(): ?string
@@ -308,9 +311,9 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @return array
-     * @throws ExtensionConfigurationExtensionNotConfiguredExceptionAlias
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws NoSuchCacheException
      * @throws ReflectionException
      */
     private function buildMenuItems(): array
@@ -333,11 +336,10 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * Fallback method if no templateActions were registered. All methods whose name ends with "Action" are registered
-     * automatically. This can be prevented with the following
-     * DocComment line: @PSB\PsbFoundation\Module\Action doNotRender (@see addTemplateAction)
+     * automatically. This can be prevented with the ModuleAction-annotation, see addTemplateAction.
      *
      * @return array
-     * @throws NoSuchCacheException
+     * @throws Exception
      * @throws ReflectionException
      */
     private function buildTemplateActions(): array
@@ -350,8 +352,15 @@ abstract class AbstractModuleController extends ActionController
 
             if (1 === $count) {
                 $docComment = $this->get(DocCommentParserService::class)->parsePhpDocComment($this, $actionName);
+                $doNotRender = false;
 
-                if (!$docComment[ModuleActionParser::ANNOTATION_TYPE][ModuleActionParser::FLAGS['DO_NOT_RENDER']]) {
+                if (isset($docComment[ModuleAction::class])) {
+                    /** @var ModuleAction $moduleAction */
+                    $moduleAction = $docComment[ModuleAction::class];
+                    $doNotRender = $moduleAction->isDoNotRender();
+                }
+
+                if (!$doNotRender) {
                     $this->addTemplateAction($action);
                 }
             }
@@ -361,7 +370,7 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @throws ExtensionConfigurationExtensionNotConfiguredExceptionAlias
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
     private function generateActionButtons(): void
@@ -400,6 +409,7 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws NoSuchCacheException
      * @throws ReflectionException
      */

@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
+namespace PSB\PsbFoundation\Service\DocComment\Annotations;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,20 +27,33 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  ***************************************************************/
 
 /**
- * Interface ValueParserInterface
+ * Class ModuleAction
  *
- * Your parser class also has to define a constant named ANNOTATION_TYPE!
- * (The first part after the @-symbol, e.g. return or var)
+ * Use this annotation for methods in a module controller.
  *
- * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
+ * @Annotation
+ * @package PSB\PsbFoundation\Service\DocComment\Annotations
  */
-interface ValueParserInterface
+class ModuleAction extends AbstractAnnotation
 {
     /**
-     * @param string $className
-     * @param string|null $value
-     *
-     * @return mixed
+     * @var bool
      */
-    public function processValue(string $className, ?string $value);
+    protected bool $doNotRender;
+
+    /**
+     * @return bool
+     */
+    public function isDoNotRender(): bool
+    {
+        return $this->doNotRender;
+    }
+
+    /**
+     * @param bool $doNotRender
+     */
+    public function setDoNotRender(bool $doNotRender): void
+    {
+        $this->doNotRender = $doNotRender;
+    }
 }

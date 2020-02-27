@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
+namespace PSB\PsbFoundation\Service\DocComment\Annotations;
 
 /***************************************************************
  *  Copyright notice
@@ -27,17 +27,55 @@ namespace PSB\PsbFoundation\Service\DocComment\ValueParsers;
  ***************************************************************/
 
 /**
- * Class TcaMappingParser
+ * Class TcaMapping
  *
  * Use this annotation at class level to assign your domain model to a table not matching the naming convention, or at
  * property level to assign a property to a database field that does not match the naming convention.
- * Possible attributes:
- * column
- * table
  *
- * @package PSB\PsbFoundation\Service\DocComment\ValueParsers
+ * @Annotation
+ * @package PSB\PsbFoundation\Service\DocComment\Annotations
  */
-class TcaMappingParser extends AbstractValuePairsParser
+class TcaMapping extends AbstractAnnotation
 {
-    public const ANNOTATION_TYPE = 'PSB\PsbFoundation\Tca\Mapping';
+    /**
+     * @var string
+     */
+    protected string $column;
+
+    /**
+     * @var string
+     */
+    protected string $table;
+
+    /**
+     * @return string|null
+     */
+    public function getColumn(): ?string
+    {
+        return $this->column;
+    }
+
+    /**
+     * @param string $column
+     */
+    public function setColumn(string $column): void
+    {
+        $this->column = $column;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTable(): ?string
+    {
+        return $this->table;
+    }
+
+    /**
+     * @param string $table
+     */
+    public function setTable(string $table): void
+    {
+        $this->table = $table;
+    }
 }
