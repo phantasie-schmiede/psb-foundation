@@ -26,7 +26,6 @@ namespace PSB\PsbFoundation\Controller;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Domain\Repository\AbstractRepository;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
@@ -40,6 +39,7 @@ use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Property\Exception;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationBuilder;
@@ -63,9 +63,9 @@ abstract class AbstractController extends ActionController
     protected string $domainModel;
 
     /**
-     * @var AbstractRepository
+     * @var Repository
      */
-    protected AbstractRepository $repository;
+    protected Repository $repository;
 
     /**
      * The constructor determines the related model and repository classes of the instantiated controller following

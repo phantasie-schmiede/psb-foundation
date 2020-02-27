@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Domain\Repository;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -31,14 +30,14 @@ use TYPO3\CMS\Extbase\Persistence\Generic\Query;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
 /**
- * Class FrontendUserRelatedRepository
+ * Class AbstractFrontendUserRelatedModelRepository
  *
  * This repository lets you find records that are connected to a certain frontend user. Goes hand in hand with a model
  * extending \PSB\PsbFoundation\Domain\Model\AbstractFrontendUserRelatedModel
  *
  * @package PSB\PsbFoundation\Domain\Repository
  */
-abstract class AbstractFrontendUserRelatedRepository extends AbstractRepository
+abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelWithDataManipulationProtectionRepository
 {
     /**
      * @param int $frontendUserId

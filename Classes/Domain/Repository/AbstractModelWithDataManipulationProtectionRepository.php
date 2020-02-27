@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Domain\Repository;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,12 +26,43 @@ namespace PSB\PsbFoundation\Domain\Repository;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PSB\PsbFoundation\Domain\Model\DataManipulationProtectionInterface;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
  * Class AbstractRepository
  * @package PSB\PsbFoundation\Domain\Repository
  */
-abstract class AbstractRepository extends Repository
+abstract class AbstractModelWithDataManipulationProtectionRepository extends Repository
 {
+    /**
+     * @param object $object
+     *
+     * @throws IllegalObjectTypeException
+     */
+    public function add($object): void
+    {
+        if ($object instanceof DataManipulationProtectionInterface) {
+            $object->calculateCheckSum(true);
+        }
+
+        parent::add($object);
+    }
+
+    /**
+     * @param object $object
+     *
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException
+     */
+    public function update($object): void
+    {
+        if ($object instanceof DataManipulationProtectionInterface) {
+            $object->calculateCheckSum(true);
+        }
+
+        parent::update($object);
+    }
 }

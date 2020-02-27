@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Domain\Model;
+namespace PSB\PsbFoundation\Utility;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,35 +26,17 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
-
 /**
- * Class AbstractFrontendUserRelatedModel
- *
- * By extending this class you can connect your model with a frontend user.
- *
- * @package PSB\PsbFoundation\Domain\Model
+ * Class SecurityUtility
+ * @package PSB\PsbFoundation\Utility
  */
-abstract class AbstractFrontendUserRelatedModel extends AbstractModelWithDataManipulationProtection
+class SecurityUtility
 {
     /**
-     * @var FrontendUser
+     * @return string
      */
-    protected FrontendUser $frontendUser;
-
-    /**
-     * @return FrontendUser
-     */
-    public function getFrontendUser(): FrontendUser
+    public static function getEncryptionKey(): string
     {
-        return $this->frontendUser;
-    }
-
-    /**
-     * @param FrontendUser $frontendUser
-     */
-    public function setFrontendUser(FrontendUser $frontendUser): void
-    {
-        $this->frontendUser = $frontendUser;
+        return $GLOBALS['SYS']['encryptionKey'];
     }
 }
