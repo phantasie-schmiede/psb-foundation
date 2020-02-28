@@ -76,7 +76,6 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
             'debug.logMissingTranslations')) {
             $connection = self::get(ConnectionPool::class)
                 ->getConnectionForTable(self::MISSING_TRANSLATIONS_TABLE);
-
             $connection->delete(self::MISSING_TRANSLATIONS_TABLE, [
                 'locallang_key' => $key,
             ]);

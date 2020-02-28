@@ -26,11 +26,15 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Error;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TcaFieldConfig;
 use PSB\PsbFoundation\Utility\SecurityUtility;
-use ReflectionObject;
+use ReflectionClass;
+use ReflectionMethod;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class AbstractModelWithDataManipulationProtection
@@ -40,11 +44,13 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractEntit
 {
     /**
      * @var string
+     * @TcaFieldConfig(type="string")
      */
     protected string $checksum;
 
     /**
      * AbstractModelWithDataManipulationProtection constructor.
+     * @throws InvalidArgumentForHashGenerationException
      */
     public function __construct()
     {
@@ -55,26 +61,76 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractEntit
     }
 
     /**
+     * @return string
+     */
+    public function getChecksum(): string
+    {
+        return $this->checksum;
+    }
+
+    /**
+     * @param string $checksum
+     */
+    public function setChecksum(string $checksum): void
+    {
+        $this->checksum = $checksum;
+    }
+
+    /**
      * @param bool $store
      *
      * @return string
+     * @throws InvalidArgumentForHashGenerationException
      */
     public function calculateChecksum(bool $store): string
     {
-        $reflectionObject = GeneralUtility::makeInstance(ReflectionObject::class, $this);
-        $properties = ReflectionObject::export($reflectionObject, true);
-        $checkSum = hash_hmac('sha256', $properties, SecurityUtility::getEncryptionKey());
+        $checkSum = SecurityUtility::generateHash(serialize($this->toArray()));
 
         if (true === $store) {
-            $this->checksum = $checkSum;
+            $this->setChecksum($checkSum);
         }
 
         return $checkSum;
     }
 
+    /**
+     * @TODO: move this into a trait as it is used elsewhere, too
+     * @return array
+     */
+    public function toArray(): array
+    {
+        $arrayRepresentation = [];
+        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, static::class);
+        $properties = $reflectionClass->getProperties();
+
+        foreach ($properties as $property) {
+            try {
+                $property->setAccessible(true);
+                $getterMethodName = 'get' . ucfirst($property->getName());
+
+                if ($reflectionClass->hasMethod($getterMethodName)) {
+                    $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $getterMethodName);
+                    $value = $reflectionMethod->invoke($this);
+
+                    if (!empty($value)) {
+                        $arrayRepresentation[$property->getName()] = $value;
+                    }
+                }
+            } catch (Error $error) {
+                // Property is not initialized yet.
+                continue;
+            }
+        }
+
+        return $arrayRepresentation;
+    }
+
+    /**
+     * @throws InvalidArgumentForHashGenerationException
+     */
     public function validateChecksum(): void
     {
-        if (hash_equals($this->checksum, $this->calculateChecksum(false))) {
+        if (hash_equals($this->getChecksum(), $this->calculateChecksum(false))) {
             throw new RuntimeException(__CLASS__ . ': Checksum validation failed! The data of the record with UID ' . $this->getUid() . ' has been manipulated!',
                 1582819384);
         }

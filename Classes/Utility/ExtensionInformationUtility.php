@@ -30,6 +30,7 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TcaMapping;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
@@ -44,6 +45,8 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class ExtensionInformationUtility
@@ -54,137 +57,6 @@ class ExtensionInformationUtility
     use StaticInjectionTrait;
 
     private const EXTENSION_INFORMATION_MAPPING_TABLE = 'tx_psbfoundation_extension_information_mapping';
-
-    /**
-     * @param string $className
-     *
-     * @return string
-     */
-    public static function convertClassNameToExtensionKey(string $className): string
-    {
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        if (isset($classNameParts[1])) {
-            return GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]);
-        }
-
-        throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-            1547120513);
-    }
-
-    /**
-     * @param string $className
-     *
-     * @return string
-     * @throws Exception
-     * @throws ReflectionException
-     */
-    public static function convertClassNameToTableName(string $className): string
-    {
-        $docCommentParserService = self::get(DocCommentParserService::class);
-        $docComment = $docCommentParserService->parsePhpDocComment($className);
-
-        if (isset($docComment[TcaMapping::class])) {
-            /** @var TcaMapping $tcaMapping */
-            $tcaMapping = $docComment[TcaMapping::class];
-
-            return $tcaMapping->getTable();
-        }
-
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        // overwrite vendor name with extension prefix
-        $classNameParts[0] = 'tx';
-
-        return strtolower(implode('_', $classNameParts));
-    }
-
-    /**
-     * @param string $className
-     *
-     * @return string The controller name (without the 'Controller'-part at the end) or respectively the name of the
-     *                related domain model
-     */
-    public static function convertControllerClassToBaseName(string $className): string
-    {
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        if (4 > count($classNameParts)) {
-            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-                1560233275);
-        }
-
-        $controllerNameParts = array_slice($classNameParts, 3);
-        $fullControllerName = implode('\\', $controllerNameParts);
-
-        if (!StringUtility::endsWith($fullControllerName, 'Controller')) {
-            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a controller class!',
-                1560233166);
-        }
-
-        return substr($fullControllerName, 0, -10);
-    }
-
-    /**
-     * @param string      $propertyName
-     * @param string|null $className
-     *
-     * @return string
-     * @throws Exception
-     * @throws ReflectionException
-     */
-    public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
-    {
-        if (null !== $className) {
-            $docCommentParserService = self::get(DocCommentParserService::class);
-            $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
-
-            if (isset($docComment[TcaMapping::class])) {
-                /** @var TcaMapping $tcaMapping */
-                $tcaMapping = $docComment[TcaMapping::class];
-
-                return $tcaMapping->getColumn();
-            }
-        }
-
-        return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
-    }
-
-    /**
-     * @param string $extensionKey
-     *
-     * @throws Exception
-     */
-    public static function deregister(string $extensionKey): void
-    {
-        self::get(ConnectionPool::class)
-            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
-            ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
-    }
-
-    /**
-     * @param string $fileName
-     *
-     * @return string|null
-     */
-    public static function extractVendorNameFromFile(string $fileName): ?string
-    {
-        $vendorName = null;
-
-        if (file_exists($fileName)) {
-            $file = fopen($fileName, 'rb');
-
-            while ($line = fgets($file)) {
-                if (StringUtility::startsWith($line, 'namespace ')) {
-                    $namespace = rtrim(GeneralUtility::trimExplode(' ', $line)[1], ';');
-                    $vendorName = explode('\\', $namespace)[0];
-                    break;
-                }
-            }
-        }
-
-        return $vendorName;
-    }
 
     /**
      * @param ExtensionInformationInterface $extensionInformation
@@ -267,6 +139,143 @@ class ExtensionInformationUtility
         }
 
         return Environment::getFrameworkBasePath() . $subDirectoryPath;
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return string
+     */
+    public static function convertClassNameToExtensionKey(string $className): string
+    {
+        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+
+        if (isset($classNameParts[1])) {
+            return GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]);
+        }
+
+        throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
+            1547120513);
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return string
+     * @throws AnnotationException
+     * @throws Exception
+     * @throws IllegalObjectTypeException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
+     */
+    public static function convertClassNameToTableName(string $className): string
+    {
+        $docCommentParserService = self::get(DocCommentParserService::class);
+        $docComment = $docCommentParserService->parsePhpDocComment($className);
+
+        if (isset($docComment[TcaMapping::class])) {
+            /** @var TcaMapping $tcaMapping */
+            $tcaMapping = $docComment[TcaMapping::class];
+
+            return $tcaMapping->getTable();
+        }
+
+        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+
+        // overwrite vendor name with extension prefix
+        $classNameParts[0] = 'tx';
+
+        return strtolower(implode('_', $classNameParts));
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return string The controller name (without the 'Controller'-part at the end) or respectively the name of the
+     *                related domain model
+     */
+    public static function convertControllerClassToBaseName(string $className): string
+    {
+        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+
+        if (4 > count($classNameParts)) {
+            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
+                1560233275);
+        }
+
+        $controllerNameParts = array_slice($classNameParts, 3);
+        $fullControllerName = implode('\\', $controllerNameParts);
+
+        if (!StringUtility::endsWith($fullControllerName, 'Controller')) {
+            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a controller class!',
+                1560233166);
+        }
+
+        return substr($fullControllerName, 0, -10);
+    }
+
+    /**
+     * @param string      $propertyName
+     * @param string|null $className
+     *
+     * @return string
+     * @throws AnnotationException
+     * @throws Exception
+     * @throws IllegalObjectTypeException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
+     */
+    public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
+    {
+        if (null !== $className) {
+            $docCommentParserService = self::get(DocCommentParserService::class);
+            $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
+
+            if (isset($docComment[TcaMapping::class])) {
+                /** @var TcaMapping $tcaMapping */
+                $tcaMapping = $docComment[TcaMapping::class];
+
+                return $tcaMapping->getColumn();
+            }
+        }
+
+        return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
+    }
+
+    /**
+     * @param string $extensionKey
+     *
+     * @throws Exception
+     */
+    public static function deregister(string $extensionKey): void
+    {
+        self::get(ConnectionPool::class)
+            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
+            ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
+    }
+
+    /**
+     * @param string $fileName
+     *
+     * @return string|null
+     */
+    public static function extractVendorNameFromFile(string $fileName): ?string
+    {
+        $vendorName = null;
+
+        if (file_exists($fileName)) {
+            $file = fopen($fileName, 'rb');
+
+            while ($line = fgets($file)) {
+                if (StringUtility::startsWith($line, 'namespace ')) {
+                    $namespace = rtrim(GeneralUtility::trimExplode(' ', $line)[1], ';');
+                    $vendorName = explode('\\', $namespace)[0];
+                    break;
+                }
+            }
+        }
+
+        return $vendorName;
     }
 
     /**

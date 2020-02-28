@@ -28,6 +28,7 @@ namespace PSB\PsbFoundation\Service\Configuration;
 
 use Exception;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TcaConfig;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TcaFieldConfig;
@@ -42,7 +43,9 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function count;
 
 /**
@@ -91,9 +94,14 @@ class TcaService
     private string $table;
 
     /**
-     * @param string $className Has to be a full qualified class name
+     * TcaService constructor.
      *
-     * @throws NoSuchCacheException
+     * @param string $className
+     *
+     * @throws AnnotationException
+     * @throws IllegalObjectTypeException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws ObjectException
      * @throws ReflectionException
      */
     public function __construct(string $className)
@@ -119,6 +127,113 @@ class TcaService
          * in order to exclude them when auto-creating the showItemList.
          */
         $this->setPreDefinedColumns(array_keys($this->configuration['columns']));
+    }
+
+    /**
+     * 'main' function
+     *
+     * Use the return of this function as return in your TCA-file
+     *
+     * @param bool $autoCreateShowItemList
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getConfiguration(bool $autoCreateShowItemList = true): array
+    {
+        if (true === $this->overrideMode) {
+            $columns = array_keys($this->configuration['columns']);
+
+            foreach ($columns as $column) {
+                // only add new columns
+                if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                    ExtensionManagementUtility::addToAllTCAtypes(
+                        $this->table,
+                        $column
+                    );
+                }
+            }
+        } else {
+            // configuration must have at least one type defined
+            if ($autoCreateShowItemList) {
+                if ('' === $this->configuration['types'][0]) {
+                    $columns = array_keys($this->configuration['columns']);
+
+                    foreach ($columns as $column) {
+                        if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                            $this->addFieldToType($column);
+                        }
+                    }
+                }
+
+                // add default access fields to all types
+                $types = array_keys($this->configuration['types']);
+
+                foreach ($types as $type) {
+                    $this->addFieldToType('--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
+                        $type);
+                }
+            }
+        }
+
+        $this->validateConfiguration();
+
+        return $this->configuration;
+    }
+
+    /**
+     * @param array $configuration
+     * @param bool  $merge
+     */
+    public function setConfiguration(array $configuration, bool $merge = false): void
+    {
+        if ($merge) {
+            ArrayUtility::mergeRecursiveWithOverrule($this->configuration, $configuration);
+        } else {
+            $this->configuration = $configuration;
+        }
+    }
+
+    /**
+     * @param string $property
+     *
+     * @return mixed
+     */
+    public function getCtrlProperty(string $property)
+    {
+        return $this->configuration['ctrl'][$property];
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultLabelPath(): string
+    {
+        return $this->defaultLabelPath;
+    }
+
+    /**
+     * @param string $defaultLabelPath
+     */
+    public function setDefaultLabelPath(string $defaultLabelPath): void
+    {
+        $this->defaultLabelPath = $defaultLabelPath;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPreDefinedColumns(): array
+    {
+        return $this->preDefinedColumns;
+    }
+
+    /**
+     * @param array $preDefinedColumns
+     */
+    public function setPreDefinedColumns(array $preDefinedColumns): void
+    {
+        $this->preDefinedColumns = $preDefinedColumns;
     }
 
     /**
@@ -335,113 +450,6 @@ class TcaService
     {
         $this->configuration['ctrl']['default_sortby'] = null;
         $this->configuration['ctrl']['sortby'] = $column;
-    }
-
-    /**
-     * 'main' function
-     *
-     * Use the return of this function as return in your TCA-file
-     *
-     * @param bool $autoCreateShowItemList
-     *
-     * @return array
-     * @throws Exception
-     */
-    public function getConfiguration(bool $autoCreateShowItemList = true): array
-    {
-        if (true === $this->overrideMode) {
-            $columns = array_keys($this->configuration['columns']);
-
-            foreach ($columns as $column) {
-                // only add new columns
-                if (!in_array($column, $this->getPreDefinedColumns(), true)) {
-                    ExtensionManagementUtility::addToAllTCAtypes(
-                        $this->table,
-                        $column
-                    );
-                }
-            }
-        } else {
-            // configuration must have at least one type defined
-            if ($autoCreateShowItemList) {
-                if ('' === $this->configuration['types'][0]) {
-                    $columns = array_keys($this->configuration['columns']);
-
-                    foreach ($columns as $column) {
-                        if (!in_array($column, $this->getPreDefinedColumns(), true)) {
-                            $this->addFieldToType($column);
-                        }
-                    }
-                }
-
-                // add default access fields to all types
-                $types = array_keys($this->configuration['types']);
-
-                foreach ($types as $type) {
-                    $this->addFieldToType('--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
-                        $type);
-                }
-            }
-        }
-
-        $this->validateConfiguration();
-
-        return $this->configuration;
-    }
-
-    /**
-     * @param array $configuration
-     * @param bool  $merge
-     */
-    public function setConfiguration(array $configuration, bool $merge = false): void
-    {
-        if ($merge) {
-            ArrayUtility::mergeRecursiveWithOverrule($this->configuration, $configuration);
-        } else {
-            $this->configuration = $configuration;
-        }
-    }
-
-    /**
-     * @param string $property
-     *
-     * @return mixed
-     */
-    public function getCtrlProperty(string $property)
-    {
-        return $this->configuration['ctrl'][$property];
-    }
-
-    /**
-     * @return string
-     */
-    public function getDefaultLabelPath(): string
-    {
-        return $this->defaultLabelPath;
-    }
-
-    /**
-     * @param string $defaultLabelPath
-     */
-    public function setDefaultLabelPath(string $defaultLabelPath): void
-    {
-        $this->defaultLabelPath = $defaultLabelPath;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPreDefinedColumns(): array
-    {
-        return $this->preDefinedColumns;
-    }
-
-    /**
-     * @param array $preDefinedColumns
-     */
-    public function setPreDefinedColumns(array $preDefinedColumns): void
-    {
-        $this->preDefinedColumns = $preDefinedColumns;
     }
 
     /**

@@ -172,16 +172,6 @@ class StringUtility
     }
 
     /**
-     * @param string $data
-     *
-     * @return string
-     */
-    public static function createHash(string $data): string
-    {
-        return hash('sha256', $data);
-    }
-
-    /**
      * @param string $string
      * @param int    $length
      * @param string $appendix
@@ -280,6 +270,16 @@ class StringUtility
         }
 
         return mb_strpos($string, $ending, -$offset) === mb_strlen($string) - $offset;
+    }
+
+    /**
+     * @param string $string
+     *
+     * @return array[]|false|string[]
+     */
+    public static function explodeByLineBreaks(string $string)
+    {
+        return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string);
     }
 
     /**

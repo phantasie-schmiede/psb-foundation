@@ -32,12 +32,14 @@ use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
+use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class TcaUtility
@@ -91,6 +93,12 @@ class TcaUtility
                 );
 
                 $fullQualifiedClassName = implode('\\', $classNameComponents);
+                $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $fullQualifiedClassName);
+
+                if ($reflectionClass->isAbstract() || $reflectionClass->isInterface()) {
+                    continue;
+                }
+
                 $tableName = ExtensionInformationUtility::convertClassNameToTableName($fullQualifiedClassName);
 
                 if (true === $overrideMode && StringUtility::startsWith($tableName,

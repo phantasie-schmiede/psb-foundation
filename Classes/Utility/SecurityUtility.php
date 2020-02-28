@@ -26,17 +26,43 @@ namespace PSB\PsbFoundation\Utility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
+
 /**
  * Class SecurityUtility
+ *
+ * The class \TYPO3\CMS\Extbase\Security\Cryptography\HashService offers almost the same functionality, but sticks to
+ * the rather vulnerable sha1 algorithm.
+ *
  * @package PSB\PsbFoundation\Utility
  */
 class SecurityUtility
 {
     /**
      * @return string
+     * @throws InvalidArgumentForHashGenerationException
      */
     public static function getEncryptionKey(): string
     {
-        return $GLOBALS['SYS']['encryptionKey'];
+        $encryptionKey = (string)$GLOBALS['TYPO3_CONF_VARS']['SYS']['encryptionKey'];
+
+        if (!$encryptionKey) {
+            throw new InvalidArgumentForHashGenerationException(__CLASS__ . ': There is no encryption key defined! Go to "Settings->Configure Installation-Wide Options" to set one.',
+                1582894686);
+        }
+
+        return $encryptionKey;
+    }
+
+    /**
+     * @param string $string
+     * @param string $algorithm
+     *
+     * @return string
+     * @throws InvalidArgumentForHashGenerationException
+     */
+    public static function generateHash(string $string, string $algorithm = 'sha256'): string
+    {
+        return hash_hmac($algorithm, $string, self::getEncryptionKey());
     }
 }

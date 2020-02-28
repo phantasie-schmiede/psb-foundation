@@ -30,6 +30,7 @@ namespace PSB\PsbFoundation\Utility\Backend;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleConfig;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
@@ -41,13 +42,14 @@ use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 /**
@@ -165,8 +167,10 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
+     * @throws AnnotationException
      * @throws Exception
-     * @throws NoSuchCacheException
+     * @throws IllegalObjectTypeException
+     * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
     public static function configurePlugins(ExtensionInformationInterface $extensionInformation): void
@@ -341,7 +345,10 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
+     * @throws AnnotationException
      * @throws Exception
+     * @throws IllegalObjectTypeException
+     * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
     public static function registerModules(ExtensionInformationInterface $extensionInformation): void
@@ -394,7 +401,10 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
+     * @throws AnnotationException
      * @throws Exception
+     * @throws IllegalObjectTypeException
+     * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
     public static function registerPlugins(ExtensionInformationInterface $extensionInformation): void
@@ -472,7 +482,10 @@ class RegistrationUtility
      * @param string $collectMode
      *
      * @return array
+     * @throws AnnotationException
      * @throws Exception
+     * @throws IllegalObjectTypeException
+     * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
     private static function collectActionsAndConfiguration(array $controllerClassNames, string $collectMode): array

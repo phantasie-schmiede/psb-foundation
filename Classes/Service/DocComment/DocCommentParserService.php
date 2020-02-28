@@ -26,20 +26,24 @@ namespace PSB\PsbFoundation\Service\DocComment;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Data\ExtensionInformation;
+use PSB\PsbFoundation\Cache\CacheEntry;
+use PSB\PsbFoundation\Cache\CacheEntryRepository;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Php\ExtendedReflectionClass;
+use PSB\PsbFoundation\Service\DocComment\Annotations\AbstractAnnotation;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PreProcessorInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\ObjectUtility;
+use PSB\PsbFoundation\Utility\SecurityUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ReflectionException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function get_class;
 use function in_array;
 use function is_string;
@@ -85,29 +89,20 @@ class DocCommentParserService implements LoggerAwareInterface
      * @var FrontendInterface
      */
     private FrontendInterface $cache;
-
     /**
      * @var array
      */
     private array $namespaces;
 
     /**
-     * @return string
-     */
-    public static function getCacheIdentifier(): string
-    {
-        $extensionInformation = GeneralUtility::makeInstance(ExtensionInformation::class);
-
-        return $extensionInformation->getExtensionKey() . '_docComments';
-    }
-
-    /**
      * @param             $className
      * @param string|null $methodOrPropertyName
      *
      * @return array
+     * @throws AnnotationException
      * @throws Exception
      * @throws ReflectionException
+     * @throws InvalidArgumentForHashGenerationException
      */
     public function parsePhpDocComment($className, string $methodOrPropertyName = null): array
     {
@@ -115,12 +110,12 @@ class DocCommentParserService implements LoggerAwareInterface
             $className = get_class($className);
         }
 
-        $entryIdentifier = StringUtility::createHash($className . $methodOrPropertyName);
-        $cachedDocComment = $this->readFromCache($entryIdentifier);
+        $identifier = SecurityUtility::generateHash($className . $methodOrPropertyName);
+        $cachedDocComment = $this->readFromCache($identifier);
 
-//        if (false !== $cachedDocComment) {
-//            return $cachedDocComment;
-//        }
+        if (false !== $cachedDocComment) {
+            return $cachedDocComment;
+        }
 
         $parsedDocComment = [];
 
@@ -139,7 +134,7 @@ class DocCommentParserService implements LoggerAwareInterface
         $docComment = $reflection->getDocComment();
 
         if ($docComment) {
-            $commentLines = preg_split('/(\r\n|\n|\r)/', $reflection->getDocComment());
+            $commentLines = StringUtility::explodeByLineBreaks($reflection->getDocComment());
             $parsedDocComment = [];
             $annotationType = self::ANNOTATION_TYPES['SUMMARY'];
 
@@ -147,6 +142,7 @@ class DocCommentParserService implements LoggerAwareInterface
                 $commentLine = ltrim(trim($commentLine), '/* ');
 
                 if (StringUtility::startsWith($commentLine, '@')) {
+                    $commentLine = preg_replace('/\(/', ' (', $commentLine, 1);
                     [$annotationType, $parameters] = GeneralUtility::trimExplode(' ', mb_substr($commentLine, 1), true,
                         2);
                     $value = $this->processValue($annotationType, $className, $parameters);
@@ -210,7 +206,7 @@ class DocCommentParserService implements LoggerAwareInterface
             }
         }
 
-        $this->writeToCache($entryIdentifier, $parsedDocComment);
+        $this->writeToCache($identifier, $parsedDocComment);
 
         return $parsedDocComment;
     }
@@ -224,23 +220,16 @@ class DocCommentParserService implements LoggerAwareInterface
     {
         $properties = [];
         $value = trim($value, '()');
-        $valueParts = GeneralUtility::trimExplode(';', $value);
+
+        // @see https://stackoverflow.com/questions/18893390/splitting-on-comma-outside-quotes
+        $valueParts = preg_split('/[,;](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/', $value);
 
         foreach ($valueParts as $property) {
-            [$propertyName, $propertyValue] = GeneralUtility::trimExplode('=', $property);
-            $properties[$propertyName] = $propertyValue;
+            [$propertyName, $propertyValue] = explode('=', $property, 2);
+            $properties[trim($propertyName)] = trim($propertyValue, '"');
         }
 
         return $properties;
-    }
-
-    /**
-     * @return string
-     * @see \TYPO3\CMS\Core\Cache\Backend\SimpleFileBackend::setCache()
-     */
-    private function getCacheDirectory(): string
-    {
-        return Environment::getVarPath() . '/cache/data/' . self::getCacheIdentifier() . '/';
     }
 
     /**
@@ -249,6 +238,7 @@ class DocCommentParserService implements LoggerAwareInterface
      * @param string      $value
      *
      * @return mixed
+     * @throws AnnotationException
      * @throws Exception
      */
     private function processValue(?string $annotationType, string $className, string $value)
@@ -257,6 +247,7 @@ class DocCommentParserService implements LoggerAwareInterface
 
         switch ($annotationType) {
             case self::ANNOTATION_TYPES['PARAM']:
+                // @TODO: take namespaces into account
                 $parts = GeneralUtility::trimExplode(' ', $value, true, 3);
                 [$variableType, $name, $description] = $parts;
 
@@ -268,6 +259,7 @@ class DocCommentParserService implements LoggerAwareInterface
             case self::ANNOTATION_TYPES['RETURN']:
             case self::ANNOTATION_TYPES['THROWS']:
             case self::ANNOTATION_TYPES['VAR']:
+                // @TODO: take namespaces into account
                 $parts = GeneralUtility::trimExplode(' ', $value, true, 2);
                 [$type, $description] = $parts;
 
@@ -280,6 +272,13 @@ class DocCommentParserService implements LoggerAwareInterface
                 $annotationClass = ObjectUtility::getFullQualifiedClassName($annotationType, $this->namespaces);
 
                 if (false !== $annotationClass) {
+                    $reflectionClass = GeneralUtility::makeInstance(\ReflectionClass::class, $annotationClass);
+
+                    if (!$reflectionClass->isSubclassOf(AbstractAnnotation::class)) {
+                        throw new AnnotationException(__CLASS__ . ': ' . $annotationClass . ' has to be a subclass of AbstractAnnotation!',
+                            1582885136);
+                    }
+
                     $properties = $this->convertValueStringToPropertiesArray($value);
 
                     if (in_array(PreProcessorInterface::class, class_implements($annotationClass), true)) {
@@ -292,8 +291,6 @@ class DocCommentParserService implements LoggerAwareInterface
                         return StringUtility::convertString($propertyValue, true, $namespaces);
                     }, $properties);
 
-                    $object = $this->get($annotationClass, $properties);
-
                     return $this->get($annotationClass, $properties);
                 }
 
@@ -302,50 +299,35 @@ class DocCommentParserService implements LoggerAwareInterface
     }
 
     /**
-     * @param string $entryIdentifier
+     * @param string $identifier
      *
-     * @return mixed
+     * @return bool|mixed
+     * @throws Exception
+     * @throws InvalidArgumentForHashGenerationException
      */
-    private function readFromCache(string $entryIdentifier)
+    private function readFromCache(string $identifier)
     {
-        // this service may be used before the caching framework is available
-        if (isset($this->cache) && $this->cache instanceof FrontendInterface) {
-            return $this->cache->get($entryIdentifier);
-        }
+        $cacheEntry = $this->get(CacheEntryRepository::class)->findByIdentifier($identifier);
 
-        //        $cacheManager = $this->get(CacheManager::class);
-        //
-        //        if ($cacheManager->hasCache(self::getCacheIdentifier())) {
-        //            $this->cache = $cacheManager->getCache(self::getCacheIdentifier());
-        //
-        //            return $this->cache->get($entryIdentifier);
-        //        }
-
-        $cacheDirectory = $this->getCacheDirectory();
-
-        if (is_readable($cacheDirectory . $entryIdentifier)) {
-            return unserialize(file_get_contents($cacheDirectory . $entryIdentifier), ['allowed_classes' => false]);
+        if ($cacheEntry instanceof CacheEntry) {
+            return unserialize($cacheEntry->getContent(), ['allowed_classes' => true]);
         }
 
         return false;
     }
 
     /**
-     * @param string $entryIdentifier
+     * @param string $identifier
      * @param array  $parsedDocComment
+     *
+     * @throws Exception
+     * @throws InvalidArgumentForHashGenerationException
      */
-    private function writeToCache(string $entryIdentifier, array $parsedDocComment): void
+    private function writeToCache(string $identifier, array $parsedDocComment): void
     {
-        if (isset($this->cache) && $this->cache instanceof FrontendInterface) {
-            $this->cache->set($entryIdentifier, $parsedDocComment);
-        } else {
-            $cacheDirectory = $this->getCacheDirectory();
-
-            if (!is_writable($cacheDirectory)) {
-                GeneralUtility::mkdir_deep($cacheDirectory);
-            }
-
-            file_put_contents($cacheDirectory . $entryIdentifier, serialize($parsedDocComment));
-        }
+        $cacheEntry = $this->get(CacheEntry::class);
+        $cacheEntry->setIdentifier($identifier);
+        $cacheEntry->setContent(serialize($parsedDocComment));
+        $this->get(CacheEntryRepository::class)->add($cacheEntry);
     }
 }

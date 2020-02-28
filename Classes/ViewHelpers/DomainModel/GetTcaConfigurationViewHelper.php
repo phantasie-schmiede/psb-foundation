@@ -26,12 +26,13 @@ namespace PSB\PsbFoundation\ViewHelpers\DomainModel;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaConfigParser;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use ReflectionClass;
 use ReflectionException;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
@@ -45,13 +46,15 @@ class GetTcaConfigurationViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerArgument('domainModel', 'string', 'full qualified class name', true, );
+        $this->registerArgument('domainModel', 'string', 'full qualified class name', true,);
         $this->registerArgument('properties', 'string', 'variable name for the result', false, 'properties');
     }
 
     /**
+     * @throws AnnotationException
+     * @throws Exception
+     * @throws IllegalObjectTypeException
      * @throws ReflectionException
-     * @throws NoSuchCacheException
      */
     public function render(): void
     {
@@ -65,7 +68,7 @@ class GetTcaConfigurationViewHelper extends AbstractViewHelper
             $propertyName = $property->getName();
             $columnName = ExtensionInformationUtility::convertPropertyNameToColumnName($propertyName);
 
-            if (true === $configuration[$columnName][TcaConfigParser::ATTRIBUTES['EDITABLE_IN_FRONTEND']]) {
+            if (true === $configuration[$columnName][TcaConfig::ATTRIBUTES['EDITABLE_IN_FRONTEND']]) {
                 $configuration[$columnName]['config']['type'] = ucfirst($configuration[$columnName]['config']['type']);
                 $result[$propertyName] = $configuration[$columnName]['config'];
             }

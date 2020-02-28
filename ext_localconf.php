@@ -25,14 +25,8 @@ defined('TYPO3_MODE') or die();
     $typoScriptParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
     \PSB\PsbFoundation\Service\Configuration\FlexFormService::addValueParser($typoScriptParser);
 
-    $docCommentCacheIdentifier = \PSB\PsbFoundation\Service\DocComment\DocCommentParserService::getCacheIdentifier();
-
-    if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier])) {
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier] = [];
-    }
-
-    if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier]['backend'])) {
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations'][$docCommentCacheIdentifier]['backend'] = \TYPO3\CMS\Core\Cache\Backend\SimpleFileBackend::class;
+    if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['psbfoundation'])) {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['psbfoundation'] = [];
     }
 
     // customize BE login style

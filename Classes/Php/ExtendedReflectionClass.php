@@ -36,8 +36,6 @@ use RuntimeException;
  */
 class ExtendedReflectionClass extends ReflectionClass
 {
-    public const LINE_BREAKS = [CRLF, LF, CR];
-
     /**
      * This function collects and returns all imported namespaces of the reflected class. No support for nested
      * use-statements yet!
@@ -48,7 +46,7 @@ class ExtendedReflectionClass extends ReflectionClass
     {
         $namespaces = [];
         $fileContents = file_get_contents($this->getFileName());
-        $lines = preg_split('/' . implode('|', self::LINE_BREAKS) . '/', $fileContents);
+        $lines = StringUtility::explodeByLineBreaks($fileContents);
         array_map('trim', $lines);
 
         foreach ($lines as $line) {
