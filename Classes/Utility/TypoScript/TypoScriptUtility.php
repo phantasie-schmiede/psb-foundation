@@ -38,6 +38,8 @@ use UnexpectedValueException;
  */
 class TypoScriptUtility
 {
+    public const AJAX_PAGE_TEMPLATE = 'lib.abstract_ajax_page';
+
     public const COMPONENTS = [
         'MODULE' => 'module',
         'PLUGIN' => 'plugin',
@@ -62,25 +64,35 @@ class TypoScriptUtility
     /**
      * @var string
      */
-    private static $lineBreakAfterCurlyBracketClose = '';
+    private static string $lineBreakAfterCurlyBracketClose = '';
 
     /**
      * @var string
      */
-    private static $lineBreakBeforeCurlyBracketOpen = '';
+    private static string $lineBreakBeforeCurlyBracketOpen = '';
 
     /**
      * @var string
      */
-    private static $objectPath = '';
+    private static string $objectPath = '';
+
+    /**
+     * @param string $key
+     *
+     * @return string
+     */
+    public static function getPreparedTypoScriptConstant(string $key): string
+    {
+        return '{$' . $key . '}';
+    }
 
     /**
      * For use in Classes/Slots/Setup.php files
      *
      * @param ExtensionInformationInterface $extensionInformation
      */
-    public static function addDefaultTypoScriptForPluginsAndModules(ExtensionInformationInterface $extensionInformation): void
-    {
+    public static function addDefaultTypoScriptForPluginsAndModules(ExtensionInformationInterface $extensionInformation
+    ): void {
         if (!empty($extensionInformation->getPlugins())) {
             $constantsArray = self::getDefaultConstants($extensionInformation, self::COMPONENTS['PLUGIN']);
             $constantsTypoScript = self::convertArrayToTypoScript($constantsArray);
@@ -156,56 +168,71 @@ class TypoScriptUtility
     }
 
     /**
-     * @param string $key
-     *
-     * @return string
-     */
-    public static function getPreparedTypoScriptConstant(string $key): string
-    {
-        return '{$' . $key . '}';
-    }
-
-    /**
      * @param PageObjectConfiguration $pageTypeConfiguration
-     *
-     * @return string
      */
-    public static function registerNewPageObject(PageObjectConfiguration $pageTypeConfiguration): string
+    public static function registerAjaxPageType(PageObjectConfiguration $pageTypeConfiguration): void
     {
+        if (true === $pageTypeConfiguration->isCacheable()) {
+            $internalContentType = 'USER';
+        } else {
+            $internalContentType = 'USER_INT';
+        }
+
+        if ('' !== $pageTypeConfiguration->getUserFunc()) {
+            $contentConfiguration = array_merge(
+                [
+                    'userFunc' => $pageTypeConfiguration->getUserFunc(),
+                ],
+                $pageTypeConfiguration->getUserFuncParameters()
+            );
+        } else {
+            $contentConfiguration = [
+                'action'                      => $pageTypeConfiguration->getAction(),
+                'controller'                  => $pageTypeConfiguration->getController(),
+                'extensionName'               => $pageTypeConfiguration->getExtensionName(),
+                'pluginName'                  => $pageTypeConfiguration->getPluginName(),
+                'switchableControllerActions' => [
+                    $pageTypeConfiguration->getController() => [
+                        1 => $pageTypeConfiguration->getAction(),
+                    ],
+                ],
+                'userFunc'                    => 'TYPO3\CMS\Extbase\Core\Bootstrap->run',
+                'vendorName'                  => $pageTypeConfiguration->getVendorName(),
+            ];
+
+            if ([] !== $pageTypeConfiguration->getSettings()) {
+                $contentConfiguration['settings'] = $pageTypeConfiguration->getSettings();
+            }
+        }
+
+        $contentConfiguration[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']] = $internalContentType;
+        $xhtmlCleaning = 'all';
+
+        if (PageObjectConfiguration::CONTENT_TYPES['JSON']) {
+            $xhtmlCleaning = 0;
+        }
+
         $typoScript = [
-            self::TYPO_SCRIPT_KEYS['CONDITION']               => 'globalVar = TSFE:type = ' . $pageTypeConfiguration->getTypeNum(),
+//            self::TYPO_SCRIPT_KEYS['CONDITION']               => 'globalVar = GP:type = ' . $pageTypeConfiguration->getTypeNum(),
             $pageTypeConfiguration->getTypoScriptObjectName() => [
                 self::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'PAGE',
+                10                                    => $contentConfiguration,
                 'config'                              => [
                     'additionalHeaders'    => [
                         10 => [
                             'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType(),
                         ],
                     ],
+                    'admPanel'             => 0,
                     'debug'                => 0,
                     'disableAllHeaderCode' => 1,
-                    'sys_language_mode'    => 'ignore',
+                    'xhtml_cleaning'       => $xhtmlCleaning,
                 ],
                 'typeNum'                             => $pageTypeConfiguration->getTypeNum(),
-                10                                    => [
-                    self::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'USER_INT',
-                    'action'                              => $pageTypeConfiguration->getAction(),
-                    'controller'                          => $pageTypeConfiguration->getController(),
-                    'extensionName'                       => $pageTypeConfiguration->getExtensionName(),
-                    'pluginName'                          => $pageTypeConfiguration->getPluginName(),
-                    'settings'                            => $pageTypeConfiguration->getSettings(),
-                    'switchableControllerActions'         => [
-                        $pageTypeConfiguration->getController() => [
-                            1 => $pageTypeConfiguration->getAction(),
-                        ],
-                    ],
-                    'userFunc'                            => 'TYPO3\CMS\Extbase\Core\Bootstrap->run',
-                    'vendorName'                          => $pageTypeConfiguration->getVendorName(),
-                ],
             ],
         ];
 
-        return self::convertArrayToTypoScript($typoScript);
+        ExtensionManagementUtility::addTypoScriptSetup(TypoScriptUtility::convertArrayToTypoScript($typoScript));
     }
 
     /**

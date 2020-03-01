@@ -490,8 +490,11 @@ class RegistrationUtility
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
-    private static function collectActionsAndConfiguration(array $controllerClassNames, string $collectMode, string $pluginName = ''): array
-    {
+    private static function collectActionsAndConfiguration(
+        array $controllerClassNames,
+        string $collectMode,
+        string $pluginName = ''
+    ): array {
         $configuration = [];
         $controllersAndCachedActions = [];
         $controllersAndUncachedActions = [];
@@ -549,12 +552,13 @@ class RegistrationUtility
                                 $pageObjectConfiguration->setExtensionName($extensionInformation['extensionName']);
                                 $pageObjectConfiguration->setPluginName($pluginName);
                                 $pageObjectConfiguration->setTypeNum($ajaxPageType->getTypeNum());
-                                $typoScriptObjectName = 'ajax.' . strtolower(implode('.', [
-                                        $extensionInformation['vendorName'],
-                                        $extensionInformation['extensionName'],
-                                        $controllerName,
-                                        $actionName
-                                    ]));
+                                $typoScriptObjectName = strtolower(implode('_', [
+                                    'ajax',
+                                    $extensionInformation['vendorName'],
+                                    $extensionInformation['extensionName'],
+                                    $controllerName,
+                                    $actionName,
+                                ]));
                                 $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);
                                 $pageObjectConfiguration->setVendorName($extensionInformation['vendorName']);
                                 TypoScriptUtility::registerAjaxPageType($pageObjectConfiguration);

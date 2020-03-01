@@ -145,26 +145,8 @@ class ExtensionInformationUtility
      * @param string $className
      *
      * @return string
-     */
-    public static function convertClassNameToExtensionKey(string $className): string
-    {
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        if (isset($classNameParts[1])) {
-            return GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]);
-        }
-
-        throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-            1547120513);
-    }
-
-    /**
-     * @param string $className
-     *
-     * @return string
      * @throws AnnotationException
      * @throws Exception
-     * @throws IllegalObjectTypeException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
@@ -221,7 +203,6 @@ class ExtensionInformationUtility
      * @return string
      * @throws AnnotationException
      * @throws Exception
-     * @throws IllegalObjectTypeException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
@@ -252,6 +233,27 @@ class ExtensionInformationUtility
         self::get(ConnectionPool::class)
             ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
             ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return array
+     */
+    public static function extractExtensionInformationFromClassName(string $className): array
+    {
+        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+
+        if (2 > count($classNameParts)) {
+            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
+                1547120513);
+        }
+
+        return [
+            'extensionKey'  => GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]),
+            'extensionName' => $classNameParts[1],
+            'vendorName'    => $classNameParts[0],
+        ];
     }
 
     /**

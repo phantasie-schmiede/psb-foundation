@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Utility\TypoScript;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,6 +26,8 @@ namespace PSB\PsbFoundation\Utility\TypoScript;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PSB\PsbFoundation\Utility\ValidationUtility;
+
 /**
  * Class PageObjectConfiguration
  * @package PSB\PsbFoundation\Utility\TypoScript
@@ -34,58 +36,74 @@ class PageObjectConfiguration
 {
     public const CONTENT_TYPES = [
         'HTML' => 'text/html',
+        'JSON' => 'application/json',
         'XML'  => 'text/xml',
     ];
 
     /**
      * @var string
      */
-    protected $action;
+    protected string $action;
+
+    /**
+     * @var bool
+     */
+    protected bool $cacheable;
 
     /**
      * @var string
      */
-    protected $contentType = self::CONTENT_TYPES['HTML'];
+    protected string $contentType = self::CONTENT_TYPES['HTML'];
 
     /**
      * @var string
      */
-    protected $controller;
+    protected string $controller;
 
     /**
      * @var string
      */
-    protected $extensionName;
+    protected string $extensionName;
 
     /**
      * @var string
      */
-    protected $pluginName;
+    protected string $pluginName;
 
     /**
      * @var array
      */
-    protected $settings = [];
+    protected array $settings = [];
 
     /**
      * @var int
      */
-    protected $typeNum;
+    protected int $typeNum;
 
     /**
      * @var string
      */
-    protected $typoScriptObjectName;
+    protected string $typoScriptObjectName = '';
 
     /**
      * @var string
      */
-    protected $vendorName;
+    protected string $userFunc = '';
 
     /**
-     * @return string
+     * @var array
      */
-    public function getAction(): string
+    protected array $userFuncParameters;
+
+    /**
+     * @var string
+     */
+    protected string $vendorName;
+
+    /**
+     * @return string|null
+     */
+    public function getAction(): ?string
     {
         return $this->action;
     }
@@ -117,15 +135,16 @@ class PageObjectConfiguration
      */
     public function setContentType(string $contentType): self
     {
+        ValidationUtility::checkValueAgainstConstant(self::CONTENT_TYPES, $contentType);
         $this->contentType = $contentType;
 
         return $this;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getController(): string
+    public function getController(): ?string
     {
         return $this->controller;
     }
@@ -143,9 +162,9 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getExtensionName(): string
+    public function getExtensionName(): ?string
     {
         return $this->extensionName;
     }
@@ -163,9 +182,9 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPluginName(): string
+    public function getPluginName(): ?string
     {
         return $this->pluginName;
     }
@@ -203,19 +222,19 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return int|string
+     * @return int
      */
-    public function getTypeNum()
+    public function getTypeNum(): int
     {
         return $this->typeNum;
     }
 
     /**
-     * @param int|string $typeNum
+     * @param int $typeNum
      *
      * @return $this
      */
-    public function setTypeNum($typeNum): self
+    public function setTypeNum(int $typeNum): self
     {
         $this->typeNum = $typeNum;
 
@@ -243,9 +262,41 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getVendorName(): string
+    public function getUserFunc(): ?string
+    {
+        return $this->userFunc;
+    }
+
+    /**
+     * @param string $userFunc
+     */
+    public function setUserFunc(string $userFunc): void
+    {
+        $this->userFunc = $userFunc;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUserFuncParameters(): array
+    {
+        return $this->userFuncParameters ?? [];
+    }
+
+    /**
+     * @param array $userFuncParameters
+     */
+    public function setUserFuncParameters(array $userFuncParameters): void
+    {
+        $this->userFuncParameters = $userFuncParameters;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getVendorName(): ?string
     {
         return $this->vendorName;
     }
@@ -260,5 +311,21 @@ class PageObjectConfiguration
         $this->vendorName = $vendorName;
 
         return $this;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isCacheable(): ?bool
+    {
+        return $this->cacheable;
+    }
+
+    /**
+     * @param bool $cacheable
+     */
+    public function setCacheable(bool $cacheable): void
+    {
+        $this->cacheable = $cacheable;
     }
 }
