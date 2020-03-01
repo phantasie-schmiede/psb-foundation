@@ -44,7 +44,7 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractEntit
 {
     /**
      * @var string
-     * @TcaFieldConfig(type="string")
+     * @@TcaFieldConfig(type="string")
      */
     protected string $checksum;
 

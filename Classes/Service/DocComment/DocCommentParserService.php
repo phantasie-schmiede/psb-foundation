@@ -143,7 +143,7 @@ class DocCommentParserService implements LoggerAwareInterface
 
                 if (StringUtility::startsWith($commentLine, '@')) {
                     $commentLine = preg_replace('/\(/', ' (', $commentLine, 1);
-                    [$annotationType, $parameters] = GeneralUtility::trimExplode(' ', mb_substr($commentLine, 1), true,
+                    [$annotationType, $parameters] = GeneralUtility::trimExplode(' ', ltrim($commentLine, '@'), true,
                         2);
                     $value = $this->processValue($annotationType, $className, $parameters);
 
@@ -179,6 +179,7 @@ class DocCommentParserService implements LoggerAwareInterface
                     // extract summary and description if given
                     if ('' !== $commentLine) {
                         if (isset($parsedDocComment[$annotationType])) {
+                            // extend previous comment line
                             $parameters = ($parameters ?? '') . ' ' . $commentLine;
 
                             if (is_array($parsedDocComment[$annotationType]) && !ArrayUtility::isAssociativeArray($parsedDocComment[$annotationType])) {
@@ -193,12 +194,12 @@ class DocCommentParserService implements LoggerAwareInterface
                             $parameters = $commentLine;
                             $parsedDocComment[$annotationType] = $parameters;
                         }
-                    } elseif (self::ANNOTATION_TYPES['SUMMARY '] !== $annotationType) {
+                    } elseif (self::ANNOTATION_TYPES['SUMMARY'] !== $annotationType) {
                         $annotationType = null;
                     }
 
                     // summary ends with a period or a blank line
-                    if (self::ANNOTATION_TYPES['SUMMARY '] === $annotationType && ('.' === mb_substr($commentLine,
+                    if (self::ANNOTATION_TYPES['SUMMARY'] === $annotationType && ('.' === mb_substr($commentLine,
                                 -1) || ('' === $commentLine && isset($parsedDocComment[$annotationType])))) {
                         $annotationType = self::ANNOTATION_TYPES['DESCRIPTION'];
                     }

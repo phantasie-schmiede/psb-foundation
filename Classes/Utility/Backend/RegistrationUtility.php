@@ -31,13 +31,16 @@ use InvalidArgumentException;
 use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
+use PSB\PsbFoundation\Service\DocComment\Annotations\AjaxPageType;
 use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleConfig;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
+use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -169,7 +172,6 @@ class RegistrationUtility
      *
      * @throws AnnotationException
      * @throws Exception
-     * @throws IllegalObjectTypeException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
@@ -183,7 +185,7 @@ class RegistrationUtility
                         $controllersAndCachedActions,
                         $controllersAndUncachedActions,
                     ] = self::collectActionsAndConfiguration($controllerClassNames,
-                        self::COLLECT_MODES['CONFIGURE_PLUGINS']);
+                        self::COLLECT_MODES['CONFIGURE_PLUGINS'], $pluginName);
 
                     ExtensionUtility::configurePlugin(
                         $extensionInformation->getExtensionName(),
@@ -480,15 +482,15 @@ class RegistrationUtility
     /**
      * @param array  $controllerClassNames
      * @param string $collectMode
+     * @param string $pluginName
      *
      * @return array
      * @throws AnnotationException
      * @throws Exception
-     * @throws IllegalObjectTypeException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
-    private static function collectActionsAndConfiguration(array $controllerClassNames, string $collectMode): array
+    private static function collectActionsAndConfiguration(array $controllerClassNames, string $collectMode, string $pluginName = ''): array
     {
         $configuration = [];
         $controllersAndCachedActions = [];
@@ -504,6 +506,7 @@ class RegistrationUtility
 
                 foreach ($methods as $method) {
                     $methodName = $method->getName();
+
                     if (!StringUtility::endsWith($methodName,
                             'Action') || StringUtility::startsWith($methodName,
                             'initialize') || in_array($method->getDeclaringClass()->getName(),
@@ -531,6 +534,30 @@ class RegistrationUtility
                             if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode
                                 && true === $pluginAction->isUncached()) {
                                 $controllersAndUncachedActions[$controllerClassName][] = $actionName;
+                            }
+
+                            if (isset($docComment[AjaxPageType::class])) {
+                                $extensionInformation = ExtensionInformationUtility::extractExtensionInformationFromClassName($controllerClassName);
+                                /** @var AjaxPageType $ajaxPageType */
+                                $ajaxPageType = $docComment[AjaxPageType::class];
+                                $pageObjectConfiguration = self::get(PageObjectConfiguration::class);
+                                $pageObjectConfiguration->setAction($actionName);
+                                $pageObjectConfiguration->setCacheable($ajaxPageType->isCacheable());
+                                $pageObjectConfiguration->setContentType($ajaxPageType->getContentType());
+                                $controllerName = ExtensionInformationUtility::convertControllerClassToBaseName($controllerClassName);
+                                $pageObjectConfiguration->setController($controllerName);
+                                $pageObjectConfiguration->setExtensionName($extensionInformation['extensionName']);
+                                $pageObjectConfiguration->setPluginName($pluginName);
+                                $pageObjectConfiguration->setTypeNum($ajaxPageType->getTypeNum());
+                                $typoScriptObjectName = 'ajax.' . strtolower(implode('.', [
+                                        $extensionInformation['vendorName'],
+                                        $extensionInformation['extensionName'],
+                                        $controllerName,
+                                        $actionName
+                                    ]));
+                                $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);
+                                $pageObjectConfiguration->setVendorName($extensionInformation['vendorName']);
+                                TypoScriptUtility::registerAjaxPageType($pageObjectConfiguration);
                             }
                         }
                     }

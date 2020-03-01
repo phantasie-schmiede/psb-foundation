@@ -120,7 +120,7 @@ abstract class AbstractModuleController extends ActionController
      *
      * @param string $templateAction
      *
-     * @ModuleAction (doNotRender=true)
+     * @@ModuleAction (doNotRender=true)
      */
     public function addTemplateAction(string $templateAction): void
     {

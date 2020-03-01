@@ -26,10 +26,13 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionException;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
+use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class TcaFieldConfig
@@ -68,7 +71,10 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
      *
      * @param array $data
      *
-     * @throws NoSuchCacheException
+     * @throws AnnotationException
+     * @throws Exception
+     * @throws IllegalObjectTypeException
+     * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
     public function __construct(array $data)

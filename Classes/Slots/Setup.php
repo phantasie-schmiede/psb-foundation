@@ -54,8 +54,7 @@ class Setup
             $extensionInformationClassName = implode('\\', [
                 $vendorName,
                 GeneralUtility::underscoredToUpperCamelCase($extensionKey),
-                'Data',
-                'ExtensionInformation',
+                'Data\ExtensionInformation',
             ]);
             ExtensionInformationUtility::register($extensionInformationClassName, $extensionKey);
         }

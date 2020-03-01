@@ -77,16 +77,25 @@ abstract class AbstractController extends ActionController
     {
         [$vendorName, $extensionName] = GeneralUtility::trimExplode('\\', get_class($this));
         $domainModelName = ExtensionInformationUtility::convertControllerClassToBaseName(get_class($this));
-        $this->setDomainModel(implode('\\', [$vendorName, $extensionName, 'Domain\Model', $domainModelName]));
+        $this->setDomainModel(implode('\\', [
+            $vendorName,
+            $extensionName,
+            'Domain\Model',
+            $domainModelName
+        ]));
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-        $this->repository = $this->get(implode('\\',
-            [$vendorName, $extensionName, 'Domain\Repository', $domainModelName . 'Repository']));
+        $this->repository = $this->get(implode('\\', [
+            $vendorName,
+            $extensionName,
+            'Domain\Repository',
+            $domainModelName . 'Repository'
+        ]));
     }
 
     /**
      * @param AbstractEntity $record
-     * @PluginAction (uncached=true)
+     * @@PluginAction (uncached=true)
      *
      * @throws StopActionException
      * @throws IllegalObjectTypeException
@@ -99,7 +108,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
-     * @PluginAction (uncached=true)
+     * @@PluginAction (uncached=true)
      *
      * @throws StopActionException
      * @throws IllegalObjectTypeException
@@ -112,7 +121,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
-     * @PluginAction (uncached=true)
+     * @@PluginAction (uncached=true)
      */
     public function editAction(AbstractEntity $record): void
     {
@@ -179,7 +188,7 @@ abstract class AbstractController extends ActionController
     }
 
     /**
-     * @PluginAction (default=true)
+     * @@PluginAction (default=true)
      */
     public function listAction(): void
     {
@@ -208,7 +217,7 @@ abstract class AbstractController extends ActionController
      * @throws IllegalObjectTypeException
      * @throws StopActionException
      * @throws UnknownObjectException
-     * @PluginAction (uncached=true)
+     * @@PluginAction (uncached=true)
      *
      */
     public function updateAction(AbstractEntity $record): void

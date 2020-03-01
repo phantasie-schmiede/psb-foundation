@@ -32,6 +32,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class AbstractAnnotation
+ *
  * @package PSB\PsbFoundation\Service\DocComment\Annotations
  */
 abstract class AbstractAnnotation

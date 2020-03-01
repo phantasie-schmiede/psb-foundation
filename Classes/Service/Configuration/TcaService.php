@@ -38,7 +38,6 @@ use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -108,7 +107,8 @@ class TcaService
     {
         $this->className = $className;
         $this->table = ExtensionInformationUtility::convertClassNameToTableName($this->className);
-        $this->setDefaultLabelPath('LLL:EXT:' . (ExtensionInformationUtility::convertClassNameToExtensionKey($className)) . '/Resources/Private/Language/Backend/Configuration/TCA/');
+        $extensionKey = ExtensionInformationUtility::extractExtensionInformationFromClassName($className)['extensionKey'];
+        $this->setDefaultLabelPath('LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/');
 
         if (isset($GLOBALS['TCA'][$this->table])) {
             $this->overrideMode = true;
@@ -355,7 +355,8 @@ class TcaService
 
     /**
      * @return $this
-     * @throws NoSuchCacheException
+     * @throws AnnotationException
+     * @throws InvalidArgumentForHashGenerationException
      * @throws ObjectException
      * @throws ReflectionException
      */
@@ -385,6 +386,8 @@ class TcaService
             if (isset($docComment[TcaFieldConfig::class])) {
                 /** @var TcaFieldConfig $tcaFieldConfig */
                 $tcaFieldConfig = $docComment[TcaFieldConfig::class];
+                $type = $tcaFieldConfig->getType();
+                $tcaFieldConfig->setType('');
                 $tcaConfig = $docComment[TcaConfig::class] ?? $this->get(TcaConfig::class, []);
 
                 if (true === $editableInFrontend) {
@@ -396,7 +399,7 @@ class TcaService
 
                 if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
                     $this->configuration['columns'][$columnName] = $this->buildColumnConfiguration($columnName,
-                        $tcaFieldConfig->getType(),
+                        $type,
                         $tcaFieldConfig->toArray(), $tcaConfig->toArray());
                     $this->addFieldToType($columnName);
                 } elseif (true === $editableInFrontend) {
