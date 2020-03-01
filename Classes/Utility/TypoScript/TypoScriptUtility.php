@@ -213,7 +213,7 @@ class TypoScriptUtility
         }
 
         $typoScript = [
-//            self::TYPO_SCRIPT_KEYS['CONDITION']               => 'globalVar = GP:type = ' . $pageTypeConfiguration->getTypeNum(),
+            self::TYPO_SCRIPT_KEYS['CONDITION']               => 'request.getQueryParams()[\'type\'] == ' . $pageTypeConfiguration->getTypeNum(),
             $pageTypeConfiguration->getTypoScriptObjectName() => [
                 self::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'PAGE',
                 10                                    => $contentConfiguration,
