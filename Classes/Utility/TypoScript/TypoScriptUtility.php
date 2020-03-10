@@ -403,13 +403,13 @@ class TypoScriptUtility
                     ],
                     'view'        => [
                         'layoutRootPaths'   => [
-                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.layoutRootPaths'),
+                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.layoutRootPath'),
                         ],
                         'partialRootPaths'  => [
-                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.partialRootPaths'),
+                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.partialRootPath'),
                         ],
                         'templateRootPaths' => [
-                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.templateRootPaths'),
+                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.templateRootPath'),
                         ],
                     ],
                 ],
