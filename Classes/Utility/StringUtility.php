@@ -114,6 +114,11 @@ class StringUtility
             return null;
         }
 
+        if (false !== mb_strpos($variable, '{#')) {
+            // string contains quoted query parameter
+            return $variable;
+        }
+
         if (is_numeric($variable)) {
             if (false === mb_strpos($variable, '.')) {
                 return (int)$variable;
