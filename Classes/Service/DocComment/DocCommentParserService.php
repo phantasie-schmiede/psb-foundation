@@ -120,8 +120,6 @@ class DocCommentParserService implements LoggerAwareInterface
         $parsedDocComment = [];
 
         $reflection = GeneralUtility::makeInstance(ExtendedReflectionClass::class, $className);
-        $this->namespaces = $reflection->getImportedNamespaces();
-        $this->namespaces[ObjectUtility::NAMESPACE_FALLBACK_KEY] = $reflection->getNamespaceName();
 
         if (null !== $methodOrPropertyName) {
             if ($reflection->hasMethod($methodOrPropertyName)) {
@@ -133,8 +131,18 @@ class DocCommentParserService implements LoggerAwareInterface
 
         $docComment = $reflection->getDocComment();
 
+        if (null !== $methodOrPropertyName) {
+            // If a property or method is inherited from another class, we need to get that one in order to resolve
+            // imported namespaces correctly.
+            $reflection = GeneralUtility::makeInstance(ExtendedReflectionClass::class,
+                $reflection->getDeclaringClass()->getName());
+        }
+
+        $this->namespaces = $reflection->getImportedNamespaces();
+        $this->namespaces[ObjectUtility::NAMESPACE_FALLBACK_KEY] = $reflection->getNamespaceName();
+
         if ($docComment) {
-            $commentLines = StringUtility::explodeByLineBreaks($reflection->getDocComment());
+            $commentLines = StringUtility::explodeByLineBreaks($docComment);
             $parsedDocComment = [];
             $annotationType = self::ANNOTATION_TYPES['SUMMARY'];
 

@@ -49,6 +49,7 @@ use function count;
 
 /**
  * Class TcaService
+ *
  * @package PSB\PsbFoundation\Service\Configuration
  */
 class TcaService
@@ -170,7 +171,7 @@ class TcaService
                 $types = array_keys($this->configuration['types']);
 
                 foreach ($types as $type) {
-                    $this->addFieldToType('--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
+                    $this->addFieldToType('--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
                         $type);
                 }
             }
