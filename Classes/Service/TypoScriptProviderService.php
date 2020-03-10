@@ -69,6 +69,7 @@ class TypoScriptProviderService
      *
      * @return mixed
      * @throws InvalidConfigurationTypeException
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public static function getTypoScriptConfiguration(
         string $path = null,
@@ -104,11 +105,13 @@ class TypoScriptProviderService
         $typoScript = self::get(TypoScriptService::class)->convertTypoScriptArrayToPlainArray($typoScript);
 
         array_walk_recursive($typoScript, static function (&$item) {
-            // if constants are unset
-            if (0 === mb_strpos($item, '{$')) {
-                $item = null;
-            } else {
-                $item = StringUtility::convertString($item);
+            if (is_string($item)) {
+                // if constants are not set
+                if (0 === mb_strpos($item, '{$')) {
+                    $item = null;
+                } else {
+                    $item = StringUtility::convertString($item);
+                }
             }
         });
 
