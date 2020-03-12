@@ -26,6 +26,7 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Exception;
 use ReflectionClass;
 use ReflectionMethod;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -43,6 +44,8 @@ abstract class AbstractAnnotation
      * Maps associative arrays to object properties. Requires the class to have appropriate setter-methods.
      *
      * @param array $data
+     *
+     * @throws Exception
      */
     public function __construct(array $data = [])
     {
@@ -51,7 +54,8 @@ abstract class AbstractAnnotation
 
             foreach ($data as $propertyName => $propertyValue) {
                 if (!$reflectionClass->hasProperty($propertyName)) {
-                    continue;
+                    throw new Exception(static::class . ': Class doesn\'t have a property named "' . $propertyName . '"!',
+                        1583943746);
                 }
 
                 $methodName = 'set' . ucfirst($propertyName);
@@ -81,7 +85,7 @@ abstract class AbstractAnnotation
                 $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $getterMethodName);
                 $value = $reflectionMethod->invoke($this);
 
-                if (!empty($value)) {
+                if (null !== $value) {
                     $arrayRepresentation[$property->getName()] = $value;
                 }
             }

@@ -47,24 +47,39 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
 class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
 {
     /**
-     * @var string
+     * @var bool|null
      */
-    protected string $foreignTable = '';
+    protected ?bool $enableRichtext = null;
 
     /**
-     * @var array
+     * @var string|null
      */
-    protected array $items = [];
+    protected ?string $foreignTable = null;
 
     /**
-     * @var string
+     * @var array|null
      */
-    protected string $linkedModel = '';
+    protected ?array $items = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $type = '';
+    protected ?string $linkedModel = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $mm = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $mmOppositeField = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $type = null;
 
     /**
      * TcaFieldConfig constructor.
@@ -73,9 +88,9 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
      *
      * @throws AnnotationException
      * @throws Exception
-     * @throws IllegalObjectTypeException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
+     * @throws \Exception
      */
     public function __construct(array $data)
     {
@@ -83,6 +98,7 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
             // instead of directly specifying a foreign table, it is possible to specify a domain model class instead
             if (isset ($data['linkedModel'])) {
                 $data['foreignTable'] = ExtensionInformationUtility::convertClassNameToTableName($data['linkedModel']);
+                unset($data['foreignTable']);
             }
 
             //            if (isset ($data['items']) && is_array($data['items'])) {
@@ -97,65 +113,113 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
     }
 
     /**
-     * @return string
+     * @return bool|null
      */
-    public function getForeignTable(): string
+    public function getEnableRichtext(): ?bool
+    {
+        return $this->enableRichtext;
+    }
+
+    /**
+     * @param bool|null $enableRichtext
+     */
+    public function setEnableRichtext(?bool $enableRichtext): void
+    {
+        $this->enableRichtext = $enableRichtext;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getForeignTable(): ?string
     {
         return $this->foreignTable;
     }
 
     /**
-     * @param string $foreignTable
+     * @param string|null $foreignTable
      */
-    public function setForeignTable(string $foreignTable): void
+    public function setForeignTable(?string $foreignTable): void
     {
         $this->foreignTable = $foreignTable;
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getItems(): array
+    public function getItems(): ?array
     {
         return $this->items;
     }
 
     /**
-     * @param array $items
+     * @param array|null $items
      */
-    public function setItems(array $items): void
+    public function setItems(?array $items): void
     {
         $this->items = $items;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLinkedModel(): string
+    public function getLinkedModel(): ?string
     {
         return $this->linkedModel;
     }
 
     /**
-     * @param string $linkedModel
+     * @param string|null $linkedModel
      */
-    public function setLinkedModel(string $linkedModel): void
+    public function setLinkedModel(?string $linkedModel): void
     {
         $this->linkedModel = $linkedModel;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getType(): string
+    public function getMm(): ?string
+    {
+        return $this->mm;
+    }
+
+    /**
+     * @param string|null $mm
+     */
+    public function setMm(?string $mm): void
+    {
+        $this->mm = $mm;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMmOppositeField(): ?string
+    {
+        return $this->mmOppositeField;
+    }
+
+    /**
+     * @param string|null $mmOppositeField
+     */
+    public function setMmOppositeField(?string $mmOppositeField): void
+    {
+        $this->mmOppositeField = $mmOppositeField;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getType(): ?string
     {
         return $this->type;
     }
 
     /**
-     * @param string $type
+     * @param string|null $type
      */
-    public function setType(string $type): void
+    public function setType(?string $type): void
     {
         $this->type = $type;
     }

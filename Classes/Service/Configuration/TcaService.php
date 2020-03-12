@@ -56,6 +56,13 @@ class TcaService
 {
     use InjectionTrait;
 
+    private const PROPERTY_KEYS_IN_LOWER_CAMEL_CASE = [
+        'autoSizeMax',
+        'enableRichtext',
+        'renderType',
+        'userFunc',
+    ];
+
     private const PROTECTED_COLUMNS = [
         'crdate',
         'pid',
@@ -342,14 +349,15 @@ class TcaService
             $fieldConfiguration = Fields::getDefaultConfiguration($type);
         }
 
-        ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $customFieldConfiguration);
+        ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $this->convertKeys($customFieldConfiguration));
         $propertyConfiguration = [
             'config'  => $fieldConfiguration,
             'exclude' => 0,
             'label'   => $this->getDefaultLabelPath() . $columnName,
         ];
 
-        ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration, $customPropertyConfiguration);
+        ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration,
+            $this->convertKeys($customPropertyConfiguration));
 
         return $propertyConfiguration;
     }
@@ -388,7 +396,7 @@ class TcaService
                 /** @var TcaFieldConfig $tcaFieldConfig */
                 $tcaFieldConfig = $docComment[TcaFieldConfig::class];
                 $type = $tcaFieldConfig->getType();
-                $tcaFieldConfig->setType('');
+                $tcaFieldConfig->setType(null);
                 $tcaConfig = $docComment[TcaConfig::class] ?? $this->get(TcaConfig::class, []);
 
                 if (true === $editableInFrontend) {
@@ -468,6 +476,26 @@ class TcaService
         }
 
         return $this;
+    }
+
+    /**
+     * @param array $configuration
+     *
+     * @return array
+     */
+    private function convertKeys(array $configuration): array
+    {
+        $convertedArray = [];
+
+        foreach ($configuration as $key => $value) {
+            if (!in_array($key, self::PROPERTY_KEYS_IN_LOWER_CAMEL_CASE, true)) {
+                $key = GeneralUtility::camelCaseToLowerCaseUnderscored($key);
+            }
+
+            $convertedArray[$key] = $value;
+        }
+
+        return $convertedArray;
     }
 
     /**

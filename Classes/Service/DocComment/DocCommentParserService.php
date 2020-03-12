@@ -228,7 +228,7 @@ class DocCommentParserService implements LoggerAwareInterface
     private function convertValueStringToPropertiesArray(string $value): array
     {
         $properties = [];
-        $value = trim($value, '()');
+        $value = trim($value, ',()');
 
         // @see https://stackoverflow.com/questions/18893390/splitting-on-comma-outside-quotes
         $valueParts = preg_split('/[,;](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/', $value);

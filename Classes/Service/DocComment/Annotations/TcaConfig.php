@@ -55,7 +55,7 @@ class TcaConfig extends AbstractAnnotation
     /**
      * @var bool
      */
-    protected bool $labelALtForce = false;
+    protected bool $labelAltForce = false;
 
     /**
      * @var string
@@ -134,16 +134,16 @@ class TcaConfig extends AbstractAnnotation
     /**
      * @return bool
      */
-    public function isLabelALtForce(): bool
+    public function isLabelAltForce(): bool
     {
-        return $this->labelALtForce;
+        return $this->labelAltForce;
     }
 
     /**
-     * @param bool $labelALtForce
+     * @param bool $labelAltForce
      */
-    public function setLabelALtForce(bool $labelALtForce): void
+    public function setLabelAltForce(bool $labelAltForce): void
     {
-        $this->labelALtForce = $labelALtForce;
+        $this->labelAltForce = $labelAltForce;
     }
 }

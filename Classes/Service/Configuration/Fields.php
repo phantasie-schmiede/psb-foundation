@@ -146,11 +146,11 @@ class Fields
             'type' => 'passthrough',
         ],
         'select'      => [
-            // 'foreign_table' => '',
-            // 'items' => [],
-            'maxitems'   => 1,
-            'renderType' => 'selectSingle',
-            'type'       => 'select',
+            'foreign_table' => '',
+            'items'         => [],
+            'maxitems'      => 1,
+            'renderType'    => 'selectSingle',
+            'type'          => 'select',
         ],
         'string'      => [
             'eval' => 'trim',
@@ -175,17 +175,6 @@ class Fields
 
     /**
      * @param string $type
-     */
-    public static function checkFieldType(string $type): void
-    {
-        if (!in_array($type, self::FIELD_TYPES, true)) {
-            throw new InvalidArgumentException(self::class . ': Value for type must be one of those defined in constant FIELD_TYPES!',
-                1547452924);
-        }
-    }
-
-    /**
-     * @param string $type
      *
      * @return array
      */
@@ -194,5 +183,16 @@ class Fields
         self::checkFieldType($type);
 
         return self::FIELD_CONFIGURATIONS[$type];
+    }
+
+    /**
+     * @param string $type
+     */
+    public static function checkFieldType(string $type): void
+    {
+        if (!in_array($type, self::FIELD_TYPES, true)) {
+            throw new InvalidArgumentException(self::class . ': Value for type must be one of those defined in constant FIELD_TYPES!',
+                1547452924);
+        }
     }
 }
