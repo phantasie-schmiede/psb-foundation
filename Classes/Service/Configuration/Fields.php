@@ -133,6 +133,17 @@ class Fields
             'type'       => 'input',
         ],
         'mm'          => [
+            'fieldControl' => [
+                'addRecord' => [
+                    'disabled' => false
+                ],
+                'editPopup' => [
+                    'disabled' => false
+                ],
+                'listModule' => [
+                    'disabled' => false
+                ],
+            ],
             'autoSizeMax'   => 30,
             'foreign_table' => '',
             'maxitems'      => 9999,
@@ -146,6 +157,17 @@ class Fields
             'type' => 'passthrough',
         ],
         'select'      => [
+            'fieldControl' => [
+                'addRecord' => [
+                    'disabled' => false
+                ],
+                'editPopup' => [
+                    'disabled' => false
+                ],
+                'listModule' => [
+                    'disabled' => false
+                ],
+            ],
             'foreign_table' => '',
             'items'         => [],
             'maxitems'      => 1,

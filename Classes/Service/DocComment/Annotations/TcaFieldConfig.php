@@ -31,7 +31,6 @@ use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionException;
 use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
@@ -50,6 +49,11 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
      * @var bool|null
      */
     protected ?bool $enableRichtext = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $foreignField = null;
 
     /**
      * @var string|null
@@ -94,20 +98,18 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
      */
     public function __construct(array $data)
     {
-        if ('select' === $data['type']) {
-            // instead of directly specifying a foreign table, it is possible to specify a domain model class instead
-            if (isset ($data['linkedModel'])) {
-                $data['foreignTable'] = ExtensionInformationUtility::convertClassNameToTableName($data['linkedModel']);
-                unset($data['foreignTable']);
-            }
-
-            //            if (isset ($data['items']) && is_array($data['items'])) {
-            //                // transform associative array to simple array for TCA
-            //                $data['items'] = array_map(static function ($key, $value) {
-            //                    return [ucwords(str_replace('_', ' ', mb_strtolower($key))), $value];
-            //                }, array_keys($data['items']), array_values($data['items']));
-            //            }
+        // instead of directly specifying a foreign table, it is possible to specify a domain model class instead
+        if (isset ($data['linkedModel'])) {
+            $data['foreignTable'] = ExtensionInformationUtility::convertClassNameToTableName($data['linkedModel']);
+            unset($data['linkedModel']);
         }
+
+        //            if (isset ($data['items']) && is_array($data['items'])) {
+        //                // transform associative array to simple array for TCA
+        //                $data['items'] = array_map(static function ($key, $value) {
+        //                    return [ucwords(str_replace('_', ' ', mb_strtolower($key))), $value];
+        //                }, array_keys($data['items']), array_values($data['items']));
+        //            }
 
         parent::__construct($data);
     }
@@ -126,6 +128,22 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
     public function setEnableRichtext(?bool $enableRichtext): void
     {
         $this->enableRichtext = $enableRichtext;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getForeignField(): ?string
+    {
+        return $this->foreignField;
+    }
+
+    /**
+     * @param string|null $foreignField
+     */
+    public function setForeignField(?string $foreignField): void
+    {
+        $this->foreignField = $foreignField;
     }
 
     /**
@@ -194,10 +212,18 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
 
     /**
      * @return string|null
+     * @throws AnnotationException
+     * @throws Exception
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
     public function getMmOppositeField(): ?string
     {
-        return $this->mmOppositeField;
+        if (null === $this->mmOppositeField) {
+            return null;
+        }
+
+        return ExtensionInformationUtility::convertPropertyNameToColumnName($this->mmOppositeField);
     }
 
     /**
