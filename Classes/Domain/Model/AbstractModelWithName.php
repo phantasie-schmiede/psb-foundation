@@ -40,9 +40,9 @@ abstract class AbstractModelWithName extends AbstractEntity
 {
     /**
      * @var string
-     * @TcaFieldConfig (type=string)
+     * @TcaFieldConfig (type="string")
      */
-    protected string $name;
+    protected $name;
 
     /**
      * @return string

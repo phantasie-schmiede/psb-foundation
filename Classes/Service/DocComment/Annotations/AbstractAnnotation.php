@@ -58,10 +58,10 @@ abstract class AbstractAnnotation
                         1583943746);
                 }
 
-                $methodName = 'set' . ucfirst($propertyName);
+                $setterMethodName = 'set' . ucfirst($propertyName);
 
-                if ($reflectionClass->hasMethod($methodName)) {
-                    $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $methodName);
+                if ($reflectionClass->hasMethod($setterMethodName)) {
+                    $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $setterMethodName);
                     $reflectionMethod->invoke($this, $propertyValue);
                 }
             }
@@ -80,6 +80,10 @@ abstract class AbstractAnnotation
         foreach ($properties as $property) {
             $property->setAccessible(true);
             $getterMethodName = 'get' . ucfirst($property->getName());
+
+            if (!$reflectionClass->hasMethod($getterMethodName)) {
+                $getterMethodName = 'is' . ucfirst($property->getName());
+            }
 
             if ($reflectionClass->hasMethod($getterMethodName)) {
                 $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $getterMethodName);

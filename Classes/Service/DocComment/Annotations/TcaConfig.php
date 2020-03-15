@@ -26,6 +26,13 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PSB\PsbFoundation\Exceptions\AnnotationException;
+use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use ReflectionException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
+
 /**
  * Class TcaConfig
  *
@@ -41,6 +48,7 @@ class TcaConfig extends AbstractAnnotation
     /**
      * if set to true, \PSB\PsbFoundation\ViewHelpers\Form\BuildFromTcaViewHelper can be used for this domain model. If
      * used in class annotation, this attribute applies to all properties annotated with FieldConfig.
+     *
      * @TODO: But it can also be set for each property individually.
      *
      * @var bool
@@ -48,9 +56,14 @@ class TcaConfig extends AbstractAnnotation
     protected bool $editableInFrontend = false;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $label = '';
+    protected ?string $label = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $labelAlt = null;
 
     /**
      * @var bool
@@ -58,59 +71,72 @@ class TcaConfig extends AbstractAnnotation
     protected bool $labelAltForce = false;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $labelAlt = '';
+    protected ?string $searchFields = null;
 
     /**
-     * @var string
+     * @return string|null
+     * @throws AnnotationException
+     * @throws Exception
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
-    protected string $searchFields = '';
-
-    /**
-     * @return string
-     */
-    public function getLabel(): string
+    public function getLabel(): ?string
     {
-        return $this->label;
+        if (null === $this->label) {
+            return null;
+        }
+
+        return ExtensionInformationUtility::convertPropertyNameToColumnName($this->label);
     }
 
     /**
-     * @param string $label
+     * @param string|null $label
      */
-    public function setLabel(string $label): void
+    public function setLabel(?string $label): void
     {
         $this->label = $label;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLabelAlt(): string
+    public function getLabelAlt(): ?string
     {
-        return $this->labelAlt;
+        if (null === $this->labelAlt) {
+            return null;
+        }
+
+        $altLabels = GeneralUtility::trimExplode(',', $this->labelAlt);
+
+        array_walk($altLabels, static function (&$item) {
+           $item =  ExtensionInformationUtility::convertPropertyNameToColumnName($item);
+        });
+
+        return implode(', ', $altLabels);
     }
 
     /**
-     * @param string $labelAlt
+     * @param string|null $labelAlt
      */
-    public function setLabelAlt(string $labelAlt): void
+    public function setLabelAlt(?string $labelAlt): void
     {
         $this->labelAlt = $labelAlt;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSearchFields(): string
+    public function getSearchFields(): ?string
     {
         return $this->searchFields;
     }
 
     /**
-     * @param string $searchFields
+     * @param string|null $searchFields
      */
-    public function setSearchFields(string $searchFields): void
+    public function setSearchFields(?string $searchFields): void
     {
         $this->searchFields = $searchFields;
     }

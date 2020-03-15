@@ -53,6 +53,11 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
     /**
      * @var string|null
      */
+    protected ?string $eval = null;
+
+    /**
+     * @var string|null
+     */
     protected ?string $foreignField = null;
 
     /**
@@ -99,7 +104,7 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
     public function __construct(array $data)
     {
         // instead of directly specifying a foreign table, it is possible to specify a domain model class instead
-        if (isset ($data['linkedModel'])) {
+        if (isset ($data['linkedModel']) && class_exists($data['linkedModel'])) {
             $data['foreignTable'] = ExtensionInformationUtility::convertClassNameToTableName($data['linkedModel']);
             unset($data['linkedModel']);
         }
@@ -133,9 +138,33 @@ class TcaFieldConfig extends AbstractAnnotation implements PreProcessorInterface
     /**
      * @return string|null
      */
+    public function getEval(): ?string
+    {
+        return $this->eval;
+    }
+
+    /**
+     * @param string|null $eval
+     */
+    public function setEval(?string $eval): void
+    {
+        $this->eval = $eval;
+    }
+
+    /**
+     * @return string|null
+     * @throws AnnotationException
+     * @throws Exception
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
+     */
     public function getForeignField(): ?string
     {
-        return $this->foreignField;
+        if (null === $this->foreignField) {
+            return null;
+        }
+
+        return ExtensionInformationUtility::convertPropertyNameToColumnName($this->foreignField);
     }
 
     /**

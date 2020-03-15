@@ -383,7 +383,7 @@ class TcaService
                 $editableInFrontend = true;
             }
 
-            $this->setCtrlProperties($tcaConfig->toArray());
+            $this->setCtrlProperties($this->convertKeys($tcaConfig->toArray()));
         }
 
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $this->className);
