@@ -25,6 +25,26 @@ defined('TYPO3_MODE') or die();
     $typoScriptParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
     \PSB\PsbFoundation\Service\Configuration\FlexFormService::addValueParser($typoScriptParser);
 
+    // bug-workaround for mm-relations
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Backend\Form\FormDataProvider\AbstractItemProvider::class] = [
+        'className' => \PSB\PsbFoundation\Form\FormDataProvider\AbstractItemProvider::class,
+    ];
+
+    // @TODO: may be removed because only statid functions are overridden?
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Extbase\Utility\LocalizationUtility::class] = [
+        'className' => \PSB\PsbFoundation\Utility\LocalizationUtility::class,
+    ];
+
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\View\TemplateView::class] = [
+        'className' => \PSB\PsbFoundation\Views\TemplateView::class,
+    ];
+
+    // @TODO: may be removed because only statid functions are overridden?
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\ViewHelpers\RenderViewHelper::class] = [
+        'className' => \PSB\PsbFoundation\ViewHelpers\RenderViewHelper::class,
+    ];
+
+    // DocCommentParser-cache
     if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['psbfoundation'])) {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['psbfoundation'] = [];
     }

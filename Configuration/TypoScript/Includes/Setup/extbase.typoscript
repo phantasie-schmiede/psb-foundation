@@ -1,7 +1,0 @@
-config.tx_extbase {
-  objects {
-    TYPO3\CMS\Extbase\Utility\LocalizationUtility = PSB\PsbFoundation\Utility\LocalizationUtility
-    TYPO3\CMS\Fluid\View\TemplateView.className = PSB\PsbFoundation\Views\TemplateView
-    TYPO3\CMS\Fluid\ViewHelpers\RenderViewHelper.className = PSB\PsbFoundation\ViewHelpers\RenderViewHelper
-  }
-}

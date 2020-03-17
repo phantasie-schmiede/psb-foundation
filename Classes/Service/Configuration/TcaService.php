@@ -42,7 +42,6 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
-use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function count;
@@ -56,11 +55,17 @@ class TcaService
 {
     use InjectionTrait;
 
-    private const PROPERTY_KEYS_IN_LOWER_CAMEL_CASE = [
-        'autoSizeMax',
-        'enableRichtext',
-        'renderType',
-        'userFunc',
+    // This array constant compensates inconsistencies in TCA key naming.
+    // All keys that are not listed here will be transformed to lower_case_underscored.
+    private const PROPERTY_KEY_MAPPING = [
+        'autoSizeMax'     => 'autoSizeMax',
+        'enableRichtext'  => 'enableRichtext',
+        'fieldControl'    => 'fieldControl',
+        'maxItems'        => 'maxitems',
+        'mm'              => 'MM',
+        'mmOppositeField' => 'MM_opposite_field',
+        'renderType'      => 'renderType',
+        'userFunc'        => 'userFunc',
     ];
 
     private const PROTECTED_COLUMNS = [
@@ -106,7 +111,6 @@ class TcaService
      * @param string $className
      *
      * @throws AnnotationException
-     * @throws IllegalObjectTypeException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ObjectException
      * @throws ReflectionException
@@ -488,10 +492,7 @@ class TcaService
         $convertedArray = [];
 
         foreach ($configuration as $key => $value) {
-            if (!in_array($key, self::PROPERTY_KEYS_IN_LOWER_CAMEL_CASE, true)) {
-                $key = GeneralUtility::camelCaseToLowerCaseUnderscored($key);
-            }
-
+            $key = self::PROPERTY_KEY_MAPPING[$key] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($key);
             $convertedArray[$key] = $value;
         }
 

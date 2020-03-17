@@ -133,21 +133,22 @@ class Fields
             'type'       => 'input',
         ],
         'mm'          => [
-            'fieldControl' => [
-                'addRecord' => [
-                    'disabled' => false
+            'fieldControl'  => [
+                'addRecord'  => [
+                    'disabled' => false,
                 ],
-                'editPopup' => [
-                    'disabled' => false
+                'editPopup'  => [
+                    'disabled' => false,
                 ],
                 'listModule' => [
-                    'disabled' => false
+                    'disabled' => false,
                 ],
             ],
             'autoSizeMax'   => 30,
             'foreign_table' => '',
-            'maxitems'      => 9999,
-            'mm'            => '',
+            // maxitems = 0 means no limit theoretically (max items allowed by core currently are 99999)
+            'maxitems'      => 0,
+            'MM'            => '',
             'multiple'      => 0,
             'renderType'    => 'selectMultipleSideBySide',
             'size'          => 10,
@@ -157,15 +158,15 @@ class Fields
             'type' => 'passthrough',
         ],
         'select'      => [
-            'fieldControl' => [
-                'addRecord' => [
-                    'disabled' => false
+            'fieldControl'  => [
+                'addRecord'  => [
+                    'disabled' => false,
                 ],
-                'editPopup' => [
-                    'disabled' => false
+                'editPopup'  => [
+                    'disabled' => false,
                 ],
                 'listModule' => [
-                    'disabled' => false
+                    'disabled' => false,
                 ],
             ],
             'foreign_table' => '',
