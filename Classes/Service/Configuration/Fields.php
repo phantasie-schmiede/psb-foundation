@@ -43,179 +43,23 @@ use function in_array;
 class Fields
 {
     public const FIELD_TYPES = [
-        'CHECKBOX'    => 'checkbox',
-        'DATE'        => 'date',
-        'DATETIME'    => 'datetime',
+        'CHECKBOX'    => 'check',
+        'DATE'        => 'input',
+        'DATETIME'    => 'input',
         'DOCUMENT'    => 'document',
         'FILE'        => 'file',
-        'FLOAT'       => 'float',
+        'FLOAT'       => 'input',
         'GROUP'       => 'group',
         'IMAGE'       => 'image',
         'INLINE'      => 'inline',
-        'INTEGER'     => 'integer',
-        'LINK'        => 'link',
-        'MM'          => 'mm',
+        'INPUT'       => 'input',
+        'INTEGER'     => 'input',
+        'LINK'        => 'input',
+        'MM'          => 'select',
         'PASSTHROUGH' => 'passthrough',
         'SELECT'      => 'select',
-        'STRING'      => 'string',
         'TEXT'        => 'text',
+        'TIME'        => 'input',
         'USER'        => 'user',
     ];
-
-    public const FAL_PLACEHOLDER_TYPES = [
-        'document',
-        'file',
-        'image',
-    ];
-
-    private const FIELD_CONFIGURATIONS = [
-        'checkbox'    => [
-            'default' => 0,
-            'type'    => 'check',
-        ],
-        'date'        => [
-            'dbType'     => 'date',
-            'default'    => '0000-00-00',
-            'eval'       => 'date',
-            'renderType' => 'inputDateTime',
-            'size'       => 7,
-            'type'       => 'input',
-        ],
-        'datetime'    => [
-            'eval'       => 'datetime',
-            'renderType' => 'inputDateTime',
-            'size'       => 12,
-            'type'       => 'input',
-        ],
-        'document'    => [],
-        'file'        => [],
-        'float'       => [
-            'eval' => 'double2',
-            'size' => 20,
-            'type' => 'input',
-        ],
-        'group'       => [
-            'allowed'       => 'pages',
-            'internal_type' => 'db',
-            'maxitems'      => 1,
-            'minitems'      => 0,
-            'size'          => 3,
-            'type'          => 'group',
-        ],
-        'image'       => [],
-        'inline'      => [
-            'appearance'    => [
-                'collapseAll'                     => true,
-                'enabledControls'                 => [
-                    'dragdrop' => true,
-                ],
-                'expandSingle'                    => true,
-                'levelLinksPosition'              => 'bottom',
-                'showAllLocalizationLink'         => true,
-                'showPossibleLocalizationRecords' => true,
-                'showRemovedLocalizationRecords'  => true,
-                'showSynchronizationLink'         => true,
-                'useSortable'                     => true,
-            ],
-            'foreign_field' => '',
-            'foreign_table' => '',
-            'maxitems'      => 9999,
-            'type'          => 'inline',
-        ],
-        'integer'     => [
-            'eval' => 'num',
-            'size' => 20,
-            'type' => 'input',
-        ],
-        'link'        => [
-            'renderType' => 'inputLink',
-            'size'       => 20,
-            'type'       => 'input',
-        ],
-        'mm'          => [
-            'fieldControl'  => [
-                'addRecord'  => [
-                    'disabled' => false,
-                ],
-                'editPopup'  => [
-                    'disabled' => false,
-                ],
-                'listModule' => [
-                    'disabled' => false,
-                ],
-            ],
-            'autoSizeMax'   => 30,
-            'foreign_table' => '',
-            // maxitems = 0 means no limit theoretically (max items allowed by core currently are 99999)
-            'maxitems'      => 0,
-            'MM'            => '',
-            'multiple'      => 0,
-            'renderType'    => 'selectMultipleSideBySide',
-            'size'          => 10,
-            'type'          => 'select',
-        ],
-        'passthrough' => [
-            'type' => 'passthrough',
-        ],
-        'select'      => [
-            'fieldControl'  => [
-                'addRecord'  => [
-                    'disabled' => false,
-                ],
-                'editPopup'  => [
-                    'disabled' => false,
-                ],
-                'listModule' => [
-                    'disabled' => false,
-                ],
-            ],
-            'foreign_table' => '',
-            'items'         => [],
-            'maxitems'      => 1,
-            'renderType'    => 'selectSingle',
-            'type'          => 'select',
-        ],
-        'string'      => [
-            'eval' => 'trim',
-            'size' => 20,
-            'type' => 'input',
-        ],
-        'text'        => [
-            'cols'           => 32,
-            'enableRichtext' => true,
-            'eval'           => 'trim',
-            'rows'           => 5,
-            'type'           => 'text',
-        ],
-        'user'        => [
-            'eval'       => 'required,trim',
-            'parameters' => [],
-            'size'       => 50,
-            'type'       => 'user',
-            'userFunc'   => '',
-        ],
-    ];
-
-    /**
-     * @param string $type
-     *
-     * @return array
-     */
-    public static function getDefaultConfiguration(string $type): array
-    {
-        self::checkFieldType($type);
-
-        return self::FIELD_CONFIGURATIONS[$type];
-    }
-
-    /**
-     * @param string $type
-     */
-    public static function checkFieldType(string $type): void
-    {
-        if (!in_array($type, self::FIELD_TYPES, true)) {
-            throw new InvalidArgumentException(self::class . ': Value for type must be one of those defined in constant FIELD_TYPES!',
-                1547452924);
-        }
-    }
 }

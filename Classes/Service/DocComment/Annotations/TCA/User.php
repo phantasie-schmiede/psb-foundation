@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Domain\Model;
+namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,37 +26,57 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Input;
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use PSB\PsbFoundation\Service\Configuration\Fields;
 
 /**
- * Class ModelWithName
+ * Class User
  *
- * Adds a property "name" to your model.
- *
- * @package PSB\PsbFoundation\Domain\Model
+ * @Annotation
+ * @package PSB\PsbFoundation\Service\DocComment\Annotations\TCA
  */
-abstract class AbstractModelWithName extends AbstractEntity
+class User extends AbstractTcaFieldAnnotation
 {
+    public const TYPE = Fields::FIELD_TYPES['USER'];
+
+    /**
+     * @var array
+     */
+    protected array $parameters = [];
+
     /**
      * @var string
-     * @Input()
      */
-    protected string $name = '';
+    protected string $renderType = '';
+
+    /**
+     * @return array
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
+    }
+
+    /**
+     * @param array $parameters
+     */
+    public function setParameters(array $parameters): void
+    {
+        $this->parameters = $parameters;
+    }
 
     /**
      * @return string
      */
-    public function getName(): string
+    public function getRenderType(): string
     {
-        return $this->name;
+        return $this->renderType;
     }
 
     /**
-     * @param string $name
+     * @param string $renderType
      */
-    public function setName(string $name): void
+    public function setRenderType(string $renderType): void
     {
-        $this->name = $name;
+        $this->renderType = $renderType;
     }
 }

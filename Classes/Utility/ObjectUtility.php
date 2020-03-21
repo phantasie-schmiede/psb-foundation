@@ -66,8 +66,10 @@ class ObjectUtility
             return $className;
         }
 
-        if (isset($namespaces[$className])) {
-            return $namespaces[$className];
+        [$alias, $appendix] = GeneralUtility::trimExplode('\\', $className, true, 2);
+
+        if (isset($namespaces[$alias])) {
+            return $namespaces[$alias] . ($appendix ? ('\\' . $appendix) : '');
         }
 
         if (isset($namespaces[self::NAMESPACE_FALLBACK_KEY])) {

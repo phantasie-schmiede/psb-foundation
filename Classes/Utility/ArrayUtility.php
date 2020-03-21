@@ -26,6 +26,8 @@ namespace PSB\PsbFoundation\Utility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3ArrayUtility;
+
 /**
  * Class ArrayUtility
  * @package PSB\PsbFoundation\Utility
@@ -75,7 +77,7 @@ class ArrayUtility
      */
     public static function insertIntoArray(array $array, array $elements, int $index): array
     {
-        if (!self::isAssociativeArray($array)) {
+        if (!ArrayUtility($array)) {
             $combinedArray = [];
             array_push($combinedArray, ...array_slice($array, 0, $index), ...$elements,
                 ...array_slice($array, $index));
@@ -85,16 +87,6 @@ class ArrayUtility
 
         /** @noinspection AdditionOperationOnArraysInspection */
         return array_slice($array, 0, $index, true) + $elements + array_slice($array, $index, null, true);
-    }
-
-    /**
-     * @param array $array
-     *
-     * @return bool
-     */
-    public static function isAssociativeArray(array $array): bool
-    {
-        return 0 === count(array_filter($array, 'is_numeric', ARRAY_FILTER_USE_KEY));
     }
 
     /**
@@ -113,7 +105,7 @@ class ArrayUtility
 
         unset($item);
 
-        if (self::isAssociativeArray($array)) {
+        if (Typo3ArrayUtility::isAssociative($array)) {
             $shuffledArray = [];
             $keys = array_keys($array);
             shuffle($keys);

@@ -27,7 +27,7 @@ namespace PSB\PsbFoundation\Domain\Model;
  ***************************************************************/
 
 use Error;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TcaFieldConfig;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Input;
 use PSB\PsbFoundation\Utility\SecurityUtility;
 use ReflectionClass;
 use ReflectionMethod;
@@ -44,7 +44,7 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractEntit
 {
     /**
      * @var string
-     * @@TcaFieldConfig(type="string")
+     * @Input()
      */
     protected string $checksum;
 

@@ -27,6 +27,8 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
  ***************************************************************/
 
 use Exception;
+use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Utility\ValidationUtility;
 use ReflectionClass;
 use ReflectionMethod;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -69,10 +71,14 @@ abstract class AbstractAnnotation
     }
 
     /**
+     * @param string $targetName
+     * @param string $targetScope
+     *
      * @return array
      */
-    public function toArray(): array
+    public function toArray(string $targetName, string $targetScope): array
     {
+        ValidationUtility::checkValueAgainstConstant(DocCommentParserService::ANNOTATION_TARGETS, $targetScope);
         $arrayRepresentation = [];
         $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $this);
         $properties = $reflectionClass->getProperties();

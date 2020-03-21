@@ -95,7 +95,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
-     * @@PluginAction (uncached=true)
+     * @PluginAction (uncached=true)
      *
      * @throws StopActionException
      * @throws IllegalObjectTypeException
@@ -108,7 +108,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
-     * @@PluginAction (uncached=true)
+     * @PluginAction (uncached=true)
      *
      * @throws StopActionException
      * @throws IllegalObjectTypeException
@@ -121,7 +121,7 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
-     * @@PluginAction (uncached=true)
+     * @PluginAction (uncached=true)
      */
     public function editAction(AbstractEntity $record): void
     {
@@ -188,7 +188,7 @@ abstract class AbstractController extends ActionController
     }
 
     /**
-     * @@PluginAction (default=true)
+     * @PluginAction (default=true)
      */
     public function listAction(): void
     {
@@ -217,7 +217,7 @@ abstract class AbstractController extends ActionController
      * @throws IllegalObjectTypeException
      * @throws StopActionException
      * @throws UnknownObjectException
-     * @@PluginAction (uncached=true)
+     * @PluginAction (uncached=true)
      *
      */
     public function updateAction(AbstractEntity $record): void

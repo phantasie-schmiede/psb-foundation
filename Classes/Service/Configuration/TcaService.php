@@ -30,8 +30,8 @@ use Exception;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TcaConfig;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TcaFieldConfig;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Ctrl;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
@@ -42,7 +42,6 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
-use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function count;
 
@@ -58,14 +57,20 @@ class TcaService
     // This array constant compensates inconsistencies in TCA key naming.
     // All keys that are not listed here will be transformed to lower_case_underscored.
     private const PROPERTY_KEY_MAPPING = [
-        'autoSizeMax'     => 'autoSizeMax',
-        'enableRichtext'  => 'enableRichtext',
-        'fieldControl'    => 'fieldControl',
-        'maxItems'        => 'maxitems',
-        'mm'              => 'MM',
-        'mmOppositeField' => 'MM_opposite_field',
-        'renderType'      => 'renderType',
-        'userFunc'        => 'userFunc',
+        'autoSizeMax'         => 'autoSizeMax',
+        'dbType'              => 'dbType',
+        'defaultSortBy'       => 'default_sortby',
+        'editableInFrontend ' => 'editableInFrontend',
+        'enableRichtext'      => 'enableRichtext',
+        'fieldControl'        => 'fieldControl',
+        'foreignSortBy'       => 'foreign_sortby',
+        'maxItems'            => 'maxitems',
+        'mm'                  => 'MM',
+        'mmHasUidField'       => 'MM_hasUidField',
+        'mmOppositeField'     => 'MM_opposite_field',
+        'renderType'          => 'renderType',
+        'sortBy'              => 'sortby',
+        'userFunc'            => 'userFunc',
     ];
 
     private const PROTECTED_COLUMNS = [
@@ -249,6 +254,16 @@ class TcaService
     }
 
     /**
+     * @param string $key
+     *
+     * @return string
+     */
+    public static function convertKey(string $key): string
+    {
+        return self::PROPERTY_KEY_MAPPING[$key] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($key);
+    }
+
+    /**
      * For usage in ext_tables.php
      *
      * @param ExtensionInformationInterface $extensionInformation
@@ -302,71 +317,6 @@ class TcaService
     }
 
     /**
-     * adds a property's configuration to the ['columns'] section of the TCA
-     * also returns the field configuration, e.g. needed when adding columns to existing tables in TCA/Overrides
-     *
-     * Example:
-     * $tempColumns = array_merge(
-     *     $tcaService->buildColumnConfiguration(...),
-     *     $tcaService->buildColumnConfiguration(...),
-     *     $tcaService->buildColumnConfiguration(...)
-     * );
-     *
-     * @param string $columnName                  name of the database column
-     * @param string $type                        use constants of this class to see what is available and to avoid
-     *                                            typos
-     * @param array  $customFieldConfiguration    override array keys within the 'config'-part
-     * @param array  $customPropertyConfiguration override array keys on the same level as 'config'
-     *
-     * @return array
-     */
-    public function buildColumnConfiguration(
-        string $columnName,
-        string $type,
-        array $customFieldConfiguration = [],
-        array $customPropertyConfiguration = []
-    ): ?array {
-        if (in_array($type, Fields::FAL_PLACEHOLDER_TYPES, true)) {
-            switch ($type) {
-                case Fields::FIELD_TYPES['DOCUMENT']:
-                    $allowedFileTypes = 'pdf';
-                    break;
-                case Fields::FIELD_TYPES['FILE']:
-                    $allowedFileTypes = '*';
-                    break;
-                case Fields::FIELD_TYPES['IMAGE']:
-                    $allowedFileTypes = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
-                    break;
-                default:
-                    $allowedFileTypes = '';
-            }
-
-            /** @noinspection TranslationMissingInspection */
-            $fieldConfiguration = ExtensionManagementUtility::getFileFieldTCAConfig($columnName,
-                [
-                    'appearance' => [
-                        'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference',
-                    ],
-                    'maxitems'   => 9999,
-                ], $allowedFileTypes);
-        } else {
-            $fieldConfiguration = Fields::getDefaultConfiguration($type);
-        }
-
-        ArrayUtility::mergeRecursiveWithOverrule($fieldConfiguration, $this->convertKeys($customFieldConfiguration));
-        $propertyConfiguration = [
-            'config'  => $fieldConfiguration,
-            'exclude' => 0,
-            'label'   => $this->getDefaultLabelPath() . $columnName,
-        ];
-
-        ArrayUtility::mergeRecursiveWithOverrule($propertyConfiguration,
-            $this->convertKeys($customPropertyConfiguration));
-
-        return $propertyConfiguration;
-    }
-
-    /**
      * @return $this
      * @throws AnnotationException
      * @throws InvalidArgumentForHashGenerationException
@@ -379,15 +329,16 @@ class TcaService
         $docComment = $docCommentParserService->parsePhpDocComment($this->className);
         $editableInFrontend = false;
 
-        if (isset($docComment[TcaConfig::class])) {
-            /** @var TcaConfig $tcaConfig */
-            $tcaConfig = $docComment[TcaConfig::class];
+        if (isset($docComment[Ctrl::class])) {
+            /** @var Ctrl $ctrl */
+            $ctrl = $docComment[Ctrl::class];
 
-            if (true === $tcaConfig->isEditableInFrontend()) {
+            if (true === $ctrl->isEditableInFrontend()) {
                 $editableInFrontend = true;
             }
 
-            $this->setCtrlProperties($this->convertKeys($tcaConfig->toArray()));
+            $this->setCtrlProperties($ctrl->toArray($this->className,
+                DocCommentParserService::ANNOTATION_TARGETS['CLASS']));
         }
 
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $this->className);
@@ -396,76 +347,34 @@ class TcaService
         foreach ($properties as $property) {
             $docComment = $docCommentParserService->parsePhpDocComment($this->className, $property->getName());
 
-            if (isset($docComment[TcaFieldConfig::class])) {
-                /** @var TcaFieldConfig $tcaFieldConfig */
-                $tcaFieldConfig = $docComment[TcaFieldConfig::class];
-                $type = $tcaFieldConfig->getType();
-                $tcaFieldConfig->setType(null);
-                $tcaConfig = $docComment[TcaConfig::class] ?? $this->get(TcaConfig::class, []);
+            foreach ($docComment as $annotation) {
+                if ($annotation instanceof TcaAnnotationInterface) {
+                    if (true === $editableInFrontend) {
+                        $annotation->setEditableInFrontend(true);
+                    }
 
-                if (true === $editableInFrontend) {
-                    $tcaConfig->setEditableInFrontend(true);
-                }
+                    $columnName = ExtensionInformationUtility::convertPropertyNameToColumnName($property->getName(),
+                        $this->className);
 
-                $columnName = ExtensionInformationUtility::convertPropertyNameToColumnName($property->getName(),
-                    $this->className);
+                    if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
+                        $propertyConfiguration = $annotation->toArray($columnName,
+                            DocCommentParserService::ANNOTATION_TARGETS['PROPERTY']);
 
-                if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
-                    $this->configuration['columns'][$columnName] = $this->buildColumnConfiguration($columnName,
-                        $type,
-                        $tcaFieldConfig->toArray(), $tcaConfig->toArray());
-                    $this->addFieldToType($columnName);
-                } elseif (true === $editableInFrontend) {
-                    // @TODO: use a constant for 'editableInFrontend'?
-                    $GLOBALS['TCA'][$this->table]['columns'][$columnName]['editableInFrontend'] = true;
+                        if (!isset($propertyConfiguration['label'])) {
+                            $propertyConfiguration['label'] = $this->getDefaultLabelPath() . $columnName;
+                        }
+
+                        $this->configuration['columns'][$columnName] = $propertyConfiguration;
+                        $this->addFieldToType($columnName);
+                    } elseif (true === $editableInFrontend) {
+                        // @TODO: use a constant for 'editableInFrontend'?
+                        $GLOBALS['TCA'][$this->table]['columns'][$columnName]['editableInFrontend'] = true;
+                    }
                 }
             }
         }
 
         return $this;
-    }
-
-    /**
-     * set columns and their order for sorting in list view (BE only)
-     *
-     * function excepts simple arrays like [property1, property2, ...] (order is ascending by default)
-     * and associative arrays like
-     * [
-     *     'porperty 1' => QueryInterface::ORDER_ASCENDING,
-     *     'porperty 2' => QueryInterface::ORDER_DESCENDING,
-     *     ...
-     * ]
-     *
-     * @param array $columns
-     */
-    public function enableAutomaticSorting(array $columns): void
-    {
-        $this->configuration['ctrl']['sortby'] = null;
-        $orderings = [];
-
-        foreach ($columns as $key => $value) {
-            if (is_numeric($key)) {
-                $orderings[] = $value . ' ' . QueryInterface::ORDER_ASCENDING;
-            } else {
-                if (!$value) {
-                    $value = QueryInterface::ORDER_ASCENDING;
-                }
-
-                $orderings[] = $key . ' ' . $value;
-            }
-        }
-        $this->configuration['ctrl']['default_sortby'] = implode(', ', $orderings);
-    }
-
-    /**
-     * enables custom sorting in list view (BE only)
-     *
-     * @param string $column
-     */
-    public function enableManualSorting(string $column = 'sorting'): void
-    {
-        $this->configuration['ctrl']['default_sortby'] = null;
-        $this->configuration['ctrl']['sortby'] = $column;
     }
 
     /**
@@ -480,23 +389,6 @@ class TcaService
         }
 
         return $this;
-    }
-
-    /**
-     * @param array $configuration
-     *
-     * @return array
-     */
-    private function convertKeys(array $configuration): array
-    {
-        $convertedArray = [];
-
-        foreach ($configuration as $key => $value) {
-            $key = self::PROPERTY_KEY_MAPPING[$key] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($key);
-            $convertedArray[$key] = $value;
-        }
-
-        return $convertedArray;
     }
 
     /**
@@ -515,7 +407,6 @@ class TcaService
                 //'copyAfterDuplFields' => 'colPos, sys_language_uid',
                 'crdate'                   => 'crdate',
                 'cruser_id'                => 'cruser_id',
-                'default_sortby'           => 'uid DESC',
                 'delete'                   => 'deleted',
                 'enablecolumns'            => [
                     'disabled'  => 'hidden',
@@ -537,7 +428,6 @@ class TcaService
                 'rootLevel'                => 0,
                 'searchFields'             => '',
                 'setToDefaultOnCopy'       => '',
-                //'sortby'                   => 'sorting',
                 'thumbnail'                => '',
                 'title'                    => 'My record',
                 'translationSource'        => 'l10n_source',

@@ -26,6 +26,7 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Select;
 use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
 
 /**
@@ -39,6 +40,7 @@ abstract class AbstractFrontendUserRelatedModel extends AbstractModelWithDataMan
 {
     /**
      * @var FrontendUser
+     * @Select(linkedModel="FrontendUser")
      */
     protected FrontendUser $frontendUser;
 

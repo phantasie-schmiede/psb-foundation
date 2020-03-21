@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Domain\Model;
+namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,37 +26,51 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Input;
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use PSB\PsbFoundation\Service\Configuration\Fields;
 
 /**
- * Class ModelWithName
+ * Class DateTime
  *
- * Adds a property "name" to your model.
- *
- * @package PSB\PsbFoundation\Domain\Model
+ * @Annotation
+ * @package PSB\PsbFoundation\Service\DocComment\Annotations\TCA
  */
-abstract class AbstractModelWithName extends AbstractEntity
+class DateTime extends Input
 {
+    public const TYPE = Fields::FIELD_TYPES['DATETIME'];
+
     /**
      * @var string
-     * @Input()
      */
-    protected string $name = '';
+    protected string $dbType = 'datetime';
+
+    /**
+     * @var string
+     */
+    protected string $eval = 'datetime,null';
+
+    /**
+     * @var string
+     */
+    protected string $renderType = 'inputDateTime';
+
+    /**
+     * @var int
+     */
+    protected int $size = 12;
 
     /**
      * @return string
      */
-    public function getName(): string
+    public function getDbType(): string
     {
-        return $this->name;
+        return $this->dbType;
     }
 
     /**
-     * @param string $name
+     * @param string $dbType
      */
-    public function setName(string $name): void
+    public function setDbType(string $dbType): void
     {
-        $this->name = $name;
+        $this->dbType = $dbType;
     }
 }

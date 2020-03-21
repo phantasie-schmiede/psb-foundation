@@ -30,17 +30,17 @@ use PSB\PsbFoundation\Cache\CacheEntry;
 use PSB\PsbFoundation\Cache\CacheEntryRepository;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Php\ExtendedReflectionClass;
-use PSB\PsbFoundation\Service\DocComment\Annotations\AbstractAnnotation;
-use PSB\PsbFoundation\Service\DocComment\Annotations\PreProcessorInterface;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\SecurityUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use ReflectionClass;
 use ReflectionException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
@@ -57,6 +57,12 @@ class DocCommentParserService implements LoggerAwareInterface
 {
     use InjectionTrait;
     use LoggerAwareTrait;
+
+    public const ANNOTATION_TARGETS = [
+        'CLASS'    => 'class',
+        'METHOD'   => 'method',
+        'PROPERTY' => 'property',
+    ];
 
     private const ANNOTATION_TYPES = [
         'DESCRIPTION' => 'description',
@@ -190,7 +196,7 @@ class DocCommentParserService implements LoggerAwareInterface
                             // extend previous comment line
                             $parameters = ($parameters ?? '') . ' ' . $commentLine;
 
-                            if (is_array($parsedDocComment[$annotationType]) && !ArrayUtility::isAssociativeArray($parsedDocComment[$annotationType])) {
+                            if (is_array($parsedDocComment[$annotationType]) && !ArrayUtility::isAssociative($parsedDocComment[$annotationType])) {
                                 $indexOfLastElement = count($parsedDocComment[$annotationType]) - 1;
                                 $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($annotationType,
                                     $className, $parameters);
@@ -234,8 +240,10 @@ class DocCommentParserService implements LoggerAwareInterface
         $valueParts = preg_split('/[,;](?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/', $value);
 
         foreach ($valueParts as $property) {
-            [$propertyName, $propertyValue] = explode('=', $property, 2);
-            $properties[trim($propertyName)] = trim($propertyValue, '"');
+            if (false !== mb_strpos($property, '=')) {
+                [$propertyName, $propertyValue] = explode('=', $property, 2);
+                $properties[trim($propertyName)] = trim($propertyValue, '"');
+            }
         }
 
         return $properties;
@@ -281,18 +289,12 @@ class DocCommentParserService implements LoggerAwareInterface
                 $annotationClass = ObjectUtility::getFullQualifiedClassName($annotationType, $this->namespaces);
 
                 if (false !== $annotationClass) {
-                    $reflectionClass = GeneralUtility::makeInstance(\ReflectionClass::class, $annotationClass);
-
-                    if (!$reflectionClass->isSubclassOf(AbstractAnnotation::class)) {
-                        throw new AnnotationException(__CLASS__ . ': ' . $annotationClass . ' has to be a subclass of AbstractAnnotation!',
-                            1582885136);
-                    }
-
+                    $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $annotationClass);
                     $properties = $this->convertValueStringToPropertiesArray($value);
 
-                    if (in_array(PreProcessorInterface::class, class_implements($annotationClass), true)) {
-                        /** @var PreProcessorInterface $annotationClass */
-                        $properties = $annotationClass::processProperties($properties);
+                    if ($reflectionClass->implementsInterface(TcaAnnotationInterface::class)) {
+                        /** @var TcaAnnotationInterface $annotationClass */
+                        $properties = $annotationClass::propertyPreProcessor($properties);
                     }
 
                     $namespaces = $this->namespaces;

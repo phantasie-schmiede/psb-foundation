@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Service\DocComment\Annotations;
+namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -27,6 +27,8 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
  ***************************************************************/
 
 use PSB\PsbFoundation\Exceptions\AnnotationException;
+use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Service\DocComment\Annotations\AbstractAnnotation;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -36,29 +38,30 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
 /**
  * Class TcaConfig
  *
- * Use this in the annotations of your domain model properties. Possible attributes are all those listed in the
- * official TCA documentation: https://docs.typo3.org/m/typo3/reference-tca/master/en-us/Columns/Index.html EXCEPT
- * "config". To define those values use the TcaFieldConfigParser annotation.
- *
  * @Annotation
- * @package PSB\PsbFoundation\Service\DocComment\Annotations
+ * @package PSB\PsbFoundation\Service\DocComment\Annotations\TCA
  */
-class TcaConfig extends AbstractAnnotation
+class Ctrl extends AbstractAnnotation
 {
     /**
-     * if set to true, \PSB\PsbFoundation\ViewHelpers\Form\BuildFromTcaViewHelper can be used for this domain model. If
-     * used in class annotation, this attribute applies to all properties annotated with FieldConfig.
-     *
-     * @TODO: But it can also be set for each property individually.
+     * @var string|null
+     */
+    protected ?string $defaultSortBy = 'uid DESC';
+
+    /**
+     * If set to true, \PSB\PsbFoundation\ViewHelpers\Form\BuildFromTcaViewHelper can be used for this domain model.
+     * This accounts for all properties annotated with \PSB\PsbFoundation\Service\DocComment\Annotations\TCA\*. In
+     * order to activate this feature only for certain properties, see AbstractTcaFieldAnnotation.
      *
      * @var bool
+     * @see AbstractTcaFieldAnnotation
      */
     protected bool $editableInFrontend = false;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected ?string $label = null;
+    protected string $label = '';
 
     /**
      * @var string|null
@@ -76,25 +79,42 @@ class TcaConfig extends AbstractAnnotation
     protected ?string $searchFields = null;
 
     /**
+     * @var string|null
+     */
+    protected ?string $sortBy = null;
+
+    /**
      * @return string|null
+     */
+    public function getDefaultSortBy(): ?string
+    {
+        return $this->defaultSortBy;
+    }
+
+    /**
+     * @param string|null $defaultSortBy
+     */
+    public function setDefaultSortBy(?string $defaultSortBy): void
+    {
+        $this->defaultSortBy = $defaultSortBy;
+    }
+
+    /**
+     * @return string
      * @throws AnnotationException
      * @throws Exception
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
-    public function getLabel(): ?string
+    public function getLabel(): string
     {
-        if (null === $this->label) {
-            return null;
-        }
-
         return ExtensionInformationUtility::convertPropertyNameToColumnName($this->label);
     }
 
     /**
-     * @param string|null $label
+     * @param string $label
      */
-    public function setLabel(?string $label): void
+    public function setLabel(string $label): void
     {
         $this->label = $label;
     }
@@ -111,10 +131,10 @@ class TcaConfig extends AbstractAnnotation
         $altLabels = GeneralUtility::trimExplode(',', $this->labelAlt);
 
         array_walk($altLabels, static function (&$item) {
-           $item =  ExtensionInformationUtility::convertPropertyNameToColumnName($item);
+            $item = ExtensionInformationUtility::convertPropertyNameToColumnName($item);
         });
 
-        return implode(', ', $altLabels);
+        return implode(',', $altLabels);
     }
 
     /**
@@ -139,6 +159,23 @@ class TcaConfig extends AbstractAnnotation
     public function setSearchFields(?string $searchFields): void
     {
         $this->searchFields = $searchFields;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSortBy(): ?string
+    {
+        return $this->sortBy;
+    }
+
+    /**
+     * @param string|null $sortBy
+     */
+    public function setSortBy(?string $sortBy): void
+    {
+        $this->setDefaultSortBy(null);
+        $this->sortBy = $sortBy;
     }
 
     /**
@@ -171,5 +208,23 @@ class TcaConfig extends AbstractAnnotation
     public function setLabelAltForce(bool $labelAltForce): void
     {
         $this->labelAltForce = $labelAltForce;
+    }
+
+    /**
+     * @param string $targetName
+     * @param string $targetScope
+     *
+     * @return array
+     */
+    public function toArray(string $targetName, string $targetScope): array
+    {
+        $properties = parent::toArray($targetName, $targetScope);
+        $ctrlConfiguration = [];
+
+        foreach ($properties as $key => $value) {
+            $ctrlConfiguration[TcaService::convertKey($key)] = $value;
+        }
+
+        return $ctrlConfiguration;
     }
 }

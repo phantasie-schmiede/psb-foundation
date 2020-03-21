@@ -28,9 +28,11 @@ namespace PSB\PsbFoundation\Utility;
 
 use RuntimeException;
 use SimpleXMLElement;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 
 /**
  * Class XmlUtility
+ *
  * @package PSB\PsbFoundation\Utility
  */
 class XmlUtility
@@ -50,7 +52,7 @@ class XmlUtility
         $xml = '';
 
         foreach ($array as $key => $value) {
-            if (is_array($value) && !ArrayUtility::isAssociativeArray($value)) {
+            if (is_array($value) && !ArrayUtility::isAssociative($value)) {
                 foreach ($value as $tagSibling) {
                     $xml .= self::buildTag($key, $tagSibling, $indentationLevel);
                 }
@@ -123,7 +125,7 @@ class XmlUtility
 
                 if (!isset($array[$childTagName])) {
                     $array[$childTagName] = $parsedChild;
-                } elseif (is_array($array[$childTagName]) && !ArrayUtility::isAssociativeArray($array[$childTagName])) {
+                } elseif (is_array($array[$childTagName]) && !ArrayUtility::isAssociative($array[$childTagName])) {
                     $array[$childTagName][] = $parsedChild;
                 } else {
                     $array[$childTagName] = [

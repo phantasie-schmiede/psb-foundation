@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Service\DocComment\Annotations;
+namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 /***************************************************************
  *  Copyright notice
@@ -27,15 +27,15 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
  ***************************************************************/
 
 /**
- * Interface PreProcessorInterface
- * @package PSB\PsbFoundation\Service\DocComment\Annotations
+ * Class File
+ *
+ * @Annotation
+ * @package PSB\PsbFoundation\Service\DocComment\Annotations\TCA
  */
-interface PreProcessorInterface
+class File extends AbstractTcaFalFieldAnnotation
 {
     /**
-     * @param array $value
-     *
-     * @return array
+     * @var string
      */
-    public static function processProperties(array $value): array;
+    protected string $allowedFileTypes = '*';
 }
