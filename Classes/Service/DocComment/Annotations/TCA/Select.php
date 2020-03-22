@@ -85,6 +85,11 @@ class Select extends AbstractTcaFieldAnnotation
     protected ?string $foreignTable = null;
 
     /**
+     * @var string|null
+     */
+    protected ?string $foreignTableWhere = null;
+
+    /**
      * @var array
      */
     protected array $items = [];
@@ -162,6 +167,22 @@ class Select extends AbstractTcaFieldAnnotation
     public function setForeignTable(?string $foreignTable): void
     {
         $this->foreignTable = $foreignTable;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getForeignTableWhere(): ?string
+    {
+        return $this->foreignTableWhere;
+    }
+
+    /**
+     * @param string|null $foreignTableWhere
+     */
+    public function setForeignTableWhere(?string $foreignTableWhere): void
+    {
+        $this->foreignTableWhere = $foreignTableWhere;
     }
 
     /**

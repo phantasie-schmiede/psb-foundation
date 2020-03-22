@@ -101,8 +101,8 @@ class DocCommentParserService implements LoggerAwareInterface
     private array $namespaces;
 
     /**
-     * @param             $className
-     * @param string|null $methodOrPropertyName
+     * @param object|string $className
+     * @param string|null   $methodOrPropertyName
      *
      * @return array
      * @throws AnnotationException

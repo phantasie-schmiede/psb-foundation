@@ -56,6 +56,8 @@ class Mm extends Select
     protected int $maxItems = 0;
 
     /**
+     * name of the mm-table
+     *
      * @var string
      */
     protected string $mm;
