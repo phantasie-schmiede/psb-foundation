@@ -51,6 +51,19 @@ abstract class AbstractAnnotation
      */
     public function __construct(array $data = [])
     {
+        $debugBacktrace = debug_backtrace();
+        $backtraceClasses = [];
+
+        foreach ($debugBacktrace as $step) {
+            $backtraceClasses[] = $step['class'];
+        }
+
+        if (!in_array(DocCommentParserService::class, $backtraceClasses, true)) {
+            // Don't let Doctrine's AnnotationReader continue, as it might throw exceptions because it is not able to
+            // resolve elements of array constants.
+            return;
+        }
+
         if (!empty($data)) {
             $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $this);
 

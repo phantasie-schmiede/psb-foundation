@@ -29,6 +29,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
 use PSB\PsbFoundation\Utility\LocalizationUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class TranslateViewHelper
@@ -50,6 +51,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
      * @param string[] $alternativeLanguageKeys Alternative language keys if no translation does exist
      *
      * @return string|null
+     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */

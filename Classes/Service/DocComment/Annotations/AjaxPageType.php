@@ -31,6 +31,7 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
 
 /**
  * Class AjaxPageType
+ *
  * @Annotation
  * @package PSB\PsbFoundation\Service\DocComment\Annotations
  */
@@ -43,30 +44,20 @@ class AjaxPageType extends AbstractAnnotation
 
     /**
      * Has to be a value of PageObjectConfiguration::CONTENT_TYPES.
+     *
      * @var string
      */
     protected string $contentType;
 
     /**
+     * @var bool
+     */
+    protected bool $disableAllHeaderCode = true;
+
+    /**
      * @var int
      */
     protected int $typeNum;
-
-    /**
-     * @return bool
-     */
-    public function isCacheable(): bool
-    {
-        return $this->cacheable;
-    }
-
-    /**
-     * @param bool $cacheable
-     */
-    public function setCacheable(bool $cacheable): void
-    {
-        $this->cacheable = $cacheable;
-    }
 
     /**
      * @return string
@@ -99,5 +90,37 @@ class AjaxPageType extends AbstractAnnotation
     public function setTypeNum(int $typeNum): void
     {
         $this->typeNum = $typeNum;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCacheable(): bool
+    {
+        return $this->cacheable;
+    }
+
+    /**
+     * @param bool $cacheable
+     */
+    public function setCacheable(bool $cacheable): void
+    {
+        $this->cacheable = $cacheable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableAllHeaderCode(): bool
+    {
+        return $this->disableAllHeaderCode;
+    }
+
+    /**
+     * @param bool $disableAllHeaderCode
+     */
+    public function setDisableAllHeaderCode(bool $disableAllHeaderCode): void
+    {
+        $this->disableAllHeaderCode = $disableAllHeaderCode;
     }
 }

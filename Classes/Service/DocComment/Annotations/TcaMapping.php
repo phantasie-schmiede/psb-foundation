@@ -38,14 +38,14 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
 class TcaMapping extends AbstractAnnotation
 {
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $column;
+    protected ?string $column = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $table;
+    protected ?string $table = null;
 
     /**
      * @return string|null

@@ -60,7 +60,7 @@ class Mm extends Select
      *
      * @var string
      */
-    protected string $mm;
+    protected string $mm = '';
 
     /**
      * @var bool|null

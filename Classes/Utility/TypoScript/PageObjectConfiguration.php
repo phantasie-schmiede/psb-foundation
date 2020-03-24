@@ -30,6 +30,7 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
 
 /**
  * Class PageObjectConfiguration
+ *
  * @package PSB\PsbFoundation\Utility\TypoScript
  */
 class PageObjectConfiguration
@@ -59,6 +60,11 @@ class PageObjectConfiguration
      * @var string
      */
     protected string $controller;
+
+    /**
+     * @var bool
+     */
+    protected bool $disableAllHeaderCode = true;
 
     /**
      * @var string
@@ -327,5 +333,21 @@ class PageObjectConfiguration
     public function setCacheable(bool $cacheable): void
     {
         $this->cacheable = $cacheable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableAllHeaderCode(): bool
+    {
+        return $this->disableAllHeaderCode;
+    }
+
+    /**
+     * @param bool $disableAllHeaderCode
+     */
+    public function setDisableAllHeaderCode(bool $disableAllHeaderCode): void
+    {
+        $this->disableAllHeaderCode = $disableAllHeaderCode;
     }
 }

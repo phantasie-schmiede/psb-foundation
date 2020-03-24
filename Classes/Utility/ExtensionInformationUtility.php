@@ -84,19 +84,25 @@ class ExtensionInformationUtility
 
     /**
      * @return ExtensionInformationInterface[]
+     * @throws Exception
      */
     public static function getExtensionInformation(): array
     {
-        $extensionInformationClassNames = self::getRegisteredClassNames();
-        $extensionInformation = [];
+        $extensionInformation = self::getRegisteredClassInformation();
+        $extensionInformationInstances = [];
 
-        foreach ($extensionInformationClassNames as $className) {
+        foreach ($extensionInformation as $information) {
+            if (!ExtensionManagementUtility::isLoaded($information['extension_key'])) {
+                self::deregister($information['extension_key']);
+                continue;
+            }
+
             /** @var ExtensionInformationInterface $extensionInformationClass */
-            $extensionInformationClass = GeneralUtility::makeInstance($className);
-            $extensionInformation[$extensionInformationClass->getExtensionKey()] = $extensionInformationClass;
+            $extensionInformationClass = GeneralUtility::makeInstance($information['class_name']);
+            $extensionInformationInstances[$extensionInformationClass->getExtensionKey()] = $extensionInformationClass;
         }
 
-        return $extensionInformation;
+        return $extensionInformationInstances;
     }
 
     /**
@@ -112,13 +118,13 @@ class ExtensionInformationUtility
     /**
      * @return array
      */
-    public static function getRegisteredClassNames(): array
+    public static function getRegisteredClassInformation(): array
     {
         try {
             return GeneralUtility::makeInstance(ConnectionPool::class)
                 ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
-                ->select(['class_name'], self::EXTENSION_INFORMATION_MAPPING_TABLE)
-                ->fetchAll(FetchMode::COLUMN, 0);
+                ->select(['class_name', 'extension_key'], self::EXTENSION_INFORMATION_MAPPING_TABLE)
+                ->fetchAll();
         } catch (TableNotFoundException $tableNotFoundException) {
             return [];
         }

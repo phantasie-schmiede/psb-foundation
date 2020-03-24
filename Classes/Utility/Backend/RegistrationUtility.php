@@ -549,6 +549,7 @@ class RegistrationUtility
                                 $pageObjectConfiguration->setContentType($ajaxPageType->getContentType());
                                 $controllerName = ExtensionInformationUtility::convertControllerClassToBaseName($controllerClassName);
                                 $pageObjectConfiguration->setController($controllerName);
+                                $pageObjectConfiguration->setDisableAllHeaderCode($ajaxPageType->isDisableAllHeaderCode());
                                 $pageObjectConfiguration->setExtensionName($extensionInformation['extensionName']);
                                 $pageObjectConfiguration->setPluginName($pluginName);
                                 $pageObjectConfiguration->setTypeNum($ajaxPageType->getTypeNum());
