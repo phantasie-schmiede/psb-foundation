@@ -29,14 +29,13 @@ namespace PSB\PsbFoundation\Utility\Backend;
 use Exception;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
-use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -47,8 +46,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class TcaUtility
 {
-    use StaticInjectionTrait;
-
     /**
      * This function will be executed when the core builds the TCA, but as it does not return an array there will be no
      * entry for the required file. Instead this function expands the TCA on its own by scanning through the domain
@@ -62,7 +59,6 @@ class TcaUtility
      *                           (They have to be properly annotated, see
      *                           \PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaMappingParser.)
      *
-     * @throws NoSuchCacheException
      * @throws ReflectionException
      * @throws Exception
      */
@@ -114,7 +110,7 @@ class TcaUtility
                 }
 
                 try {
-                    self::get(ConnectionPool::class)
+                    ObjectUtility::get(ConnectionPool::class)
                         ->getConnectionForTable($tableName)
                         ->getSchemaManager()
                         ->tablesExist([$tableName]);
@@ -123,7 +119,7 @@ class TcaUtility
                     continue;
                 }
 
-                $tcaConfiguration = self::get(TcaService::class,
+                $tcaConfiguration = ObjectUtility::get(TcaService::class,
                     $fullQualifiedClassName)->buildFromDocComment()->getConfiguration();
 
                 if (is_array($tcaConfiguration)) {

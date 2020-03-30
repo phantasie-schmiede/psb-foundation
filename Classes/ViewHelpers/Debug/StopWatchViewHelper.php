@@ -29,6 +29,7 @@ namespace PSB\PsbFoundation\ViewHelpers\Debug;
 
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\Debug\StopWatchUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
@@ -53,6 +54,7 @@ class StopWatchViewHelper extends AbstractViewHelper
 
     /**
      * @return mixed
+     * @throws Exception
      */
     public function render()
     {

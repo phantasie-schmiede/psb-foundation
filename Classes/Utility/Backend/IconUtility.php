@@ -26,10 +26,11 @@ namespace PSB\PsbFoundation\Utility\Backend;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Traits\StaticInjectionTrait;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class IconUtility
@@ -37,14 +38,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class IconUtility
 {
-    use StaticInjectionTrait;
-
     /**
      * For use in ext_tables.php files
      *
      * @param string $extensionKey
      * @param array  $iconNames
      * @param string $path
+     *
+     * @throws Exception
      */
     public static function registerIconsFromExtensionDirectory(
         string $extensionKey,
@@ -55,7 +56,7 @@ class IconUtility
         $iconFiles = GeneralUtility::getFilesInDir($path, 'svg', true, '', 'ext_icon.*');
 
         if (is_iterable($iconFiles)) {
-            $iconRegistry = self::get(IconRegistry::class);
+            $iconRegistry = ObjectUtility::get(IconRegistry::class);
 
             foreach ($iconFiles as $iconFile) {
                 $fileName = pathinfo($iconFile, PATHINFO_FILENAME);

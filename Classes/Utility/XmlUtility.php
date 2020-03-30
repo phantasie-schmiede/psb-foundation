@@ -37,28 +37,63 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  */
 class XmlUtility
 {
-    public const ATTRIBUTES_KEY = '@attributes';
-    public const INDENTATION    = '    ';
-    public const NODE_VALUE_KEY = '@nodeValue';
+    public const INDENTATION = '    ';
+
+    public const SPECIAL_KEYS = [
+        'ATTRIBUTES' => '@attributes',
+        'NODE_VALUE' => '@nodeValue',
+        'POSITION'   => '@position',
+    ];
+
+    /**
+     * @param array  $array
+     * @param string $path
+     *
+     * @return mixed
+     */
+    public static function getNodeValue(array $array, string $path)
+    {
+        $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
+
+        return ArrayUtility::getValueByPath($array, $path, '.');
+    }
 
     /**
      * @param array $array
+     * @param bool  $wellFormatted
      * @param int   $indentationLevel
      *
      * @return string
      */
-    public static function convertArrayToXml(array $array, int $indentationLevel = 0): string
-    {
+    public static function convertArrayToXml(
+        array $array,
+        bool $wellFormatted = true,
+        int $indentationLevel = 0
+    ): string {
         $xml = '';
+        $siblings = [];
 
         foreach ($array as $key => $value) {
             if (is_array($value) && !ArrayUtility::isAssociative($value)) {
-                foreach ($value as $tagSibling) {
-                    $xml .= self::buildTag($key, $tagSibling, $indentationLevel);
+                foreach ($value as $sibling) {
+                    $siblings[] = [
+                        'tagName'  => $key,
+                        'tagValue' => $sibling,
+                    ];
                 }
             } else {
-                $xml .= self::buildTag($key, $value, $indentationLevel);
+                $siblings[] = [
+                    'tagName'  => $key,
+                    'tagValue' => $value,
+                ];
             }
+        }
+
+        $siblings = self::sortSiblings($siblings);
+
+        foreach ($siblings as $value) {
+            unset($value['tagValue'][self::SPECIAL_KEYS['POSITION']]);
+            $xml .= self::buildTag($value['tagName'], $value['tagValue'], $wellFormatted, $indentationLevel);
         }
 
         return $xml;
@@ -66,10 +101,11 @@ class XmlUtility
 
     /**
      * @param SimpleXMLElement|string $xml
+     * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
      *
      * @return array
      */
-    public static function convertXmlToArray($xml): array
+    public static function convertXmlToArray($xml, bool $sortAlphabetically = false): array
     {
         if (is_string($xml)) {
             $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
@@ -79,16 +115,28 @@ class XmlUtility
             throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
         }
 
-        return self::buildArrayFromXml($xml);
+        return self::buildArrayFromXml($sortAlphabetically, $xml);
     }
 
     /**
+     * @param array  $array
+     * @param string $path
+     * @param mixed  $value
+     */
+    public static function setNodeValue(array &$array, string $path, $value): void
+    {
+        $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
+        $array = ArrayUtility::setValueByPath($array, $path, $value, '.');
+    }
+
+    /**
+     * @param bool                    $sortAlphabetically
      * @param SimpleXMLElement|string $xml
-     * @param bool                    $rootLevel
+     * @param bool                    $rootLevel This is an internal parameter only to be set from within this function.
      *
      * @return array|string
      */
-    private static function buildArrayFromXml($xml, bool $rootLevel = true): array
+    private static function buildArrayFromXml(bool $sortAlphabetically, $xml, bool $rootLevel = true): array
     {
         if (is_string($xml)) {
             return $xml;
@@ -101,7 +149,7 @@ class XmlUtility
                 $value = StringUtility::convertString(trim((string)$value));
             }
 
-            $array[self::ATTRIBUTES_KEY][$attributeName] = $value;
+            $array[self::SPECIAL_KEYS['ATTRIBUTES']][$attributeName] = $value;
         }
 
         $namespaces = $xml->getDocNamespaces();
@@ -114,14 +162,18 @@ class XmlUtility
                 $prefix .= ':';
             }
 
+            $positionOnThisLevel = 0;
+
             foreach ($xml->children($namespace) as $childTagName => $child) {
                 $childTagName = $prefix . $childTagName;
 
                 if (0 < $child->count()) {
-                    $parsedChild = self::buildArrayFromXml($child, false);
+                    $parsedChild = self::buildArrayFromXml($sortAlphabetically, $child, false);
                 } else {
                     $parsedChild = self::parseTextNode($child);
                 }
+
+                $parsedChild[self::SPECIAL_KEYS['POSITION']] = $positionOnThisLevel++;
 
                 if (!isset($array[$childTagName])) {
                     $array[$childTagName] = $parsedChild;
@@ -136,7 +188,9 @@ class XmlUtility
             }
         }
 
-        ksort($array);
+        if (true === $sortAlphabetically) {
+            ksort($array);
+        }
 
         if (true === $rootLevel) {
             return [$xml->getName() => $array];
@@ -147,32 +201,44 @@ class XmlUtility
 
     /**
      * @param string $key
-     * @param mixed  $value
+     * @param        $value
+     * @param bool   $wellFormatted
      * @param int    $indentationLevel
      *
      * @return string
      */
-    private static function buildTag(string $key, $value, int $indentationLevel): string
+    private static function buildTag(string $key, $value, bool $wellFormatted, int $indentationLevel): string
     {
         $xml = '';
-        $indentation = self::createIndentation($indentationLevel);
+
+        if (true === $wellFormatted) {
+            $indentation = self::createIndentation($indentationLevel);
+            $linebreak = LF;
+        } else {
+            $indentation = '';
+            $linebreak = '';
+        }
 
         if (is_string($key)) {
             $xml .= $indentation . '<' . $key;
 
-            if (is_array($value) && isset($value[self::ATTRIBUTES_KEY]) && is_array($value[self::ATTRIBUTES_KEY])) {
-                foreach ($value[self::ATTRIBUTES_KEY] as $attributeName => $attributeValue) {
+            if (is_array($value) && isset($value[self::SPECIAL_KEYS['ATTRIBUTES']]) && is_array($value[self::SPECIAL_KEYS['ATTRIBUTES']])) {
+                foreach ($value[self::SPECIAL_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
                     $xml .= ' ' . $attributeName . '="' . $attributeValue . '"';
                 }
 
-                unset($value[self::ATTRIBUTES_KEY]);
+                unset($value[self::SPECIAL_KEYS['ATTRIBUTES']]);
             }
 
             $xml .= '>';
+
+            if (isset($value[self::SPECIAL_KEYS['NODE_VALUE']])) {
+                $value = $value[self::SPECIAL_KEYS['NODE_VALUE']];
+            }
         }
 
         if (is_array($value)) {
-            $xml .= LF . self::convertArrayToXml($value, ++$indentationLevel) . $indentation;
+            $xml .= $linebreak . self::convertArrayToXml($value, $wellFormatted, ++$indentationLevel) . $indentation;
         } else {
             $xml .= $value;
         }
@@ -180,9 +246,9 @@ class XmlUtility
         if (is_string($key)) {
             if ('' === $value) {
                 $xml = rtrim($xml, '>');
-                $xml .= ' />' . LF;
+                $xml .= ' />' . $linebreak;
             } else {
-                $xml .= '</' . $key . '>' . LF;
+                $xml .= '</' . $key . '>' . $linebreak;
             }
         }
 
@@ -214,14 +280,26 @@ class XmlUtility
     {
         if (count($node->attributes())) {
             foreach ($node->attributes() as $attributeName => $value) {
-                $parsedNode[self::ATTRIBUTES_KEY][$attributeName] = StringUtility::convertString(trim((string)$value));
+                $parsedNode[self::SPECIAL_KEYS['ATTRIBUTES']][$attributeName] = StringUtility::convertString(trim((string)$value));
             }
-
-            $parsedNode[self::NODE_VALUE_KEY] = StringUtility::convertString(trim((string)$node));
-        } else {
-            $parsedNode = StringUtility::convertString(trim((string)$node));
         }
 
+        $parsedNode[self::SPECIAL_KEYS['NODE_VALUE']] = StringUtility::convertString(trim((string)$node));
+
         return $parsedNode;
+    }
+
+    /**
+     * @param array $siblings
+     *
+     * @return array
+     */
+    private static function sortSiblings(array $siblings): array
+    {
+        uasort($siblings, static function ($a, $b) {
+            return $a['tagValue'][self::SPECIAL_KEYS['POSITION']] > $b['tagValue'][self::SPECIAL_KEYS['POSITION']];
+        });
+
+        return $siblings;
     }
 }

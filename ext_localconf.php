@@ -25,11 +25,6 @@ defined('TYPO3_MODE') or die();
     $typoScriptParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
     \PSB\PsbFoundation\Service\Configuration\FlexFormService::addValueParser($typoScriptParser);
 
-    // bug-workaround for mm-relations
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Backend\Form\FormDataProvider\AbstractItemProvider::class] = [
-        'className' => \PSB\PsbFoundation\Form\FormDataProvider\AbstractItemProvider::class,
-    ];
-
     // @TODO: may be removed because only static functions are overridden?
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Extbase\Utility\LocalizationUtility::class] = [
         'className' => \PSB\PsbFoundation\Utility\LocalizationUtility::class,

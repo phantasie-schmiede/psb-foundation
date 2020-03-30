@@ -27,7 +27,6 @@ namespace PSB\PsbFoundation\Utility;
  ***************************************************************/
 
 use Exception;
-use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 
@@ -37,8 +36,6 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
  */
 class StringUtility
 {
-    use StaticInjectionTrait;
-
     /**
      * Although calculated on a base of 2, the average user might be confused when he is shown the technically correct
      * unit names like KiB, MiB or GiB. Hence the inaccurate, "old" units are being used.

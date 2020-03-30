@@ -27,7 +27,6 @@ namespace PSB\PsbFoundation\Utility;
  ***************************************************************/
 
 use PSB\PsbFoundation\Data\ExtensionInformation;
-use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -40,8 +39,6 @@ use function array_slice;
  */
 class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
 {
-    use StaticInjectionTrait;
-
     private const MISSING_TRANSLATIONS_TABLE = 'tx_psbfoundation_missing_translations';
 
     /**
@@ -70,11 +67,11 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
         array $alternativeLanguageKeys = null
     ): ?string {
         $translation = parent::translate($key, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
-        $extensionInformation = self::get(ExtensionInformation::class);
+        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
 
         if ((bool)ExtensionInformationUtility::getConfiguration($extensionInformation,
             'debug.logMissingTranslations')) {
-            $connection = self::get(ConnectionPool::class)
+            $connection = ObjectUtility::get(ConnectionPool::class)
                 ->getConnectionForTable(self::MISSING_TRANSLATIONS_TABLE);
             $connection->delete(self::MISSING_TRANSLATIONS_TABLE, [
                 'locallang_key' => $key,

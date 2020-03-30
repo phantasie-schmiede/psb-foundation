@@ -36,9 +36,9 @@ use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleConfig;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
@@ -61,8 +61,6 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
  */
 class RegistrationUtility
 {
-    use StaticInjectionTrait;
-
     private const COLLECT_MODES = [
         'CONFIGURE_PLUGINS' => 'configurePlugins',
         'REGISTER_MODULES'  => 'registerModules',
@@ -107,7 +105,7 @@ class RegistrationUtility
 
         $configuration = [
             'description'          => $ll . '.description',
-            'iconIdentifier'       => self::get(IconRegistry::class)
+            'iconIdentifier'       => ObjectUtility::get(IconRegistry::class)
                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
             'title'                => $ll . '.title',
             'tt_content_defValues' => [
@@ -498,13 +496,13 @@ class RegistrationUtility
         $configuration = [];
         $controllersAndCachedActions = [];
         $controllersAndUncachedActions = [];
-        $docCommentParserService = self::get(DocCommentParserService::class);
+        $docCommentParserService = ObjectUtility::get(DocCommentParserService::class);
 
         foreach ($controllerClassNames as $controllerClassName) {
             $controllersAndCachedActions[$controllerClassName] = [];
 
             if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
-                $controller = self::get(ReflectionClass::class, $controllerClassName);
+                $controller = ObjectUtility::get(ReflectionClass::class, $controllerClassName);
                 $methods = $controller->getMethods();
 
                 foreach ($methods as $method) {
@@ -543,7 +541,7 @@ class RegistrationUtility
                                 $extensionInformation = ExtensionInformationUtility::extractExtensionInformationFromClassName($controllerClassName);
                                 /** @var AjaxPageType $ajaxPageType */
                                 $ajaxPageType = $docComment[AjaxPageType::class];
-                                $pageObjectConfiguration = self::get(PageObjectConfiguration::class);
+                                $pageObjectConfiguration = ObjectUtility::get(PageObjectConfiguration::class);
                                 $pageObjectConfiguration->setAction($actionName);
                                 $pageObjectConfiguration->setCacheable($ajaxPageType->isCacheable());
                                 $pageObjectConfiguration->setContentType($ajaxPageType->getContentType());
@@ -598,7 +596,7 @@ class RegistrationUtility
                 return [$configuration];
                 break;
             default:
-                throw self::get(InvalidArgumentException::class,
+                throw ObjectUtility::get(InvalidArgumentException::class,
                     __CLASS__ . ': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "' . $collectMode . '""!',
                     1559627862);
         }

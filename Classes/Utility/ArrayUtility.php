@@ -77,7 +77,7 @@ class ArrayUtility
      */
     public static function insertIntoArray(array $array, array $elements, int $index): array
     {
-        if (!ArrayUtility($array)) {
+        if (!Typo3ArrayUtility::isAssociative($array)) {
             $combinedArray = [];
             array_push($combinedArray, ...array_slice($array, 0, $index), ...$elements,
                 ...array_slice($array, $index));

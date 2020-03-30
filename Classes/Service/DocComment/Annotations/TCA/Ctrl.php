@@ -59,6 +59,11 @@ class Ctrl extends AbstractAnnotation
     protected bool $editableInFrontend = false;
 
     /**
+     * @var bool
+     */
+    protected bool $hideTable = false;
+
+    /**
      * @var string
      */
     protected string $label = '';
@@ -192,6 +197,22 @@ class Ctrl extends AbstractAnnotation
     public function setEditableInFrontend(bool $editableInFrontend): void
     {
         $this->editableInFrontend = $editableInFrontend;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isHideTable(): bool
+    {
+        return $this->hideTable;
+    }
+
+    /**
+     * @param bool $hideTable
+     */
+    public function setHideTable(bool $hideTable): void
+    {
+        $this->hideTable = $hideTable;
     }
 
     /**

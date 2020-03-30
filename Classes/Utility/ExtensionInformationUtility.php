@@ -27,14 +27,12 @@ namespace PSB\PsbFoundation\Utility;
  ***************************************************************/
 
 use Doctrine\DBAL\Exception\TableNotFoundException;
-use Doctrine\DBAL\FetchMode;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TcaMapping;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Traits\StaticInjectionTrait;
 use ReflectionException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
@@ -45,17 +43,15 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class ExtensionInformationUtility
+ *
  * @package PSB\PsbFoundation\Utility
  */
 class ExtensionInformationUtility
 {
-    use StaticInjectionTrait;
-
     private const EXTENSION_INFORMATION_MAPPING_TABLE = 'tx_psbfoundation_extension_information_mapping';
 
     /**
@@ -72,11 +68,12 @@ class ExtensionInformationUtility
         string $path = ''
     ) {
         $path = str_replace('.', '/', $path);
-        $extensionConfiguration = self::get(ExtensionConfiguration::class)
+        $extensionConfiguration = ObjectUtility::get(ExtensionConfiguration::class)
             ->get($extensionInformation->getExtensionKey(), $path);
 
         if (is_array($extensionConfiguration)) {
-            return self::get(TypoScriptService::class)->convertTypoScriptArrayToPlainArray($extensionConfiguration);
+            return ObjectUtility::get(TypoScriptService::class)
+                ->convertTypoScriptArrayToPlainArray($extensionConfiguration);
         }
 
         return $extensionConfiguration;
@@ -158,7 +155,7 @@ class ExtensionInformationUtility
      */
     public static function convertClassNameToTableName(string $className): string
     {
-        $docCommentParserService = self::get(DocCommentParserService::class);
+        $docCommentParserService = ObjectUtility::get(DocCommentParserService::class);
         $docComment = $docCommentParserService->parsePhpDocComment($className);
 
         if (isset($docComment[TcaMapping::class])) {
@@ -215,7 +212,7 @@ class ExtensionInformationUtility
     public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
         if (null !== $className) {
-            $docCommentParserService = self::get(DocCommentParserService::class);
+            $docCommentParserService = ObjectUtility::get(DocCommentParserService::class);
             $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
 
             if (isset($docComment[TcaMapping::class])) {
@@ -236,7 +233,7 @@ class ExtensionInformationUtility
      */
     public static function deregister(string $extensionKey): void
     {
-        self::get(ConnectionPool::class)
+        ObjectUtility::get(ConnectionPool::class)
             ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
             ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
     }
@@ -302,7 +299,7 @@ class ExtensionInformationUtility
         self::validateExtensionInformationClass($className);
         self::validateExtensionKey($extensionKey);
 
-        self::get(ConnectionPool::class)
+        ObjectUtility::get(ConnectionPool::class)
             ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
             ->insert(self::EXTENSION_INFORMATION_MAPPING_TABLE,
                 [

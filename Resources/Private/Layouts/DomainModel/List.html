@@ -1,0 +1,46 @@
+<section data-namespace-typo3-fluid="true"
+         xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+         xmlns:psb="http://typo3.org/ns/PSB/PsbFoundation/ViewHelpers"
+>
+    <div class="row">
+        <div class="col-12 text-center">
+            <h2>
+                <psb:translate id="LLL:EXT:psb_risk_assessment/Resources/Private/Language/Frontend/DomainModels/{domainModel}/list.xlf:heading" />
+            </h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <f:if condition="{records}">
+                <f:then>
+                    <ul class="list-group">
+                        <f:for each="{records}" as="record">
+                            <li class="list-group-item">
+                                <f:link.action action="edit" arguments="{record: record}">Edit</f:link.action>
+                                <f:link.action action="delete" arguments="{record: record}">Delete</f:link.action>
+                                <f:link.action action="show" arguments="{record: record}">{record.name}</f:link.action>
+                            </li>
+                        </f:for>
+                    </ul>
+                </f:then>
+                <f:else>
+                    <div class="alert alert-info">
+                        <p>
+                            <psb:translate id="LLL:EXT:psb_risk_assessment/Resources/Private/Language/Frontend/DomainModels/{domainModel}/list.xlf:noRecords" />
+                        </p>
+                    </div>
+                </f:else>
+            </f:if>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <hr />
+            <f:link.action action="new" class="btn btn-success">
+                <psb:translate id="LLL:EXT:psb_risk_assessment/Resources/Private/Language/Frontend/DomainModels/{domainModel}/list.xlf:new" />
+            </f:link.action>
+        </div>
+    </div>
+</section>

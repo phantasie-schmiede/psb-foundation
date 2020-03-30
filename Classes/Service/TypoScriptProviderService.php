@@ -27,7 +27,7 @@ namespace PSB\PsbFoundation\Service;
  ***************************************************************/
 
 use Exception;
-use PSB\PsbFoundation\Traits\StaticInjectionTrait;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use RuntimeException;
 use stdClass;
@@ -44,8 +44,6 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
  */
 class TypoScriptProviderService
 {
-    use StaticInjectionTrait;
-
     /**
      * @var bool
      */
@@ -86,7 +84,7 @@ class TypoScriptProviderService
 
         // RootlineUtility:286 requires $GLOBALS['TCA'] to be set
         if (null !== $GLOBALS['TCA']) {
-            $typoScript = self::get(ConfigurationManager::class)
+            $typoScript = ObjectUtility::get(ConfigurationManager::class)
                 ->getConfiguration($configurationType, $extensionName, $pluginName);
             self::$fullTypoScriptAvailable = true;
         } elseif (isset(self::$preliminaryTypoScript[$configurationType][$extensionName][$pluginName])) {
@@ -102,7 +100,7 @@ class TypoScriptProviderService
             return null;
         }
 
-        $typoScript = self::get(TypoScriptService::class)->convertTypoScriptArrayToPlainArray($typoScript);
+        $typoScript = ObjectUtility::get(TypoScriptService::class)->convertTypoScriptArrayToPlainArray($typoScript);
 
         array_walk_recursive($typoScript, static function (&$item) {
             if (is_string($item)) {
@@ -134,6 +132,7 @@ class TypoScriptProviderService
      * @param string|null $pluginName
      *
      * @return array
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     private static function generateTypoScript(
         string $configurationType,
@@ -146,7 +145,7 @@ class TypoScriptProviderService
             $resetTsfe = true;
         }
 
-        $templateService = self::get(TemplateService::class);
+        $templateService = ObjectUtility::get(TemplateService::class);
         $templateService->tt_track = false;
         $templateService->init();
         $templateService->runThroughTemplates([['uid' => 1]]);
