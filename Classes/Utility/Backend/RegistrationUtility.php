@@ -42,9 +42,11 @@ use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
+use PSB\PsbFoundation\Utility\ValidationUtility;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
+use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -57,10 +59,16 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 /**
  * Class RegistrationUtility
+ *
  * @package PSB\PsbFoundation\Utility\Backend
  */
 class RegistrationUtility
 {
+    public const         PAGE_TYPE_REGISTRATION_MODES = [
+        'EXT_TABLES'   => 'ext_tables',
+        'TCA_OVERRIDE' => 'tca_override',
+    ];
+
     private const COLLECT_MODES = [
         'CONFIGURE_PLUGINS' => 'configurePlugins',
         'REGISTER_MODULES'  => 'registerModules',
@@ -397,13 +405,36 @@ class RegistrationUtility
     }
 
     /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $mode
+     */
+    public static function registerPageTypes(ExtensionInformationInterface $extensionInformation, string $mode): void
+    {
+        ValidationUtility::checkValueAgainstConstant(self::PAGE_TYPE_REGISTRATION_MODES, $mode);
+        $pageTypes = $extensionInformation->getPageTypes();
+
+        if (empty($pageTypes)) {
+            return;
+        }
+
+        foreach ($pageTypes as $doktype => $configuration) {
+            if (self::PAGE_TYPE_REGISTRATION_MODES['EXT_TABLES'] === $mode) {
+                self::addPageTypeToGlobals($doktype, $configuration['allowedTables'] ?? ['*'],
+                    $configuration['type'] ?? 'web');
+            } else {
+                self::addPageTypeToPagesTca($doktype, $extensionInformation->getExtensionKey(),
+                    $configuration['iconIdentifier'] ?? ('pageType-' . $configuration['name']), $configuration['name']);
+            }
+        }
+    }
+
+    /**
      * For use in Configuration/TCA/Overrides/tt_content.php files
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
      * @throws AnnotationException
      * @throws Exception
-     * @throws IllegalObjectTypeException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
@@ -464,6 +495,65 @@ class RegistrationUtility
 
         $newPageTS['mod']['wizards']['newContentElement']['wizardItems'][$group]['elements'][$key] = $configuration;
         ExtensionManagementUtility::addPageTSConfig(TypoScriptUtility::convertArrayToTypoScript($newPageTS));
+    }
+
+    /**
+     * @param int            $doktype
+     * @param array|string[] $allowedTables
+     * @param string         $type
+     */
+    private static function addPageTypeToGlobals(int $doktype, array $allowedTables = ['*'], string $type = 'web'): void
+    {
+        // Add new page type:
+        $GLOBALS['PAGES_TYPES'][$doktype] = [
+            'type'          => $type,
+            'allowedTables' => implode(',', $allowedTables),
+        ];
+
+        // Allow backend users to drag and drop the new page type:
+        ExtensionManagementUtility::addUserTSConfig(
+            'options.pageTree.doktypesToShowInNewPageDragArea := addToList(' . $doktype . ')'
+        );
+    }
+
+    private static function addPageTypeToPagesTca(
+        int $doktype,
+        string $extensionKey,
+        string $iconIdentifier,
+        string $name
+    ): void {
+        $table = 'pages';
+
+        // Add new page type as possible select item:
+        ExtensionManagementUtility::addTcaSelectItem(
+            $table,
+            'doktype',
+            [
+                'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.' . $name,
+                $doktype,
+                'EXT:' . $extensionKey . '/Resources/Public/Icons/' . $iconIdentifier . '.svg',
+            ],
+            '1',
+            'after'
+        );
+
+        Typo3CoreArrayUtility::mergeRecursiveWithOverrule(
+            $GLOBALS['TCA'][$table],
+            [
+                // add icon for new page type:
+                'ctrl'  => [
+                    'typeicon_classes' => [
+                        $doktype => $iconIdentifier,
+                    ],
+                ],
+                // add all page standard fields and tabs to your new page type
+                'types' => [
+                    (string)$doktype => [
+                        'showitem' => $GLOBALS['TCA'][$table]['types'][PageRepository::DOKTYPE_DEFAULT]['showitem'],
+                    ],
+                ],
+            ]
+        );
     }
 
     /**
@@ -597,7 +687,7 @@ class RegistrationUtility
                 break;
             default:
                 throw ObjectUtility::get(InvalidArgumentException::class,
-                    __CLASS__ . ': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "' . $collectMode . '""!',
+                    __CLASS__ . ': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "' . $collectMode . '"!',
                     1559627862);
         }
     }

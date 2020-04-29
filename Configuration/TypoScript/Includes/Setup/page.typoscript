@@ -1,7 +1,7 @@
 # default page object
 page = PAGE
 page {
-  bodyTagAdd = class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden"
+#  bodyTagAdd = class="app header-fixed sidebar-fixed aside-menu-fixed aside-menu-hidden"
 
   meta {
     viewport = width=device-width, initial-scale=1, shrink-to-fit=no
@@ -34,7 +34,7 @@ page {
 
       default = TEXT
       default {
-        value = {$plugin.tx_psbfoundation.view.templateRootPath}Page/Default.html
+        value = {$plugin.tx_psbfoundation.view.templateRootPath}Page/OneColumn.html
       }
 
       pagets__PsbOneColumn = TEXT

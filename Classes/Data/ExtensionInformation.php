@@ -28,8 +28,19 @@ namespace PSB\PsbFoundation\Data;
 
 /**
  * Class ExtensionInformation
+ *
  * @package PSB\PsbFoundation\Data
  */
 class ExtensionInformation extends AbstractExtensionInformation
 {
+    public const PAGE_TYPE_DOKTYPES = [
+        'MENU_DROPDOWN' => 100,
+    ];
+
+    public const PAGE_TYPES = [
+        self::PAGE_TYPE_DOKTYPES['MENU_DROPDOWN'] => [
+            'allowedTables' => ['pages'],
+            'name'          => 'menuDropdown',
+        ],
+    ];
 }

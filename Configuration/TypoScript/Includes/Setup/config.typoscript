@@ -32,9 +32,6 @@ config {
   cache_clearAtMidnight = 0
   sendCacheHeaders = 1
   sendCacheHeaders_onlyWhenLoginDeniedInBranch = 1
-
-  # no standard page title
-  noPageTitle = 2
 }
 
 [applicationContext == "Development"]

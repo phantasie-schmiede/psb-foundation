@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file datatype="plaintext" date="2020-04-27T14:01:00+01:00" original="messages" product-name="psb_foundation" source-language="en">
+        <header />
+        <body>
+			<trans-unit id="pageType.menuDropdown">
+				<source>Menu-dropdown</source>
+			</trans-unit>
+        </body>
+    </file>
+</xliff>

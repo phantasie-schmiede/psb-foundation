@@ -48,12 +48,17 @@ class XmlUtility
     /**
      * @param array  $array
      * @param string $path
+     * @param bool   $strict
      *
      * @return mixed
      */
-    public static function getNodeValue(array $array, string $path)
+    public static function getNodeValue(array $array, string $path, bool $strict = true)
     {
         $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
+
+        if (false === $strict && !ArrayUtility::isValidPath($array, $path, '.')) {
+            return null;
+        }
 
         return ArrayUtility::getValueByPath($array, $path, '.');
     }

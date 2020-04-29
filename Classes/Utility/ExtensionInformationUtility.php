@@ -60,8 +60,6 @@ class ExtensionInformationUtility
      *
      * @return mixed
      * @throws Exception
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public static function getConfiguration(
         ExtensionInformationInterface $extensionInformation,

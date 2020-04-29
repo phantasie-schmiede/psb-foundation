@@ -1,0 +1,22 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="#">
+        <img src="<!-- Website logo file -->" width="30" height="30" class="d-inline-block align-top" alt="">
+        <!-- Website title -->
+    </a>
+
+    <div class="collapse navbar-collapse" id="navbarToggler">
+        <f:cObject typoscriptObjectPath="lib.mainMenu" />
+        <f:comment>
+            <!--
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+            -->
+        </f:comment>
+    </div>
+</nav>
+<f:cObject typoscriptObjectPath="lib.breadcrumb" />

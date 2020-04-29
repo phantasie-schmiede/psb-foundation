@@ -49,6 +49,32 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
 
     /**
      * may be overridden in extending class
+     *
+     * The keys (doktype) have to be of type integer. Name is the only mandatory value.
+     * If you don't provide an icon identifier this default identifier will be used:
+     * pageType-yourPageTypeName
+     * In each case your svg-file needs to be located in this directory:
+     * EXT:your_extension/Resources/Public/Icons/
+     * All icons in that directory will be registered by their name automatically.
+     *
+     * Unless "label" is defined,
+     * EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.yourPageTypeName
+     * will be used. If that key doesn't exist, "name" will be transformed from "yourPageTypeName" to
+     * "Your page type name".
+     */
+    public const PAGE_TYPES = [
+        /*
+         * doktype => [
+         *     'allowedTables' => ['*'],
+         *     'iconIdentifier' => 'pageType-yourPageTypeName'
+         *     'label' => 'Your page type name'
+         *     'name' => 'yourPageTypeName',
+         * ],
+         */
+    ];
+
+    /**
+     * may be overridden in extending class
      */
     public const PLUGINS = [
         // 'pluginName' => [\Your\Plugin\Controller::class, \Your\Plugin\AnotherController::class],
@@ -97,6 +123,14 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
     public function getModules(): array
     {
         return static::MODULES;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPageTypes(): array
+    {
+        return static::PAGE_TYPES;
     }
 
     /**

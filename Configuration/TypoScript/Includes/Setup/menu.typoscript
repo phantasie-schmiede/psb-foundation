@@ -1,0 +1,104 @@
+[tree.level > 1]
+  lib.breadcrumb = HMENU
+  lib.breadcrumb {
+    1 = TMENU
+    1 {
+      NO {
+        ATagTitle.field = description // subtitle // title
+        doNotLinkIt = 1 || 0
+        wrapItemAndSub = <li class="breadcrumb-item">|</li>
+      }
+
+      CUR < .NO
+      CUR = 1
+      CUR {
+        doNotLinkIt = 1
+        wrapItemAndSub = <li class="breadcrumb-item active" aria-current="page">|</li>
+      }
+    }
+
+    special = rootline
+    special.range = 1|-1
+    wrap = <nav aria-label="breadcrumb"><ol class="breadcrumb">|</ol></nav>
+  }
+
+  lib.breadcrumbWithLinkedTopLevel < lib.breadcrumb
+  lib.breadcrumbWithLinkedTopLevel.1.NO.doNotLinkIt = 0
+[else]
+  lib.breadcrumb = TEXT
+  lib.breadcrum.value =
+
+  lib.breadcrumbWithLinkedTopLevel < lib.breadcrumb
+[end]
+
+/*
+* Render the page title twice (first as dropdown header (COA) and second as first dropdown entry (linkWrap)) for all
+* page types except menu-dropdown (doktype 100).
+* In order to handle these two cases the dropdown-link is rendered explicitly with allWrap and the subpages-div is
+* openend in linkWrap and closed in wrapItemAndSub.
+*/
+lib.mainMenu = HMENU
+lib.mainMenu {
+  1 = TMENU
+  1 {
+    expAll = 1
+
+    NO {
+      ATagParams = class="nav-link"
+      ATagTitle.field = description // subtitle // title
+      wrapItemAndSub = <li class="nav-item">|</li>
+    }
+
+    ACT < .NO
+    ACT = 1
+    ACT {
+      linkWrap = |<span class="sr-only">(current)</span>
+      wrapItemAndSub = <li class="active nav-item">|</li>
+    }
+
+    CUR < .ACT
+
+    IFSUB < .NO
+    IFSUB = 1
+    IFSUB {
+      ATagParams = class="dropdown-item"
+
+      allWrap.cObject = TEXT
+      allWrap.cObject {
+        field = nav_title // title
+        wrap = <a aria-expanded="false" aria-haspopup="true" class="dropdown-toggle nav-link" data-toggle="dropdown" href="" role="button">|</a>
+      }
+
+      before = <div class="dropdown-menu">
+
+      # Don't include the link of the current page in the subpages-dropdown, if doktype = 100 (menu-dropdown)
+      doNotShowLink.cObject = CASE
+      doNotShowLink.cObject {
+        key.field = doktype
+
+        default = TEXT
+        default.value = 0
+
+        # page type: menu-dropdown
+        100 = TEXT
+        100.value = 1
+      }
+
+      wrapItemAndSub = <li class="dropdown nav-item">|</div></li>
+    }
+
+    ACTIFSUB < .IFSUB
+    ACTIFSUB.wrapItemAndSub = <li class="active dropdown nav-item">|</div></li>
+
+    CURIFSUB < .ACTIFSUB
+  }
+
+  2 = TMENU
+  2 {
+    NO {
+      ATagParams = class="dropdown-item"
+    }
+  }
+
+  wrap = <ul class="mr-auto mt-2 mt-lg-0 navbar-nav">|</ul>
+}
