@@ -38,6 +38,12 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  */
 class GlobalVariablesViewHelper extends AbstractViewHelper
 {
+    public function initializeArguments(): void
+    {
+        parent::initializeArguments();
+        $this->registerArgument('path', 'string', 'array path separated with dots', false, null);
+    }
+
     public function render(): void
     {
         static::renderStatic([], $this->buildRenderChildrenClosure(), $this->renderingContext);
@@ -47,18 +53,26 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
      * @param array                     $arguments
      * @param Closure                   $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
+     *
+     * @return mixed
      */
     public static function renderStatic(
         array $arguments,
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ): void {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+    ) {
+        if (empty($arguments['path'])) {
+            $globalVariables = GlobalVariableService::getGlobalVariables();
 
-        foreach ($globalVariables as $key => $value) {
-            if (!$renderingContext->getVariableProvider()->exists($key)) {
-                $renderingContext->getVariableProvider()->add($key, $value);
+            foreach ($globalVariables as $key => $value) {
+                if (!$renderingContext->getVariableProvider()->exists($key)) {
+                    $renderingContext->getVariableProvider()->add($key, $value);
+                }
             }
+
+            return null;
+        } else {
+            return GlobalVariableService::getGlobalVariables($arguments['path']);
         }
     }
 }

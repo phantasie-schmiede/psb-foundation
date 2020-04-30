@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Service;
+namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 /***************************************************************
  *  Copyright notice
@@ -27,8 +27,9 @@ namespace PSB\PsbFoundation\Service;
  ***************************************************************/
 
 /**
- * Interface GlobalVariableServiceInterface
- * @package PSB\PsbFoundation\Service
+ * Interface GlobalVariableProviderInterface
+ *
+ * @package PSB\PsbFoundation\Service\GlobalVariableProviders
  */
 interface GlobalVariableProviderInterface
 {

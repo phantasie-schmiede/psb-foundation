@@ -85,7 +85,6 @@ class ArrayUtility
             return $combinedArray;
         }
 
-        /** @noinspection AdditionOperationOnArraysInspection */
         return array_slice($array, 0, $index, true) + $elements + array_slice($array, $index, null, true);
     }
 

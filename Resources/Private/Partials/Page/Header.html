@@ -1,22 +1,35 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <a class="navbar-brand" href="#">
-        <img src="<!-- Website logo file -->" width="30" height="30" class="d-inline-block align-top" alt="">
-        <!-- Website title -->
-    </a>
+<section data-namespace-typo3-fluid="true"
+         xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+         xmlns:psb="http://typo3.org/ns/PSB/PsbFoundation/ViewHelpers"
+>
+    <f:variable name="siteConfiguration" value="{psb:globalVariables(path: 'siteConfiguration.configuration')}" />
 
-    <div class="collapse navbar-collapse" id="navbarToggler">
-        <f:cObject typoscriptObjectPath="lib.mainMenu" />
-        <f:comment>
-            <!--
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
-            -->
-        </f:comment>
+    <div class="sticky-top">
+        <nav class="bg-light navbar navbar-expand-lg navbar-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <f:link.page class="navbar-brand" pageUid="{siteConfiguration.rootPageId}">
+                <f:if condition="{siteConfiguration.websiteLogo}">
+                    <f:image alt="{siteConfiguration.websiteTitle}" class="d-inline-block align-top" height="30" src="{siteConfiguration.websiteLogo}" width="30" />
+                </f:if>
+                {siteConfiguration.websiteTitle}
+            </f:link.page>
+
+            <div class="collapse navbar-collapse" id="navbarToggler">
+                <f:cObject typoscriptObjectPath="lib.mainMenu" />
+                <f:comment>
+                    <!--
+                    <form class="form-inline my-2 my-lg-0">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                    </form>
+                    -->
+                </f:comment>
+            </div>
+        </nav>
+
+        <f:cObject typoscriptObjectPath="lib.breadcrumb" />
     </div>
-</nav>
-<f:cObject typoscriptObjectPath="lib.breadcrumb" />
+</section>

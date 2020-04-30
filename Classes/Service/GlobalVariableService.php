@@ -27,12 +27,15 @@ namespace PSB\PsbFoundation\Service;
  ***************************************************************/
 
 use Exception;
+use PSB\PsbFoundation\Service\GlobalVariableProviders\GlobalVariableProviderInterface;
+use PSB\PsbFoundation\Utility\VariableUtility;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class GlobalVariableService
+ *
  * @package PSB\PsbFoundation\Service
  */
 class GlobalVariableService
@@ -40,12 +43,12 @@ class GlobalVariableService
     /**
      * @var array
      */
-    protected static $globalVariableProviders = [];
+    protected static array $globalVariableProviders = [];
 
     /**
      * @var array
      */
-    protected static $globalVariables = [];
+    protected static array $globalVariables = [];
 
     /**
      * @param string $path
@@ -62,9 +65,9 @@ class GlobalVariableService
     /**
      * @param string|null $path
      *
-     * @return array
+     * @return mixed
      */
-    public static function getGlobalVariables(string $path = null): array
+    public static function getGlobalVariables(string $path = null)
     {
         /** @var GlobalVariableProviderInterface $globalVariableProvider */
         foreach (self::$globalVariableProviders as $globalVariableProvider) {
@@ -76,7 +79,7 @@ class GlobalVariableService
 
         if (null !== $path) {
             try {
-                return ArrayUtility::getValueByPath(self::$globalVariables, $path, '.');
+                return VariableUtility::getValueByPath(self::$globalVariables, $path, '.');
             } catch (Exception $e) {
                 throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562136068);
             }
@@ -102,6 +105,8 @@ class GlobalVariableService
     }
 
     /**
+     * For use in ext_tables.php
+     *
      * @param GlobalVariableProviderInterface $globalVariableProvider
      */
     public static function registerGlobalVariableProvider(GlobalVariableProviderInterface $globalVariableProvider): void

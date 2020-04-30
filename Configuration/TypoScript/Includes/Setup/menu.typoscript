@@ -19,16 +19,11 @@
 
     special = rootline
     special.range = 1|-1
-    wrap = <nav aria-label="breadcrumb"><ol class="breadcrumb">|</ol></nav>
+    wrap = <nav aria-label="breadcrumb" class="d-none d-md-block"><ol class="breadcrumb">|</ol></nav>
   }
-
-  lib.breadcrumbWithLinkedTopLevel < lib.breadcrumb
-  lib.breadcrumbWithLinkedTopLevel.1.NO.doNotLinkIt = 0
 [else]
   lib.breadcrumb = TEXT
   lib.breadcrum.value =
-
-  lib.breadcrumbWithLinkedTopLevel < lib.breadcrumb
 [end]
 
 /*
