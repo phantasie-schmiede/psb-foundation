@@ -16,10 +16,6 @@ page {
     20 = {$plugin.tx_psbfoundation.settings.resourcePath}JavaScript/Vendors/bootstrap.bundle.min.js
   }
 
-  #includeJSFooter {
-  #  app = {$plugin.tx_psbfoundation.settings.resourcePath}JavaScript/App.js
-  #}
-
   10 = FLUIDTEMPLATE
   10 {
     format = html
