@@ -64,7 +64,7 @@ lib.mainMenu {
         wrap = <a aria-expanded="false" aria-haspopup="true" class="dropdown-toggle nav-link" data-toggle="dropdown" href="" role="button">|</a>
       }
 
-      before = <div class="dropdown-menu">
+      before = <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-left text-right text-lg-left">
 
       # Don't include the link of the current page in the subpages-dropdown, if doktype = 100 (menu-dropdown)
       doNotShowLink.cObject = CASE
@@ -78,6 +78,8 @@ lib.mainMenu {
         100 = TEXT
         100.value = 1
       }
+
+      linkWrap = |<div class="dropdown-divider"></div>
 
       wrapItemAndSub = <li class="dropdown nav-item">|</div></li>
     }

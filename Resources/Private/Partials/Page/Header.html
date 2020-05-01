@@ -4,32 +4,36 @@
 >
     <f:variable name="siteConfiguration" value="{psb:globalVariables(path: 'siteConfiguration.configuration')}" />
 
-    <div class="sticky-top">
-        <nav class="bg-light navbar navbar-expand-lg navbar-light">
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <f:link.page class="navbar-brand" pageUid="{siteConfiguration.rootPageId}">
+    <div class="row sticky-top">
+        <nav class="bg-light col-12 navbar navbar-expand-lg navbar-light">
+            <f:link.page class="align-self-start navbar-brand" pageUid="{siteConfiguration.rootPageId}">
                 <f:if condition="{siteConfiguration.websiteLogo}">
-                    <f:image alt="{siteConfiguration.websiteTitle}" class="d-inline-block align-top" height="30" src="{siteConfiguration.websiteLogo}" width="30" />
+                    <img alt="{siteConfiguration.websiteTitle}" class="d-inline-block align-top" src="{f:uri.image(height: '100m', src: siteConfiguration.websiteLogo)}" />
                 </f:if>
-                {siteConfiguration.websiteTitle}
             </f:link.page>
 
-            <div class="collapse navbar-collapse" id="navbarToggler">
-                <f:cObject typoscriptObjectPath="lib.mainMenu" />
-                <f:comment>
-                    <!--
-                    <form class="form-inline my-2 my-lg-0">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                    </form>
-                    -->
-                </f:comment>
-            </div>
-        </nav>
+            <div class="flex-lg-column">
+                <span class="h1 header-title pl-2">{siteConfiguration.websiteTitle}</span>
+                <button aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbarToggler" data-toggle="collapse" type="button">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-        <f:cObject typoscriptObjectPath="lib.breadcrumb" />
+                <div class="collapse navbar-collapse text-right text-lg-left" id="navbarToggler">
+                    <f:cObject typoscriptObjectPath="lib.mainMenu" />
+                    <f:comment>
+                        <!--
+                        <form class="form-inline my-2 my-lg-0">
+                            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                        </form>
+                        -->
+                    </f:comment>
+                </div>
+            </div>
+
+        </nav>
+        <div class="flex-fill">
+            <f:cObject typoscriptObjectPath="lib.breadcrumb" />
+        </div>
     </div>
 </section>

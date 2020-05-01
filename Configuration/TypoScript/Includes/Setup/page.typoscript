@@ -9,11 +9,16 @@ page {
 
   includeCSS {
     bootstrap = {$plugin.tx_psbfoundation.settings.resourcePath}Stylesheets/Vendors/bootstrap.min.css
+    app = {$plugin.tx_psbfoundation.settings.resourcePath}Stylesheets/App.css
   }
 
   includeJSFooterlibs {
     10 = {$plugin.tx_psbfoundation.settings.resourcePath}JavaScript/Vendors/jquery-3.3.1.min.js
     20 = {$plugin.tx_psbfoundation.settings.resourcePath}JavaScript/Vendors/bootstrap.bundle.min.js
+  }
+
+  includeJSFooter {
+    app = {$plugin.tx_psbfoundation.settings.resourcePath}JavaScript/App.js
   }
 
   10 = FLUIDTEMPLATE
