@@ -3,6 +3,11 @@
 defined('TYPO3_MODE') or die();
 
 (static function () {
+    $siteConfigurationProvider = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider::class);
+    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider($siteConfigurationProvider);
+    $requestParameterProvider = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider::class);
+    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider($requestParameterProvider);
+
     // configure all plugins of those extensions which provide an ExtensionInformation-class and add TypoScript if missing
     $allExtensionInformation = \PSB\PsbFoundation\Utility\ExtensionInformationUtility::getExtensionInformation();
 

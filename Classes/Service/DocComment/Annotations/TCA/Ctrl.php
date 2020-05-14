@@ -38,6 +38,8 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
 /**
  * Class TcaConfig
  *
+ * https://docs.typo3.org/m/typo3/reference-tca/master/en-us/Ctrl/Index.html
+ *
  * @Annotation
  * @package PSB\PsbFoundation\Service\DocComment\Annotations\TCA
  */
@@ -77,6 +79,11 @@ class Ctrl extends AbstractAnnotation
      * @var bool
      */
     protected bool $labelAltForce = false;
+
+    /**
+     * @var int
+     */
+    protected int $rootLevel = 0;
 
     /**
      * @var string|null
@@ -148,6 +155,22 @@ class Ctrl extends AbstractAnnotation
     public function setLabelAlt(?string $labelAlt): void
     {
         $this->labelAlt = $labelAlt;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRootLevel(): int
+    {
+        return $this->rootLevel;
+    }
+
+    /**
+     * @param int $rootLevel
+     */
+    public function setRootLevel(int $rootLevel): void
+    {
+        $this->rootLevel = $rootLevel;
     }
 
     /**

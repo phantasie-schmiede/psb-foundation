@@ -70,6 +70,7 @@ class TcaService
         'mmHasUidField'       => 'MM_hasUidField',
         'mmOppositeField'     => 'MM_opposite_field',
         'renderType'          => 'renderType',
+        'rootLevel'           => 'rootLevel',
         'sortBy'              => 'sortby',
         'userFunc'            => 'userFunc',
     ];

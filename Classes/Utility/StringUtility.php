@@ -27,11 +27,14 @@ namespace PSB\PsbFoundation\Utility;
  ***************************************************************/
 
 use Exception;
+use JsonException;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class StringUtility
+ *
  * @package PSB\PsbFoundation\Utility
  */
 class StringUtility
@@ -104,6 +107,7 @@ class StringUtility
      * @param array       $namespaces
      *
      * @return mixed
+     * @throws JsonException
      */
     public static function convertString(?string $variable, $convertEmptyStringToNull = false, array $namespaces = [])
     {
@@ -111,8 +115,8 @@ class StringUtility
             return null;
         }
 
-        if (false !== mb_strpos($variable, '{#')) {
-            // string contains quoted query parameter
+        if ('' === $variable || false !== mb_strpos($variable, '{#')) {
+            // string is either empty or contains quoted query parameter
             return $variable;
         }
 
@@ -124,8 +128,9 @@ class StringUtility
             return (double)$variable;
         }
 
-        if ('' !== $variable && 0 < mb_strpos($variable, '::')) {
-            [$className, $constantName] = explode('::', $variable);
+        // check for constant
+        if (0 < mb_strpos($variable, '::')) {
+            [$className, $constantName] = GeneralUtility::trimExplode('::', $variable, true, 2);
             $className = ObjectUtility::getFullQualifiedClassName($className, $namespaces);
 
             if (false !== $className) {
@@ -136,24 +141,53 @@ class StringUtility
                 $variable = $className . '::' . $constantName;
             }
 
-            if (0 < preg_match_all('/\[\'?(.*)\'?(\](?=[\[])|\]$)/U', $variable, $matches)) {
-                $matches = array_map(static function ($value) {
-                    return self::convertString(trim($value, '\''));
-                }, $matches[1]);
-                $variable = constant(preg_replace('/\[\'?(.*)\'?\]/', '', $variable));
+            /*
+             * find all [...] segments after constant name and convert each one separately before trying to access that
+             * array path.
+             */
+            if (0 < preg_match_all('/\[\'?(.*)\'?(](?=\[)|]$)/U', $constantName, $pathSegments)) {
+                $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
+                    return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
+                }, $pathSegments[1]);
+
+                // get constant array (path information is stripped away)
+                $variable = constant(preg_replace('/\[\'?(.*)\'?]/', '', $variable));
 
                 try {
-                    return ArrayUtility::getValueByPath($variable, $matches);
-                } catch (Exception $e) {
-                    throw new RuntimeException('Path "' . implode('->', $matches) . '" does not exist in array!',
+                    // now try to access the array path
+                    return ArrayUtility::getValueByPath($variable, $pathSegments);
+                } catch (Exception $exception) {
+                    throw new RuntimeException('Path "[' . implode('][', $pathSegments) . ']" does not exist in array!',
                         1548170593);
+                }
+            }
+
+            // check for dot-notation of array path
+            if (false !== mb_strpos($constantName, '.')) {
+                $pathSegments = explode('.', $constantName);
+                $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
+                    return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
+                }, $pathSegments);
+
+                // remove constant name from array
+                array_shift($pathSegments);
+
+                $variable = constant(mb_substr($variable, 0, mb_strpos($variable, '.')));
+
+                try {
+                    // now try to access the array path
+                    return ArrayUtility::getValueByPath($variable, $pathSegments);
+                } catch (Exception $exception) {
+                    throw new RuntimeException('Path "' . implode('.', $pathSegments) . '" does not exist in array!',
+                        1589385393);
                 }
             }
 
             return constant($variable);
         }
 
-        if ('' !== $variable && in_array($variable[0], ['{', '['], true)) {
+        // check for JSON
+        if (in_array($variable[0], ['{', '['], true)) {
             $decodedString = json_decode(str_replace('\'', '"', $variable), true, 512, JSON_THROW_ON_ERROR);
 
             if (null !== $decodedString) {

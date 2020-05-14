@@ -28,7 +28,7 @@ defined('TYPO3_MODE') or die();
     ];
 
     // Pages of type menuDropdown shall never be indexed by search engines as they only serve as navigation placeholders.
-    $GLOBALS['TCA']['pages']['types'][\PSB\PsbFoundation\Data\ExtensionInformation::PAGE_TYPE_DOKTYPES['MENU_DROPDOWN']] = array_merge($GLOBALS['TCA']['pages']['types'][\PSB\PsbFoundation\Data\ExtensionInformation::PAGE_TYPE_DOKTYPES['MENU_DROPDOWN']],
+    $GLOBALS['TCA']['pages']['types'][\PSB\PsbFoundation\Data\ExtensionInformation::DOKTYPES['MENU_DROPDOWN']] = array_merge($GLOBALS['TCA']['pages']['types'][\PSB\PsbFoundation\Data\ExtensionInformation::DOKTYPES['MENU_DROPDOWN']],
         ['columnsOverrides' => $columnsOverrides]);
 })();
 

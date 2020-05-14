@@ -3,10 +3,6 @@
 defined('TYPO3_MODE') or die();
 
 (static function () {
-    /** @var \PSB\PsbFoundation\Service\GlobalVariableProviders\GlobalVariableProviderInterface $siteConfigurationProvider */
-    $siteConfigurationProvider = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider::class);
-    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider($siteConfigurationProvider);
-
     // register all modules and domain model tables of those extensions which provide an ExtensionInformation-class
     $allExtensionInformation = \PSB\PsbFoundation\Utility\ExtensionInformationUtility::getExtensionInformation();
 

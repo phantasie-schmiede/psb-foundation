@@ -105,7 +105,7 @@ class GlobalVariableService
     }
 
     /**
-     * For use in ext_tables.php
+     * For use in ext_localconf.php
      *
      * @param GlobalVariableProviderInterface $globalVariableProvider
      */

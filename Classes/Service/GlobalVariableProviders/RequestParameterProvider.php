@@ -27,16 +27,16 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
  ***************************************************************/
 
 use PSB\PsbFoundation\Traits\InjectionTrait;
-use TYPO3\CMS\Core\Exception\SiteNotFoundException;
-use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Extbase\Object\Exception;
+use PSB\PsbFoundation\Utility\StringUtility;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class SiteConfigurationProvider
+ * Class RequestParameterProvider
  *
  * @package PSB\PsbFoundation\Service\GlobalVariableProviders
  */
-class SiteConfigurationProvider implements GlobalVariableProviderInterface
+class RequestParameterProvider implements GlobalVariableProviderInterface
 {
     use InjectionTrait;
 
@@ -47,22 +47,23 @@ class SiteConfigurationProvider implements GlobalVariableProviderInterface
 
     /**
      * @return array
-     * @throws Exception
-     * @throws SiteNotFoundException
      */
     public function getGlobalVariables(): array
     {
-        // not available in backend
-        if ('BE' === TYPO3_MODE) {
-            $this->setCacheable(true);
+        $parameters = GeneralUtility::_GET();
+        ArrayUtility::mergeRecursiveWithOverrule($parameters, GeneralUtility::_POST());
 
-            return [];
-        }
+        array_walk_recursive($parameters, static function (&$item) {
+            $item = StringUtility::convertString($item);
 
-        $site = $this->get(SiteFinder::class)->getSiteByPageId((int)$GLOBALS['TSFE']->id);
+            if (is_string($item)) {
+                $item = filter_var($item, FILTER_SANITIZE_STRING);
+            }
+        });
+
         $this->setCacheable(true);
 
-        return ['siteConfiguration' => $site];
+        return ['parameters' => $parameters];
     }
 
     /**
