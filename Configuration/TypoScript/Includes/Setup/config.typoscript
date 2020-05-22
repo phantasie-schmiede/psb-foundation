@@ -18,11 +18,6 @@ config {
   # Statistics
   stat = 0
 
-  # RealURL
-  absRefPrefix = auto
-  protocol = https
-  tx_realurl_enable = 1
-
   # Link handling
   typolinkEnableLinksAcrossDomains = 1
   intTarget = _self

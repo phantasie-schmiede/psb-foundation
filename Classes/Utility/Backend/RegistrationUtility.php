@@ -64,7 +64,7 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
  */
 class RegistrationUtility
 {
-    public const         PAGE_TYPE_REGISTRATION_MODES = [
+    public const PAGE_TYPE_REGISTRATION_MODES = [
         'EXT_TABLES'   => 'ext_tables',
         'TCA_OVERRIDE' => 'tca_override',
     ];

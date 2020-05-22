@@ -370,6 +370,7 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */

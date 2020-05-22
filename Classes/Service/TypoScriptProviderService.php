@@ -47,17 +47,17 @@ class TypoScriptProviderService
     /**
      * @var bool
      */
-    public static $fullTypoScriptAvailable = false;
+    public static bool $fullTypoScriptAvailable = false;
 
     /**
      * @var array
      */
-    private static $cachedTypoScript;
+    private static array $cachedTypoScript;
 
     /**
      * @var array
      */
-    private static $preliminaryTypoScript;
+    private static array $preliminaryTypoScript;
 
     /**
      * @param string|null $path
@@ -153,7 +153,7 @@ class TypoScriptProviderService
 
         $typoScript = $templateService->setup;
 
-        if ($resetTsfe ?? false) {
+        if (true === ($resetTsfe ?? false)) {
             $GLOBALS['TSFE'] = null;
         }
 

@@ -5,22 +5,22 @@ $EM_CONF['psb_foundation'] = [
     'author'           => 'Daniel Ablass',
     'author_email'     => 'dn@phantasie-schmiede.de',
     'category'         => 'misc',
-    'clearCacheOnLoad' => false,
+    'clearCacheOnLoad' => true,
     'constraints'      => [
         'conflicts' => [
         ],
         'depends'   => [
-            'fluid_styled_content' => '10.1.0-10.4.99',
+            'fluid_styled_content' => '10.4.2-10.4.99',
             'php'                  => '7.4',
-            'typo3'                => '10.1.0-10.4.99',
+            'typo3'                => '10.4.2-10.4.99',
         ],
         'suggests'  => [
         ],
     ],
     'createDirs'       => '',
-    'description'      => 'Basic configuration for TYPO3',
+    'description'      => 'Configuration framework for TYPO3',
     'state'            => 'beta',
     'title'            => 'PSbits | Foundation',
     'uploadfolder'     => false,
-    'version'          => '0.0.0',
+    'version'          => '0.1.0',
 ];

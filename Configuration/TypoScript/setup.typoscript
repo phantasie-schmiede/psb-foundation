@@ -1,2 +1,5 @@
-<INCLUDE_TYPOSCRIPT: source="FILE:EXT:fluid_styled_content/Configuration/TypoScript/setup.typoscript">
 <INCLUDE_TYPOSCRIPT: source="DIR:EXT:psb_foundation/Configuration/TypoScript/Includes/Setup" extensions="typoscript">
+
+[extensionLoaded('psb_templates')]
+  <INCLUDE_TYPOSCRIPT: source="FILE:EXT:psb_templates/Configuration/TypoScript/setup.typoscript">
+[end]

@@ -81,7 +81,7 @@ abstract class AbstractController extends ActionController
             $vendorName,
             $extensionName,
             'Domain\Model',
-            $domainModelName
+            $domainModelName,
         ]));
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
@@ -89,43 +89,8 @@ abstract class AbstractController extends ActionController
             $vendorName,
             $extensionName,
             'Domain\Repository',
-            $domainModelName . 'Repository'
+            $domainModelName . 'Repository',
         ]));
-    }
-
-    /**
-     * @param AbstractEntity $record
-     * @PluginAction (uncached=true)
-     *
-     * @throws StopActionException
-     * @throws IllegalObjectTypeException
-     */
-    public function createAction(AbstractEntity $record): void
-    {
-        $this->repository->add($record);
-        $this->redirect('list');
-    }
-
-    /**
-     * @param AbstractEntity $record
-     * @PluginAction (uncached=true)
-     *
-     * @throws StopActionException
-     * @throws IllegalObjectTypeException
-     */
-    public function deleteAction(AbstractEntity $record): void
-    {
-        $this->repository->remove($record);
-        $this->redirect('list');
-    }
-
-    /**
-     * @param AbstractEntity $record
-     * @PluginAction (uncached=true)
-     */
-    public function editAction(AbstractEntity $record): void
-    {
-        $this->view->assign('record', $record);
     }
 
     /**
@@ -150,6 +115,42 @@ abstract class AbstractController extends ActionController
     public function setDomainModel(string $domainModel): void
     {
         $this->domainModel = $domainModel;
+    }
+
+    /**
+     * @param AbstractEntity $record
+     *
+     * @PluginAction (uncached=true)
+     * @throws StopActionException
+     * @throws IllegalObjectTypeException
+     */
+    public function createAction(AbstractEntity $record): void
+    {
+        $this->repository->add($record);
+        $this->redirect('list');
+    }
+
+    /**
+     * @param AbstractEntity $record
+     *
+     * @PluginAction (uncached=true)
+     * @throws StopActionException
+     * @throws IllegalObjectTypeException
+     */
+    public function deleteAction(AbstractEntity $record): void
+    {
+        $this->repository->remove($record);
+        $this->redirect('list');
+    }
+
+    /**
+     * @param AbstractEntity $record
+     *
+     * @PluginAction (uncached=true)
+     */
+    public function editAction(AbstractEntity $record): void
+    {
+        $this->view->assign('record', $record);
     }
 
     /**
@@ -197,6 +198,8 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     *
+     * @PluginAction
      */
     public function newAction(AbstractEntity $record = null): void
     {
@@ -205,6 +208,8 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     *
+     * @PluginAction
      */
     public function showAction(AbstractEntity $record): void
     {
@@ -214,11 +219,10 @@ abstract class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
+     * @PluginAction (uncached=true)
      * @throws IllegalObjectTypeException
      * @throws StopActionException
      * @throws UnknownObjectException
-     * @PluginAction (uncached=true)
-     *
      */
     public function updateAction(AbstractEntity $record): void
     {
