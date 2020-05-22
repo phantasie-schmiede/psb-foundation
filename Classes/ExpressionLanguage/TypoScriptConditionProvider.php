@@ -1,11 +1,11 @@
 <?php
-
-namespace PSB\PsbFoundation\TypoScript\Conditions;
+declare(strict_types=1);
+namespace PSB\PsbFoundation\ExpressionLanguage;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,32 +26,20 @@ namespace PSB\PsbFoundation\TypoScript\Conditions;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Configuration\TypoScript\ConditionMatching\AbstractCondition;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use PSB\PsbFoundation\TypoScript\ConditionFunctionsProvider;
+use TYPO3\CMS\Core\ExpressionLanguage\AbstractProvider;
 
 /**
- * Class FileExistsCondition
- * @package PSB\PsbFoundation\TypoScript\Conditions
+ * Class TypoScriptConditionProvider
+ *
+ * @package PSB\PsbFoundation\ExpressionLanguage
  */
-class FileExistsCondition extends AbstractCondition
+class TypoScriptConditionProvider extends AbstractProvider
 {
-    /**
-     * Evaluate condition
-     *
-     * @param array<string> $filePaths
-     *
-     * @return bool
-     */
-    public function matchCondition(array $filePaths): bool
+    public function __construct()
     {
-        foreach ($filePaths as $filePath) {
-            $filePath = GeneralUtility::getFileAbsFileName(trim(strip_tags($filePath), ' ='));
-
-            if (!file_exists($filePath)) {
-                return false;
-            }
-        }
-
-        return true;
+        $this->expressionLanguageProviders = [
+            ConditionFunctionsProvider::class,
+        ];
     }
 }
