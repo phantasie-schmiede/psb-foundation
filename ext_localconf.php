@@ -14,11 +14,15 @@ defined('TYPO3_MODE') or die();
     foreach ($allExtensionInformation as $extensionInformation) {
         \PSB\PsbFoundation\Utility\Backend\RegistrationUtility::configurePlugins($extensionInformation);
         \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPluginsAndModules($extensionInformation);
-    }
 
-    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('
-             <INCLUDE_TYPOSCRIPT: source="FILE:EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/UserTS.tsconfig">
+        $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/UserTS.tsconfig';
+
+        if (\PSB\PsbFoundation\Utility\FileUtility::fileExists($userTsConfigFilename)) {
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('
+             <INCLUDE_TYPOSCRIPT: source="FILE:' . $userTsConfigFilename . '">
         ');
+        }
+    }
 
     \PSB\PsbFoundation\Utility\Backend\SetupUtility::registerSetupSlots(\PSB\PsbFoundation\Slots\Setup::class);
 
