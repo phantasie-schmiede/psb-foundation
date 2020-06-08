@@ -2,8 +2,6 @@
 declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
-use PSB\PsbFoundation\Utility\StringUtility;
-
 /***************************************************************
  *  Copyright notice
  *
@@ -41,9 +39,19 @@ interface TcaAnnotationInterface
     public function getType(): string;
 
     /**
+     * @return bool|null
+     */
+    public function isEditableInFrontend(): ?bool;
+
+    /**
      * @param array $properties
      *
      * @return array
      */
     public static function propertyPreProcessor(array $properties): array;
+
+    /**
+     * @param bool $editableInFrontend
+     */
+    public function setEditableInFrontend(bool $editableInFrontend): void;
 }

@@ -1,4 +1,4 @@
-[extensionLoaded('psg_templates')]
+[extensionLoaded('psb_templates')]
   plugin.tx_psbfoundation {
     view {
       layoutRootPaths.0 = {$plugin.tx_psbtemplates.view.layoutRootPath}

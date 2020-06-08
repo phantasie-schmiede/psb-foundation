@@ -44,9 +44,9 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractEntit
 {
     /**
      * @var string
-     * @Input()
+     * @Input(editableInFrontend=false)
      */
-    protected string $checksum;
+    protected string $checksum = '';
 
     /**
      * AbstractModelWithDataManipulationProtection constructor.

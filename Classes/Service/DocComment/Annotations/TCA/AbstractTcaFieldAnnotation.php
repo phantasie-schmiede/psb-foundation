@@ -53,7 +53,7 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
      * @var bool
      * @see Ctrl
      */
-    protected bool $editableInFrontend = false;
+    protected ?bool $editableInFrontend = null;
 
     /**
      * @var bool
@@ -106,9 +106,9 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
-    public function isEditableInFrontend(): bool
+    public function isEditableInFrontend(): ?bool
     {
         return $this->editableInFrontend;
     }

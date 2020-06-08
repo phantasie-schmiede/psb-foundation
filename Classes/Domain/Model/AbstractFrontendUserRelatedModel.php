@@ -39,15 +39,15 @@ use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
 abstract class AbstractFrontendUserRelatedModel extends AbstractModelWithDataManipulationProtection
 {
     /**
-     * @var FrontendUser
-     * @Select(linkedModel="FrontendUser")
+     * @var FrontendUser|null
+     * @Select(editableInFrontend=false, linkedModel="FrontendUser")
      */
-    protected FrontendUser $frontendUser;
+    protected ?FrontendUser $frontendUser = null;
 
     /**
-     * @return FrontendUser
+     * @return FrontendUser|null
      */
-    public function getFrontendUser(): FrontendUser
+    public function getFrontendUser(): ?FrontendUser
     {
         return $this->frontendUser;
     }

@@ -188,10 +188,14 @@ class StringUtility
 
         // check for JSON
         if (in_array($variable[0], ['{', '['], true)) {
-            $decodedString = json_decode(str_replace('\'', '"', $variable), true, 512, JSON_THROW_ON_ERROR);
+            try {
+                $decodedString = json_decode(str_replace('\'', '"', $variable), true, 512, JSON_THROW_ON_ERROR);
 
-            if (null !== $decodedString) {
-                return $decodedString;
+                if (null !== $decodedString) {
+                    return $decodedString;
+                }
+            } catch (Exception $exception) {
+                // The string is not valid JSON. Just continue.
             }
         }
 

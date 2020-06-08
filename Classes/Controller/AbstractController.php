@@ -120,7 +120,7 @@ abstract class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @PluginAction (uncached=true)
+     * @PluginAction(uncached=true)
      * @throws StopActionException
      * @throws IllegalObjectTypeException
      */
@@ -133,7 +133,7 @@ abstract class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @PluginAction (uncached=true)
+     * @PluginAction(uncached=true)
      * @throws StopActionException
      * @throws IllegalObjectTypeException
      */
@@ -146,7 +146,7 @@ abstract class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @PluginAction (uncached=true)
+     * @PluginAction(uncached=true)
      */
     public function editAction(AbstractEntity $record): void
     {
@@ -163,16 +163,21 @@ abstract class AbstractController extends ActionController
      */
     public function initializeAction(): void
     {
-        if ($this->request->hasArgument('record')
-            && is_array($this->request->getArgument('record'))
-        ) {
-            $mappingConfiguration = $this->get(PropertyMappingConfigurationBuilder::class)->build();
-            $mappingConfiguration->allowAllProperties();
-            $record = $this->get(PropertyMapper::class)->convert(
-                $this->request->getArgument('record'),
-                $this->getDomainModel(true),
-                $mappingConfiguration
-            );
+        if ($this->request->hasArgument('record')) {
+            $record = $this->request->getArgument('record');
+
+            if (is_array($record)) {
+                $mappingConfiguration = $this->get(PropertyMappingConfigurationBuilder::class)->build();
+                $mappingConfiguration->allowAllProperties();
+                $record = $this->get(PropertyMapper::class)->convert(
+                    $this->request->getArgument('record'),
+                    $this->getDomainModel(true),
+                    $mappingConfiguration
+                );
+            } else {
+                $record = $this->repository->findByUid((int)$record);
+            }
+
             $this->request->setArgument('record', $record);
         }
     }
@@ -183,13 +188,14 @@ abstract class AbstractController extends ActionController
     public function initializeView(ViewInterface $view): void
     {
         $this->view->assignMultiple([
-            'domainModel'  => $this->getDomainModel(),
-            'extensionKey' => $this->request->getControllerExtensionKey(),
+            'domainModel'      => $this->getDomainModel(),
+            'domainModelClass' => $this->getDomainModel(true),
+            'extensionKey'     => $this->request->getControllerExtensionKey(),
         ]);
     }
 
     /**
-     * @PluginAction (default=true)
+     * @PluginAction(default=true)
      */
     public function listAction(): void
     {
@@ -199,7 +205,7 @@ abstract class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @PluginAction
+     * @PluginAction(uncached=true)
      */
     public function newAction(AbstractEntity $record = null): void
     {
@@ -209,7 +215,7 @@ abstract class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @PluginAction
+     * @PluginAction()
      */
     public function showAction(AbstractEntity $record): void
     {
@@ -219,7 +225,7 @@ abstract class AbstractController extends ActionController
     /**
      * @param AbstractEntity $record
      *
-     * @PluginAction (uncached=true)
+     * @PluginAction(uncached=true)
      * @throws IllegalObjectTypeException
      * @throws StopActionException
      * @throws UnknownObjectException

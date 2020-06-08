@@ -60,7 +60,7 @@ class TcaService
         'autoSizeMax'         => 'autoSizeMax',
         'dbType'              => 'dbType',
         'defaultSortBy'       => 'default_sortby',
-        'editableInFrontend ' => 'editableInFrontend',
+        'editableInFrontend' => 'editableInFrontend',
         'enableRichtext'      => 'enableRichtext',
         'fieldControl'        => 'fieldControl',
         'foreignSortBy'       => 'foreign_sortby',
@@ -351,7 +351,7 @@ class TcaService
 
             foreach ($docComment as $annotation) {
                 if ($annotation instanceof TcaAnnotationInterface) {
-                    if (true === $editableInFrontend) {
+                    if (true === $editableInFrontend && false !== $annotation->isEditableInFrontend()) {
                         $annotation->setEditableInFrontend(true);
                     }
 
