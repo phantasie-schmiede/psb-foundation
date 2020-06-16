@@ -328,7 +328,7 @@ class StringUtility
      *
      * @return bool
      */
-    public static function startsWith(string $string, string $beginning): bool
+    public static function beginsWith(string $string, string $beginning): bool
     {
         return 0 === mb_strrpos($string, $beginning, -mb_strlen($string));
     }

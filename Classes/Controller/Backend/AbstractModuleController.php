@@ -27,6 +27,7 @@ namespace PSB\PsbFoundation\Controller\Backend;
  ***************************************************************/
 
 use InvalidArgumentException;
+use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Module\ButtonConfiguration;
 use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleAction;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
@@ -48,6 +49,7 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function count;
 use function in_array;
 
@@ -286,6 +288,7 @@ abstract class AbstractModuleController extends ActionController
      * current action will be appended in brackets.
      *
      * @return string|null
+     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -339,7 +342,9 @@ abstract class AbstractModuleController extends ActionController
      * automatically. This can be prevented with the ModuleAction-annotation, see addTemplateAction.
      *
      * @return array
+     * @throws AnnotationException
      * @throws Exception
+     * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
     private function buildTemplateActions(): array

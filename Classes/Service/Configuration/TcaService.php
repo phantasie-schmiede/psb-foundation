@@ -275,7 +275,7 @@ class TcaService
         $identifier = 'tx_' . mb_strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
 
         $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
-            return StringUtility::startsWith($key, $identifier);
+            return StringUtility::beginsWith($key, $identifier);
         });
 
         foreach ($newTables as $table) {

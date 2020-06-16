@@ -155,7 +155,7 @@ class DocCommentParserService implements LoggerAwareInterface
             foreach ($commentLines as $commentLine) {
                 $commentLine = ltrim(trim($commentLine), '/* ');
 
-                if (StringUtility::startsWith($commentLine, '@')) {
+                if (StringUtility::beginsWith($commentLine, '@')) {
                     $commentLine = preg_replace('/\(/', ' (', $commentLine, 1);
                     [$annotationType, $parameters] = GeneralUtility::trimExplode(' ', ltrim($commentLine, '@'), true,
                         2);

@@ -51,14 +51,14 @@ class ExtendedReflectionClass extends ReflectionClass
 
         foreach ($lines as $line) {
             if (!$this->isComment($line)
-                && !StringUtility::startsWith($line, 'use')
+                && !StringUtility::beginsWith($line, 'use')
                 && false !== mb_strpos($line, 'class ' . $this->getShortName())
             ) {
                 // reached class declaration line, thus no more use-statements can occur
                 return $namespaces;
             }
 
-            if (StringUtility::startsWith($line, 'use')
+            if (StringUtility::beginsWith($line, 'use')
                 && StringUtility::endsWith($line, ';')
             ) {
                 $namespace = mb_substr($line, 4, -1);

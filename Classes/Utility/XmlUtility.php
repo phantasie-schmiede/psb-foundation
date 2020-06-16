@@ -86,6 +86,8 @@ class XmlUtility
                         'tagValue' => $sibling,
                     ];
                 }
+
+                $siblings = self::sortSiblings($siblings);
             } else {
                 $siblings[] = [
                     'tagName'  => $key,
@@ -94,10 +96,11 @@ class XmlUtility
             }
         }
 
-        $siblings = self::sortSiblings($siblings);
-
         foreach ($siblings as $value) {
-            unset($value['tagValue'][self::SPECIAL_KEYS['POSITION']]);
+            if (isset($value['tagValue'][self::SPECIAL_KEYS['POSITION']])) {
+                unset($value['tagValue'][self::SPECIAL_KEYS['POSITION']]);
+            }
+
             $xml .= self::buildTag($value['tagName'], $value['tagValue'], $wellFormatted, $indentationLevel);
         }
 

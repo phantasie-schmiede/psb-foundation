@@ -30,16 +30,48 @@ use PSB\PsbFoundation\Data\ExtensionInformation;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
 use function array_slice;
 
 /**
  * Class LocalizationUtility
+ *
  * @package PSB\PsbFoundation\Utility
  */
 class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
 {
     private const MISSING_TRANSLATIONS_TABLE = 'tx_psbfoundation_missing_translations';
+
+    /**
+     * @param string $key
+     * @param bool   $keyExists
+     *
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
+    public static function logMissingTranslations(string $key, bool $keyExists): void
+    {
+        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
+
+        if ((bool)ExtensionInformationUtility::getConfiguration($extensionInformation,
+            'debug.logMissingTranslations')) {
+            $connection = ObjectUtility::get(ConnectionPool::class)
+                ->getConnectionForTable(self::MISSING_TRANSLATIONS_TABLE);
+
+            // Avoid duplicates without using a select query as check for existing entries
+            $connection->delete(self::MISSING_TRANSLATIONS_TABLE, [
+                'locallang_key' => $key,
+            ]);
+
+            if (false === $keyExists) {
+                $connection->insert(self::MISSING_TRANSLATIONS_TABLE, [
+                    'locallang_key' => $key,
+                ]);
+            }
+        }
+    }
 
     /**
      * Returns the localized label of the LOCAL_LANG key, $key.
@@ -67,22 +99,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
         array $alternativeLanguageKeys = null
     ): ?string {
         $translation = parent::translate($key, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
-        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
-
-        if ((bool)ExtensionInformationUtility::getConfiguration($extensionInformation,
-            'debug.logMissingTranslations')) {
-            $connection = ObjectUtility::get(ConnectionPool::class)
-                ->getConnectionForTable(self::MISSING_TRANSLATIONS_TABLE);
-            $connection->delete(self::MISSING_TRANSLATIONS_TABLE, [
-                'locallang_key' => $key,
-            ]);
-
-            if (null === $translation) {
-                $connection->insert(self::MISSING_TRANSLATIONS_TABLE, [
-                    'locallang_key' => $key,
-                ]);
-            }
-        }
+        self::logMissingTranslations($key, $translation ? true : false);
 
         return $translation;
     }
@@ -138,5 +155,56 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
         }
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * This method can be used to check if a given language key is implemented even if TYPO3's LocalizationFactory isn't
+     * initialized yet.
+     *
+     * @param string $key
+     *
+     * @return bool
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
+    public static function translationExists(string $key): bool
+    {
+        $keyParts = explode(':', $key);
+
+        if ('LLL' === $keyParts[0]) {
+            unset($keyParts[0]);
+        } else {
+            // @TODO: generate warning
+        }
+
+        $id = array_pop($keyParts);
+        $languageFilePath = implode(':', $keyParts);
+        $languageFilePath = GeneralUtility::getFileAbsFileName($languageFilePath);
+
+        if (file_exists($languageFilePath)) {
+            $xmlData = XmlUtility::convertXmlToArray(file_get_contents($languageFilePath));
+
+            if (\TYPO3\CMS\Core\Utility\ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
+                // If file contains only one label, an additional array level has to be added for the following foreach.
+                $xmlData['xliff']['file']['body']['trans-unit'] = [$xmlData['xliff']['file']['body']['trans-unit']];
+            }
+
+            foreach ($xmlData['xliff']['file']['body']['trans-unit'] as $transUnit) {
+                if (isset($transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
+                    $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
+
+                    if ($id === $transUnitTagAttributes['id']) {
+                        self::logMissingTranslations($key, true);
+
+                        return true;
+                    }
+                }
+            }
+        }
+
+        self::logMissingTranslations($key, false);
+
+        return false;
     }
 }

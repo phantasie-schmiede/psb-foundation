@@ -48,62 +48,62 @@ class ButtonConfiguration
     /**
      * @var string
      */
-    protected $action;
+    protected string $action = '';
 
     /**
      * @var array
      */
-    protected $additionalParams;
+    protected array $additionalParams = [];
 
     /**
      * @var int
      */
-    protected $buttonGroup = 1;
+    protected int $buttonGroup = 1;
 
     /**
      * @var string
      */
-    protected $controller;
+    protected string $controller = '';
 
     /**
      * @var string
      */
-    protected $form;
+    protected string $form = '';
 
     /**
      * @var string
      */
-    protected $iconIdentifier;
+    protected string $iconIdentifier = '';
 
     /**
      * @var string
      */
-    protected $name;
+    protected string $name = '';
 
     /**
      * @var string
      */
-    protected $position = ButtonBar::BUTTON_POSITION_LEFT;
+    protected string $position = ButtonBar::BUTTON_POSITION_LEFT;
 
     /**
      * @var bool
      */
-    protected $showLabel = true;
+    protected bool $showLabel = true;
 
     /**
      * @var string
      */
-    protected $title;
+    protected string $title = '';
 
     /**
      * @var string
      */
-    protected $type;
+    protected string $type = '';
 
     /**
      * @var string
      */
-    protected $value;
+    protected string $value = '';
 
     /**
      * @return string

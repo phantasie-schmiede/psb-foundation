@@ -37,9 +37,32 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
 class ModuleAction extends AbstractAnnotation
 {
     /**
+     * Marks the default action of the controller (executed, when no specific action is given in a request).
+     *
      * @var bool
      */
-    protected bool $doNotRender;
+    protected bool $default = false;
+
+    /**
+     * @var bool
+     */
+    protected bool $doNotRender = false;
+
+    /**
+     * @return bool
+     */
+    public function isDefault(): bool
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param bool $default
+     */
+    public function setDefault(bool $default): void
+    {
+        $this->default = $default;
+    }
 
     /**
      * @return bool

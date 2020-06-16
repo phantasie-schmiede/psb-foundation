@@ -39,17 +39,17 @@ class PluginConfig extends AbstractAnnotation
     /**
      * @var string
      */
-    protected string $group;
+    protected string $group = '';
 
     /**
      * @var string
      */
-    protected string $iconIdentifier;
+    protected string $iconIdentifier = '';
 
     /**
      * @var string
      */
-    protected string $title;
+    protected string $title = '';
 
     /**
      * @return string

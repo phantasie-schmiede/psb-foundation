@@ -43,13 +43,6 @@ class PluginAction extends AbstractAnnotation
     protected bool $default = false;
 
     /**
-     * Don't add this action to the list of allowed actions for the plugin.
-     *
-     * @var bool
-     */
-    protected bool $ignore = false;
-
-    /**
      * Add this action to the list of uncached actions
      *
      * @var bool
@@ -70,22 +63,6 @@ class PluginAction extends AbstractAnnotation
     public function setDefault(bool $default): void
     {
         $this->default = $default;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isIgnore(): bool
-    {
-        return $this->ignore;
-    }
-
-    /**
-     * @param bool $ignore
-     */
-    public function setIgnore(bool $ignore): void
-    {
-        $this->ignore = $ignore;
     }
 
     /**

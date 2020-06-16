@@ -272,7 +272,7 @@ class ExtensionInformationUtility
             $file = fopen($fileName, 'rb');
 
             while ($line = fgets($file)) {
-                if (StringUtility::startsWith($line, 'namespace ')) {
+                if (StringUtility::beginsWith($line, 'namespace ')) {
                     $namespace = rtrim(GeneralUtility::trimExplode(' ', $line)[1], ';');
                     $vendorName = explode('\\', $namespace)[0];
                     break;

@@ -39,37 +39,37 @@ class ModuleConfig extends AbstractAnnotation
     /**
      * @var string
      */
-    protected string $access;
+    protected string $access = '';
 
     /**
      * @var string
      */
-    protected string $icon;
+    protected string $icon = '';
 
     /**
      * @var string
      */
-    protected string $iconIdentifier;
+    protected string $iconIdentifier = '';
+
+    /**
+     * @var string|null
+     */
+    protected ?string $labels = null;
 
     /**
      * @var string
      */
-    protected string $labels;
+    protected string $mainModuleName = '';
 
     /**
      * @var string
      */
-    protected string $mainModuleName;
+    protected string $navigationComponentId = '';
 
     /**
      * @var string
      */
-    protected string $navigationComponentId;
-
-    /**
-     * @var string
-     */
-    protected string $position;
+    protected string $position = '';
 
     /**
      * @return string
@@ -120,17 +120,17 @@ class ModuleConfig extends AbstractAnnotation
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getLabels(): string
+    public function getLabels(): ?string
     {
         return $this->labels;
     }
 
     /**
-     * @param string $labels
+     * @param string|null $labels
      */
-    public function setLabels(string $labels): void
+    public function setLabels(?string $labels): void
     {
         $this->labels = $labels;
     }

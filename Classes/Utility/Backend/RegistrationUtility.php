@@ -32,12 +32,14 @@ use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\AjaxPageType;
+use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleAction;
 use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleConfig;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
@@ -46,6 +48,8 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
@@ -99,6 +103,8 @@ class RegistrationUtility
      * @param string $iconIdentifier
      *
      * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public static function addPluginToElementWizard(
         string $extensionKey,
@@ -110,6 +116,8 @@ class RegistrationUtility
                 GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
         $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
         $listType = str_replace('_', '', $extensionKey) . '_' . mb_strtolower($pluginName);
+        LocalizationUtility::translationExists($ll . '.description');
+        LocalizationUtility::translationExists($ll . '.title');
 
         $configuration = [
             'description'          => $ll . '.description',
@@ -133,6 +141,10 @@ class RegistrationUtility
      * @param string      $group
      * @param string|null $iconIdentifier
      * @param string|null $templatePath
+     *
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public static function configureContentType(
         string $contentType,
@@ -143,6 +155,9 @@ class RegistrationUtility
     ): void {
         $internalContentType = self::buildContentTypeKey($extensionKey, $contentType);
         $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . $contentType;
+        LocalizationUtility::translationExists($ll . '.description');
+        LocalizationUtility::translationExists($ll . '.title');
+
         $configuration = [
             'description'          => $ll . '.description',
             'iconIdentifier'       => $iconIdentifier ?? $contentType,
@@ -226,6 +241,10 @@ class RegistrationUtility
      *                              Example: "before:text"
      * @param string|null $iconIdentifier
      * @param string|null $title
+     *
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public static function registerContentType(
         string $extensionKey,
@@ -241,9 +260,14 @@ class RegistrationUtility
 
         $internalKey = self::buildContentTypeKey($extensionKey, $key);
 
+        if (null === $title) {
+            $title = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
+            LocalizationUtility::translationExists($title);
+        }
+
         ExtensionManagementUtility::addPlugin(
             [
-                $title ?? 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title',
+                $title,
                 $internalKey,
                 $iconIdentifier ?? $key,
             ],
@@ -292,8 +316,15 @@ class RegistrationUtility
         $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] = [];
 
         foreach ($contentTypeGroups as $groupKey => $groupElements) {
+            if (isset($groupLabels[$groupKey]) && !empty($groupLabels[$groupKey])) {
+                $groupKey = $groupLabels[$groupKey];
+            } else {
+                $groupKey = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $groupKey . '.header';
+                LocalizationUtility::translationExists($groupKey);
+            }
+
             $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'][] = [
-                $groupLabels[$groupKey] ?? 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $groupKey . '.header',
+                $groupKey,
                 '--div--',
             ];
 
@@ -331,13 +362,15 @@ class RegistrationUtility
                     }
                 }
 
+                $elementTitle = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
+
                 $showItems = [
                     '--palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:palette.general;general',
                     implode(',', $coreFields ?? []),
                     '--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:tabs.access',
                     '--palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:palette.visibility;visibility',
                     '--palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:palette.access;access',
-                    '--div--;LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title',
+                    '--div--;' . $elementTitle,
                     implode(',', $contentTypeFields ?? []),
                 ];
 
@@ -355,7 +388,8 @@ class RegistrationUtility
      *
      * @throws AnnotationException
      * @throws Exception
-     * @throws IllegalObjectTypeException
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
@@ -384,6 +418,14 @@ class RegistrationUtility
 
                     $iconIdentifier = $iconIdentifier ?? 'module-' . $submoduleKey;
 
+                    if (!isset($labels) || null !== $labels) {
+                        $labels = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf';
+                    }
+
+                    LocalizationUtility::translationExists($labels . ':mlang_labels_tabdescr');
+                    LocalizationUtility::translationExists($labels . ':mlang_labels_tablabel');
+                    LocalizationUtility::translationExists($labels . ':mlang_tabs_tab');
+
                     ExtensionUtility::registerModule(
                         $extensionInformation->getExtensionName(),
                         $mainModuleName ?? 'web',
@@ -395,7 +437,7 @@ class RegistrationUtility
                             'icon'                  => $icon ?? null,
                             'iconIdentifier'        => GeneralUtility::makeInstance(IconRegistry::class)
                                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-                            'labels'                => $labels ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf',
+                            'labels'                => $labels,
                             'navigationComponentId' => $navigationComponentId ?? null,
                         ]
                     );
@@ -435,6 +477,8 @@ class RegistrationUtility
      *
      * @throws AnnotationException
      * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */
@@ -452,10 +496,15 @@ class RegistrationUtility
                         $title = $pluginConfig->getTitle();
                     }
 
+                    if (!isset($title) || null === $title) {
+                        $title = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title';
+                        LocalizationUtility::translationExists($title);
+                    }
+
                     ExtensionUtility::registerPlugin(
                         $extensionInformation->getExtensionName(),
                         $pluginName,
-                        $title ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title'
+                        $title
                     );
                 }
             }
@@ -465,11 +514,17 @@ class RegistrationUtility
     /**
      * @param string $extensionKey
      * @param string $key
+     *
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     private static function addElementWizardGroup(string $extensionKey, string $key): void
     {
+        $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $key . '.header';
+        LocalizationUtility::translationExists($header);
         $pageTS['mod']['wizards']['newContentElement']['wizardItems'][$key] = [
-            'header' => 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $key . '.header',
+            'header' => $header,
             'show'   => '*',
         ];
 
@@ -482,6 +537,10 @@ class RegistrationUtility
      * @param string $extensionKey
      * @param string $group
      * @param string $key
+     *
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     private static function addElementWizardItem(
         array $configuration,
@@ -516,6 +575,16 @@ class RegistrationUtility
         );
     }
 
+    /**
+     * @param int    $doktype
+     * @param string $extensionKey
+     * @param string $iconIdentifier
+     * @param string $name
+     *
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
     private static function addPageTypeToPagesTca(
         int $doktype,
         string $extensionKey,
@@ -523,13 +592,15 @@ class RegistrationUtility
         string $name
     ): void {
         $table = 'pages';
+        $label = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.' . $name;
+        LocalizationUtility::translationExists($label);
 
         // Add new page type as possible select item:
         ExtensionManagementUtility::addTcaSelectItem(
             $table,
             'doktype',
             [
-                'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.' . $name,
+                $label,
                 $doktype,
                 'EXT:' . $extensionKey . '/Resources/Public/Icons/' . $iconIdentifier . '.svg',
             ],
@@ -598,60 +669,73 @@ class RegistrationUtility
                 foreach ($methods as $method) {
                     $methodName = $method->getName();
 
-                    if (!StringUtility::endsWith($methodName,
-                            'Action') || StringUtility::startsWith($methodName,
-                            'initialize') || in_array($method->getDeclaringClass()->getName(),
-                            [AbstractModuleController::class, ActionController::class], true)) {
+                    if (!StringUtility::endsWith($methodName, 'Action')
+                        || StringUtility::beginsWith($methodName, 'initialize')
+                        || in_array($method->getDeclaringClass()->getName(),
+                            [AbstractModuleController::class, ActionController::class], true)
+                    ) {
                         continue;
                     }
 
                     $docComment = $docCommentParserService->parsePhpDocComment($controllerClassName,
                         $methodName);
 
+                    if (isset($docComment[ModuleAction::class])) {
+                        /** @var ModuleAction $action */
+                        $action = $docComment[ModuleAction::class];
+
+                        $actionName = mb_substr($methodName, 0, -6);
+
+                        if (true === $action->isDefault()) {
+                            array_unshift($controllersAndCachedActions[$controllerClassName],
+                                $actionName);
+                        } else {
+                            $controllersAndCachedActions[$controllerClassName][] = $actionName;
+                        }
+                    }
+
                     if (isset($docComment[PluginAction::class])) {
-                        /** @var PluginAction $pluginAction */
-                        $pluginAction = $docComment[PluginAction::class];
+                        /** @var PluginAction $action */
+                        $action = $docComment[PluginAction::class];
 
-                        if (false === $pluginAction->isIgnore()) {
-                            $actionName = mb_substr($methodName, 0, -6);
+                        $actionName = mb_substr($methodName, 0, -6);
 
-                            if (true === $pluginAction->isDefault()) {
-                                array_unshift($controllersAndCachedActions[$controllerClassName],
-                                    $actionName);
-                            } else {
-                                $controllersAndCachedActions[$controllerClassName][] = $actionName;
-                            }
+                        if (true === $action->isDefault()) {
+                            array_unshift($controllersAndCachedActions[$controllerClassName],
+                                $actionName);
+                        } else {
+                            $controllersAndCachedActions[$controllerClassName][] = $actionName;
+                        }
 
-                            if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode
-                                && true === $pluginAction->isUncached()) {
-                                $controllersAndUncachedActions[$controllerClassName][] = $actionName;
-                            }
+                        if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] === $collectMode
+                            && true === $action->isUncached()) {
+                            $controllersAndUncachedActions[$controllerClassName][] = $actionName;
+                        }
 
-                            if (isset($docComment[AjaxPageType::class])) {
-                                $extensionInformation = ExtensionInformationUtility::extractExtensionInformationFromClassName($controllerClassName);
-                                /** @var AjaxPageType $ajaxPageType */
-                                $ajaxPageType = $docComment[AjaxPageType::class];
-                                $pageObjectConfiguration = ObjectUtility::get(PageObjectConfiguration::class);
-                                $pageObjectConfiguration->setAction($actionName);
-                                $pageObjectConfiguration->setCacheable($ajaxPageType->isCacheable());
-                                $pageObjectConfiguration->setContentType($ajaxPageType->getContentType());
-                                $controllerName = ExtensionInformationUtility::convertControllerClassToBaseName($controllerClassName);
-                                $pageObjectConfiguration->setController($controllerName);
-                                $pageObjectConfiguration->setDisableAllHeaderCode($ajaxPageType->isDisableAllHeaderCode());
-                                $pageObjectConfiguration->setExtensionName($extensionInformation['extensionName']);
-                                $pageObjectConfiguration->setPluginName($pluginName);
-                                $pageObjectConfiguration->setTypeNum($ajaxPageType->getTypeNum());
-                                $typoScriptObjectName = strtolower(implode('_', [
-                                    'ajax',
-                                    $extensionInformation['vendorName'],
-                                    $extensionInformation['extensionName'],
-                                    $controllerName,
-                                    $actionName,
-                                ]));
-                                $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);
-                                $pageObjectConfiguration->setVendorName($extensionInformation['vendorName']);
-                                TypoScriptUtility::registerAjaxPageType($pageObjectConfiguration);
-                            }
+                        if (isset($docComment[AjaxPageType::class])) {
+                            $extensionInformation = ExtensionInformationUtility::extractExtensionInformationFromClassName($controllerClassName);
+                            /** @var AjaxPageType $ajaxPageType */
+                            $ajaxPageType = $docComment[AjaxPageType::class];
+                            $pageObjectConfiguration = ObjectUtility::get(PageObjectConfiguration::class);
+                            $pageObjectConfiguration->setAction($actionName);
+                            $pageObjectConfiguration->setCacheable($ajaxPageType->isCacheable());
+                            $pageObjectConfiguration->setContentType($ajaxPageType->getContentType());
+                            $controllerName = ExtensionInformationUtility::convertControllerClassToBaseName($controllerClassName);
+                            $pageObjectConfiguration->setController($controllerName);
+                            $pageObjectConfiguration->setDisableAllHeaderCode($ajaxPageType->isDisableAllHeaderCode());
+                            $pageObjectConfiguration->setExtensionName($extensionInformation['extensionName']);
+                            $pageObjectConfiguration->setPluginName($pluginName);
+                            $pageObjectConfiguration->setTypeNum($ajaxPageType->getTypeNum());
+                            $typoScriptObjectName = strtolower(implode('_', [
+                                'ajax',
+                                $extensionInformation['vendorName'],
+                                $extensionInformation['extensionName'],
+                                $controllerName,
+                                $actionName,
+                            ]));
+                            $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);
+                            $pageObjectConfiguration->setVendorName($extensionInformation['vendorName']);
+                            TypoScriptUtility::registerAjaxPageType($pageObjectConfiguration);
                         }
                     }
                 }

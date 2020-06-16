@@ -97,13 +97,13 @@ class TcaUtility
 
                 $tableName = ExtensionInformationUtility::convertClassNameToTableName($fullQualifiedClassName);
 
-                if (true === $overrideMode && StringUtility::startsWith($tableName,
+                if (true === $overrideMode && StringUtility::beginsWith($tableName,
                         'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
                     // This class is not extending another domain model.
                     continue;
                 }
 
-                if (false === $overrideMode && !StringUtility::startsWith($tableName,
+                if (false === $overrideMode && !StringUtility::beginsWith($tableName,
                         'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
                     // Not a table of the current extension, thus skipped
                     continue;
