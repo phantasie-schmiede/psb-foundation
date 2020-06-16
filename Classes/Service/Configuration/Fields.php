@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Service\Configuration;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,9 +25,6 @@ namespace PSB\PsbFoundation\Service\Configuration;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
-use InvalidArgumentException;
-use function in_array;
 
 /**
  * Class Fields
@@ -58,6 +54,7 @@ class Fields
         'MM'          => 'select',
         'PASSTHROUGH' => 'passthrough',
         'SELECT'      => 'select',
+        'SLUG'        => 'slug',
         'TEXT'        => 'text',
         'TIME'        => 'input',
         'USER'        => 'user',
