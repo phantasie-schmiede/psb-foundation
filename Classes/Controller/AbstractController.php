@@ -138,15 +138,21 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     * @param string|null    $returnUrl
      *
      * @PluginAction(uncached=true)
-     * @throws StopActionException
      * @throws IllegalObjectTypeException
+     * @throws StopActionException
      */
-    public function deleteAction(AbstractEntity $record): void
+    public function deleteAction(AbstractEntity $record, string $returnUrl = null): void
     {
         $this->repository->remove($record);
-        $this->redirect('list');
+
+        if (null !== $returnUrl) {
+            $this->redirectToUri($returnUrl);
+        } else {
+            $this->redirect('list');
+        }
     }
 
     /**
