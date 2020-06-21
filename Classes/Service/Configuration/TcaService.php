@@ -35,9 +35,12 @@ use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -119,10 +122,9 @@ class TcaService
      *
      * @param string $className
      *
-     * @throws AnnotationException
-     * @throws InvalidArgumentForHashGenerationException
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws ObjectException
-     * @throws ReflectionException
      */
     public function __construct(string $className)
     {
@@ -138,8 +140,10 @@ class TcaService
         } else {
             $this->configuration = $this->getDummyConfiguration($this->table);
             $this->setDefaultLabelPath($this->getDefaultLabelPath() . $this->table . '.xlf:');
+            $title = $this->getDefaultLabelPath() . 'domain.model';
+            LocalizationUtility::translationExists($title);
             $this->setCtrlProperties([
-                'title' => $this->getDefaultLabelPath() . 'domain.model',
+                'title' => $title,
             ]);
         }
 
@@ -323,6 +327,8 @@ class TcaService
     /**
      * @return $this
      * @throws AnnotationException
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
      * @throws ObjectException
      * @throws ReflectionException
@@ -365,7 +371,9 @@ class TcaService
                             DocCommentParserService::ANNOTATION_TARGETS['PROPERTY']);
 
                         if (!isset($propertyConfiguration['label'])) {
-                            $propertyConfiguration['label'] = $this->getDefaultLabelPath() . $columnName;
+                            $label = $this->getDefaultLabelPath() . $columnName;
+                            LocalizationUtility::translationExists($label);
+                            $propertyConfiguration['label'] = $label;
                         }
 
                         $this->configuration['columns'][$columnName] = $propertyConfiguration;

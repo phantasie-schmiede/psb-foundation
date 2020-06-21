@@ -33,14 +33,14 @@ use ReflectionClass;
 use ReflectionMethod;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class AbstractModelWithDataManipulationProtection
+ *
  * @package PSB\PsbFoundation\Domain\Model
  */
-abstract class AbstractModelWithDataManipulationProtection extends AbstractEntity implements DataManipulationProtectionInterface
+abstract class AbstractModelWithDataManipulationProtection extends AbstractModel implements DataManipulationProtectionInterface
 {
     /**
      * @var string
@@ -50,6 +50,7 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractEntit
 
     /**
      * AbstractModelWithDataManipulationProtection constructor.
+     *
      * @throws InvalidArgumentForHashGenerationException
      */
     public function __construct()
@@ -130,8 +131,9 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractEntit
      */
     public function validateChecksum(): void
     {
+        // @TODO: This condition has to be negated!
         if (hash_equals($this->getChecksum(), $this->calculateChecksum(false))) {
-            throw new RuntimeException(__CLASS__ . ': Checksum validation failed! The data of the record with UID ' . $this->getUid() . ' has been manipulated!',
+            throw new RuntimeException(static::class . ': Checksum validation failed! The data of the record with UID ' . $this->getUid() . ' has been manipulated!',
                 1582819384);
         }
     }

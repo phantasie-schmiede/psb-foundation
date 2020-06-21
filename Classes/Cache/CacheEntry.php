@@ -38,6 +38,7 @@ class CacheEntry extends AbstractModelWithDataManipulationProtection
      * @var string
      */
     protected string $content;
+
     /**
      * @var string
      */

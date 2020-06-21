@@ -26,47 +26,24 @@ namespace PSB\PsbFoundation\Domain\Repository;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
-use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Persistence\Generic\Query;
+use PSB\PsbFoundation\Traits\InjectionTrait;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
- * Class AbstractFrontendUserRelatedModelRepository
- *
- * This repository lets you find records that are connected to a certain frontend user. Goes hand in hand with a model
- * extending \PSB\PsbFoundation\Domain\Model\AbstractFrontendUserRelatedModel
+ * Class AbstractRepository
  *
  * @package PSB\PsbFoundation\Domain\Repository
  */
-abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelWithDataManipulationProtectionRepository
+abstract class AbstractRepository extends Repository
 {
-    /**
-     * @param int $frontendUserId
-     *
-     * @return QueryResultInterface
-     */
-    public function findByFrontendUser(int $frontendUserId): QueryResultInterface
-    {
-        /** @var Query $query */
-        $query = $this->createQuery();
-        $query->matching($query->equals('frontendUser', $frontendUserId));
-
-        return $query->execute();
-    }
+    use InjectionTrait;
 
     /**
      * @return array|QueryResultInterface
-     * @throws AspectNotFoundException
-     * @throws AspectPropertyNotFoundException
-     * @throws Exception
      */
     public function findTcaSelectItems()
     {
-        $frontendUserId = $this->get(Context::class)->getAspect('frontend.user')->get('id');
-
-        return $this->findByFrontendUser($frontendUserId);
+        return $this->findAll();
     }
 }

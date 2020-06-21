@@ -26,13 +26,11 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Service\Configuration\Fields;
 use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
-use ReflectionException;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class Select
@@ -190,6 +188,17 @@ class Select extends AbstractTcaFieldAnnotation
      */
     public function getItems(): array
     {
+        if (ArrayUtility::isAssociative($this->items)) {
+            // This is the case if the values are extracted from a constant.
+            $items = [];
+
+            foreach ($this->items as $item) {
+                $items[] = [$item, $item];
+            }
+
+            $this->items = $items;
+        }
+
         return $this->items;
     }
 
@@ -212,13 +221,12 @@ class Select extends AbstractTcaFieldAnnotation
     /**
      * @param string $linkedModel
      *
-     * @throws AnnotationException
      * @throws Exception
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws ReflectionException
      */
     public function setLinkedModel(string $linkedModel): void
     {
+        $this->linkedModel = $linkedModel;
+
         if (class_exists($linkedModel)) {
             $this->setForeignTable(ExtensionInformationUtility::convertClassNameToTableName($linkedModel));
         }

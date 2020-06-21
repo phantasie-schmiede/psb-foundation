@@ -27,7 +27,6 @@ namespace PSB\PsbFoundation\Domain\Model;
  ***************************************************************/
 
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Input;
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
  * Class ModelWithName
@@ -36,7 +35,7 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  *
  * @package PSB\PsbFoundation\Domain\Model
  */
-abstract class AbstractModelWithName extends AbstractEntity
+abstract class AbstractModelWithName extends AbstractModel
 {
     /**
      * @var string

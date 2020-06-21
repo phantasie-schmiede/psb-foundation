@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\ViewHelpers\Variable;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -33,6 +32,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 /**
  * Class IncrementViewHelper
+ *
  * @package PSB\PsbFoundation\ViewHelpers\Variable
  */
 class IncrementViewHelper extends AbstractViewHelper

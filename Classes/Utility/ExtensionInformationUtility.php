@@ -43,6 +43,7 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
@@ -145,24 +146,21 @@ class ExtensionInformationUtility
     }
 
     /**
+     * TYPO3's DataMapper can't be used here as it would create an incomplete class information cache due to the early
+     * stage in which this function gets called!
+     *
      * @param string $className
      *
      * @return string
-     * @throws AnnotationException
      * @throws Exception
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws ReflectionException
      */
     public static function convertClassNameToTableName(string $className): string
     {
-        $docCommentParserService = ObjectUtility::get(DocCommentParserService::class);
-        $docComment = $docCommentParserService->parsePhpDocComment($className);
+        // @TODO: cache the classes configuration for this early stage (CacheManager not available)!
+        $classesConfiguration = ObjectUtility::get(ClassesConfigurationFactory::class)->createClassesConfiguration();
 
-        if (isset($docComment[TcaMapping::class])) {
-            /** @var TcaMapping $tcaMapping */
-            $tcaMapping = $docComment[TcaMapping::class];
-
-            return $tcaMapping->getTable();
+        if ($classesConfiguration->hasClass($className)) {
+            return $classesConfiguration->getConfigurationFor($className)['tableName'];
         }
 
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);

@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\Service\Configuration;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -55,27 +54,27 @@ class FlexFormService
     /**
      * @var string
      */
-    private static $extensionKey;
+    private static string $extensionKey = '';
 
     /**
      * @var string
      */
-    private static $pluginName;
+    private static string $pluginName = '';
 
     /**
      * @var array
      */
-    private static $valueParser = [];
+    private static array $valueParser = [];
 
     /**
      * @var string
      */
-    protected $defaultLabelPath;
+    protected string $defaultLabelPath = '';
 
     /**
      * @var array
      */
-    private $ds;
+    private array $ds = [];
 
     /**
      * @param string $extensionKeyOrName
@@ -103,7 +102,6 @@ class FlexFormService
                 1547211801);
         }
 
-        /** @noinspection PhpUndefinedFieldInspection */
         $markerType = $parser::MARKER_TYPE;
         self::$valueParser[$markerType] = $parser;
     }
@@ -213,7 +211,6 @@ class FlexFormService
             $dataStructure = self::replaceMarkers($xmlFile);
         }
 
-        /** @noinspection UnsupportedStringOffsetOperationsInspection */
         $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_addlist'][$pluginKey] = 'pi_flexform';
         ExtensionManagementUtility::addPiFlexFormValue($pluginKey, $dataStructure);
     }
@@ -264,6 +261,7 @@ class FlexFormService
                 1547470825);
         }
 
+        // @TODO: Refactor this whole service!
         $config = Fields::getDefaultConfiguration($type);
         ArrayUtility::mergeRecursiveWithOverrule($config, $customConfig);
 

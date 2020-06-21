@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\ViewHelpers\Variable;
+namespace PSB\PsbFoundation\Domain\Model;
 
 /***************************************************************
  *  Copyright notice
@@ -26,33 +26,20 @@ namespace PSB\PsbFoundation\ViewHelpers\Variable;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use JsonException;
-use PSB\PsbFoundation\Utility\StringUtility;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
-use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
- * Class ConvertStringViewHelper
+ * Class AbstractModel
  *
- * @package PSB\PsbFoundation\ViewHelpers
+ * @package PSB\PsbFoundation\Domain\Model
  */
-class ConvertStringViewHelper extends AbstractViewHelper
+abstract class AbstractModel extends AbstractEntity
 {
     /**
-     * @throws Exception
+     * @return string
      */
-    public function initializeArguments(): void
+    public function getDisplayName(): string
     {
-        parent::initializeArguments();
-        $this->registerArgument('string', 'string', 'string to be converted');
-    }
-
-    /**
-     * @return mixed
-     * @throws JsonException
-     */
-    public function render()
-    {
-        return StringUtility::convertString($this->arguments['string']);
+        return $this->name ?? $this->title ?? '';
     }
 }

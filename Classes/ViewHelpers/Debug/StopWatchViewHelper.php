@@ -33,6 +33,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Class StopWatchViewHelper
+ *
  * @package PSB\PsbFoundation\ViewHelpers\Debug
  */
 class StopWatchViewHelper extends AbstractViewHelper

@@ -1,12 +1,11 @@
 <?php
 declare(strict_types=1);
-
 namespace PSB\PsbFoundation\ViewHelpers;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -28,12 +27,15 @@ namespace PSB\PsbFoundation\ViewHelpers;
  ***************************************************************/
 
 use InvalidArgumentException;
+use JsonException;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Class MathViewHelper
+ *
  * @package PSB\PsbFoundation\ViewHelpers
  */
 class MathViewHelper extends AbstractViewHelper
@@ -48,6 +50,11 @@ class MathViewHelper extends AbstractViewHelper
         $this->registerArgument('operator', 'string', 'Mathematical operation to perform (+, -, *, /, **)', true);
     }
 
+    /**
+     * @return mixed
+     * @throws Exception
+     * @throws JsonException
+     */
     public function render()
     {
         $a = $this->arguments['a'];

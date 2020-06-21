@@ -29,13 +29,13 @@ namespace PSB\PsbFoundation\Domain\Repository;
 use PSB\PsbFoundation\Domain\Model\DataManipulationProtectionInterface;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
-use TYPO3\CMS\Extbase\Persistence\Repository;
 
 /**
  * Class AbstractRepository
+ *
  * @package PSB\PsbFoundation\Domain\Repository
  */
-abstract class AbstractModelWithDataManipulationProtectionRepository extends Repository
+abstract class AbstractModelWithDataManipulationProtectionRepository extends AbstractRepository
 {
     /**
      * @param object $object

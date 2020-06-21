@@ -166,13 +166,12 @@ class Inline extends AbstractTcaFieldAnnotation
     /**
      * @param string $linkedModel
      *
-     * @throws AnnotationException
      * @throws Exception
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws ReflectionException
      */
     public function setLinkedModel(string $linkedModel): void
     {
+        $this->linkedModel = $linkedModel;
+
         if (class_exists($linkedModel)) {
             $this->setForeignTable(ExtensionInformationUtility::convertClassNameToTableName($linkedModel));
         }

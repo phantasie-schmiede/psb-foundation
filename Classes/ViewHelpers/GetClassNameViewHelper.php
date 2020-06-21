@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,37 +26,29 @@ namespace PSB\PsbFoundation\ViewHelpers;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Closure;
-use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * Class RenderViewHelper
+ * Class GetClassNameViewHelper
  *
  * @package PSB\PsbFoundation\ViewHelpers
  */
-class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
+class GetClassNameViewHelper extends AbstractViewHelper
 {
+    public function initializeArguments(): void
+    {
+        parent::initializeArguments();
+        $this->registerArgument('object', 'object', 'Object whose name should be retrieved', true);
+    }
+
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
-     * @return mixed
+     * @return string
      */
-    public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
-    ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+    public function render(): string
+    {
+        $className = get_class($this->arguments['object']);
+        $className = explode('\\', $className);
 
-        foreach ($globalVariables as $key => $value) {
-            if (!isset($arguments['arguments'][$key])) {
-                $arguments['arguments'][$key] = $value;
-            }
-        }
-
-        return parent::renderStatic($arguments, $renderChildrenClosure, $renderingContext);
+        return array_pop($className);
     }
 }

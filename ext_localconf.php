@@ -34,14 +34,8 @@ defined('TYPO3_MODE') or die();
         'className' => \PSB\PsbFoundation\Utility\LocalizationUtility::class,
     ];
 
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\View\TemplateView::class] = [
-        'className' => \PSB\PsbFoundation\Views\TemplateView::class,
-    ];
-
-    // @TODO: may be removed because only static functions are overridden?
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\ViewHelpers\RenderViewHelper::class] = [
-        'className' => \PSB\PsbFoundation\ViewHelpers\RenderViewHelper::class,
-    ];
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\View\TemplateView::class]['className'] = \PSB\PsbFoundation\Views\TemplateView::class;
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\ViewHelpers\RenderViewHelper::class]['className'] = \PSB\PsbFoundation\ViewHelpers\RenderViewHelper::class;
 
     // DocCommentParser-cache
     if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['psbfoundation'])) {
