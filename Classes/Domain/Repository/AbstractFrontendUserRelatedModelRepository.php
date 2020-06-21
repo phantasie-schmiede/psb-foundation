@@ -26,10 +26,14 @@ namespace PSB\PsbFoundation\Domain\Repository;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Context\Context;
+use PSB\PsbFoundation\Domain\Model\AbstractFrontendUserRelatedModel;
+use PSB\PsbFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Utility\FrontendUserUtility;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Persistence\Generic\Query;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
@@ -43,6 +47,27 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
  */
 abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelWithDataManipulationProtectionRepository
 {
+    use InjectionTrait;
+
+    /**
+     * @param object $object
+     *
+     * @throws AspectNotFoundException
+     * @throws AspectPropertyNotFoundException
+     * @throws Exception
+     * @throws IllegalObjectTypeException
+     */
+    public function add($object): void
+    {
+        if ($object instanceof AbstractFrontendUserRelatedModel
+            && null === $object->getFrontendUser()
+        ) {
+            $object->setFrontendUser(FrontendUserUtility::getCurrentUser());
+        }
+
+        parent::add($object);
+    }
+
     /**
      * @param int $frontendUserId
      *
@@ -65,8 +90,6 @@ abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelW
      */
     public function findTcaSelectItems()
     {
-        $frontendUserId = $this->get(Context::class)->getAspect('frontend.user')->get('id');
-
-        return $this->findByFrontendUser($frontendUserId);
+        return $this->findByFrontendUser(FrontendUserUtility::getCurrentUserId());
     }
 }
