@@ -119,15 +119,21 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     * @param string|null    $returnUrl
      *
      * @PluginAction(uncached=true)
-     * @throws StopActionException
      * @throws IllegalObjectTypeException
+     * @throws StopActionException
      */
-    public function createAction(AbstractEntity $record): void
+    public function createAction(AbstractEntity $record, string $returnUrl = null): void
     {
         $this->repository->add($record);
-        $this->redirect('list');
+
+        if (null !== $returnUrl) {
+            $this->redirectToUri($returnUrl);
+        } else {
+            $this->redirect('list');
+        }
     }
 
     /**
@@ -145,12 +151,16 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     * @param string|null    $returnUrl
      *
      * @PluginAction(uncached=true)
      */
-    public function editAction(AbstractEntity $record): void
+    public function editAction(AbstractEntity $record, string $returnUrl = null): void
     {
-        $this->view->assign('record', $record);
+        $this->view->assignMultiple([
+            'record'    => $record,
+            'returnUrl' => $returnUrl,
+        ]);
     }
 
     /**
@@ -204,12 +214,16 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     * @param string|null    $returnUrl
      *
      * @PluginAction(uncached=true)
      */
-    public function newAction(AbstractEntity $record = null): void
+    public function newAction(AbstractEntity $record = null, string $returnUrl = null): void
     {
-        $this->view->assign('record', $record);
+        $this->view->assignMultiple([
+            'record'    => $record,
+            'returnUrl' => $returnUrl,
+        ]);
     }
 
     /**
@@ -224,15 +238,21 @@ abstract class AbstractController extends ActionController
 
     /**
      * @param AbstractEntity $record
+     * @param string|null    $returnUrl
      *
      * @PluginAction(uncached=true)
      * @throws IllegalObjectTypeException
      * @throws StopActionException
      * @throws UnknownObjectException
      */
-    public function updateAction(AbstractEntity $record): void
+    public function updateAction(AbstractEntity $record, string $returnUrl = null): void
     {
         $this->repository->update($record);
-        $this->redirect('list');
+
+        if (null !== $returnUrl) {
+            $this->redirectToUri($returnUrl);
+        } else {
+            $this->redirect('list');
+        }
     }
 }
