@@ -54,7 +54,7 @@ Renaming your extension during development will require less effort.
       'backend title'
   );
   ```
-  
+
 - Configuration/TsConfig/Page/Mod/Wizards/NewContentElement.tsconfig
   ```
   mod.wizards {
@@ -90,7 +90,7 @@ Renaming your extension during development will require less effort.
   ```php
   use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
   use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
-  
+
   /**
    * @PluginConfig(iconIdentifier="special-icon")
    */
@@ -102,11 +102,11 @@ Renaming your extension during development will require less effort.
       public function firstAction(): void
       {
       }
-  
+
       public function secondAction(): void
       {
       }
-  
+
       /**
        * @PluginAction (uncached=true)
        */
@@ -118,20 +118,20 @@ Renaming your extension during development will require less effort.
 
 If you follow certain conventions, you may omit certain annotations.
 The following language labels are taken into account automatically if defined:
-- \[extension_key\]/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:
+- \[extension_key\]/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:
   * \[group\].elements.\[pluginName\].description
   * \[group\].elements.\[pluginName\].title
 
 \[group\] defaults to the vendor name (lowercase) if not defined with @PluginConfig.
 That also defines the tab of the content element wizard.
 If a new tab is created, its label will be fetched from here:
-- \[extension_key\]/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:
+- \[extension_key\]/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:
   * \[group\].header
 
 ### TCA-generation
 For typical use-cases you don't have to define TCA-files anymore.
 psb_foundation will scan your `Classes/`-directory for classes lying in the `Domain\Model`-namespace skipping abstract classes and interfaces.
-The script checks if your model relates to an existing table in the database and detects if it extends another model from a different extension and manipulates the TCA accordingly.  
+The script checks if your model relates to an existing table in the database and detects if it extends another model from a different extension and manipulates the TCA accordingly.
 
 You can provide configuration options via PHPDoc-annotations.
 Available annotations can be found in `psb_foundation/Classes/Service/DocComment/Annotations/`.
@@ -212,10 +212,10 @@ As defined in `psb_foundation/Classes/Service/Configuration/Fields.php`:
 
 - document
   ```
-  
+
 - file
   ```
-  
+
 - float
   ```
   'eval' => 'double2',
@@ -233,7 +233,7 @@ As defined in `psb_foundation/Classes/Service/Configuration/Fields.php`:
 
 - image
   ```
-  
+
 - inline
   ```
   'appearance'    => [

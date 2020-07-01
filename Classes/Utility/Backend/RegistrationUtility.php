@@ -82,7 +82,7 @@ class RegistrationUtility
     /**
      * This static variable is used to keep track of already registered wizard groups and is pre-filled with TYPO3's
      * default groups as defined in
-     * typo3\sysext\backend\Configuration\TSconfig\Page\Mod\Wizards\NewContentElement.tsconfig
+     * typo3\sysext\backend\Configuration\TSConfig\Page\Mod\Wizards\NewContentElement.tsconfig
      *
      * @var string[]
      */
@@ -114,7 +114,7 @@ class RegistrationUtility
     ): void {
         $iconIdentifier = $iconIdentifier ?? str_replace('_', '-',
                 GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
-        $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
+        $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
         $listType = str_replace('_', '', $extensionKey) . '_' . mb_strtolower($pluginName);
         LocalizationUtility::translationExists($ll . '.description');
         LocalizationUtility::translationExists($ll . '.title');
@@ -154,7 +154,7 @@ class RegistrationUtility
         string $templatePath = null
     ): void {
         $internalContentType = self::buildContentTypeKey($extensionKey, $contentType);
-        $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . $contentType;
+        $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . $contentType;
         LocalizationUtility::translationExists($ll . '.description');
         LocalizationUtility::translationExists($ll . '.title');
 
@@ -261,7 +261,7 @@ class RegistrationUtility
         $internalKey = self::buildContentTypeKey($extensionKey, $key);
 
         if (null === $title) {
-            $title = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
+            $title = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
             LocalizationUtility::translationExists($title);
         }
 
@@ -319,7 +319,7 @@ class RegistrationUtility
             if (isset($groupLabels[$groupKey]) && !empty($groupLabels[$groupKey])) {
                 $groupKey = $groupLabels[$groupKey];
             } else {
-                $groupKey = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $groupKey . '.header';
+                $groupKey = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $groupKey . '.header';
                 LocalizationUtility::translationExists($groupKey);
             }
 
@@ -362,7 +362,7 @@ class RegistrationUtility
                     }
                 }
 
-                $elementTitle = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
+                $elementTitle = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
 
                 $showItems = [
                     '--palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:palette.general;general',
@@ -521,7 +521,7 @@ class RegistrationUtility
      */
     private static function addElementWizardGroup(string $extensionKey, string $key): void
     {
-        $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $key . '.header';
+        $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $key . '.header';
         LocalizationUtility::translationExists($header);
         $pageTS['mod']['wizards']['newContentElement']['wizardItems'][$key] = [
             'header' => $header,
