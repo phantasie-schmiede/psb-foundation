@@ -42,7 +42,6 @@ use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Property\Exception;
 use TYPO3\CMS\Extbase\Property\PropertyMapper;
-use TYPO3\CMS\Extbase\Property\PropertyMappingConfigurationBuilder;
 use function get_class;
 
 /**
@@ -183,7 +182,7 @@ abstract class AbstractController extends ActionController
             $record = $this->request->getArgument('record');
 
             if (is_array($record)) {
-                $mappingConfiguration = $this->get(PropertyMappingConfigurationBuilder::class)->build();
+                $mappingConfiguration = $this->arguments->getArgument('record')->getPropertyMappingConfiguration();
                 $mappingConfiguration->allowAllProperties();
                 $record = $this->get(PropertyMapper::class)->convert(
                     $this->request->getArgument('record'),
@@ -219,8 +218,8 @@ abstract class AbstractController extends ActionController
     }
 
     /**
-     * @param AbstractEntity $record
-     * @param string|null    $returnUrl
+     * @param AbstractEntity|null $record
+     * @param string|null         $returnUrl
      *
      * @PluginAction(uncached=true)
      */

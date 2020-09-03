@@ -12,6 +12,7 @@ defined('TYPO3_MODE') or die();
     $allExtensionInformation = \PSB\PsbFoundation\Utility\ExtensionInformationUtility::getExtensionInformation();
 
     foreach ($allExtensionInformation as $extensionInformation) {
+        \PSB\PsbFoundation\Utility\Backend\IconUtility::registerIconsFromExtensionDirectory($extensionInformation->getExtensionKey());
         \PSB\PsbFoundation\Utility\Backend\RegistrationUtility::configurePlugins($extensionInformation);
         \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPluginsAndModules($extensionInformation);
 

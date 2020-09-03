@@ -34,6 +34,7 @@ use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class IconUtility
+ *
  * @package PSB\PsbFoundation\Utility\Backend
  */
 class IconUtility
@@ -53,7 +54,7 @@ class IconUtility
         string $path = 'Resources/Public/Icons'
     ): void {
         $path = GeneralUtility::getFileAbsFileName('EXT:' . $extensionKey . '/' . trim($path, '/'));
-        $iconFiles = GeneralUtility::getFilesInDir($path, 'svg', true, '', 'ext_icon.*');
+        $iconFiles = GeneralUtility::getFilesInDir($path, 'svg', true, '', 'Extension.*');
 
         if (is_iterable($iconFiles)) {
             $iconRegistry = ObjectUtility::get(IconRegistry::class);
@@ -63,7 +64,8 @@ class IconUtility
 
                 if ([] === $iconNames || in_array($fileName, $iconNames, true)) {
                     $iconRegistry->registerIcon(
-                        $fileName,
+                        $extensionKey . '-' . str_replace('_', '-',
+                            GeneralUtility::camelCaseToLowerCaseUnderscored($fileName)),
                         SvgIconProvider::class,
                         ['source' => $iconFile]
                     );

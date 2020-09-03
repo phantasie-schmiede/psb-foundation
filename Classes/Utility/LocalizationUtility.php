@@ -78,8 +78,8 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      *
      * @param string      $key                     The key from the LOCAL_LANG array for which to return the value.
      * @param string|null $extensionName           The name of the extension
-     * @param array       $arguments               The arguments of the extension, being passed over to vsprintf
-     * @param string      $languageKey             The language key or null for using the current language from the
+     * @param array|null  $arguments               The arguments of the extension, being passed over to vsprintf
+     * @param string|null $languageKey             The language key or null for using the current language from the
      *                                             system
      * @param string[]    $alternativeLanguageKeys The alternative language keys if no translation was found. If null
      *                                             and we are in the frontend, then the language_alt from TypoScript
@@ -93,7 +93,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      */
     public static function translate(
         $key,
-        ?string $extensionName = null,
+        string $extensionName = null,
         array $arguments = null,
         string $languageKey = null,
         array $alternativeLanguageKeys = null

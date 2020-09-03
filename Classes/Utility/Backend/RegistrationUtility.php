@@ -57,7 +57,6 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
@@ -97,10 +96,10 @@ class RegistrationUtility
     /**
      * For use in ext_localconf.php files
      *
-     * @param string $extensionKey
-     * @param string $group
-     * @param string $pluginName
-     * @param string $iconIdentifier
+     * @param string      $extensionKey
+     * @param string      $group
+     * @param string      $pluginName
+     * @param string|null $iconIdentifier
      *
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
@@ -112,18 +111,26 @@ class RegistrationUtility
         string $pluginName,
         string $iconIdentifier = null
     ): void {
-        $iconIdentifier = $iconIdentifier ?? str_replace('_', '-',
+        $iconIdentifier = $iconIdentifier ?? $extensionKey . '-' . str_replace('_', '-',
                 GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
         $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
+        $description = $ll . '.description';
+        $title = $ll . '.title';
         $listType = str_replace('_', '', $extensionKey) . '_' . mb_strtolower($pluginName);
-        LocalizationUtility::translationExists($ll . '.description');
-        LocalizationUtility::translationExists($ll . '.title');
+
+        if (false === LocalizationUtility::translationExists($description)) {
+            $description = '';
+        }
+
+        if (false === LocalizationUtility::translationExists($title)) {
+            $title = $pluginName;
+        }
 
         $configuration = [
-            'description'          => $ll . '.description',
+            'description'          => $description,
             'iconIdentifier'       => ObjectUtility::get(IconRegistry::class)
                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-            'title'                => $ll . '.title',
+            'title'                => $title,
             'tt_content_defValues' => [
                 'CType'     => 'list',
                 'list_type' => $listType,
@@ -418,7 +425,7 @@ class RegistrationUtility
 
                     $iconIdentifier = $iconIdentifier ?? 'module-' . $submoduleKey;
 
-                    if (!isset($labels) || null !== $labels) {
+                    if (!isset($labels)) {
                         $labels = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf';
                     }
 
@@ -449,6 +456,10 @@ class RegistrationUtility
     /**
      * @param ExtensionInformationInterface $extensionInformation
      * @param string                        $mode
+     *
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     public static function registerPageTypes(ExtensionInformationInterface $extensionInformation, string $mode): void
     {
@@ -501,12 +512,19 @@ class RegistrationUtility
                         LocalizationUtility::translationExists($title);
                     }
 
+                    $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
+                            GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
+
                     ExtensionUtility::registerPlugin(
                         $extensionInformation->getExtensionName(),
                         $pluginName,
-                        $title
+                        $title,
+                        ObjectUtility::get(IconRegistry::class)
+                            ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
                     );
                 }
+
+                unset ($title);
             }
         }
     }
