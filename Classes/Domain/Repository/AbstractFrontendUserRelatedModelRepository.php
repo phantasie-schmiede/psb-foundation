@@ -33,7 +33,6 @@ use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
 use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
-use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Persistence\Generic\Query;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 
@@ -69,12 +68,19 @@ abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelW
     }
 
     /**
-     * @param int $frontendUserId
+     * @param int|null $frontendUserId
      *
      * @return QueryResultInterface
+     * @throws AspectNotFoundException
+     * @throws AspectPropertyNotFoundException
+     * @throws Exception
      */
-    public function findByFrontendUser(int $frontendUserId): QueryResultInterface
+    public function findByFrontendUser(int $frontendUserId = null): QueryResultInterface
     {
+        if (null === $frontendUserId) {
+            $frontendUserId = FrontendUserUtility::getCurrentUserId();
+        }
+
         /** @var Query $query */
         $query = $this->createQuery();
         $query->matching($query->equals('frontendUser', $frontendUserId));
@@ -90,6 +96,6 @@ abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelW
      */
     public function findTcaSelectItems()
     {
-        return $this->findByFrontendUser(FrontendUserUtility::getCurrentUserId());
+        return $this->findByFrontendUser();
     }
 }
