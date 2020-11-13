@@ -120,12 +120,16 @@ class StringUtility
             return $variable;
         }
 
-        if (is_numeric($variable)) {
-            if (false === mb_strpos($variable, '.')) {
-                return (int)$variable;
-            }
+        $intRepresentation = (int)$variable;
 
-            return (double)$variable;
+        if ($variable === (string)$intRepresentation) {
+            return $intRepresentation;
+        }
+
+        $doubleRepresentation = (double)$variable;
+
+        if ($variable === (string)$doubleRepresentation) {
+            return $doubleRepresentation;
         }
 
         // check for constant
