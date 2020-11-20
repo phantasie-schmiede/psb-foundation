@@ -26,6 +26,7 @@ namespace PSB\PsbFoundation\Utility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use JsonException;
 use RuntimeException;
 use SimpleXMLElement;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -86,8 +87,6 @@ class XmlUtility
                         'tagValue' => $sibling,
                     ];
                 }
-
-                $siblings = self::sortSiblings($siblings);
             } else {
                 $siblings[] = [
                     'tagName'  => $key,
@@ -95,6 +94,8 @@ class XmlUtility
                 ];
             }
         }
+
+        $siblings = self::sortSiblings($siblings);
 
         foreach ($siblings as $value) {
             if (isset($value['tagValue'][self::SPECIAL_KEYS['POSITION']])) {
@@ -283,6 +284,7 @@ class XmlUtility
      * @param SimpleXMLElement $node
      *
      * @return array|bool|float|int|string|null
+     * @throws JsonException
      */
     private static function parseTextNode(SimpleXMLElement $node)
     {
