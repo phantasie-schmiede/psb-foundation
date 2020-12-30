@@ -120,16 +120,18 @@ class StringUtility
             return $variable;
         }
 
-        $intRepresentation = (int)$variable;
+        if (!self::beginsWith($variable, '0')) {
+            $intRepresentation = filter_var($variable, FILTER_VALIDATE_INT);
 
-        if ($variable === (string)$intRepresentation) {
-            return $intRepresentation;
-        }
+            if (false !== $intRepresentation) {
+                return $intRepresentation;
+            }
 
-        $doubleRepresentation = (double)$variable;
+            $floatRepresentation = filter_var(str_replace(',', '.', $variable), FILTER_VALIDATE_FLOAT);
 
-        if ($variable === (string)$doubleRepresentation) {
-            return $doubleRepresentation;
+            if (false !== $floatRepresentation) {
+                return $floatRepresentation;
+            }
         }
 
         // check for constant

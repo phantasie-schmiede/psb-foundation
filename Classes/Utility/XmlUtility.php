@@ -113,6 +113,7 @@ class XmlUtility
      * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
      *
      * @return array
+     * @throws JsonException
      */
     public static function convertXmlToArray($xml, bool $sortAlphabetically = false): array
     {
@@ -125,6 +126,20 @@ class XmlUtility
         }
 
         return self::buildArrayFromXml($sortAlphabetically, $xml);
+    }
+
+    /**
+     * @param array  $array
+     * @param string $path
+     * @param bool   $strict
+     */
+    public static function removeNode(array &$array, string $path, bool $strict = false): void
+    {
+        if (false === $strict && !ArrayUtility::isValidPath($array, $path, '.')) {
+            return;
+        }
+
+        $array = ArrayUtility::removeByPath($array, $path, '.');
     }
 
     /**
@@ -144,6 +159,7 @@ class XmlUtility
      * @param bool                    $rootLevel This is an internal parameter only to be set from within this function.
      *
      * @return array|string
+     * @throws JsonException
      */
     private static function buildArrayFromXml(bool $sortAlphabetically, $xml, bool $rootLevel = true): array
     {
