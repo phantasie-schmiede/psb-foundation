@@ -30,7 +30,7 @@ use Exception;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\Configuration\ValueParsers\ValueParserInterface;
-use PSB\PsbFoundation\Utility\XmlUtility;
+use PSB\PsbFoundation\Utility\Xml\ConverterUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -337,7 +337,7 @@ class FlexFormService
      */
     public function getXml(): string
     {
-        return XmlUtility::convertArrayToXml($this->getDs());
+        return ConverterUtility::convertArrayToXml($this->getDs());
     }
 
     private function buildBasicStructure(): void

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Utility;
+namespace PSB\PsbFoundation\Utility\Xml;
 
 /***************************************************************
  *  Copyright notice
@@ -27,16 +27,19 @@ namespace PSB\PsbFoundation\Utility;
  ***************************************************************/
 
 use JsonException;
+use PSB\PsbFoundation\Utility\ObjectUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
 use RuntimeException;
 use SimpleXMLElement;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
- * Class XmlUtility
+ * Class ConverterUtility
  *
- * @package PSB\PsbFoundation\Utility
+ * @package PSB\PsbFoundation\Utility\Xml
  */
-class XmlUtility
+class ConverterUtility
 {
     public const INDENTATION = '    ';
 
@@ -111,11 +114,13 @@ class XmlUtility
     /**
      * @param SimpleXMLElement|string $xml
      * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
+     * @param array                   $mapping
      *
      * @return array
+     * @throws Exception
      * @throws JsonException
      */
-    public static function convertXmlToArray($xml, bool $sortAlphabetically = false): array
+    public static function convertXmlToArray($xml, bool $sortAlphabetically = false, array $mapping = []): array
     {
         if (is_string($xml)) {
             $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
@@ -125,7 +130,7 @@ class XmlUtility
             throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
         }
 
-        return self::buildArrayFromXml($sortAlphabetically, $xml);
+        return self::buildArrayFromXml($sortAlphabetically, $xml, $mapping);
     }
 
     /**
@@ -156,12 +161,14 @@ class XmlUtility
     /**
      * @param bool                    $sortAlphabetically
      * @param SimpleXMLElement|string $xml
+     * @param array                   $mapping
      * @param bool                    $rootLevel This is an internal parameter only to be set from within this function.
      *
      * @return array|string
+     * @throws Exception
      * @throws JsonException
      */
-    private static function buildArrayFromXml(bool $sortAlphabetically, $xml, bool $rootLevel = true): array
+    private static function buildArrayFromXml(bool $sortAlphabetically, $xml, array $mapping, bool $rootLevel = true): array
     {
         if (is_string($xml)) {
             return $xml;
@@ -193,7 +200,11 @@ class XmlUtility
                 $childTagName = $prefix . $childTagName;
 
                 if (0 < $child->count()) {
-                    $parsedChild = self::buildArrayFromXml($sortAlphabetically, $child, false);
+                    $parsedChild = self::buildArrayFromXml($sortAlphabetically, $child, $mapping, false);
+
+                    if (isset($mapping[$childTagName])) {
+                        $parsedChild = ObjectUtility::get($mapping[$childTagName], $parsedChild);
+                    }
                 } else {
                     $parsedChild = self::parseTextNode($child);
                 }

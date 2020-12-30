@@ -26,7 +26,9 @@ namespace PSB\PsbFoundation\Utility;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
+use PSB\PsbFoundation\Utility\Xml\ConverterUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -167,6 +169,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      */
     public static function translationExists(string $key): bool
     {
@@ -183,7 +186,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
         $languageFilePath = GeneralUtility::getFileAbsFileName($languageFilePath);
 
         if (file_exists($languageFilePath)) {
-            $xmlData = XmlUtility::convertXmlToArray(file_get_contents($languageFilePath));
+            $xmlData = ConverterUtility::convertXmlToArray(file_get_contents($languageFilePath));
 
             if (\TYPO3\CMS\Core\Utility\ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
                 // If file contains only one label, an additional array level has to be added for the following foreach.
@@ -191,8 +194,8 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
             }
 
             foreach ($xmlData['xliff']['file']['body']['trans-unit'] as $transUnit) {
-                if (isset($transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
-                    $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
+                if (isset($transUnit[ConverterUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
+                    $transUnitTagAttributes = $transUnit[ConverterUtility::SPECIAL_KEYS['ATTRIBUTES']];
 
                     if ($id === $transUnitTagAttributes['id']) {
                         self::logMissingTranslations($key, true);
