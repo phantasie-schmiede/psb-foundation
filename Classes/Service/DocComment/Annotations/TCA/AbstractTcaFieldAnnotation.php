@@ -29,7 +29,7 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Service\DocComment\Annotations\AbstractAnnotation;
 use PSB\PsbFoundation\Utility\StringUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use ReflectionException;
 
 /**
  * Class AbstractTcaFieldAnnotation
@@ -152,14 +152,14 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     }
 
     /**
-     * @param string $targetName
      * @param string $targetScope
      *
      * @return array
+     * @throws ReflectionException
      */
-    public function toArray(string $targetName, string $targetScope): array
+    public function toArray(string $targetScope): array
     {
-        $properties = parent::toArray($targetName, $targetScope);
+        $properties = parent::toArray($targetScope);
         $fieldConfiguration = [];
         $fieldConfiguration['config']['type'] = $this->getType();
 

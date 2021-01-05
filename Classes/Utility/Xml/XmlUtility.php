@@ -32,14 +32,15 @@ use PSB\PsbFoundation\Utility\StringUtility;
 use RuntimeException;
 use SimpleXMLElement;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
- * Class ConverterUtility
+ * Class XmlUtility
  *
  * @package PSB\PsbFoundation\Utility\Xml
  */
-class ConverterUtility
+class XmlUtility
 {
     public const INDENTATION = '    ';
 
@@ -68,23 +69,61 @@ class ConverterUtility
     }
 
     /**
-     * @param array $array
-     * @param bool  $wellFormatted
-     * @param int   $indentationLevel
+     * @param SimpleXMLElement|string $xml
+     * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
+     * @param array                   $mapping
+     *
+     * @return array|object
+     * @throws Exception
+     * @throws JsonException
+     */
+    public static function convertFromXml($xml, bool $sortAlphabetically = false, array $mapping = [])
+    {
+        if (is_string($xml)) {
+            $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
+        }
+
+        if (!$xml instanceof SimpleXMLElement) {
+            throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
+        }
+
+        return self::buildFromXml($sortAlphabetically, $xml, $mapping);
+    }
+
+    /**
+     * @param array|XmlElementInterface $data
+     * @param bool                      $wellFormatted
+     * @param int                       $indentationLevel
      *
      * @return string
      */
-    public static function convertArrayToXml(
-        array $array,
+    public static function convertToXml(
+        $data,
         bool $wellFormatted = true,
         int $indentationLevel = 0
     ): string {
         $xml = '';
         $siblings = [];
 
-        foreach ($array as $key => $value) {
+        if ($data instanceof XmlElementInterface) {
+            $data = [$data->getTagName() => $data->toArray()];
+        }
+
+        foreach ($data as $key => $value) {
+            if (false === $value) {
+                continue;
+            }
+
+            if ($value instanceof XmlElementInterface) {
+                $value = $value->toArray();
+            }
+
             if (is_array($value) && !ArrayUtility::isAssociative($value)) {
                 foreach ($value as $sibling) {
+                    if ($sibling instanceof XmlElementInterface) {
+                        $sibling = $sibling->toArray();
+                    }
+
                     $siblings[] = [
                         'tagName'  => $key,
                         'tagValue' => $sibling,
@@ -112,28 +151,6 @@ class ConverterUtility
     }
 
     /**
-     * @param SimpleXMLElement|string $xml
-     * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
-     * @param array                   $mapping
-     *
-     * @return array
-     * @throws Exception
-     * @throws JsonException
-     */
-    public static function convertXmlToArray($xml, bool $sortAlphabetically = false, array $mapping = []): array
-    {
-        if (is_string($xml)) {
-            $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
-        }
-
-        if (!$xml instanceof SimpleXMLElement) {
-            throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
-        }
-
-        return self::buildArrayFromXml($sortAlphabetically, $xml, $mapping);
-    }
-
-    /**
      * @param array  $array
      * @param string $path
      * @param bool   $strict
@@ -145,6 +162,16 @@ class ConverterUtility
         }
 
         $array = ArrayUtility::removeByPath($array, $path, '.');
+    }
+
+    /**
+     * @param string $tagName
+     *
+     * @return string
+     */
+    public static function sanitizeTagName(string $tagName): string
+    {
+        return str_replace('_', '-', GeneralUtility::camelCaseToLowerCaseUnderscored($tagName));
     }
 
     /**
@@ -164,11 +191,11 @@ class ConverterUtility
      * @param array                   $mapping
      * @param bool                    $rootLevel This is an internal parameter only to be set from within this function.
      *
-     * @return array|string
+     * @return array|object|string
      * @throws Exception
      * @throws JsonException
      */
-    private static function buildArrayFromXml(bool $sortAlphabetically, $xml, array $mapping, bool $rootLevel = true): array
+    private static function buildFromXml(bool $sortAlphabetically, $xml, array $mapping, bool $rootLevel = true)
     {
         if (is_string($xml)) {
             return $xml;
@@ -200,16 +227,20 @@ class ConverterUtility
                 $childTagName = $prefix . $childTagName;
 
                 if (0 < $child->count()) {
-                    $parsedChild = self::buildArrayFromXml($sortAlphabetically, $child, $mapping, false);
-
-                    if (isset($mapping[$childTagName])) {
-                        $parsedChild = ObjectUtility::get($mapping[$childTagName], $parsedChild);
-                    }
+                    $parsedChild = self::buildFromXml($sortAlphabetically, $child, $mapping, false);
                 } else {
                     $parsedChild = self::parseTextNode($child);
                 }
 
-                $parsedChild[self::SPECIAL_KEYS['POSITION']] = $positionOnThisLevel++;
+                if (isset($mapping[$childTagName])) {
+                    $parsedChild = ObjectUtility::get($mapping[$childTagName], $parsedChild);
+                }
+
+                if ($parsedChild instanceof XmlElementInterface) {
+                    $parsedChild->_setPosition($positionOnThisLevel++);
+                } else {
+                    $parsedChild[self::SPECIAL_KEYS['POSITION']] = $positionOnThisLevel++;
+                }
 
                 if (!isset($array[$childTagName])) {
                     $array[$childTagName] = $parsedChild;
@@ -229,6 +260,12 @@ class ConverterUtility
         }
 
         if (true === $rootLevel) {
+            $rootName = $xml->getName();
+
+            if (isset($mapping[$rootName])) {
+                return ObjectUtility::get($mapping[$rootName], $array);
+            }
+
             return [$xml->getName() => $array];
         }
 
@@ -268,13 +305,13 @@ class ConverterUtility
 
             $xml .= '>';
 
-            if (isset($value[self::SPECIAL_KEYS['NODE_VALUE']])) {
+            if (is_array($value) && isset($value[self::SPECIAL_KEYS['NODE_VALUE']])) {
                 $value = $value[self::SPECIAL_KEYS['NODE_VALUE']];
             }
         }
 
-        if (is_array($value)) {
-            $xml .= $linebreak . self::convertArrayToXml($value, $wellFormatted, ++$indentationLevel) . $indentation;
+        if (is_array($value) || $value instanceof XmlElementInterface) {
+            $xml .= $linebreak . self::convertToXml($value, $wellFormatted, ++$indentationLevel) . $indentation;
         } else {
             $xml .= $value;
         }
@@ -334,7 +371,22 @@ class ConverterUtility
     private static function sortSiblings(array $siblings): array
     {
         uasort($siblings, static function ($a, $b) {
-            return $a['tagValue'][self::SPECIAL_KEYS['POSITION']] > $b['tagValue'][self::SPECIAL_KEYS['POSITION']];
+            $positionA = 0;
+            $positionB = 0;
+
+            if ($a['tagValue'] instanceof XmlElementInterface) {
+                $positionA = $a['tagValue']->_getPosition();
+            } elseif (is_array($a['tagValue'])) {
+                $positionA = $a['tagValue'][self::SPECIAL_KEYS['POSITION']] ?? 0;
+            }
+
+            if ($b['tagValue'] instanceof XmlElementInterface) {
+                $positionB = $b['tagValue']->_getPosition();
+            } elseif (is_array($b['tagValue'])) {
+                $positionB = $b['tagValue'][self::SPECIAL_KEYS['POSITION']] ?? 0;
+            }
+
+            return $positionA > $positionB;
         });
 
         return $siblings;

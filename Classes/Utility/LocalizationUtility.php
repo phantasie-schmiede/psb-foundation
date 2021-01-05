@@ -28,7 +28,7 @@ namespace PSB\PsbFoundation\Utility;
 
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
-use PSB\PsbFoundation\Utility\Xml\ConverterUtility;
+use PSB\PsbFoundation\Utility\Xml\XmlUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -186,7 +186,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
         $languageFilePath = GeneralUtility::getFileAbsFileName($languageFilePath);
 
         if (file_exists($languageFilePath)) {
-            $xmlData = ConverterUtility::convertXmlToArray(file_get_contents($languageFilePath));
+            $xmlData = XmlUtility::convertFromXml(file_get_contents($languageFilePath));
 
             if (\TYPO3\CMS\Core\Utility\ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
                 // If file contains only one label, an additional array level has to be added for the following foreach.
@@ -194,8 +194,8 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
             }
 
             foreach ($xmlData['xliff']['file']['body']['trans-unit'] as $transUnit) {
-                if (isset($transUnit[ConverterUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
-                    $transUnitTagAttributes = $transUnit[ConverterUtility::SPECIAL_KEYS['ATTRIBUTES']];
+                if (isset($transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
+                    $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
 
                     if ($id === $transUnitTagAttributes['id']) {
                         self::logMissingTranslations($key, true);

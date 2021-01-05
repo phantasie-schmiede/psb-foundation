@@ -26,13 +26,11 @@ namespace PSB\PsbFoundation\Domain\Model;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Error;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Input;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\SecurityUtility;
-use ReflectionClass;
-use ReflectionMethod;
+use ReflectionException;
 use RuntimeException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
@@ -52,6 +50,7 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractModel
      * AbstractModelWithDataManipulationProtection constructor.
      *
      * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
     public function __construct()
     {
@@ -82,10 +81,11 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractModel
      *
      * @return string
      * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
     public function calculateChecksum(bool $store): string
     {
-        $checkSum = SecurityUtility::generateHash(serialize($this->toArray()));
+        $checkSum = SecurityUtility::generateHash(serialize(ObjectUtility::toArray($this)));
 
         if (true === $store) {
             $this->setChecksum($checkSum);
@@ -95,39 +95,8 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractModel
     }
 
     /**
-     * @TODO: move this into a trait as it is used elsewhere, too
-     * @return array
-     */
-    public function toArray(): array
-    {
-        $arrayRepresentation = [];
-        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, static::class);
-        $properties = $reflectionClass->getProperties();
-
-        foreach ($properties as $property) {
-            try {
-                $property->setAccessible(true);
-                $getterMethodName = 'get' . ucfirst($property->getName());
-
-                if ($reflectionClass->hasMethod($getterMethodName)) {
-                    $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $getterMethodName);
-                    $value = $reflectionMethod->invoke($this);
-
-                    if (!empty($value)) {
-                        $arrayRepresentation[$property->getName()] = $value;
-                    }
-                }
-            } catch (Error $error) {
-                // Property is not initialized yet.
-                continue;
-            }
-        }
-
-        return $arrayRepresentation;
-    }
-
-    /**
      * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
     public function validateChecksum(): void
     {

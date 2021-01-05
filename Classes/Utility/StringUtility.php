@@ -56,6 +56,17 @@ class StringUtility
     ];
 
     /**
+     * @param string $string
+     * @param string $beginning
+     *
+     * @return bool
+     */
+    public static function beginsWith(string $string, string $beginning): bool
+    {
+        return 0 === mb_strrpos($string, $beginning, -mb_strlen($string));
+    }
+
+    /**
      * @param $url
      *
      * @return string
@@ -120,7 +131,7 @@ class StringUtility
             return $variable;
         }
 
-        if (!self::beginsWith($variable, '0')) {
+        if (1 === strlen($variable) || !self::beginsWith($variable, '0')) {
             $intRepresentation = filter_var($variable, FILTER_VALIDATE_INT);
 
             if (false !== $intRepresentation) {
@@ -329,13 +340,12 @@ class StringUtility
     }
 
     /**
-     * @param string $string
-     * @param string $beginning
+     * @param string $propertyName
      *
-     * @return bool
+     * @return string
      */
-    public static function beginsWith(string $string, string $beginning): bool
+    public static function sanitizePropertyName(string $propertyName): string
     {
-        return 0 === mb_strrpos($string, $beginning, -mb_strlen($string));
+        return lcfirst(str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', strtolower($propertyName)))));
     }
 }

@@ -255,14 +255,14 @@ class Ctrl extends AbstractAnnotation
     }
 
     /**
-     * @param string $targetName
      * @param string $targetScope
      *
      * @return array
+     * @throws ReflectionException
      */
-    public function toArray(string $targetName, string $targetScope): array
+    public function toArray(string $targetScope): array
     {
-        $properties = parent::toArray($targetName, $targetScope);
+        $properties = parent::toArray($targetScope);
         $ctrlConfiguration = [];
 
         foreach ($properties as $key => $value) {

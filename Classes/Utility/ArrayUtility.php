@@ -30,10 +30,25 @@ use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3ArrayUtility;
 
 /**
  * Class ArrayUtility
+ *
  * @package PSB\PsbFoundation\Utility
  */
 class ArrayUtility
 {
+    /**
+     * @param $variable
+     *
+     * @return array
+     */
+    public static function guaranteeArrayType($variable): array
+    {
+        if (!is_array($variable)) {
+            $variable = [$variable];
+        }
+
+        return $variable;
+    }
+
     /**
      * @param array $haystack
      * @param mixed $needle

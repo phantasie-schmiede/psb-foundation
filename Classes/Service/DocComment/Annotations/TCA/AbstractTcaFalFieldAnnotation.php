@@ -102,11 +102,10 @@ class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
 
     /**
      * @param string $annotatedName
-     * @param string $annotatedType
      *
      * @return array
      */
-    public function toArray(string $annotatedName, string $annotatedType): array
+    public function toArray(string $annotatedName): array
     {
         return ExtensionManagementUtility::getFileFieldTCAConfig($annotatedName,
             [

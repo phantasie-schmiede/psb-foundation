@@ -29,7 +29,9 @@ namespace PSB\PsbFoundation\Utility;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Mm;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use ReflectionClass;
 use ReflectionException;
+use ReflectionMethod;
 use RuntimeException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -54,7 +56,7 @@ class ObjectUtility
      * @return object
      * @throws Exception
      */
-    public static function get(string $className, ...$arguments)
+    public static function get(string $className, ...$arguments): object
     {
         if (GeneralUtility::getContainer()->get('boot.state')->done) {
             return GeneralUtility::makeInstance(ObjectManager::class)->get($className, ...$arguments);
@@ -148,5 +150,38 @@ class ObjectUtility
         }
 
         return $completeElements;
+    }
+
+    /**
+     * @param object $object
+     *
+     * @return array
+     * @throws ReflectionException
+     */
+    public static function toArray(object $object): array
+    {
+        $arrayRepresentation = [];
+        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $object);
+        $properties = $reflectionClass->getProperties();
+
+        foreach ($properties as $property) {
+            $property->setAccessible(true);
+            $getterMethodName = 'get' . ucfirst($property->getName());
+
+            if (!$reflectionClass->hasMethod($getterMethodName)) {
+                $getterMethodName = 'is' . ucfirst($property->getName());
+            }
+
+            if ($reflectionClass->hasMethod($getterMethodName)) {
+                $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $object, $getterMethodName);
+                $value = $reflectionMethod->invoke($object);
+
+                if (null !== $value) {
+                    $arrayRepresentation[$property->getName()] = $value;
+                }
+            }
+        }
+
+        return $arrayRepresentation;
     }
 }

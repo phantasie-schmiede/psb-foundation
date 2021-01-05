@@ -28,8 +28,10 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
 
 use Exception;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -84,36 +86,15 @@ abstract class AbstractAnnotation
     }
 
     /**
-     * @param string $targetName
      * @param string $targetScope
      *
      * @return array
+     * @throws ReflectionException
      */
-    public function toArray(string $targetName, string $targetScope): array
+    public function toArray(string $targetScope): array
     {
         ValidationUtility::checkValueAgainstConstant(DocCommentParserService::ANNOTATION_TARGETS, $targetScope);
-        $arrayRepresentation = [];
-        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $this);
-        $properties = $reflectionClass->getProperties();
 
-        foreach ($properties as $property) {
-            $property->setAccessible(true);
-            $getterMethodName = 'get' . ucfirst($property->getName());
-
-            if (!$reflectionClass->hasMethod($getterMethodName)) {
-                $getterMethodName = 'is' . ucfirst($property->getName());
-            }
-
-            if ($reflectionClass->hasMethod($getterMethodName)) {
-                $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $getterMethodName);
-                $value = $reflectionMethod->invoke($this);
-
-                if (null !== $value) {
-                    $arrayRepresentation[$property->getName()] = $value;
-                }
-            }
-        }
-
-        return $arrayRepresentation;
+        return ObjectUtility::toArray($this);
     }
 }

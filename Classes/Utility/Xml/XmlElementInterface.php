@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\Traits;
+namespace PSB\PsbFoundation\Utility\Xml;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,24 +26,50 @@ namespace PSB\PsbFoundation\Traits;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use PSB\PsbFoundation\Utility\ObjectUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
-
 /**
- * Trait InjectionTrait
- * @package PSB\PsbFoundation\Traits
+ * Interface XmlElementInterface
+ *
+ * @package PSB\PsbFoundation\Utility\Xml
  */
-trait InjectionTrait
+interface XmlElementInterface
 {
     /**
-     * @param string $className
-     * @param mixed  ...$arguments
-     *
-     * @return object
-     * @throws Exception
+     * @return string
      */
-    protected function get(string $className, ...$arguments): object
-    {
-        return ObjectUtility::get($className, ...$arguments);
-    }
+    public static function getTagName(): string;
+
+    /**
+     * @return array
+     */
+    public function _getAttributes(): array;
+
+    /**
+     * @return mixed
+     */
+    public function _getNodeValue();
+
+    /**
+     * @return int|null
+     */
+    public function _getPosition(): ?int;
+
+    /**
+     * @param array $attributes
+     */
+    public function _setAttributes(array $attributes): void;
+
+    /**
+     * @param mixed $nodeValue
+     */
+    public function _setNodeValue($nodeValue): void;
+
+    /**
+     * @param int $position
+     */
+    public function _setPosition(int $position): void;
+
+    /**
+     * @return array
+     */
+    public function toArray(): array;
 }

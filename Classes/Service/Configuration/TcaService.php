@@ -27,6 +27,7 @@ namespace PSB\PsbFoundation\Service\Configuration;
  ***************************************************************/
 
 use Exception;
+use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
@@ -330,6 +331,7 @@ class TcaService
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ObjectException
      * @throws ReflectionException
      */
@@ -347,8 +349,7 @@ class TcaService
                 $editableInFrontend = true;
             }
 
-            $this->setCtrlProperties($ctrl->toArray($this->className,
-                DocCommentParserService::ANNOTATION_TARGETS['CLASS']));
+            $this->setCtrlProperties($ctrl->toArray(DocCommentParserService::ANNOTATION_TARGETS['CLASS']));
         }
 
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $this->className);
@@ -367,8 +368,7 @@ class TcaService
                         $this->className);
 
                     if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
-                        $propertyConfiguration = $annotation->toArray($columnName,
-                            DocCommentParserService::ANNOTATION_TARGETS['PROPERTY']);
+                        $propertyConfiguration = $annotation->toArray(DocCommentParserService::ANNOTATION_TARGETS['PROPERTY']);
 
                         if (!isset($propertyConfiguration['label'])) {
                             $label = $this->getDefaultLabelPath() . $columnName;
