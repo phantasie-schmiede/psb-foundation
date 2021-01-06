@@ -26,9 +26,9 @@ namespace PSB\PsbFoundation\Service\DocComment;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use JsonException;
 use PSB\PsbFoundation\Cache\CacheEntry;
 use PSB\PsbFoundation\Cache\CacheEntryRepository;
-use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Php\ExtendedReflectionClass;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
 use PSB\PsbFoundation\Traits\InjectionTrait;
@@ -38,7 +38,6 @@ use PSB\PsbFoundation\Utility\StringUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ReflectionClass;
-use ReflectionException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -105,10 +104,9 @@ class DocCommentParserService implements LoggerAwareInterface
      * @param string|null   $methodOrPropertyName
      *
      * @return array
-     * @throws AnnotationException
      * @throws Exception
-     * @throws ReflectionException
      * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      */
     public function parsePhpDocComment($className, string $methodOrPropertyName = null): array
     {
@@ -159,7 +157,12 @@ class DocCommentParserService implements LoggerAwareInterface
                     $commentLine = preg_replace('/\(/', ' (', $commentLine, 1);
                     [$annotationType, $parameters] = GeneralUtility::trimExplode(' ', ltrim($commentLine, '@'), true,
                         2);
-                    $value = $this->processValue($annotationType, $className, $parameters);
+
+                    if (null !== $parameters) {
+                        $value = $this->processValue($annotationType, $className, $parameters);
+                    } else {
+                        $value = null;
+                    }
 
                     if (is_object($value)) {
                         $annotationType = get_class(($value));
@@ -255,10 +258,10 @@ class DocCommentParserService implements LoggerAwareInterface
      * @param string      $value
      *
      * @return mixed
-     * @throws AnnotationException
      * @throws Exception
+     * @throws JsonException
      */
-    private function processValue(?string $annotationType, string $className, string $value)
+    private function processValue(?string $annotationType, string $className, string $value): array
     {
         $value = str_replace('self::', $className . '::', $value);
 

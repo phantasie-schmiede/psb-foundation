@@ -46,9 +46,10 @@ class AbstractXmlElement implements XmlElementInterface
     protected array $_attributes = [];
 
     /**
-     * @var mixed
+     * @var array Should be of type mixed, but Extbase throws an error in that case. Thus we have to use this
+     *            workaround.
      */
-    protected $_nodeValue = null;
+    protected array $_nodeValue = [];
 
     /**
      * @var int|null
@@ -94,6 +95,9 @@ class AbstractXmlElement implements XmlElementInterface
         $this->fillProperties($childData);
     }
 
+    /**
+     * @return string
+     */
     public static function getTagName(): string
     {
         return XmlUtility::sanitizeTagName((new ReflectionClass(static::class))->getShortName());
@@ -116,11 +120,11 @@ class AbstractXmlElement implements XmlElementInterface
     }
 
     /**
-     * @return mixed
+     * @return mixed|null
      */
     public function _getNodeValue()
     {
-        return $this->_nodeValue;
+        return $this->_nodeValue[0] ?? null;
     }
 
     /**
@@ -128,7 +132,7 @@ class AbstractXmlElement implements XmlElementInterface
      */
     public function _setNodeValue($nodeValue): void
     {
-        $this->_nodeValue = $nodeValue;
+        $this->_nodeValue = [$nodeValue];
     }
 
     /**
