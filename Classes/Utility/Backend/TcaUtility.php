@@ -56,8 +56,6 @@ class TcaUtility
      * @param bool $overrideMode If set to false, the configuration of all original domain models (not extending other
      *                           domain models) is added to the TCA.
      *                           If set to true, the configuration of all extending domain models is added to the TCA.
-     *                           (They have to be properly annotated, see
-     *                           \PSB\PsbFoundation\Service\DocComment\ValueParsers\TcaMappingParser.)
      *
      * @throws ReflectionException
      * @throws Exception

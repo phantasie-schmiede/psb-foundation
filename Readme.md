@@ -138,24 +138,22 @@ Available annotations can be found in `psb_foundation/Classes/Service/DocComment
 
 Example:
 ```php
-use PSB\PsbFoundation\Service\DocComment\Annotations\TcaConfig;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TcaFieldConfig;
+use PSB\PsbFoundation\Service\DocComment\Annotations\Tca;
 
 /**
- * @TcaConfig(label=name, searchFields="description, name")
+ * @Tca\Ctrl (label=name, searchFields="description, name")
  */
 class YourClass
 {
     /**
      * @var string
-     * @TcaFieldConfig(eval="trim,required", type=string)
+     * @Tca\Input (eval="trim,required")
      */
     protected string $name;
 
     /**
      * @var bool
-     * @TcaConfig(exclude=1)
-     * @TcaFieldConfig(type=checkbox)
+     * @Tca\Checkbox (exclude=1)
      */
     protected bool $restricted;
 
@@ -165,18 +163,15 @@ class YourClass
 
 Example:
 ```php
-use PSB\PsbFoundation\Service\DocComment\Annotations\TcaMapping;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TcaFieldConfig;
+use PSB\PsbFoundation\Service\DocComment\Annotations\PropertyMapping;
+use PSB\PsbFoundation\Service\DocComment\Annotations\Tca;
 
-/**
- * @TcaMapping(table=fe_users)
- */
 class YourClass
 {
     /**
      * @var string
-     * @TcaFieldConfig(type=string)
-     * @TcaMapping(column=your_extensionkey_nickname)
+     * @Tca\Input
+     * @PropertyMapping(column=your_extensionkey_nickname)
      */
     protected string $nickname;
 
@@ -184,7 +179,7 @@ class YourClass
 }
 ```
 
-Each `type` has its default configuration and you only need to specify values that differ from it.
+Each `type` has its default configuration, and you only need to specify values that differ from it.
 
 #### List of available types for @TcaFieldConfig and their default configuration
 As defined in `psb_foundation/Classes/Service/Configuration/Fields.php`:

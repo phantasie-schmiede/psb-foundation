@@ -31,7 +31,7 @@ use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TcaMapping;
+use PSB\PsbFoundation\Service\DocComment\Annotations\PropertyMapping;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use ReflectionException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -213,11 +213,11 @@ class ExtensionInformationUtility
             $docCommentParserService = ObjectUtility::get(DocCommentParserService::class);
             $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
 
-            if (isset($docComment[TcaMapping::class])) {
-                /** @var TcaMapping $tcaMapping */
-                $tcaMapping = $docComment[TcaMapping::class];
+            if (isset($docComment[PropertyMapping::class])) {
+                /** @var PropertyMapping $propertyMapping */
+                $propertyMapping = $docComment[PropertyMapping::class];
 
-                return $tcaMapping->getColumn();
+                return $propertyMapping->getColumn();
             }
         }
 

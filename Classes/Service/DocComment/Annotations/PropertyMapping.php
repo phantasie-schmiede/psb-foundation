@@ -27,30 +27,25 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations;
  ***************************************************************/
 
 /**
- * Class TcaMapping
+ * Class PropertyMapping
  *
- * Use this annotation at class level to assign your domain model to a table not matching the naming convention, or at
- * property level to assign a property to a database field that does not match the naming convention.
+ * Use this annotation at property level to assign a property to a database field that does not match the naming
+ * convention.
  *
  * @Annotation
  * @package PSB\PsbFoundation\Service\DocComment\Annotations
  */
-class TcaMapping extends AbstractAnnotation
+class PropertyMapping extends AbstractAnnotation
 {
     /**
-     * @var string|null
+     * @var string
      */
-    protected ?string $column = null;
+    protected string $column = '';
 
     /**
-     * @var string|null
+     * @return string
      */
-    protected ?string $table = null;
-
-    /**
-     * @return string|null
-     */
-    public function getColumn(): ?string
+    public function getColumn(): string
     {
         return $this->column;
     }
@@ -61,21 +56,5 @@ class TcaMapping extends AbstractAnnotation
     public function setColumn(string $column): void
     {
         $this->column = $column;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getTable(): ?string
-    {
-        return $this->table;
-    }
-
-    /**
-     * @param string $table
-     */
-    public function setTable(string $table): void
-    {
-        $this->table = $table;
     }
 }

@@ -41,6 +41,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 abstract class AbstractExtensionInformation implements ExtensionInformationInterface
 {
     /**
+     * This may be overridden in extending class. It gets evaluated in
+     * psb_foundation/Configuration/Extbase/Persistence/Classes.php
+     */
+    public const MAPPING = [
+        // 'VENDOR\MyExtension\Domain\Model\FrontendUser' => 'fe_users',
+    ];
+
+    /**
      * may be overridden in extending class
      */
     public const MODULES = [
@@ -115,6 +123,14 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
     public function getExtensionName(): string
     {
         return $this->extensionName;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMapping(): array
+    {
+        return static::MAPPING;
     }
 
     /**
