@@ -261,7 +261,7 @@ class DocCommentParserService implements LoggerAwareInterface
      * @throws Exception
      * @throws JsonException
      */
-    private function processValue(?string $annotationType, string $className, string $value): array
+    private function processValue(?string $annotationType, string $className, string $value)
     {
         $value = str_replace('self::', $className . '::', $value);
 
