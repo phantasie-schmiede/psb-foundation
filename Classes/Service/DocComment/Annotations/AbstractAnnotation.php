@@ -33,6 +33,7 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use RuntimeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -70,16 +71,14 @@ abstract class AbstractAnnotation
             $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $this);
 
             foreach ($data as $propertyName => $propertyValue) {
-                if (!$reflectionClass->hasProperty($propertyName)) {
-                    throw new Exception(static::class . ': Class doesn\'t have a property named "' . $propertyName . '"!',
-                        1583943746);
-                }
-
                 $setterMethodName = 'set' . ucfirst($propertyName);
 
                 if ($reflectionClass->hasMethod($setterMethodName)) {
                     $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $setterMethodName);
                     $reflectionMethod->invoke($this, $propertyValue);
+                } else {
+                    throw new RuntimeException(static::class . ': Class doesn\'t have a method named "' . $setterMethodName . '"!',
+                        1610459852);
                 }
             }
         }

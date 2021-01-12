@@ -47,6 +47,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class TcaUtility
 {
     /**
+     * @var array
+     */
+    protected static array $classTableMapping = [];
+
+    /**
      * This function will be executed when the core builds the TCA, but as it does not return an array there will be no
      * entry for the required file. Instead this function expands the TCA on its own by scanning through the domain
      * models of all registered extensions (extensions which provide an ExtensionInformation class, see
@@ -62,6 +67,34 @@ class TcaUtility
      */
     public static function buildTca(bool $overrideMode): void
     {
+        if (empty(self::$classTableMapping)) {
+            self::buildClassesTableMapping();
+        }
+
+        if ($overrideMode) {
+            $key = 'tcaOverrides';
+        } else {
+            $key = 'tca';
+        }
+
+        if (isset(self::$classTableMapping[$key])) {
+            foreach (self::$classTableMapping[$key] as $fullQualifiedClassName => $tableName) {
+                $tcaConfiguration = ObjectUtility::get(TcaService::class,
+                    $fullQualifiedClassName)->buildFromDocComment()->getConfiguration();
+
+                if (is_array($tcaConfiguration)) {
+                    $GLOBALS['TCA'][$tableName] = $tcaConfiguration;
+                }
+            }
+        }
+    }
+
+    /**
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
+     */
+    private static function buildClassesTableMapping(): void
+    {
+        self::$classTableMapping = [];
         $allExtensionInformation = ExtensionInformationUtility::getExtensionInformation();
 
         foreach ($allExtensionInformation as $extensionInformation) {
@@ -95,33 +128,20 @@ class TcaUtility
 
                 $tableName = ExtensionInformationUtility::convertClassNameToTableName($fullQualifiedClassName);
 
-                if (true === $overrideMode && StringUtility::beginsWith($tableName,
-                        'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
-                    // This class is not extending another domain model.
-                    continue;
-                }
+                $tableExists = ObjectUtility::get(ConnectionPool::class)
+                    ->getConnectionForTable($tableName)
+                    ->getSchemaManager()
+                    ->tablesExist([$tableName]);
 
-                if (false === $overrideMode && !StringUtility::beginsWith($tableName,
-                        'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
-                    // Not a table of the current extension, thus skipped
-                    continue;
-                }
-
-                try {
-                    ObjectUtility::get(ConnectionPool::class)
-                        ->getConnectionForTable($tableName)
-                        ->getSchemaManager()
-                        ->tablesExist([$tableName]);
-                } catch (Exception $exception) {
+                if (!$tableExists) {
                     // This class seems to be no persistent domain model and will be skipped as a corresponding table is missing.
                     continue;
                 }
 
-                $tcaConfiguration = ObjectUtility::get(TcaService::class,
-                    $fullQualifiedClassName)->buildFromDocComment()->getConfiguration();
-
-                if (is_array($tcaConfiguration)) {
-                    $GLOBALS['TCA'][$tableName] = $tcaConfiguration;
+                if (StringUtility::beginsWith($tableName, 'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
+                    self::$classTableMapping['tca'][$fullQualifiedClassName] = $tableName;
+                } else {
+                    self::$classTableMapping['tcaOverrides'][$fullQualifiedClassName] = $tableName;
                 }
             }
         }

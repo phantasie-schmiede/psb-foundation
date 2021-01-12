@@ -163,7 +163,6 @@ class YourClass
 
 Example:
 ```php
-use PSB\PsbFoundation\Service\DocComment\Annotations\PropertyMapping;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 class YourClass
@@ -171,7 +170,6 @@ class YourClass
     /**
      * @var string
      * @TCA\Input
-     * @PropertyMapping(column=your_extensionkey_nickname)
      */
     protected string $nickname;
 

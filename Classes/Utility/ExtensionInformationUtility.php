@@ -29,11 +29,7 @@ namespace PSB\PsbFoundation\Utility;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
-use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Service\DocComment\Annotations\PropertyMapping;
-use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use ReflectionException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
@@ -43,8 +39,8 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
-use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class ExtensionInformationUtility
@@ -54,6 +50,28 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
 class ExtensionInformationUtility
 {
     private const EXTENSION_INFORMATION_MAPPING_TABLE = 'tx_psbfoundation_extension_information_mapping';
+
+    /**
+     * @var ClassesConfiguration|null
+     */
+    protected static ?ClassesConfiguration $classesConfiguration = null;
+
+    /**
+     * @return ClassesConfiguration
+     * @throws Exception
+     */
+    public static function getClassesConfiguration(): ClassesConfiguration
+    {
+        if (!empty(self::$classesConfiguration)) {
+            return self::$classesConfiguration;
+        }
+
+        // @TODO: Cache the mapping information for this early stage (CacheManager not available)!
+        self::$classesConfiguration = ObjectUtility::get(ClassesConfigurationFactory::class)
+            ->createClassesConfiguration();
+
+        return self::$classesConfiguration;
+    }
 
     /**
      * @param ExtensionInformationInterface $extensionInformation
@@ -156,8 +174,7 @@ class ExtensionInformationUtility
      */
     public static function convertClassNameToTableName(string $className): string
     {
-        // @TODO: cache the classes configuration for this early stage (CacheManager not available)!
-        $classesConfiguration = ObjectUtility::get(ClassesConfigurationFactory::class)->createClassesConfiguration();
+        $classesConfiguration = self::getClassesConfiguration();
 
         if ($classesConfiguration->hasClass($className)) {
             return $classesConfiguration->getConfigurationFor($className)['tableName'];
@@ -202,22 +219,19 @@ class ExtensionInformationUtility
      * @param string|null $className
      *
      * @return string
-     * @throws AnnotationException
      * @throws Exception
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws ReflectionException
      */
     public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
         if (null !== $className) {
-            $docCommentParserService = ObjectUtility::get(DocCommentParserService::class);
-            $docComment = $docCommentParserService->parsePhpDocComment($className, $propertyName);
+            $classesConfiguration = self::getClassesConfiguration();
 
-            if (isset($docComment[PropertyMapping::class])) {
-                /** @var PropertyMapping $propertyMapping */
-                $propertyMapping = $docComment[PropertyMapping::class];
+            if ($classesConfiguration->hasClass($className)) {
+                $configuration = $classesConfiguration->getConfigurationFor($className);
 
-                return $propertyMapping->getColumn();
+                if (isset($configuration['properties'][$propertyName])) {
+                    return $configuration['properties'][$propertyName]['fieldName'];
+                }
             }
         }
 

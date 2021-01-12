@@ -89,11 +89,6 @@ interface ExtensionInformationInterface
     /**
      * @return array
      */
-    public function getMapping(): array;
-
-    /**
-     * @return array
-     */
     public function getModules(): array;
 
     /**
