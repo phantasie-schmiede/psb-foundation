@@ -106,7 +106,7 @@ class ObjectUtility
      */
     public static function resolveMultipleMmRelation(AbstractDomainObject $object, string $property): array
     {
-        $docCommentParser = ObjectUtility::get(DocCommentParserService::class);
+        $docCommentParser = self::get(DocCommentParserService::class);
         $docComment = $docCommentParser->parsePhpDocComment($object, $property);
 
         if (!isset($docComment[Mm::class])) {

@@ -188,19 +188,21 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
         if (file_exists($languageFilePath)) {
             $xmlData = XmlUtility::convertFromXml(file_get_contents($languageFilePath));
 
-            if (\TYPO3\CMS\Core\Utility\ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
-                // If file contains only one label, an additional array level has to be added for the following foreach.
-                $xmlData['xliff']['file']['body']['trans-unit'] = [$xmlData['xliff']['file']['body']['trans-unit']];
-            }
+            if (isset($xmlData['xliff']['file']['body']['trans-unit'])) {
+                if (\TYPO3\CMS\Core\Utility\ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
+                    // If file contains only one label, an additional array level has to be added for the following foreach.
+                    $xmlData['xliff']['file']['body']['trans-unit'] = [$xmlData['xliff']['file']['body']['trans-unit']];
+                }
 
-            foreach ($xmlData['xliff']['file']['body']['trans-unit'] as $transUnit) {
-                if (isset($transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
-                    $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
+                foreach ($xmlData['xliff']['file']['body']['trans-unit'] as $transUnit) {
+                    if (isset($transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
+                        $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
 
-                    if ($id === $transUnitTagAttributes['id']) {
-                        self::logMissingTranslations($key, true);
+                        if ($id === $transUnitTagAttributes['id']) {
+                            self::logMissingTranslations($key, true);
 
-                        return true;
+                            return true;
+                        }
                     }
                 }
             }

@@ -138,22 +138,22 @@ Available annotations can be found in `psb_foundation/Classes/Service/DocComment
 
 Example:
 ```php
-use PSB\PsbFoundation\Service\DocComment\Annotations\Tca;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 /**
- * @Tca\Ctrl (label=name, searchFields="description, name")
+ * @TCA\Ctrl (label=name, searchFields="description, name")
  */
 class YourClass
 {
     /**
      * @var string
-     * @Tca\Input (eval="trim,required")
+     * @TCA\Input (eval="trim,required")
      */
     protected string $name;
 
     /**
      * @var bool
-     * @Tca\Checkbox (exclude=1)
+     * @TCA\Checkbox (exclude=1)
      */
     protected bool $restricted;
 
@@ -164,13 +164,13 @@ class YourClass
 Example:
 ```php
 use PSB\PsbFoundation\Service\DocComment\Annotations\PropertyMapping;
-use PSB\PsbFoundation\Service\DocComment\Annotations\Tca;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 class YourClass
 {
     /**
      * @var string
-     * @Tca\Input
+     * @TCA\Input
      * @PropertyMapping(column=your_extensionkey_nickname)
      */
     protected string $nickname;
