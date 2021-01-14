@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Service\Configuration;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2019-2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2019-2021 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -368,7 +368,8 @@ class TcaService
                         $this->className);
 
                     if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
-                        $propertyConfiguration = $annotation->toArray(DocCommentParserService::ANNOTATION_TARGETS['PROPERTY']);
+                        $propertyConfiguration = $annotation->toArray(DocCommentParserService::ANNOTATION_TARGETS['PROPERTY'],
+                            $columnName);
 
                         if (!isset($propertyConfiguration['label'])) {
                             $label = $this->getDefaultLabelPath() . $columnName;

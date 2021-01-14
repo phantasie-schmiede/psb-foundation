@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020-2021 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -49,9 +49,9 @@ class DateTime extends Input
     protected string $eval = 'datetime,null';
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $renderType = 'inputDateTime';
+    protected ?string $renderType = 'inputDateTime';
 
     /**
      * @var int

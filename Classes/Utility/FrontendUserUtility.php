@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Utility;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020-2021 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -48,7 +48,6 @@ class FrontendUserUtility
      */
     public static function getCurrentUser(): FrontendUser
     {
-        /** @noinspection PhpIncompatibleReturnTypeInspection */
         return ObjectUtility::get(FrontendUserRepository::class)->findByUid(self::getCurrentUserId());
     }
 

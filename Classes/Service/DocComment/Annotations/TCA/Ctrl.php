@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020-2021 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -113,10 +113,7 @@ class Ctrl extends AbstractAnnotation
 
     /**
      * @return string
-     * @throws AnnotationException
      * @throws Exception
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws ReflectionException
      */
     public function getLabel(): string
     {
@@ -133,6 +130,7 @@ class Ctrl extends AbstractAnnotation
 
     /**
      * @return string|null
+     * @throws Exception
      */
     public function getLabelAlt(): ?string
     {

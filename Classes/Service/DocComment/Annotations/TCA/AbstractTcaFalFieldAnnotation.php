@@ -5,7 +5,7 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2020-2021 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,6 +26,8 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use PSB\PsbFoundation\Service\Configuration\TcaService;
+use ReflectionException;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /**
@@ -101,16 +103,30 @@ class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
     }
 
     /**
-     * @param string $annotatedName
+     * @param string $targetScope
+     * @param string $columnName
      *
      * @return array
+     * @throws ReflectionException
      */
-    public function toArray(string $annotatedName): array
+    public function toArray(string $targetScope, string $columnName = ''): array
     {
-        return ExtensionManagementUtility::getFileFieldTCAConfig($annotatedName,
+        $properties = parent::toArray($targetScope);
+        $fieldConfiguration = [];
+        $fieldConfiguration['config'] = ExtensionManagementUtility::getFileFieldTCAConfig($columnName,
             [
                 'appearance' => $this->getAppearance(),
                 'maxitems'   => $this->getMaxItems(),
             ], $this->getAllowedFileTypes());
+
+        foreach ($properties as $key => $value) {
+            $key = TcaService::convertKey($key);
+
+            if (in_array($key, ['displayCond', 'exclude', 'label'], true)) {
+                $fieldConfiguration[$key] = $value;
+            }
+        }
+
+        return $fieldConfiguration;
     }
 }
