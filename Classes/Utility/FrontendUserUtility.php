@@ -41,12 +41,12 @@ use TYPO3\CMS\Extbase\Object\Exception;
 class FrontendUserUtility
 {
     /**
-     * @return FrontendUser
+     * @return FrontendUser|null
      * @throws AspectNotFoundException
      * @throws AspectPropertyNotFoundException
      * @throws Exception
      */
-    public static function getCurrentUser(): FrontendUser
+    public static function getCurrentUser(): ?FrontendUser
     {
         return ObjectUtility::get(FrontendUserRepository::class)->findByUid(self::getCurrentUserId());
     }
