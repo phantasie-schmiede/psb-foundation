@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
-namespace PSB\PsbFoundation\ViewHelpers\Conditions;
+namespace PSB\PsbFoundation\ViewHelpers\Condition;
 
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2020 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
+ *  (c) 2021 Daniel Ablass <dn@phantasie-schmiede.de>, PSbits
  *
  *  All rights reserved
  *
@@ -26,24 +26,21 @@ namespace PSB\PsbFoundation\ViewHelpers\Conditions;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
- * Class ExtensionLoadedViewHelper
+ * Class InArrayViewHelper
  *
- * @package PSB\PsbFoundation\ViewHelpers\Conditions
+ * @package PSB\PsbFoundation\ViewHelpers
  */
-class ExtensionLoadedViewHelper extends AbstractViewHelper
+class InArrayViewHelper extends AbstractViewHelper
 {
-    /**
-     * @var bool
-     */
-    protected $escapeOutput = false;
-
     public function initializeArguments(): void
     {
-        $this->registerArgument('extensionKey', 'string', 'Key of the extension which shall be checked.', true);
+        parent::initializeArguments();
+        $this->registerArgument('haystack', 'array', 'the data array', true);
+        $this->registerArgument('needle', 'mixed', 'the value to search for', true);
+        $this->registerArgument('strict', 'bool', 'apply strict comparison', false, true);
     }
 
     /**
@@ -51,7 +48,7 @@ class ExtensionLoadedViewHelper extends AbstractViewHelper
      */
     public function render(): string
     {
-        if (ExtensionManagementUtility::isLoaded($this->arguments['extensionKey'])) {
+        if (in_array($this->arguments['needle'], $this->arguments['haystack'], $this->arguments['strict'])) {
             return $this->renderChildren();
         }
 
