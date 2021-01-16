@@ -36,6 +36,11 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  */
 class ExtensionLoadedViewHelper extends AbstractViewHelper
 {
+    /**
+     * @var bool
+     */
+    protected $escapeOutput = false;
+
     public function initializeArguments(): void
     {
         $this->registerArgument('extensionKey', 'string', 'Key of the extension which shall be checked.', true);
