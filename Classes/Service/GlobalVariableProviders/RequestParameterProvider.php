@@ -26,6 +26,7 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use JsonException;
 use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -47,6 +48,7 @@ class RequestParameterProvider implements GlobalVariableProviderInterface
 
     /**
      * @return array
+     * @throws JsonException
      */
     public function getGlobalVariables(): array
     {
@@ -54,6 +56,7 @@ class RequestParameterProvider implements GlobalVariableProviderInterface
         ArrayUtility::mergeRecursiveWithOverrule($parameters, GeneralUtility::_POST());
 
         array_walk_recursive($parameters, static function (&$item) {
+            $item = filter_var($item, FILTER_SANITIZE_STRING);
             $item = StringUtility::convertString($item);
 
             if (is_string($item)) {
