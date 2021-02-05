@@ -18,10 +18,11 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Service\DocComment\Annotations\AbstractAnnotation;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class TcaConfig
@@ -84,6 +85,26 @@ class Ctrl extends AbstractAnnotation
     protected ?string $sortBy = null;
 
     /**
+     * @var TcaService
+     */
+    protected TcaService $tcaService;
+
+    /**
+     * AbstractTcaFieldAnnotation constructor.
+     *
+     * @param array $data
+     *
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function __construct(array $data = [])
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->tcaService = $objectManager->get(TcaService::class);
+        parent::__construct($data);
+    }
+
+    /**
      * @return string|null
      */
     public function getDefaultSortBy(): ?string
@@ -101,11 +122,14 @@ class Ctrl extends AbstractAnnotation
 
     /**
      * @return string
-     * @throws Exception
      */
     public function getLabel(): string
     {
-        return ExtensionInformationUtility::convertPropertyNameToColumnName($this->label);
+        if (null === $this->tcaService) {
+            return $this->label;
+        }
+
+        return $this->tcaService->convertPropertyNameToColumnName($this->label);
     }
 
     /**
@@ -118,18 +142,17 @@ class Ctrl extends AbstractAnnotation
 
     /**
      * @return string|null
-     * @throws Exception
      */
     public function getLabelAlt(): ?string
     {
-        if (null === $this->labelAlt) {
+        if (null === $this->labelAlt || null === $this->tcaService) {
             return null;
         }
 
         $altLabels = GeneralUtility::trimExplode(',', $this->labelAlt);
 
-        array_walk($altLabels, static function (&$item) {
-            $item = ExtensionInformationUtility::convertPropertyNameToColumnName($item);
+        array_walk($altLabels, function (&$item) {
+            $item = $this->tcaService->convertPropertyNameToColumnName($item);
         });
 
         return implode(',', $altLabels);
@@ -252,7 +275,7 @@ class Ctrl extends AbstractAnnotation
         $ctrlConfiguration = [];
 
         foreach ($properties as $key => $value) {
-            $ctrlConfiguration[TcaService::convertKey($key)] = $value;
+            $ctrlConfiguration[TcaUtility::convertKey($key)] = $value;
         }
 
         return $ctrlConfiguration;

@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 use JsonException;
-use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -29,8 +28,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class RequestParameterProvider implements GlobalVariableProviderInterface
 {
-    use InjectionTrait;
-
     /**
      * @var bool
      */
@@ -48,10 +45,6 @@ class RequestParameterProvider implements GlobalVariableProviderInterface
         array_walk_recursive($parameters, static function (&$item) {
             $item = filter_var($item, FILTER_SANITIZE_STRING);
             $item = StringUtility::convertString($item);
-
-            if (is_string($item)) {
-                $item = filter_var($item, FILTER_SANITIZE_STRING);
-            }
         });
 
         $this->setCacheable(true);

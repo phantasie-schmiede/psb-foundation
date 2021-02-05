@@ -16,15 +16,15 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\ViewHelpers;
 
-use PSB\PsbFoundation\Utility\LocalizationUtility;
-use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
-use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use PSB\PsbFoundation\Service\LocalizationService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class TranslateViewHelper
  *
- * Overwrites the core ViewHelper in order to use \PSB\PsbFoundation\Utility\LocalizationUtility which is able to log
+ * Overwrites the core ViewHelper in order to use \PSB\PsbFoundation\Service\LocalizationService which is able to log
  * missing translations.
  *
  * @package PSB\PsbFoundation\ViewHelpers
@@ -32,7 +32,7 @@ use TYPO3\CMS\Extbase\Object\Exception;
 class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelper
 {
     /**
-     * Wrapper call to static LocalizationUtility
+     * Wrapper call to static LocalizationService
      *
      * @param string   $id                      Translation Key
      * @param string   $extensionName           UpperCamelCased extension key (for example BlogExample)
@@ -42,8 +42,6 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
      *
      * @return string|null
      * @throws Exception
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     protected static function translate(
         $id,
@@ -52,6 +50,9 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         $languageKey,
         $alternativeLanguageKeys
     ): ?string {
-        return LocalizationUtility::translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $localizationService = $objectManager->get(LocalizationService::class);
+
+        return $localizationService->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
     }
 }

@@ -14,18 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Exceptions;
+namespace PSB\PsbFoundation\Traits\Properties;
 
-use Exception;
+use TYPO3\CMS\Core\Context\Context;
 
 /**
- * Class BaseException
- * @package PSB\PsbFoundation\Exceptions
+ * Trait ContextTrait
+ *
+ * @package PSB\PsbFoundation\Traits\Properties
  */
-class BaseException extends Exception
+trait ContextTrait
 {
-    public function __toString(): string
+    /**
+     * @var Context|null
+     */
+    protected ?Context $context = null;
+
+    /**
+     * @param Context $context
+     */
+    public function injectContext(Context $context): void
     {
-        return __CLASS__ . ': [' . $this->code . ']: ' . $this->message . LF;
+        $this->context = $context;
     }
 }

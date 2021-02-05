@@ -29,7 +29,7 @@ class Link extends Input
     public const TYPE = Fields::FIELD_TYPES['LINK'];
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $renderType = 'inputLink';
+    protected ?string $renderType = 'inputLink';
 }

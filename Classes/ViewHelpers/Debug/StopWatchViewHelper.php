@@ -16,9 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\ViewHelpers\Debug;
 
-use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\Debug\StopWatchUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
+use PSB\PsbFoundation\Traits\Properties\StopWatchServiceTrait;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
@@ -28,7 +26,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  */
 class StopWatchViewHelper extends AbstractViewHelper
 {
-    use InjectionTrait;
+    use StopWatchServiceTrait;
 
     /**
      * @var bool
@@ -44,15 +42,15 @@ class StopWatchViewHelper extends AbstractViewHelper
 
     /**
      * @return mixed
-     * @throws Exception
      */
     public function render()
     {
-        $stopWatch = $this->get(StopWatchUtility::class, $this->arguments['header'],
-            $this->arguments['precision']);
-        $stopWatch->start();
+        $this->stopWatchService->setHeader($this->arguments['header']);
+        $this->stopWatchService->setPrecision($this->arguments['precision']);
+
+        $this->stopWatchService->start();
         $output = $this->renderChildren();
-        $stopWatch->stop();
+        $this->stopWatchService->stop();
 
         return $output;
     }

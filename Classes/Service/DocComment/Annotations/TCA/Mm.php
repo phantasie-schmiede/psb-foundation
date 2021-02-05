@@ -16,12 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
-use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Service\Configuration\Fields;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
-use ReflectionException;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class Mm
@@ -106,18 +101,14 @@ class Mm extends Select
 
     /**
      * @return string|null
-     * @throws AnnotationException
-     * @throws Exception
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws ReflectionException
      */
     public function getMmOppositeField(): ?string
     {
-        if (null === $this->mmOppositeField) {
+        if (null === $this->mmOppositeField || null === $this->tcaService) {
             return null;
         }
 
-        return ExtensionInformationUtility::convertPropertyNameToColumnName($this->mmOppositeField);
+        return $this->tcaService->convertPropertyNameToColumnName($this->mmOppositeField);
     }
 
     /**

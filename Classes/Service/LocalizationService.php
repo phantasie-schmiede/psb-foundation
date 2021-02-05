@@ -14,7 +14,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Utility;
+namespace PSB\PsbFoundation\Service;
 
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
@@ -22,16 +22,18 @@ use PSB\PsbFoundation\Utility\Xml\XmlUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use function array_slice;
 
 /**
- * Class LocalizationUtility
+ * Class LocalizationService
  *
- * @package PSB\PsbFoundation\Utility
+ * @package PSB\PsbFoundation\Service
  */
-class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
+class LocalizationService
 {
     private const MISSING_TRANSLATIONS_TABLE = 'tx_psbfoundation_missing_translations';
 
@@ -39,17 +41,15 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      * @param string $key
      * @param bool   $keyExists
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
-    public static function logMissingTranslations(string $key, bool $keyExists): void
+    public function logMissingTranslations(string $key, bool $keyExists): void
     {
-        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
-
-        if ((bool)ExtensionInformationUtility::getConfiguration($extensionInformation,
-            'debug.logMissingTranslations')) {
-            $connection = ObjectUtility::get(ConnectionPool::class)
+        if ((bool)GeneralUtility::makeInstance(ExtensionInformationService::class)
+            ->getConfiguration(GeneralUtility::makeInstance(ExtensionInformation::class),
+                'debug.logMissingTranslations')) {
+            $connection = GeneralUtility::makeInstance(ConnectionPool::class)
                 ->getConnectionForTable(self::MISSING_TRANSLATIONS_TABLE);
 
             // Avoid duplicates without using a select query as check for existing entries
@@ -78,20 +78,20 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      *                                             setup will be used
      *
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @see \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      */
-    public static function translate(
+    public function translate(
         $key,
         string $extensionName = null,
         array $arguments = null,
         string $languageKey = null,
         array $alternativeLanguageKeys = null
     ): ?string {
-        $translation = parent::translate($key, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
-        self::logMissingTranslations($key, $translation ? true : false);
+        $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey,
+            $alternativeLanguageKeys);
+        $this->logMissingTranslations($key, $translation ? true : false);
 
         return $translation;
     }
@@ -103,16 +103,15 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      *                                   be removed
      *
      * @return string
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
-    public static function translateConcatenatingNewLines(
+    public function translateConcatenatingNewLines(
         string $key,
         string $extension = null,
         string $newLineMarker = '||'
     ): string {
-        $translation = self::translate($key, $extension);
+        $translation = $this->translate($key, $extension);
         $translation = preg_replace('/\s+/', ' ', $translation);
         if ('' !== $newLineMarker) {
             $translation = str_replace($newLineMarker, "\n", $translation);
@@ -126,13 +125,12 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      * @param string|null $extension
      *
      * @return string
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
-    public static function translatePreservingNewLines(string $key, string $extension = null): string
+    public function translatePreservingNewLines(string $key, string $extension = null): string
     {
-        $translation = self::translate($key, $extension);
+        $translation = $this->translate($key, $extension);
 
         // split string by linebreaks and remove surrounding whitespaces for each line
         $lines = array_map('trim', explode(LF, $translation));
@@ -161,7 +159,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws JsonException
      */
-    public static function translationExists(string $key): bool
+    public function translationExists(string $key): bool
     {
         $keyParts = explode(':', $key);
 
@@ -179,7 +177,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
             $xmlData = XmlUtility::convertFromXml(file_get_contents($languageFilePath));
 
             if (isset($xmlData['xliff']['file']['body']['trans-unit'])) {
-                if (\TYPO3\CMS\Core\Utility\ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
+                if (ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
                     // If file contains only one label, an additional array level has to be added for the following foreach.
                     $xmlData['xliff']['file']['body']['trans-unit'] = [$xmlData['xliff']['file']['body']['trans-unit']];
                 }
@@ -189,7 +187,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
                         $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
 
                         if ($id === $transUnitTagAttributes['id']) {
-                            self::logMissingTranslations($key, true);
+                            $this->logMissingTranslations($key, true);
 
                             return true;
                         }
@@ -198,7 +196,7 @@ class LocalizationUtility extends \TYPO3\CMS\Extbase\Utility\LocalizationUtility
             }
         }
 
-        self::logMissingTranslations($key, false);
+        $this->logMissingTranslations($key, false);
 
         return false;
     }

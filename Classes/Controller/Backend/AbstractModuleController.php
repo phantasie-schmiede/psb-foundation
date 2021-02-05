@@ -17,20 +17,18 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Controller\Backend;
 
 use InvalidArgumentException;
-use PSB\PsbFoundation\Exceptions\AnnotationException;
+use JsonException;
 use PSB\PsbFoundation\Module\ButtonConfiguration;
 use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleAction;
-use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
-use PSB\PsbFoundation\Utility\LocalizationUtility;
+use PSB\PsbFoundation\Traits\Properties\DocCommentParserServiceTrait;
+use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Traits\Properties\LocalizationServiceTrait;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use TYPO3\CMS\Backend\Template\Components\Buttons\InputButton;
 use TYPO3\CMS\Backend\Template\Components\Buttons\LinkButton;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
-use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Imaging\Icon;
@@ -53,7 +51,7 @@ use function in_array;
  */
 abstract class AbstractModuleController extends ActionController
 {
-    use InjectionTrait;
+    use DocCommentParserServiceTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
 
     protected const HEADER_COMPONENTS = [
         'ACTION_BUTTONS'  => 'actionButtons',
@@ -99,6 +97,58 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * @return array
+     */
+    public function getActionButtons(): array
+    {
+        return $this->headerConfiguration[self::HEADER_COMPONENTS['ACTION_BUTTONS']]['buttons'] ?? [];
+    }
+
+    /**
+     * This getter includes a fallback for a default label if none is given.
+     *
+     * @return string|null
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
+    public function getBookmarkLabel(): ?string
+    {
+        return $this->headerConfiguration[self::HEADER_COMPONENTS['SHORTCUT_BUTTON']]['bookmarkLabel'] ?? $this->buildBookmarkLabel();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaderConfiguration(): array
+    {
+        return $this->headerConfiguration;
+    }
+
+    /**
+     * @return array
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
+     * @throws ReflectionException
+     */
+    public function getMenuItems(): array
+    {
+        return $this->headerConfiguration[self::HEADER_COMPONENTS['ACTION_MENU']]['items'] ?? $this->buildMenuItems();
+    }
+
+    /**
+     * @return array
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
+     * @throws ReflectionException
+     */
+    public function getTemplateActions(): array
+    {
+        return $this->headerConfiguration[self::HEADER_SETTINGS['TEMPLATE_ACTIONS']] ?? $this->buildTemplateActions();
+    }
+
+    /**
      * @param ButtonConfiguration $buttonConfiguration
      */
     public function addActionButton(ButtonConfiguration $buttonConfiguration): void
@@ -117,54 +167,6 @@ abstract class AbstractModuleController extends ActionController
     public function addTemplateAction(string $templateAction): void
     {
         $this->headerConfiguration[self::HEADER_SETTINGS['TEMPLATE_ACTIONS']][] = $templateAction;
-    }
-
-    /**
-     * @return array
-     */
-    public function getActionButtons(): array
-    {
-        return $this->headerConfiguration[self::HEADER_COMPONENTS['ACTION_BUTTONS']]['buttons'] ?? [];
-    }
-
-    /**
-     * This getter includes a fallback for a default label if none is given.
-     *
-     * @return string|null
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     */
-    public function getBookmarkLabel(): ?string
-    {
-        return $this->headerConfiguration[self::HEADER_COMPONENTS['SHORTCUT_BUTTON']]['bookmarkLabel'] ?? $this->buildBookmarkLabel();
-    }
-
-    /**
-     * @return array
-     */
-    public function getHeaderConfiguration(): array
-    {
-        return $this->headerConfiguration;
-    }
-
-    /**
-     * @return array
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws NoSuchCacheException
-     * @throws ReflectionException
-     */
-    public function getMenuItems(): array
-    {
-        return $this->headerConfiguration[self::HEADER_COMPONENTS['ACTION_MENU']]['items'] ?? $this->buildMenuItems();
-    }
-
-    /**
-     * @return array
-     * @throws Exception
-     * @throws ReflectionException
-     */
-    public function getTemplateActions(): array
-    {
-        return $this->headerConfiguration[self::HEADER_SETTINGS['TEMPLATE_ACTIONS']] ?? $this->buildTemplateActions();
     }
 
     /**
@@ -244,8 +246,10 @@ abstract class AbstractModuleController extends ActionController
      * @param ViewInterface $view
      *
      * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws NoSuchCacheException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ReflectionException
      */
     protected function initializeView(ViewInterface $view): void
@@ -278,7 +282,6 @@ abstract class AbstractModuleController extends ActionController
      * current action will be appended in brackets.
      *
      * @return string|null
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -286,11 +289,11 @@ abstract class AbstractModuleController extends ActionController
     {
         $actionName = $this->request->getControllerActionName();
         $languageFile = $this->getDefaultLanguageFile();
-        $bookmarkLabel = LocalizationUtility::translate($languageFile . ':bookmarkLabel.' . $actionName);
+        $bookmarkLabel = $this->localizationService->translate($languageFile . ':bookmarkLabel.' . $actionName);
 
         if (null === $bookmarkLabel) {
-            $bookmarkLabel = LocalizationUtility::translate($languageFile . ':bookmarkLabel')
-                ?? LocalizationUtility::translate($languageFile . ':mlang_tabs_tab');
+            $bookmarkLabel = $this->localizationService->translate($languageFile . ':bookmarkLabel')
+                ?? $this->localizationService->translate($languageFile . ':mlang_tabs_tab');
 
             if ($this->shallBeRendered(self::HEADER_COMPONENTS['ACTION_MENU'])) {
                 $bookmarkLabel .= ' (' . ucfirst($actionName) . ')';
@@ -304,9 +307,10 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @return array
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ReflectionException
      */
     private function buildMenuItems(): array
@@ -318,7 +322,7 @@ abstract class AbstractModuleController extends ActionController
             $items[] = [
                 'action'     => $action,
                 'controller' => $this->request->getControllerName(),
-                'label'      => LocalizationUtility::translate($this->getDefaultLanguageFile() . ':menu.' . $action) ?? $action,
+                'label'      => $this->localizationService->translate($this->getDefaultLanguageFile() . ':menu.' . $action) ?? $action,
             ];
         }
 
@@ -332,9 +336,8 @@ abstract class AbstractModuleController extends ActionController
      * automatically. This can be prevented with the ModuleAction-annotation, see addTemplateAction.
      *
      * @return array
-     * @throws AnnotationException
-     * @throws Exception
      * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ReflectionException
      */
     private function buildTemplateActions(): array
@@ -346,7 +349,7 @@ abstract class AbstractModuleController extends ActionController
             $action = preg_replace('/Action$/', '', $actionName, 1, $count);
 
             if (1 === $count) {
-                $docComment = $this->get(DocCommentParserService::class)->parsePhpDocComment($this, $actionName);
+                $docComment = $this->docCommentParserService->parsePhpDocComment($this, $actionName);
                 $doNotRender = false;
 
                 if (isset($docComment[ModuleAction::class])) {
@@ -365,7 +368,6 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -385,12 +387,12 @@ abstract class AbstractModuleController extends ActionController
                 $action = $buttonConfiguration->getAction();
                 $link = $this->getHref($action,
                     $buttonConfiguration->getController() ?? $this->request->getControllerName());
-                $title = $buttonConfiguration->getTitle() ?? LocalizationUtility::translate($this->getDefaultLanguageFile() . ':button.' . $action) ?? '';
+                $title = $buttonConfiguration->getTitle() ?? $this->localizationService->translate($this->getDefaultLanguageFile() . ':button.' . $action) ?? '';
                 $button->setHref($link);
             }
 
             if ($button instanceof InputButton) {
-                $title = $buttonConfiguration->getTitle() ?? LocalizationUtility::translate($this->getDefaultLanguageFile() . ':button.' . $buttonConfiguration->getForm()) ?? '';
+                $title = $buttonConfiguration->getTitle() ?? $this->localizationService->translate($this->getDefaultLanguageFile() . ':button.' . $buttonConfiguration->getForm()) ?? '';
                 $button->setForm($buttonConfiguration->getForm())
                     ->setName($buttonConfiguration->getName())
                     ->setValue($buttonConfiguration->getValue());
@@ -405,8 +407,11 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws NoSuchCacheException
+     * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ReflectionException
      */
     private function generateMenu(): void
@@ -438,6 +443,10 @@ abstract class AbstractModuleController extends ActionController
 
     /**
      * @TODO: Action is not saved correctly. Shortcut always calls the default action. ($getVars should contain action)
+     *
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     private function generateShortcutButton(): void
     {
@@ -463,7 +472,7 @@ abstract class AbstractModuleController extends ActionController
      */
     private function getDefaultLanguageFile(): string
     {
-        $fileName = lcfirst(ExtensionInformationUtility::convertControllerClassToBaseName(get_class($this))) . '.xlf';
+        $fileName = lcfirst($this->extensionInformationService->convertControllerClassToBaseName(get_class($this))) . '.xlf';
 
         return 'LLL:EXT:' . $this->request->getControllerExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $fileName;
     }
@@ -477,7 +486,7 @@ abstract class AbstractModuleController extends ActionController
      *
      * @return string
      */
-    private function getHref($action, $controller, $parameters = []): string
+    private function getHref(string $action, string $controller, array $parameters = []): string
     {
         $uriBuilder = $this->objectManager->get(UriBuilder::class);
         $uriBuilder->setRequest($this->request);

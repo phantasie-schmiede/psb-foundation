@@ -14,23 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Domain\Repository;
+namespace PSB\PsbFoundation\Traits\Properties;
 
-use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
-use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 /**
- * Class AbstractRepository
+ * Trait TypoScriptServiceTrait
  *
- * @package PSB\PsbFoundation\Domain\Repository
+ * @package PSB\PsbFoundation\Traits\Properties
  */
-abstract class AbstractRepository extends Repository
+trait TypoScriptServiceTrait
 {
     /**
-     * @return array|QueryResultInterface
+     * @var TypoScriptService
      */
-    public function findTcaSelectItems()
+    protected TypoScriptService $typoScriptService;
+
+    /**
+     * @param TypoScriptService $typoScriptService
+     */
+    public function injectTypoScriptService(TypoScriptService $typoScriptService): void
     {
-        return $this->findAll();
+        $this->typoScriptService = $typoScriptService;
     }
 }

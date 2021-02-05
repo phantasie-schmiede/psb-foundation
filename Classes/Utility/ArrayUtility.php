@@ -26,6 +26,24 @@ use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3ArrayUtility;
 class ArrayUtility
 {
     /**
+     * @param array $array
+     *
+     * @return int
+     */
+    public static function countRecursive(array $array): int
+    {
+        $count = count($array);
+
+        foreach ($array as $element) {
+            if (is_array($element)) {
+                $count += self::countRecursive($element);
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * @param $variable
      *
      * @return array

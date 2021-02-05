@@ -34,7 +34,7 @@ class LoopViewHelper extends AbstractViewHelper
     /**
      * @var array
      */
-    private $variableBackups;
+    private array $variableBackups;
 
     public function initializeArguments(): void
     {

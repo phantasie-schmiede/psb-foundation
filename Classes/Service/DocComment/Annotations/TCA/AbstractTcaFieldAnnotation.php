@@ -16,10 +16,14 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
+use Exception;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Service\DocComment\Annotations\AbstractAnnotation;
+use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class AbstractTcaFieldAnnotation
@@ -54,6 +58,25 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
      * @var string|null
      */
     protected ?string $label = null;
+
+    /**
+     * @var TcaService
+     */
+    protected TcaService $tcaService;
+
+    /**
+     * AbstractTcaFieldAnnotation constructor.
+     *
+     * @param array $data
+     *
+     * @throws Exception
+     */
+    public function __construct(array $data = [])
+    {
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $this->tcaService = $objectManager->get(TcaService::class);
+        parent::__construct($data);
+    }
 
     /**
      * @return array|string|null
@@ -154,7 +177,7 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
         $fieldConfiguration['config']['type'] = $this->getType();
 
         foreach ($properties as $key => $value) {
-            $key = TcaService::convertKey($key);
+            $key = TcaUtility::convertKey($key);
 
             if (in_array($key, ['displayCond', 'exclude', 'label'], true)) {
                 $fieldConfiguration[$key] = $value;

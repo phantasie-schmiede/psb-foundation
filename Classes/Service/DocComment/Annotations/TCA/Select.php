@@ -17,10 +17,9 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 use PSB\PsbFoundation\Service\Configuration\Fields;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class Select
@@ -30,6 +29,8 @@ use TYPO3\CMS\Extbase\Object\Exception;
  */
 class Select extends AbstractTcaFieldAnnotation
 {
+    use ExtensionInformationServiceTrait;
+
     public const EMPTY_DEFAULT_ITEM = [
         [
             'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Service/DocComment/Annotations/TCA/select.xlf:pleaseChoose',
@@ -210,15 +211,13 @@ class Select extends AbstractTcaFieldAnnotation
 
     /**
      * @param string $linkedModel
-     *
-     * @throws Exception
      */
     public function setLinkedModel(string $linkedModel): void
     {
         $this->linkedModel = $linkedModel;
 
         if (class_exists($linkedModel)) {
-            $this->setForeignTable(ExtensionInformationUtility::convertClassNameToTableName($linkedModel));
+            $this->setForeignTable($this->tcaService->convertClassNameToTableName($linkedModel));
         }
     }
 

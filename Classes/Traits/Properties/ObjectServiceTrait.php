@@ -14,18 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Exceptions;
+namespace PSB\PsbFoundation\Traits\Properties;
 
-use Exception;
+use PSB\PsbFoundation\Service\ObjectService;
 
 /**
- * Class BaseException
- * @package PSB\PsbFoundation\Exceptions
+ * Trait ObjectServiceTrait
+ *
+ * @package PSB\PsbFoundation\Traits\Properties
  */
-class BaseException extends Exception
+trait ObjectServiceTrait
 {
-    public function __toString(): string
+    /**
+     * @var ObjectService|null
+     */
+    protected ?ObjectService $objectService = null;
+
+    /**
+     * @param ObjectService $objectService
+     */
+    public function injectObjectService(ObjectService $objectService): void
     {
-        return __CLASS__ . ': [' . $this->code . ']: ' . $this->message . LF;
+        $this->objectService = $objectService;
     }
 }

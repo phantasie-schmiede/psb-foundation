@@ -209,10 +209,8 @@ class StringUtility
         switch ($variable) {
             case 'true':
                 return true;
-                break;
             case 'false':
                 return false;
-                break;
             default:
                 return $variable;
         }

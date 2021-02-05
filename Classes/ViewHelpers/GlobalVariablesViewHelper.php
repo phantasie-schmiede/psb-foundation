@@ -30,7 +30,7 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerArgument('path', 'string', 'array path separated with dots', false, null);
+        $this->registerArgument('path', 'string', 'array path separated with dots', false);
     }
 
     public function render(): void

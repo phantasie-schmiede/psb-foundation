@@ -22,6 +22,7 @@ use PSB\PsbFoundation\Utility\VariableUtility;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class GlobalVariableService
@@ -56,11 +57,20 @@ class GlobalVariableService
      * @param string|null $path
      *
      * @return mixed
+     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public static function getGlobalVariables(string $path = null)
     {
-        /** @var GlobalVariableProviderInterface $globalVariableProvider */
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
         foreach (self::$globalVariableProviders as $globalVariableProvider) {
+            $globalVariableProvider = $objectManager->get($globalVariableProvider);
+
+            if (!$globalVariableProvider instanceof GlobalVariableProviderInterface) {
+                throw new RuntimeException(__CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!',
+                    1612426722);
+            }
+
             if (false === $globalVariableProvider->isCacheable()) {
                 ArrayUtility::mergeRecursiveWithOverrule(self::$globalVariables,
                     $globalVariableProvider->getGlobalVariables());
@@ -69,7 +79,7 @@ class GlobalVariableService
 
         if (null !== $path) {
             try {
-                return VariableUtility::getValueByPath(self::$globalVariables, $path, '.');
+                return VariableUtility::getValueByPath(self::$globalVariables, $path);
             } catch (Exception $e) {
                 throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562136068);
             }
@@ -97,10 +107,10 @@ class GlobalVariableService
     /**
      * For use in ext_localconf.php
      *
-     * @param GlobalVariableProviderInterface $globalVariableProvider
+     * @param string $className
      */
-    public static function registerGlobalVariableProvider(GlobalVariableProviderInterface $globalVariableProvider): void
+    public static function registerGlobalVariableProvider(string $className): void
     {
-        self::$globalVariableProviders[] = $globalVariableProvider;
+        self::$globalVariableProviders[] = $className;
     }
 }

@@ -34,6 +34,21 @@ class TypoScriptParser implements ValueParserInterface
     public const MARKER_TYPE = 'PSB:TS';
 
     /**
+     * @var TypoScriptProviderService
+     */
+    protected TypoScriptProviderService $typoScriptProviderService;
+
+    /**
+     * TypoScriptParser constructor.
+     *
+     * @param TypoScriptProviderService $typoScriptProviderService
+     */
+    public function __construct(TypoScriptProviderService $typoScriptProviderService)
+    {
+        $this->typoScriptProviderService = $typoScriptProviderService;
+    }
+
+    /**
      * @param string|null $value
      *
      * @return mixed
@@ -42,7 +57,7 @@ class TypoScriptParser implements ValueParserInterface
     public function processValue(?string $value)
     {
         try {
-            $typoScript = TypoScriptProviderService::getTypoScriptConfiguration($value);
+            $typoScript = $this->typoScriptProviderService->getTypoScriptConfiguration($value);
         } catch (Exception $e) {
             throw new InvalidArgumentException(self::class . ': Marker ' . self::MARKER_TYPE . ' must be followed by a valid TypoScript path!',
                 1547210715);

@@ -14,24 +14,20 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\ViewHelpers;
+namespace PSB\PsbFoundation\ViewHelpers\Variable;
 
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Class MathViewHelper
  *
- * @package PSB\PsbFoundation\ViewHelpers
+ * @package PSB\PsbFoundation\ViewHelpers\Variable
  */
 class MathViewHelper extends AbstractViewHelper
 {
-    use InjectionTrait;
-
     public function initializeArguments(): void
     {
         parent::initializeArguments();
@@ -42,7 +38,6 @@ class MathViewHelper extends AbstractViewHelper
 
     /**
      * @return mixed
-     * @throws Exception
      * @throws JsonException
      */
     public function render()
@@ -59,8 +54,7 @@ class MathViewHelper extends AbstractViewHelper
         }
 
         if (!is_numeric($a) && !is_numeric($b)) {
-            throw $this->get(InvalidArgumentException::class, __CLASS__ . ': At least one argument is not numeric!',
-                1558773027);
+            throw new InvalidArgumentException(__CLASS__ . ': At least one argument is not numeric!', 1558773027);
         }
 
         switch ($this->arguments['operator']) {
@@ -75,8 +69,7 @@ class MathViewHelper extends AbstractViewHelper
             case '**':
                 return $a ** $b;
             default:
-                throw $this->get(InvalidArgumentException::class, __CLASS__ . ': Operator not allowed!',
-                    1558773161);
+                throw new InvalidArgumentException(__CLASS__ . ': Operator not allowed!', 1558773161);
         }
     }
 }

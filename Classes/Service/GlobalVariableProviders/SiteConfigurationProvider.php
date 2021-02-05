@@ -16,10 +16,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
-use PSB\PsbFoundation\Traits\InjectionTrait;
+use PSB\PsbFoundation\Traits\Properties\SiteFinderTrait;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
-use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class SiteConfigurationProvider
@@ -28,7 +26,7 @@ use TYPO3\CMS\Extbase\Object\Exception;
  */
 class SiteConfigurationProvider implements GlobalVariableProviderInterface
 {
-    use InjectionTrait;
+    use SiteFinderTrait;
 
     /**
      * @var bool
@@ -37,7 +35,6 @@ class SiteConfigurationProvider implements GlobalVariableProviderInterface
 
     /**
      * @return array
-     * @throws Exception
      * @throws SiteNotFoundException
      */
     public function getGlobalVariables(): array
@@ -49,7 +46,7 @@ class SiteConfigurationProvider implements GlobalVariableProviderInterface
             return [];
         }
 
-        $site = $this->get(SiteFinder::class)->getSiteByPageId((int)$GLOBALS['TSFE']->id);
+        $site = $this->siteFinder->getSiteByPageId((int)$GLOBALS['TSFE']->id);
         $this->setCacheable(true);
 
         return ['siteConfiguration' => $site];

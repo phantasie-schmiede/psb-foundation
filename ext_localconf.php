@@ -3,17 +3,18 @@
 defined('TYPO3_MODE') or die();
 
 (static function () {
-    $siteConfigurationProvider = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider::class);
-    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider($siteConfigurationProvider);
-    $requestParameterProvider = \PSB\PsbFoundation\Utility\ObjectUtility::get(\PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider::class);
-    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider($requestParameterProvider);
+    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider(\PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider::class);
+    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider(\PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider::class);
 
     // configure all plugins of those extensions which provide an ExtensionInformation-class and add TypoScript if missing
-    $allExtensionInformation = \PSB\PsbFoundation\Utility\ExtensionInformationUtility::getExtensionInformation();
+    $extensionInformationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\ExtensionInformationService::class);
+    $iconService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\IconService::class);
+    $registrationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\RegistrationService::class);
+    $allExtensionInformation = $extensionInformationService->getExtensionInformation();
 
     foreach ($allExtensionInformation as $extensionInformation) {
-        \PSB\PsbFoundation\Utility\Backend\IconUtility::registerIconsFromExtensionDirectory($extensionInformation->getExtensionKey());
-        \PSB\PsbFoundation\Utility\Backend\RegistrationUtility::configurePlugins($extensionInformation);
+        $iconService->registerIconsFromExtensionDirectory($extensionInformation->getExtensionKey());
+        $registrationService->configurePlugins($extensionInformation);
         \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPluginsAndModules($extensionInformation);
 
         $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/UserTS.tsconfig';
@@ -29,11 +30,6 @@ defined('TYPO3_MODE') or die();
 
     $typoScriptParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
     \PSB\PsbFoundation\Service\Configuration\FlexFormService::addValueParser($typoScriptParser);
-
-    // @TODO: may be removed because only static functions are overridden?
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Extbase\Utility\LocalizationUtility::class] = [
-        'className' => \PSB\PsbFoundation\Utility\LocalizationUtility::class,
-    ];
 
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\View\TemplateView::class]['className'] = \PSB\PsbFoundation\Views\TemplateView::class;
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\ViewHelpers\RenderViewHelper::class]['className'] = \PSB\PsbFoundation\ViewHelpers\RenderViewHelper::class;

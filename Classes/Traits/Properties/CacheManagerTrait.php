@@ -14,18 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Exceptions;
+namespace PSB\PsbFoundation\Traits\Properties;
 
-use Exception;
+use TYPO3\CMS\Core\Cache\CacheManager;
 
 /**
- * Class BaseException
- * @package PSB\PsbFoundation\Exceptions
+ * Trait CacheManagerTrait
+ *
+ * @package PSB\PsbFoundation\Traits\Properties
  */
-class BaseException extends Exception
+trait CacheManagerTrait
 {
-    public function __toString(): string
+    /**
+     * @var CacheManager
+     */
+    protected CacheManager $cacheManager;
+
+    /**
+     * @param CacheManager $cacheManager
+     */
+    public function injectCacheManager(CacheManager $cacheManager): void
     {
-        return __CLASS__ . ': [' . $this->code . ']: ' . $this->message . LF;
+        $this->cacheManager = $cacheManager;
     }
 }

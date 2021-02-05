@@ -15,22 +15,21 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Utility\Backend;
+namespace PSB\PsbFoundation\Service\Configuration;
 
 use InvalidArgumentException;
+use JsonException;
 use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
-use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\AjaxPageType;
 use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleAction;
 use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleConfig;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Service\ExtensionInformationService;
+use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
-use PSB\PsbFoundation\Utility\LocalizationUtility;
-use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
@@ -51,11 +50,11 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 /**
- * Class RegistrationUtility
+ * Class RegistrationService
  *
- * @package PSB\PsbFoundation\Utility\Backend
+ * @package PSB\PsbFoundation\Service\Configuration
  */
-class RegistrationUtility
+class RegistrationService
 {
     public const PAGE_TYPE_REGISTRATION_MODES = [
         'EXT_TABLES'   => 'ext_tables',
@@ -75,7 +74,7 @@ class RegistrationUtility
      *
      * @var string[]
      */
-    private static array $contentElementWizardGroups = [
+    private array $contentElementWizardGroups = [
         'common',
         'forms',
         'menu',
@@ -94,8 +93,9 @@ class RegistrationUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      */
-    public static function addPluginToElementWizard(
+    public function addPluginToElementWizard(
         string $extensionKey,
         string $group,
         string $pluginName,
@@ -107,18 +107,19 @@ class RegistrationUtility
         $description = $ll . '.description';
         $title = $ll . '.title';
         $listType = str_replace('_', '', $extensionKey) . '_' . mb_strtolower($pluginName);
+        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
-        if (false === LocalizationUtility::translationExists($description)) {
+        if (false === $localizationService->translationExists($description)) {
             $description = '';
         }
 
-        if (false === LocalizationUtility::translationExists($title)) {
+        if (false === $localizationService->translationExists($title)) {
             $title = $pluginName;
         }
 
         $configuration = [
             'description'          => $description,
-            'iconIdentifier'       => ObjectUtility::get(IconRegistry::class)
+            'iconIdentifier'       => GeneralUtility::makeInstance(IconRegistry::class)
                 ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
             'title'                => $title,
             'tt_content_defValues' => [
@@ -127,7 +128,7 @@ class RegistrationUtility
             ],
         ];
 
-        self::addElementWizardItem($configuration, $extensionKey, $group, $listType);
+        $this->addElementWizardItem($configuration, $extensionKey, $group, $listType);
     }
 
     /**
@@ -142,18 +143,21 @@ class RegistrationUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      */
-    public static function configureContentType(
+    public function configureContentType(
         string $contentType,
         string $extensionKey,
         string $group,
         string $iconIdentifier = null,
         string $templatePath = null
     ): void {
-        $internalContentType = self::buildContentTypeKey($extensionKey, $contentType);
+        $internalContentType = $this->buildContentTypeKey($extensionKey, $contentType);
         $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . $contentType;
-        LocalizationUtility::translationExists($ll . '.description');
-        LocalizationUtility::translationExists($ll . '.title');
+
+        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
+        $localizationService->translationExists($ll . '.description');
+        $localizationService->translationExists($ll . '.title');
 
         $configuration = [
             'description'          => $ll . '.description',
@@ -164,7 +168,7 @@ class RegistrationUtility
             ],
         ];
 
-        self::addElementWizardItem($configuration, $extensionKey, $group, $internalContentType);
+        $this->addElementWizardItem($configuration, $extensionKey, $group, $internalContentType);
 
         $directory = 'EXT:' . $extensionKey . '/Resources/Private/Templates/Content/';
         $fileName = GeneralUtility::underscoredToUpperCamelCase($contentType) . '.html';
@@ -188,12 +192,14 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @throws AnnotationException
      * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ReflectionException
      */
-    public static function configurePlugins(ExtensionInformationInterface $extensionInformation): void
+    public function configurePlugins(ExtensionInformationInterface $extensionInformation): void
     {
         if (is_iterable($extensionInformation->getPlugins())) {
             foreach ($extensionInformation->getPlugins() as $pluginName => $controllerClassNames) {
@@ -202,7 +208,7 @@ class RegistrationUtility
                         $pluginConfiguration,
                         $controllersAndCachedActions,
                         $controllersAndUncachedActions,
-                    ] = self::collectActionsAndConfiguration($controllerClassNames,
+                    ] = $this->collectActionsAndConfiguration($controllerClassNames,
                         self::COLLECT_MODES['CONFIGURE_PLUGINS'], $pluginName);
 
                     ExtensionUtility::configurePlugin(
@@ -219,7 +225,7 @@ class RegistrationUtility
                         $iconIdentifier = $pluginConfig->getIconIdentifier();
                     }
 
-                    self::addPluginToElementWizard($extensionInformation->getExtensionKey(),
+                    $this->addPluginToElementWizard($extensionInformation->getExtensionKey(),
                         $group ?? mb_strtolower($extensionInformation->getVendorName()),
                         $pluginName,
                         $iconIdentifier ?? null);
@@ -242,8 +248,9 @@ class RegistrationUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      */
-    public static function registerContentType(
+    public function registerContentType(
         string $extensionKey,
         string $group,
         string $key,
@@ -255,11 +262,12 @@ class RegistrationUtility
             throw new RuntimeException(__CLASS__ . ': TCA is not available yet!', 1553261710);
         }
 
-        $internalKey = self::buildContentTypeKey($extensionKey, $key);
+        $internalKey = $this->buildContentTypeKey($extensionKey, $key);
+        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
         if (null === $title) {
             $title = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
-            LocalizationUtility::translationExists($title);
+            $localizationService->translationExists($title);
         }
 
         ExtensionManagementUtility::addPlugin(
@@ -317,7 +325,7 @@ class RegistrationUtility
                 $groupKey = $groupLabels[$groupKey];
             } else {
                 $groupKey = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $groupKey . '.header';
-                LocalizationUtility::translationExists($groupKey);
+                $localizationService->translationExists($groupKey);
             }
 
             $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'][] = [
@@ -383,62 +391,66 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @throws AnnotationException
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ReflectionException
      */
-    public static function registerModules(ExtensionInformationInterface $extensionInformation): void
+    public function registerModules(ExtensionInformationInterface $extensionInformation): void
     {
-        if ('BE' === TYPO3_MODE && is_iterable($extensionInformation->getModules())) {
-            foreach ($extensionInformation->getModules() as $submoduleKey => $controllerClassNames) {
-                if (is_iterable($controllerClassNames)) {
-                    [
-                        $moduleConfiguration,
-                        $controllersAndActions,
-                    ] = self::collectActionsAndConfiguration($controllerClassNames,
-                        self::COLLECT_MODES['REGISTER_MODULES']);
+        if ('BE' !== TYPO3_MODE || !is_iterable($extensionInformation->getModules())) {
+            return;
+        }
 
-                    if (isset($moduleConfiguration[ModuleConfig::class])) {
-                        /** @var ModuleConfig $moduleConfig */
-                        $moduleConfig = $moduleConfiguration[ModuleConfig::class];
-                        $iconIdentifier = $moduleConfig->getIconIdentifier();
-                        $mainModuleName = $moduleConfig->getMainModuleName();
-                        $position = $moduleConfig->getPosition();
-                        $access = $moduleConfig->getAccess();
-                        $icon = $moduleConfig->getIcon();
-                        $labels = $moduleConfig->getLabels();
-                        $navigationComponentId = $moduleConfig->getNavigationComponentId();
-                    }
+        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
-                    $iconIdentifier = $iconIdentifier ?? 'module-' . $submoduleKey;
+        foreach ($extensionInformation->getModules() as $submoduleKey => $controllerClassNames) {
+            if (is_iterable($controllerClassNames)) {
+                [
+                    $moduleConfiguration,
+                    $controllersAndActions,
+                ] = $this->collectActionsAndConfiguration($controllerClassNames,
+                    self::COLLECT_MODES['REGISTER_MODULES']);
 
-                    if (!isset($labels)) {
-                        $labels = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf';
-                    }
-
-                    LocalizationUtility::translationExists($labels . ':mlang_labels_tabdescr');
-                    LocalizationUtility::translationExists($labels . ':mlang_labels_tablabel');
-                    LocalizationUtility::translationExists($labels . ':mlang_tabs_tab');
-
-                    ExtensionUtility::registerModule(
-                        $extensionInformation->getExtensionName(),
-                        $mainModuleName ?? 'web',
-                        $submoduleKey,
-                        $position ?? '',
-                        $controllersAndActions,
-                        [
-                            'access'                => $access ?? 'group, user',
-                            'icon'                  => $icon ?? null,
-                            'iconIdentifier'        => GeneralUtility::makeInstance(IconRegistry::class)
-                                ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-                            'labels'                => $labels,
-                            'navigationComponentId' => $navigationComponentId ?? null,
-                        ]
-                    );
+                if (isset($moduleConfiguration[ModuleConfig::class])) {
+                    /** @var ModuleConfig $moduleConfig */
+                    $moduleConfig = $moduleConfiguration[ModuleConfig::class];
+                    $iconIdentifier = $moduleConfig->getIconIdentifier();
+                    $mainModuleName = $moduleConfig->getMainModuleName();
+                    $position = $moduleConfig->getPosition();
+                    $access = $moduleConfig->getAccess();
+                    $icon = $moduleConfig->getIcon();
+                    $labels = $moduleConfig->getLabels();
+                    $navigationComponentId = $moduleConfig->getNavigationComponentId();
                 }
+
+                $iconIdentifier = $iconIdentifier ?? 'module-' . $submoduleKey;
+
+                if (!isset($labels)) {
+                    $labels = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf';
+                }
+
+                $localizationService->translationExists($labels . ':mlang_labels_tabdescr');
+                $localizationService->translationExists($labels . ':mlang_labels_tablabel');
+                $localizationService->translationExists($labels . ':mlang_tabs_tab');
+
+                ExtensionUtility::registerModule(
+                    $extensionInformation->getExtensionName(),
+                    $mainModuleName ?? 'web',
+                    $submoduleKey,
+                    $position ?? '',
+                    $controllersAndActions,
+                    [
+                        'access'                => $access ?? 'group, user',
+                        'icon'                  => $icon ?? null,
+                        'iconIdentifier'        => GeneralUtility::makeInstance(IconRegistry::class)
+                            ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
+                        'labels'                => $labels,
+                        'navigationComponentId' => $navigationComponentId ?? null,
+                    ]
+                );
             }
         }
     }
@@ -450,8 +462,9 @@ class RegistrationUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      */
-    public static function registerPageTypes(ExtensionInformationInterface $extensionInformation, string $mode): void
+    public function registerPageTypes(ExtensionInformationInterface $extensionInformation, string $mode): void
     {
         ValidationUtility::checkValueAgainstConstant(self::PAGE_TYPE_REGISTRATION_MODES, $mode);
         $pageTypes = $extensionInformation->getPageTypes();
@@ -462,10 +475,10 @@ class RegistrationUtility
 
         foreach ($pageTypes as $doktype => $configuration) {
             if (self::PAGE_TYPE_REGISTRATION_MODES['EXT_TABLES'] === $mode) {
-                self::addPageTypeToGlobals($doktype, $configuration['allowedTables'] ?? ['*'],
+                $this->addPageTypeToGlobals($doktype, $configuration['allowedTables'] ?? ['*'],
                     $configuration['type'] ?? 'web');
             } else {
-                self::addPageTypeToPagesTca($doktype, $extensionInformation->getExtensionKey(),
+                $this->addPageTypeToPagesTca($doktype, $extensionInformation->getExtensionKey(),
                     $configuration['iconIdentifier'] ?? ('pageType-' . $configuration['name']), $configuration['name']);
             }
         }
@@ -476,46 +489,50 @@ class RegistrationUtility
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @throws AnnotationException
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ReflectionException
      */
-    public static function registerPlugins(ExtensionInformationInterface $extensionInformation): void
+    public function registerPlugins(ExtensionInformationInterface $extensionInformation): void
     {
-        if (is_iterable($extensionInformation->getPlugins())) {
-            foreach ($extensionInformation->getPlugins() as $pluginName => $controllerClassNames) {
-                if (is_iterable($controllerClassNames)) {
-                    [$pluginConfiguration] = self::collectActionsAndConfiguration($controllerClassNames,
-                        self::COLLECT_MODES['REGISTER_PLUGINS']);
+        if (!is_iterable($extensionInformation->getPlugins())) {
+            return;
+        }
 
-                    if (isset($pluginConfiguration[PluginConfig::class])) {
-                        /** @var PluginConfig $pluginConfig */
-                        $pluginConfig = $pluginConfiguration[PluginConfig::class];
-                        $title = $pluginConfig->getTitle();
-                    }
+        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
-                    if (!isset($title) || null === $title) {
-                        $title = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title';
-                        LocalizationUtility::translationExists($title);
-                    }
+        foreach ($extensionInformation->getPlugins() as $pluginName => $controllerClassNames) {
+            if (is_iterable($controllerClassNames)) {
+                [$pluginConfiguration] = $this->collectActionsAndConfiguration($controllerClassNames,
+                    self::COLLECT_MODES['REGISTER_PLUGINS']);
 
-                    $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
-                            GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
-
-                    ExtensionUtility::registerPlugin(
-                        $extensionInformation->getExtensionName(),
-                        $pluginName,
-                        $title,
-                        ObjectUtility::get(IconRegistry::class)
-                            ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
-                    );
+                if (isset($pluginConfiguration[PluginConfig::class])) {
+                    /** @var PluginConfig $pluginConfig */
+                    $pluginConfig = $pluginConfiguration[PluginConfig::class];
+                    $title = $pluginConfig->getTitle();
                 }
 
-                unset ($title);
+                if (!isset($title)) {
+                    $title = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title';
+                    $localizationService->translationExists($title);
+                }
+
+                $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
+                        GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
+
+                ExtensionUtility::registerPlugin(
+                    $extensionInformation->getExtensionName(),
+                    $pluginName,
+                    $title,
+                    GeneralUtility::makeInstance(IconRegistry::class)
+                        ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
+                );
             }
+
+            unset ($title);
         }
     }
 
@@ -526,18 +543,19 @@ class RegistrationUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      */
-    private static function addElementWizardGroup(string $extensionKey, string $key): void
+    private function addElementWizardGroup(string $extensionKey, string $key): void
     {
         $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $key . '.header';
-        LocalizationUtility::translationExists($header);
+        GeneralUtility::makeInstance(LocalizationService::class)->translationExists($header);
         $pageTS['mod']['wizards']['newContentElement']['wizardItems'][$key] = [
             'header' => $header,
             'show'   => '*',
         ];
 
         ExtensionManagementUtility::addPageTSConfig(TypoScriptUtility::convertArrayToTypoScript($pageTS));
-        self::$contentElementWizardGroups[] = $key;
+        $this->contentElementWizardGroups[] = $key;
     }
 
     /**
@@ -549,15 +567,16 @@ class RegistrationUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      */
-    private static function addElementWizardItem(
+    private function addElementWizardItem(
         array $configuration,
         string $extensionKey,
         string $group,
         string $key
     ): void {
-        if (!in_array($group, self::$contentElementWizardGroups, true)) {
-            self::addElementWizardGroup($extensionKey, $group);
+        if (!in_array($group, $this->contentElementWizardGroups, true)) {
+            $this->addElementWizardGroup($extensionKey, $group);
         }
 
         $newPageTS['mod']['wizards']['newContentElement']['wizardItems'][$group]['elements'][$key] = $configuration;
@@ -569,7 +588,7 @@ class RegistrationUtility
      * @param array|string[] $allowedTables
      * @param string         $type
      */
-    private static function addPageTypeToGlobals(int $doktype, array $allowedTables = ['*'], string $type = 'web'): void
+    private function addPageTypeToGlobals(int $doktype, array $allowedTables = ['*'], string $type = 'web'): void
     {
         // Add new page type:
         $GLOBALS['PAGES_TYPES'][$doktype] = [
@@ -592,8 +611,9 @@ class RegistrationUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      */
-    private static function addPageTypeToPagesTca(
+    private function addPageTypeToPagesTca(
         int $doktype,
         string $extensionKey,
         string $iconIdentifier,
@@ -601,7 +621,7 @@ class RegistrationUtility
     ): void {
         $table = 'pages';
         $label = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.' . $name;
-        LocalizationUtility::translationExists($label);
+        GeneralUtility::makeInstance(LocalizationService::class)->translationExists($label);
 
         // Add new page type as possible select item:
         ExtensionManagementUtility::addTcaSelectItem(
@@ -641,7 +661,7 @@ class RegistrationUtility
      *
      * @return string
      */
-    private static function buildContentTypeKey(string $extensionKey, string $contentType): string
+    private function buildContentTypeKey(string $extensionKey, string $contentType): string
     {
         return mb_strtolower(str_replace('_', '', $extensionKey) . '_' . $contentType);
     }
@@ -652,12 +672,11 @@ class RegistrationUtility
      * @param string $pluginName
      *
      * @return array
-     * @throws AnnotationException
-     * @throws Exception
      * @throws InvalidArgumentForHashGenerationException
+     * @throws JsonException
      * @throws ReflectionException
      */
-    private static function collectActionsAndConfiguration(
+    private function collectActionsAndConfiguration(
         array $controllerClassNames,
         string $collectMode,
         string $pluginName = ''
@@ -665,13 +684,14 @@ class RegistrationUtility
         $configuration = [];
         $controllersAndCachedActions = [];
         $controllersAndUncachedActions = [];
-        $docCommentParserService = ObjectUtility::get(DocCommentParserService::class);
+        $docCommentParserService = GeneralUtility::makeInstance(DocCommentParserService::class);
+        $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
 
         foreach ($controllerClassNames as $controllerClassName) {
             $controllersAndCachedActions[$controllerClassName] = [];
 
             if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
-                $controller = ObjectUtility::get(ReflectionClass::class, $controllerClassName);
+                $controller = GeneralUtility::makeInstance(ReflectionClass::class, $controllerClassName);
                 $methods = $controller->getMethods();
 
                 foreach ($methods as $method) {
@@ -721,14 +741,14 @@ class RegistrationUtility
                         }
 
                         if (isset($docComment[AjaxPageType::class])) {
-                            $extensionInformation = ExtensionInformationUtility::extractExtensionInformationFromClassName($controllerClassName);
+                            $extensionInformation = $extensionInformationService->extractExtensionInformationFromClassName($controllerClassName);
                             /** @var AjaxPageType $ajaxPageType */
                             $ajaxPageType = $docComment[AjaxPageType::class];
-                            $pageObjectConfiguration = ObjectUtility::get(PageObjectConfiguration::class);
+                            $pageObjectConfiguration = GeneralUtility::makeInstance(PageObjectConfiguration::class);
                             $pageObjectConfiguration->setAction($actionName);
                             $pageObjectConfiguration->setCacheable($ajaxPageType->isCacheable());
                             $pageObjectConfiguration->setContentType($ajaxPageType->getContentType());
-                            $controllerName = ExtensionInformationUtility::convertControllerClassToBaseName($controllerClassName);
+                            $controllerName = $extensionInformationService->convertControllerClassToBaseName($controllerClassName);
                             $pageObjectConfiguration->setController($controllerName);
                             $pageObjectConfiguration->setDisableAllHeaderCode($ajaxPageType->isDisableAllHeaderCode());
                             $pageObjectConfiguration->setExtensionName($extensionInformation['extensionName']);
@@ -770,16 +790,12 @@ class RegistrationUtility
         switch ($collectMode) {
             case self::COLLECT_MODES['CONFIGURE_PLUGINS']:
                 return [$configuration, $controllersAndCachedActions, $controllersAndUncachedActions];
-                break;
             case self::COLLECT_MODES['REGISTER_MODULES']:
                 return [$configuration, $controllersAndCachedActions];
-                break;
             case self::COLLECT_MODES['REGISTER_PLUGINS']:
                 return [$configuration];
-                break;
             default:
-                throw ObjectUtility::get(InvalidArgumentException::class,
-                    __CLASS__ . ': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "' . $collectMode . '"!',
+                throw new InvalidArgumentException(__CLASS__ . ': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "' . $collectMode . '"!',
                     1559627862);
         }
     }

@@ -16,19 +16,10 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility;
 
-use PSB\PsbFoundation\Exceptions\AnnotationException;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Mm;
-use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
-use RuntimeException;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class ObjectUtility
@@ -38,22 +29,6 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
 class ObjectUtility
 {
     public const NAMESPACE_FALLBACK_KEY = '__fallback';
-
-    /**
-     * @param string $className
-     * @param array  $arguments
-     *
-     * @return object
-     * @throws Exception
-     */
-    public static function get(string $className, ...$arguments): object
-    {
-        if (GeneralUtility::getContainer()->get('boot.state')->done) {
-            return GeneralUtility::makeInstance(ObjectManager::class)->get($className, ...$arguments);
-        }
-
-        return GeneralUtility::makeInstance($className, ...$arguments);
-    }
 
     /**
      * @param string $className
@@ -82,64 +57,6 @@ class ObjectUtility
         }
 
         return false;
-    }
-
-    /**
-     * @param AbstractDomainObject $object
-     * @param string               $property
-     *
-     * @return array
-     * @throws AnnotationException
-     * @throws Exception
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws ReflectionException
-     */
-    public static function resolveMultipleMmRelation(AbstractDomainObject $object, string $property): array
-    {
-        $docCommentParser = self::get(DocCommentParserService::class);
-        $docComment = $docCommentParser->parsePhpDocComment($object, $property);
-
-        if (!isset($docComment[Mm::class])) {
-            throw new RuntimeException(__CLASS__ . ': The property "' . $property . '" of object "' . get_class($object) . '" is not of TCA type mm!',
-                1584867595);
-        }
-
-        // Store each ObjectStorage element by uid.
-        $reflectionClass = GeneralUtility::makeInstance(\ReflectionClass::class, $object);
-        $reflectionProperty = $reflectionClass->getProperty($property);
-        $reflectionProperty->setAccessible(true);
-        $objectStorageElements = $reflectionProperty->getValue($object);
-        $objectStorageElementsByUid = [];
-
-        /** @var AbstractDomainObject $element */
-        foreach ($objectStorageElements as $element) {
-            $objectStorageElementsByUid[$element->getUid()] = $element;
-        }
-
-        // Get all mm-relation entries.
-        /** @var Mm $mm */
-        $mm = $docComment[Mm::class];
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable($mm->getMm());
-        $statement = $queryBuilder
-            ->select('uid_foreign')
-            ->from($mm->getMm())
-            ->where(
-                $queryBuilder->expr()
-                    ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid()))
-            )
-            ->orderBy('sorting')
-            ->execute();
-
-        // Create a complete collection by using the ordered items of the mm-table by replacing the foreign uid with the
-        // concrete object.
-        $completeElements = [];
-
-        while ($row = $statement->fetch()) {
-            $completeElements[] = $objectStorageElementsByUid[$row['uid_foreign']];
-        }
-
-        return $completeElements;
     }
 
     /**

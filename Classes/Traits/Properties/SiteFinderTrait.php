@@ -14,18 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Exceptions;
+namespace PSB\PsbFoundation\Traits\Properties;
 
-use Exception;
+use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
- * Class BaseException
- * @package PSB\PsbFoundation\Exceptions
+ * Trait SiteFinderTrait
+ *
+ * @package PSB\PsbFoundation\Traits\Properties
  */
-class BaseException extends Exception
+trait SiteFinderTrait
 {
-    public function __toString(): string
+    /**
+     * @var SiteFinder
+     */
+    protected SiteFinder $siteFinder;
+
+    /**
+     * @param SiteFinder $siteFinder
+     */
+    public function injectSiteFinder(SiteFinder $siteFinder): void
     {
-        return __CLASS__ . ': [' . $this->code . ']: ' . $this->message . LF;
+        $this->siteFinder = $siteFinder;
     }
 }

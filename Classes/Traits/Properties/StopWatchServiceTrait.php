@@ -14,26 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits;
+namespace PSB\PsbFoundation\Traits\Properties;
 
-use PSB\PsbFoundation\Utility\ObjectUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
+use PSB\PsbFoundation\Service\Debug\StopWatchService;
 
 /**
- * Trait InjectionTrait
- * @package PSB\PsbFoundation\Traits
+ * Trait StopWatchServiceTrait
+ *
+ * @package PSB\PsbFoundation\Traits\Properties
  */
-trait InjectionTrait
+trait StopWatchServiceTrait
 {
     /**
-     * @param string $className
-     * @param mixed  ...$arguments
-     *
-     * @return object
-     * @throws Exception
+     * @var StopWatchService
      */
-    protected function get(string $className, ...$arguments): object
+    protected StopWatchService $stopWatchService;
+
+    /**
+     * @param StopWatchService $stopWatchService
+     */
+    public function injectStopWatchService(StopWatchService $stopWatchService): void
     {
-        return ObjectUtility::get($className, ...$arguments);
+        $this->stopWatchService = $stopWatchService;
     }
 }

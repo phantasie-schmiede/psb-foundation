@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
-use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
@@ -110,7 +110,7 @@ class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
             ], $this->getAllowedFileTypes());
 
         foreach ($properties as $key => $value) {
-            $key = TcaService::convertKey($key);
+            $key = TcaUtility::convertKey($key);
 
             if (in_array($key, ['displayCond', 'exclude', 'label'], true)) {
                 $fieldConfiguration[$key] = $value;

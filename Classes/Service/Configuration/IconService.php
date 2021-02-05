@@ -14,41 +14,36 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Utility\Backend;
+namespace PSB\PsbFoundation\Service\Configuration;
 
-use PSB\PsbFoundation\Utility\ObjectUtility;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
- * Class IconUtility
+ * Class IconService
  *
- * @package PSB\PsbFoundation\Utility\Backend
+ * @package PSB\PsbFoundation\Service\Configuration
  */
-class IconUtility
+class IconService
 {
     /**
-     * For use in ext_tables.php files
+     * For use in ext_localconf.php files
      *
      * @param string $extensionKey
      * @param array  $iconNames
      * @param string $path
-     *
-     * @throws Exception
      */
-    public static function registerIconsFromExtensionDirectory(
+    public function registerIconsFromExtensionDirectory(
         string $extensionKey,
         array $iconNames = [],
         string $path = 'Resources/Public/Icons'
     ): void {
         $path = GeneralUtility::getFileAbsFileName('EXT:' . $extensionKey . '/' . trim($path, '/'));
         $iconFiles = GeneralUtility::getFilesInDir($path, 'svg', true, '', 'Extension.*');
+        $iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
 
         if (is_iterable($iconFiles)) {
-            $iconRegistry = ObjectUtility::get(IconRegistry::class);
-
             foreach ($iconFiles as $iconFile) {
                 $fileName = pathinfo($iconFile, PATHINFO_FILENAME);
 

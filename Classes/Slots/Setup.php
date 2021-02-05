@@ -16,29 +16,30 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Slots;
 
-use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
-use PSB\PsbFoundation\Utility\ObjectUtility;
+use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Traits\Properties\ExtensionInformationTrait;
+use PSB\PsbFoundation\Traits\Properties\ObjectServiceTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class Setup
+ *
  * @package PSB\PsbFoundation\Slots
  */
 class Setup
 {
+    use ExtensionInformationTrait, ExtensionInformationServiceTrait, ObjectServiceTrait;
+
     /**
      * @param string $extensionKey
      *
      * @throws ImplementationException
-     * @throws Exception
      */
     public function onInstall(string $extensionKey): void
     {
         $fileName = GeneralUtility::getFileAbsFileName('EXT:' . $extensionKey . '/Classes/Data/ExtensionInformation.php');
-        $vendorName = ExtensionInformationUtility::extractVendorNameFromFile($fileName);
+        $vendorName = $this->extensionInformationService->extractVendorNameFromFile($fileName);
 
         if (null !== $vendorName) {
             $extensionInformationClassName = implode('\\', [
@@ -46,27 +47,22 @@ class Setup
                 GeneralUtility::underscoredToUpperCamelCase($extensionKey),
                 'Data\ExtensionInformation',
             ]);
-            ExtensionInformationUtility::register($extensionInformationClassName, $extensionKey);
+            $this->extensionInformationService->register($extensionInformationClassName, $extensionKey);
         }
 
-        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
-
-        if ($extensionInformation->getExtensionKey() !== $extensionKey) {
+        if ($this->extensionInformation->getExtensionKey() !== $extensionKey) {
             return;
         }
     }
 
     /**
      * @param string $extensionKey
-     *
-     * @throws Exception
      */
     public function onUninstall(string $extensionKey): void
     {
-        ExtensionInformationUtility::deregister($extensionKey);
-        $extensionInformation = ObjectUtility::get(ExtensionInformation::class);
+        $this->extensionInformationService->deregister($extensionKey);
 
-        if ($extensionInformation->getExtensionKey() !== $extensionKey) {
+        if ($this->extensionInformation->getExtensionKey() !== $extensionKey) {
             return;
         }
     }

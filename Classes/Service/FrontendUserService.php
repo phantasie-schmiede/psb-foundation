@@ -14,41 +14,46 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Utility;
+namespace PSB\PsbFoundation\Service;
 
+use PSB\PsbFoundation\Traits\Properties\FrontendUserRepositoryTrait;
 use TYPO3\CMS\Core\Context\Context;
-use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
-use TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository;
 use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
- * Class FrontendUserUtility
+ * Class FrontendUserService
  *
- * @package PSB\PsbFoundation\Utility
+ * @package PSB\PsbFoundation\Service
  */
-class FrontendUserUtility
+class FrontendUserService
 {
+    use FrontendUserRepositoryTrait;
+
     /**
      * @return FrontendUser|null
-     * @throws AspectNotFoundException
      * @throws AspectPropertyNotFoundException
      * @throws Exception
      */
-    public static function getCurrentUser(): ?FrontendUser
+    public function getCurrentUser(): ?FrontendUser
     {
-        return ObjectUtility::get(FrontendUserRepository::class)->findByUid(self::getCurrentUserId());
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->frontendUserRepository->findByUid($this->getCurrentUserId());
     }
 
     /**
      * @return int
-     * @throws AspectNotFoundException
      * @throws AspectPropertyNotFoundException
      * @throws Exception
      */
-    public static function getCurrentUserId(): int
+    public function getCurrentUserId(): int
     {
-        return ObjectUtility::get(Context::class)->getAspect('frontend.user')->get('id');
+        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $context = $objectManager->get(Context::class);
+
+        return $context->getAspect('frontend.user')->get('id');
     }
 }

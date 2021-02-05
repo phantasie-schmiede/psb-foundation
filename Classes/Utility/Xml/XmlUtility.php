@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility\Xml;
 
 use JsonException;
-use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use RuntimeException;
 use SimpleXMLElement;
@@ -223,7 +222,7 @@ class XmlUtility
                 }
 
                 if (isset($mapping[$childTagName])) {
-                    $parsedChild = ObjectUtility::get($mapping[$childTagName], $parsedChild);
+                    $parsedChild = GeneralUtility::makeInstance($mapping[$childTagName], $parsedChild);
                 }
 
                 if ($parsedChild instanceof XmlElementInterface) {
@@ -253,7 +252,7 @@ class XmlUtility
             $rootName = $xml->getName();
 
             if (isset($mapping[$rootName])) {
-                return ObjectUtility::get($mapping[$rootName], $array);
+                return GeneralUtility::makeInstance($mapping[$rootName], $array);
             }
 
             return [$xml->getName() => $array];

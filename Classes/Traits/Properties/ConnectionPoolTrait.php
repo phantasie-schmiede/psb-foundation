@@ -14,18 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Exceptions;
+namespace PSB\PsbFoundation\Traits\Properties;
 
-use Exception;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * Class BaseException
- * @package PSB\PsbFoundation\Exceptions
+ * Trait ConnectionPoolTrait
+ *
+ * @package PSB\PsbFoundation\Traits\Properties
  */
-class BaseException extends Exception
+trait ConnectionPoolTrait
 {
-    public function __toString(): string
+    /**
+     * @var ConnectionPool
+     */
+    protected ConnectionPool $connectionPool;
+
+    /**
+     * @param ConnectionPool $connectionPool
+     */
+    public function injectConnectionPool(ConnectionPool $connectionPool): void
     {
-        return __CLASS__ . ': [' . $this->code . ']: ' . $this->message . LF;
+        $this->connectionPool = $connectionPool;
     }
 }

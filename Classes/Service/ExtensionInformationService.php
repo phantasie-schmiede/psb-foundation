@@ -14,12 +14,13 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Utility;
+namespace PSB\PsbFoundation\Service;
 
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
+use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
@@ -28,60 +29,34 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
-use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 
 /**
- * Class ExtensionInformationUtility
+ * Class ExtensionInformationService
  *
- * @package PSB\PsbFoundation\Utility
+ * @package PSB\PsbFoundation\Service
  */
-class ExtensionInformationUtility
+class ExtensionInformationService
 {
     private const EXTENSION_INFORMATION_MAPPING_TABLE = 'tx_psbfoundation_extension_information_mapping';
-
-    /**
-     * @var ClassesConfiguration|null
-     */
-    protected static ?ClassesConfiguration $classesConfiguration = null;
-
-    /**
-     * @return ClassesConfiguration
-     * @throws Exception
-     */
-    public static function getClassesConfiguration(): ClassesConfiguration
-    {
-        if (!empty(self::$classesConfiguration)) {
-            return self::$classesConfiguration;
-        }
-
-        // @TODO: Cache the mapping information for this early stage (CacheManager not available)!
-        self::$classesConfiguration = ObjectUtility::get(ClassesConfigurationFactory::class)
-            ->createClassesConfiguration();
-
-        return self::$classesConfiguration;
-    }
 
     /**
      * @param ExtensionInformationInterface $extensionInformation
      * @param string                        $path
      *
      * @return mixed
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
-    public static function getConfiguration(
+    public function getConfiguration(
         ExtensionInformationInterface $extensionInformation,
         string $path = ''
     ) {
         $path = str_replace('.', '/', $path);
-        $extensionConfiguration = ObjectUtility::get(ExtensionConfiguration::class)
+        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class)
             ->get($extensionInformation->getExtensionKey(), $path);
 
         if (is_array($extensionConfiguration)) {
-            return ObjectUtility::get(TypoScriptService::class)
+            return GeneralUtility::makeInstance(TypoScriptService::class)
                 ->convertTypoScriptArrayToPlainArray($extensionConfiguration);
         }
 
@@ -90,16 +65,15 @@ class ExtensionInformationUtility
 
     /**
      * @return ExtensionInformationInterface[]
-     * @throws Exception
      */
-    public static function getExtensionInformation(): array
+    public function getExtensionInformation(): array
     {
-        $extensionInformation = self::getRegisteredClassInformation();
+        $extensionInformation = $this->getRegisteredClassInformation();
         $extensionInformationInstances = [];
 
         foreach ($extensionInformation as $information) {
             if (!ExtensionManagementUtility::isLoaded($information['extension_key'])) {
-                self::deregister($information['extension_key']);
+                $this->deregister($information['extension_key']);
                 continue;
             }
 
@@ -116,15 +90,15 @@ class ExtensionInformationUtility
      *
      * @return string
      */
-    public static function getLanguageFilePath(string $extensionKey): string
+    public function getLanguageFilePath(string $extensionKey): string
     {
-        return self::getResourcePath($extensionKey) . 'Private/Language/';
+        return $this->getResourcePath($extensionKey) . 'Private/Language/';
     }
 
     /**
      * @return array
      */
-    public static function getRegisteredClassInformation(): array
+    public function getRegisteredClassInformation(): array
     {
         try {
             return GeneralUtility::makeInstance(ConnectionPool::class)
@@ -141,7 +115,7 @@ class ExtensionInformationUtility
      *
      * @return string
      */
-    public static function getResourcePath(string $extensionKey): string
+    public function getResourcePath(string $extensionKey): string
     {
         $subDirectoryPath = '/' . $extensionKey . '/Resources/';
         $resourcePath = Environment::getExtensionsPath() . $subDirectoryPath;
@@ -154,37 +128,12 @@ class ExtensionInformationUtility
     }
 
     /**
-     * TYPO3's DataMapper can't be used here as it would create an incomplete class information cache due to the early
-     * stage in which this function gets called!
-     *
-     * @param string $className
-     *
-     * @return string
-     * @throws Exception
-     */
-    public static function convertClassNameToTableName(string $className): string
-    {
-        $classesConfiguration = self::getClassesConfiguration();
-
-        if ($classesConfiguration->hasClass($className)) {
-            return $classesConfiguration->getConfigurationFor($className)['tableName'];
-        }
-
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        // overwrite vendor name with extension prefix
-        $classNameParts[0] = 'tx';
-
-        return strtolower(implode('_', $classNameParts));
-    }
-
-    /**
      * @param string $className
      *
      * @return string The controller name (without the 'Controller'-part at the end) or respectively the name of the
      *                related domain model
      */
-    public static function convertControllerClassToBaseName(string $className): string
+    public function convertControllerClassToBaseName(string $className): string
     {
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
 
@@ -205,37 +154,11 @@ class ExtensionInformationUtility
     }
 
     /**
-     * @param string      $propertyName
-     * @param string|null $className
-     *
-     * @return string
-     * @throws Exception
-     */
-    public static function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
-    {
-        if (null !== $className) {
-            $classesConfiguration = self::getClassesConfiguration();
-
-            if ($classesConfiguration->hasClass($className)) {
-                $configuration = $classesConfiguration->getConfigurationFor($className);
-
-                if (isset($configuration['properties'][$propertyName])) {
-                    return $configuration['properties'][$propertyName]['fieldName'];
-                }
-            }
-        }
-
-        return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
-    }
-
-    /**
      * @param string $extensionKey
-     *
-     * @throws Exception
      */
-    public static function deregister(string $extensionKey): void
+    public function deregister(string $extensionKey): void
     {
-        ObjectUtility::get(ConnectionPool::class)
+        GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
             ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
     }
@@ -245,7 +168,7 @@ class ExtensionInformationUtility
      *
      * @return array
      */
-    public static function extractExtensionInformationFromClassName(string $className): array
+    public function extractExtensionInformationFromClassName(string $className): array
     {
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
 
@@ -266,7 +189,7 @@ class ExtensionInformationUtility
      *
      * @return string|null
      */
-    public static function extractVendorNameFromFile(string $fileName): ?string
+    public function extractVendorNameFromFile(string $fileName): ?string
     {
         $vendorName = null;
 
@@ -291,17 +214,16 @@ class ExtensionInformationUtility
      *                          \PSB\PsbFoundation\Data\AbstractExtensionInformation)
      * @param string $extensionKey
      *
-     * @throws Exception
      * @throws ImplementationException
      */
-    public static function register(
+    public function register(
         string $className,
         string $extensionKey
     ): void {
-        self::validateExtensionInformationClass($className);
-        self::validateExtensionKey($extensionKey);
+        $this->validateExtensionInformationClass($className);
+        $this->validateExtensionKey($extensionKey);
 
-        ObjectUtility::get(ConnectionPool::class)
+        GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
             ->insert(self::EXTENSION_INFORMATION_MAPPING_TABLE,
                 [
@@ -316,7 +238,7 @@ class ExtensionInformationUtility
      *
      * @throws ImplementationException
      */
-    private static function validateExtensionInformationClass(string $className): void
+    private function validateExtensionInformationClass(string $className): void
     {
         if (!in_array(ExtensionInformationInterface::class, class_implements($className), true)) {
             throw new ImplementationException(__CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
@@ -329,7 +251,7 @@ class ExtensionInformationUtility
      *
      * @throws ImplementationException
      */
-    private static function validateExtensionKey(string $extensionKey): void
+    private function validateExtensionKey(string $extensionKey): void
     {
         if (!ExtensionManagementUtility::isLoaded($extensionKey)) {
             throw new ImplementationException(__CLASS__ . ': The key "' . $extensionKey . '" does not match any installed extension!',

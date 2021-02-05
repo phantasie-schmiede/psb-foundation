@@ -14,41 +14,42 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Utility\Debug;
+namespace PSB\PsbFoundation\Service\Debug;
 
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\DebugUtility;
 
 /**
- * Class StopWatchUtility
- * @package PSB\PsbFoundation\Utility\Debug
+ * Class StopWatchService
+ *
+ * @package PSB\PsbFoundation\Service\Debug
  */
-class StopWatchUtility
+class StopWatchService
 {
     /**
      * @var string
      */
-    protected $header;
+    protected string $header = '';
 
     /**
      * @var int
      */
-    protected $precision;
+    protected int $precision = 0;
 
     /**
      * @var double
      */
-    protected $splitTime = 0.0;
+    protected float $splitTime = 0.0;
 
     /**
      * @var double
      */
-    protected $startTime = 0.0;
+    protected float $startTime = 0.0;
 
     /**
      * @var array
      */
-    protected $timeLog = [];
+    protected array $timeLog = [];
 
     /**
      * StopwatchUtility constructor.
@@ -127,14 +128,6 @@ class StopWatchUtility
     }
 
     /**
-     * @param string $logEntry
-     */
-    public function addToTimeLog(string $logEntry): void
-    {
-        $this->timeLog[] = $logEntry;
-    }
-
-    /**
      * @return array
      */
     public function getTimeLog(): array
@@ -148,6 +141,14 @@ class StopWatchUtility
     public function setTimeLog(array $timeLog): void
     {
         $this->timeLog = $timeLog;
+    }
+
+    /**
+     * @param string $logEntry
+     */
+    public function addToTimeLog(string $logEntry): void
+    {
+        $this->timeLog[] = $logEntry;
     }
 
     public function reset(): void

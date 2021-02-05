@@ -16,12 +16,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
-use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Service\Configuration\Fields;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
-use ReflectionException;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
+use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
 
 /**
  * Class Inline
@@ -31,6 +27,8 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
  */
 class Inline extends AbstractTcaFieldAnnotation
 {
+    use ExtensionInformationServiceTrait;
+
     public const TYPE = Fields::FIELD_TYPES['INLINE'];
 
     /**
@@ -95,14 +93,14 @@ class Inline extends AbstractTcaFieldAnnotation
 
     /**
      * @return string
-     * @throws AnnotationException
-     * @throws Exception
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws ReflectionException
      */
     public function getForeignField(): string
     {
-        return ExtensionInformationUtility::convertPropertyNameToColumnName($this->foreignField);
+        if (null === $this->tcaService) {
+            return $this->foreignField;
+        }
+
+        return $this->tcaService->convertPropertyNameToColumnName($this->foreignField);
     }
 
     /**
@@ -155,15 +153,13 @@ class Inline extends AbstractTcaFieldAnnotation
 
     /**
      * @param string $linkedModel
-     *
-     * @throws Exception
      */
     public function setLinkedModel(string $linkedModel): void
     {
         $this->linkedModel = $linkedModel;
 
-        if (class_exists($linkedModel)) {
-            $this->setForeignTable(ExtensionInformationUtility::convertClassNameToTableName($linkedModel));
+        if (null !== $this->tcaService && class_exists($linkedModel)) {
+            $this->setForeignTable($this->tcaService->convertClassNameToTableName($linkedModel));
         }
     }
 

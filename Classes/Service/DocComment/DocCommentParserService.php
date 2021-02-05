@@ -21,17 +21,17 @@ use PSB\PsbFoundation\Cache\CacheEntry;
 use PSB\PsbFoundation\Cache\CacheEntryRepository;
 use PSB\PsbFoundation\Php\ExtendedReflectionClass;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
-use PSB\PsbFoundation\Traits\InjectionTrait;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\SecurityUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use ReflectionClass;
+use ReflectionException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function get_class;
 use function in_array;
@@ -44,7 +44,6 @@ use function is_string;
  */
 class DocCommentParserService implements LoggerAwareInterface
 {
-    use InjectionTrait;
     use LoggerAwareTrait;
 
     public const ANNOTATION_TARGETS = [
@@ -94,9 +93,9 @@ class DocCommentParserService implements LoggerAwareInterface
      * @param string|null   $methodOrPropertyName
      *
      * @return array
-     * @throws Exception
      * @throws InvalidArgumentForHashGenerationException
      * @throws JsonException
+     * @throws ReflectionException
      */
     public function parsePhpDocComment($className, string $methodOrPropertyName = null): array
     {
@@ -108,11 +107,10 @@ class DocCommentParserService implements LoggerAwareInterface
         $cachedDocComment = $this->readFromCache($identifier);
 
         if (false !== $cachedDocComment) {
-            return $cachedDocComment;
+            //            return $cachedDocComment;
         }
 
         $parsedDocComment = [];
-
         $reflection = GeneralUtility::makeInstance(ExtendedReflectionClass::class, $className);
 
         if (null !== $methodOrPropertyName) {
@@ -214,7 +212,9 @@ class DocCommentParserService implements LoggerAwareInterface
             }
         }
 
-        $this->writeToCache($identifier, $parsedDocComment);
+        if (GeneralUtility::getContainer()->get('boot.state')->done) {
+            $this->writeToCache($identifier, $parsedDocComment);
+        }
 
         return $parsedDocComment;
     }
@@ -248,7 +248,6 @@ class DocCommentParserService implements LoggerAwareInterface
      * @param string      $value
      *
      * @return mixed
-     * @throws Exception
      * @throws JsonException
      */
     private function processValue(?string $annotationType, string $className, string $value)
@@ -295,7 +294,13 @@ class DocCommentParserService implements LoggerAwareInterface
                         return StringUtility::convertString($propertyValue, true, $namespaces);
                     }, $properties);
 
-                    return $this->get($annotationClass, $properties);
+                    if (GeneralUtility::getContainer()->get('boot.state')->done) {
+                        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+
+                        return $objectManager->get($annotationClass, $properties);
+                    }
+
+                    return GeneralUtility::makeInstance($annotationClass, $properties);
                 }
 
                 return StringUtility::convertString($value, true, $this->namespaces);
@@ -305,13 +310,13 @@ class DocCommentParserService implements LoggerAwareInterface
     /**
      * @param string $identifier
      *
-     * @return bool|mixed
-     * @throws Exception
+     * @return mixed
      * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
     private function readFromCache(string $identifier)
     {
-        $cacheEntry = $this->get(CacheEntryRepository::class)->findByIdentifier($identifier);
+        $cacheEntry = GeneralUtility::makeInstance(CacheEntryRepository::class)->findByIdentifier($identifier);
 
         if ($cacheEntry instanceof CacheEntry) {
             return unserialize($cacheEntry->getContent(), ['allowed_classes' => true]);
@@ -324,14 +329,14 @@ class DocCommentParserService implements LoggerAwareInterface
      * @param string $identifier
      * @param array  $parsedDocComment
      *
-     * @throws Exception
      * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
     private function writeToCache(string $identifier, array $parsedDocComment): void
     {
-        $cacheEntry = $this->get(CacheEntry::class);
+        $cacheEntry = GeneralUtility::makeInstance(CacheEntry::class);
         $cacheEntry->setIdentifier($identifier);
         $cacheEntry->setContent(serialize($parsedDocComment));
-        $this->get(CacheEntryRepository::class)->add($cacheEntry);
+        $this - GeneralUtility::makeInstance(CacheEntryRepository::class)->add($cacheEntry);
     }
 }

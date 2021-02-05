@@ -14,18 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Exceptions;
+namespace PSB\PsbFoundation\Traits\Properties;
 
-use Exception;
+use TYPO3\CMS\Extbase\Property\PropertyMapper;
 
 /**
- * Class BaseException
- * @package PSB\PsbFoundation\Exceptions
+ * Trait PropertyMapperTrait
+ *
+ * @package PSB\PsbFoundation\Traits\Properties
  */
-class BaseException extends Exception
+trait PropertyMapperTrait
 {
-    public function __toString(): string
+    /**
+     * @var PropertyMapper
+     */
+    protected PropertyMapper $propertyMapper;
+
+    /**
+     * @param PropertyMapper $propertyMapper
+     */
+    public function injectPropertyMapper(PropertyMapper $propertyMapper): void
     {
-        return __CLASS__ . ': [' . $this->code . ']: ' . $this->message . LF;
+        $this->propertyMapper = $propertyMapper;
     }
 }

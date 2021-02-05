@@ -222,7 +222,7 @@ class TypoScriptUtility
             ],
         ];
 
-        ExtensionManagementUtility::addTypoScriptSetup(TypoScriptUtility::convertArrayToTypoScript($typoScript));
+        ExtensionManagementUtility::addTypoScriptSetup(self::convertArrayToTypoScript($typoScript));
     }
 
     /**

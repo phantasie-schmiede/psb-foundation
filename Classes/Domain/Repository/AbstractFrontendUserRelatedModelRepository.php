@@ -17,11 +17,9 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Domain\Repository;
 
 use PSB\PsbFoundation\Domain\Model\AbstractFrontendUserRelatedModel;
-use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\FrontendUserUtility;
+use PSB\PsbFoundation\Traits\Properties\FrontendUserServiceTrait;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
-use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Generic\Query;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
@@ -36,14 +34,13 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
  */
 abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelWithDataManipulationProtectionRepository
 {
-    use InjectionTrait;
+    use FrontendUserServiceTrait;
 
     /**
      * @param object $object
      *
      * @throws AspectNotFoundException
      * @throws AspectPropertyNotFoundException
-     * @throws Exception
      * @throws IllegalObjectTypeException
      */
     public function add($object): void
@@ -51,7 +48,7 @@ abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelW
         if ($object instanceof AbstractFrontendUserRelatedModel
             && null === $object->getFrontendUser()
         ) {
-            $object->setFrontendUser(FrontendUserUtility::getCurrentUser());
+            $object->setFrontendUser($this->frontendUserService->getCurrentUser());
         }
 
         parent::add($object);
@@ -63,12 +60,11 @@ abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelW
      * @return QueryResultInterface
      * @throws AspectNotFoundException
      * @throws AspectPropertyNotFoundException
-     * @throws Exception
      */
     public function findByFrontendUser(int $frontendUserId = null): QueryResultInterface
     {
         if (null === $frontendUserId) {
-            $frontendUserId = FrontendUserUtility::getCurrentUserId();
+            $frontendUserId = $this->frontendUserService->getCurrentUserId();
         }
 
         /** @var Query $query */
@@ -82,7 +78,6 @@ abstract class AbstractFrontendUserRelatedModelRepository extends AbstractModelW
      * @return array|QueryResultInterface
      * @throws AspectNotFoundException
      * @throws AspectPropertyNotFoundException
-     * @throws Exception
      */
     public function findTcaSelectItems()
     {

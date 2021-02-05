@@ -17,10 +17,9 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Cache;
 
 use Doctrine\DBAL\FetchMode;
-use PDO;
-use PSB\PsbFoundation\Traits\InjectionTrait;
+use ReflectionException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
@@ -32,44 +31,44 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
  */
 class CacheEntryRepository
 {
-    use InjectionTrait;
-
     public const TABLE_NAME = 'cache_psbfoundation';
 
     /**
      * @param CacheEntry $cacheEntry
      *
-     * @throws Exception
      * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
     public function add(CacheEntry $cacheEntry): void
     {
         $cacheEntry->calculateCheckSum(true);
-        $this->get(ConnectionPool::class)
-            ->getQueryBuilderForTable(self::TABLE_NAME)->resetQueryParts()->insert(self::TABLE_NAME)->values([
+        GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE_NAME)
+            ->resetQueryParts()
+            ->insert(self::TABLE_NAME)
+            ->values([
                 'checksum'   => $cacheEntry->getChecksum(),
                 'content'    => $cacheEntry->getContent(),
                 'identifier' => $cacheEntry->getIdentifier(),
-            ])->execute();
+            ])
+            ->execute();
     }
 
     /**
      * @param string $identifier
      *
      * @return CacheEntry|null
-     * @throws Exception
      * @throws InvalidArgumentForHashGenerationException
+     * @throws ReflectionException
      */
     public function findByIdentifier(string $identifier): ?CacheEntry
     {
-        $queryBuilder = $this->get(ConnectionPool::class)
-            ->getQueryBuilderForTable(self::TABLE_NAME);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable(self::TABLE_NAME);
         $cacheEntryRow = $queryBuilder->resetQueryParts()->select('*')
             ->from(self::TABLE_NAME)
             ->where(
                 $queryBuilder->expr()->eq(
                     'identifier',
-                    $queryBuilder->createNamedParameter($identifier, PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($identifier)
                 )
             )->execute()
             ->fetch(FetchMode::ASSOCIATIVE);
@@ -78,7 +77,7 @@ class CacheEntryRepository
             return null;
         }
 
-        $cacheEntry = $this->get(CacheEntry::class);
+        $cacheEntry = GeneralUtility::makeInstance(CacheEntry::class);
         $cacheEntry->setChecksum($cacheEntryRow['checksum']);
         $cacheEntry->setContent($cacheEntryRow['content']);
         $cacheEntry->setIdentifier($cacheEntryRow['identifier']);

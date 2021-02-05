@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Controller;
 
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
-use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
+use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Traits\Properties\PropertyMapperTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -26,12 +26,10 @@ use TYPO3\CMS\Extbase\Mvc\Exception\InvalidArgumentNameException;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
-use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
 use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Property\Exception;
-use TYPO3\CMS\Extbase\Property\PropertyMapper;
 use function get_class;
 
 /**
@@ -44,7 +42,7 @@ use function get_class;
  */
 abstract class AbstractController extends ActionController
 {
-    use InjectionTrait;
+    use ExtensionInformationServiceTrait, PropertyMapperTrait;
 
     /**
      * @var string
@@ -59,13 +57,11 @@ abstract class AbstractController extends ActionController
     /**
      * The constructor determines the related model and repository classes of the instantiated controller following
      * Extbase conventions.
-     *
-     * @throws ObjectException
      */
     public function __construct()
     {
         [$vendorName, $extensionName] = GeneralUtility::trimExplode('\\', get_class($this));
-        $domainModelName = ExtensionInformationUtility::convertControllerClassToBaseName(get_class($this));
+        $domainModelName = $this->extensionInformationService->convertControllerClassToBaseName(get_class($this));
         $this->setDomainModel(implode('\\', [
             $vendorName,
             $extensionName,
@@ -74,7 +70,7 @@ abstract class AbstractController extends ActionController
         ]));
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-        $this->repository = $this->get(implode('\\', [
+        $this->repository = $this->objectManager->get(implode('\\', [
             $vendorName,
             $extensionName,
             'Domain\Repository',
@@ -164,7 +160,6 @@ abstract class AbstractController extends ActionController
      * @throws Exception
      * @throws InvalidArgumentNameException
      * @throws NoSuchArgumentException
-     * @throws ObjectException
      */
     public function initializeAction(): void
     {
@@ -174,7 +169,7 @@ abstract class AbstractController extends ActionController
             if (is_array($record)) {
                 $mappingConfiguration = $this->arguments->getArgument('record')->getPropertyMappingConfiguration();
                 $mappingConfiguration->allowAllProperties();
-                $record = $this->get(PropertyMapper::class)->convert(
+                $record = $this->propertyMapper->convert(
                     $this->request->getArgument('record'),
                     $this->getDomainModel(true),
                     $mappingConfiguration

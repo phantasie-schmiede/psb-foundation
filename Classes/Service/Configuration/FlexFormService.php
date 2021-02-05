@@ -151,8 +151,6 @@ class FlexFormService
     }
 
     /**
-     * @TODO: refactor registration (see DocCommentParsers)
-     *
      * @param ValueParserInterface $parser Instance of your custom parser class
      *
      * @throws Exception
@@ -292,7 +290,7 @@ class FlexFormService
         }
 
         // @TODO: Refactor this whole service!
-        $config = Fields::getDefaultConfiguration($type);
+//        $config = Fields::getDefaultConfiguration($type);
         ArrayUtility::mergeRecursiveWithOverrule($config, $customConfig);
 
         $fieldConfiguration = [

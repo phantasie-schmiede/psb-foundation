@@ -17,25 +17,30 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\Configuration;
 
 use Exception;
+use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
-use PSB\PsbFoundation\Exceptions\AnnotationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Ctrl;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Traits\InjectionTrait;
-use PSB\PsbFoundation\Utility\ExtensionInformationUtility;
-use PSB\PsbFoundation\Utility\LocalizationUtility;
+use PSB\PsbFoundation\Traits\Properties\ClassesConfigurationFactoryTrait;
+use PSB\PsbFoundation\Traits\Properties\ConnectionPoolTrait;
+use PSB\PsbFoundation\Traits\Properties\DocCommentParserServiceTrait;
+use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Traits\Properties\LocalizationServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
+use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function count;
 
@@ -46,10 +51,15 @@ use function count;
  */
 class TcaService
 {
-    use InjectionTrait;
+    use ClassesConfigurationFactoryTrait, ConnectionPoolTrait, DocCommentParserServiceTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
 
-    // This array constant compensates inconsistencies in TCA key naming.
-    // All keys that are not listed here will be transformed to lower_case_underscored.
+    private const PROTECTED_COLUMNS = [
+        'crdate',
+        'pid',
+        'tstamp',
+        'uid',
+    ];
+
     private const PROPERTY_KEY_MAPPING = [
         'autoSizeMax'        => 'autoSizeMax',
         'dbType'             => 'dbType',
@@ -71,78 +81,45 @@ class TcaService
         'userFunc'           => 'userFunc',
     ];
 
-    private const PROTECTED_COLUMNS = [
-        'crdate',
-        'pid',
-        'tstamp',
-        'uid',
-    ];
-
     /**
-     * @var string
+     * @var array
      */
-    private string $className;
-
+    protected static array $classTableMapping = [];
+    /**
+     * @var ClassesConfiguration|null
+     */
+    protected ?ClassesConfiguration $classesConfiguration = null;
     /**
      * @var array
      */
     private array $configuration;
-
     /**
      * @var string
      */
     private string $defaultLabelPath;
-
     /**
      * @var bool
      */
     private bool $overrideMode = false;
-
     /**
      * @var array
      */
     private array $preDefinedColumns;
-
     /**
      * @var string
      */
     private string $table;
 
     /**
-     * TcaService constructor.
-     *
-     * @param string $className
-     *
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws ObjectException
+     * @return ClassesConfiguration
      */
-    public function __construct(string $className)
+    public function getClassesConfiguration(): ClassesConfiguration
     {
-        $this->className = $className;
-        $this->table = ExtensionInformationUtility::convertClassNameToTableName($this->className);
-        $extensionKey = ExtensionInformationUtility::extractExtensionInformationFromClassName($className)['extensionKey'];
-        $this->setDefaultLabelPath('LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/');
-
-        if (isset($GLOBALS['TCA'][$this->table])) {
-            $this->overrideMode = true;
-            $this->setDefaultLabelPath($this->getDefaultLabelPath() . 'Overrides/' . $this->table . '.xlf:');
-            $this->configuration = $GLOBALS['TCA'][$this->table];
-        } else {
-            $this->configuration = $this->getDummyConfiguration($this->table);
-            $this->setDefaultLabelPath($this->getDefaultLabelPath() . $this->table . '.xlf:');
-            $title = $this->getDefaultLabelPath() . 'domain.model';
-            LocalizationUtility::translationExists($title);
-            $this->setCtrlProperties([
-                'title' => $title,
-            ]);
+        if (null === $this->classesConfiguration) {
+            $this->classesConfiguration = $this->classesConfigurationFactory->createClassesConfiguration();
         }
 
-        /**
-         * Remember the predefined columns (e.g. for versioning, translating or when overriding an existing TCA entry)
-         * in order to exclude them when auto-creating the showItemList.
-         */
-        $this->setPreDefinedColumns(array_keys($this->configuration['columns']));
+        return $this->classesConfiguration;
     }
 
     /**
@@ -253,36 +230,6 @@ class TcaService
     }
 
     /**
-     * @param string $key
-     *
-     * @return string
-     */
-    public static function convertKey(string $key): string
-    {
-        return self::PROPERTY_KEY_MAPPING[$key] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($key);
-    }
-
-    /**
-     * For usage in ext_tables.php
-     *
-     * @param ExtensionInformationInterface $extensionInformation
-     */
-    public static function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
-    {
-        $identifier = 'tx_' . mb_strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
-
-        $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
-            return StringUtility::beginsWith($key, $identifier);
-        });
-
-        foreach ($newTables as $table) {
-            ExtensionManagementUtility::allowTableOnStandardPages($table);
-            ExtensionManagementUtility::addLLrefForTCAdescr($table,
-                'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $table . '.xlf');
-        }
-    }
-
-    /**
      * @param string $field
      * @param int    $typeIndex
      */
@@ -315,9 +262,15 @@ class TcaService
         $this->configuration['types'][$index] = ['showitem' => $fieldList];
     }
 
+    /*
+     * This array constant compensates inconsistencies in TCA key naming. All keys that are not listed here will be
+     * transformed to lower_case_underscored.
+     */
+
     /**
+     * @param string $className
+     *
      * @return $this
-     * @throws AnnotationException
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
@@ -325,10 +278,33 @@ class TcaService
      * @throws ObjectException
      * @throws ReflectionException
      */
-    public function buildFromDocComment(): self
+    public function buildFromDocComment(string $className): self
     {
-        $docCommentParserService = $this->get(DocCommentParserService::class);
-        $docComment = $docCommentParserService->parsePhpDocComment($this->className);
+        $this->table = $this->convertClassNameToTableName($className);
+        $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName($className)['extensionKey'];
+        $this->setDefaultLabelPath('LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/');
+
+        if (isset($GLOBALS['TCA'][$this->table])) {
+            $this->overrideMode = true;
+            $this->setDefaultLabelPath($this->getDefaultLabelPath() . 'Overrides/' . $this->table . '.xlf:');
+            $this->configuration = $GLOBALS['TCA'][$this->table];
+        } else {
+            $this->configuration = $this->getDummyConfiguration($this->table);
+            $this->setDefaultLabelPath($this->getDefaultLabelPath() . $this->table . '.xlf:');
+            $title = $this->getDefaultLabelPath() . 'domain.model';
+            $this->localizationService->translationExists($title);
+            $this->setCtrlProperties([
+                'title' => $title,
+            ]);
+        }
+
+        /**
+         * Remember the predefined columns (e.g. for versioning, translating or when overriding an existing TCA entry)
+         * in order to exclude them when auto-creating the showItemList.
+         */
+        $this->setPreDefinedColumns(array_keys($this->configuration['columns']));
+
+        $docComment = $this->docCommentParserService->parsePhpDocComment($className);
         $editableInFrontend = false;
 
         if (isset($docComment[Ctrl::class])) {
@@ -342,11 +318,11 @@ class TcaService
             $this->setCtrlProperties($ctrl->toArray(DocCommentParserService::ANNOTATION_TARGETS['CLASS']));
         }
 
-        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $this->className);
+        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
         $properties = $reflection->getProperties();
 
         foreach ($properties as $property) {
-            $docComment = $docCommentParserService->parsePhpDocComment($this->className, $property->getName());
+            $docComment = $this->docCommentParserService->parsePhpDocComment($className, $property->getName());
 
             foreach ($docComment as $annotation) {
                 if ($annotation instanceof TcaAnnotationInterface) {
@@ -354,8 +330,7 @@ class TcaService
                         $annotation->setEditableInFrontend(true);
                     }
 
-                    $columnName = ExtensionInformationUtility::convertPropertyNameToColumnName($property->getName(),
-                        $this->className);
+                    $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
                     if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
                         $propertyConfiguration = $annotation->toArray(DocCommentParserService::ANNOTATION_TARGETS['PROPERTY'],
@@ -363,7 +338,7 @@ class TcaService
 
                         if (!isset($propertyConfiguration['label'])) {
                             $label = $this->getDefaultLabelPath() . $columnName;
-                            LocalizationUtility::translationExists($label);
+                            $this->localizationService->translationExists($label);
                             $propertyConfiguration['label'] = $label;
                         }
 
@@ -381,6 +356,110 @@ class TcaService
     }
 
     /**
+     * This function will be executed when the core builds the TCA, but as it does not return an array there will be no
+     * entry for the required file. Instead this function expands the TCA on its own by scanning through the domain
+     * models of all registered extensions (extensions which provide an ExtensionInformation class, see
+     * \PSB\PsbFoundation\Data\AbstractExtensionInformation).
+     * Transient domain models (those without a corresponding table in the database) will be skipped.
+     *
+     * @param bool $overrideMode If set to false, the configuration of all original domain models (not extending other
+     *                           domain models) is added to the TCA.
+     *                           If set to true, the configuration of all extending domain models is added to the TCA.
+     *
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    public function buildTca(bool $overrideMode): void
+    {
+        if (empty(self::$classTableMapping)) {
+            $this->buildClassesTableMapping();
+        }
+
+        if ($overrideMode) {
+            $key = 'tcaOverrides';
+        } else {
+            $key = 'tca';
+        }
+
+        if (isset(self::$classTableMapping[$key])) {
+            foreach (self::$classTableMapping[$key] as $fullQualifiedClassName => $tableName) {
+                $tcaConfiguration = $this->buildFromDocComment($fullQualifiedClassName)->getConfiguration();
+
+                if (is_array($tcaConfiguration)) {
+                    $GLOBALS['TCA'][$tableName] = $tcaConfiguration;
+                }
+            }
+        }
+    }
+
+    /**
+     * TYPO3's DataMapper can't be used here as it would create an incomplete class information cache due to the early
+     * stage in which this function gets called!
+     *
+     * @param string $className
+     *
+     * @return string
+     */
+    public function convertClassNameToTableName(string $className): string
+    {
+        $classesConfiguration = $this->getClassesConfiguration();
+
+        if ($classesConfiguration->hasClass($className)) {
+            return $classesConfiguration->getConfigurationFor($className)['tableName'];
+        }
+
+        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
+
+        // overwrite vendor name with extension prefix
+        $classNameParts[0] = 'tx';
+
+        return strtolower(implode('_', $classNameParts));
+    }
+
+    /**
+     * @param string      $propertyName
+     * @param string|null $className
+     *
+     * @return string
+     */
+    public function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
+    {
+        if (null !== $className) {
+            $classesConfiguration = $this->getClassesConfiguration();
+
+            if ($classesConfiguration->hasClass($className)) {
+                $configuration = $classesConfiguration->getConfigurationFor($className);
+
+                if (isset($configuration['properties'][$propertyName])) {
+                    return $configuration['properties'][$propertyName]['fieldName'];
+                }
+            }
+        }
+
+        return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
+    }
+
+    /**
+     * For usage in ext_tables.php
+     *
+     * @param ExtensionInformationInterface $extensionInformation
+     */
+    public function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
+    {
+        $identifier = 'tx_' . mb_strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
+
+        $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
+            return StringUtility::beginsWith($key, $identifier);
+        });
+
+        foreach ($newTables as $table) {
+            ExtensionManagementUtility::allowTableOnStandardPages($table);
+            ExtensionManagementUtility::addLLrefForTCAdescr($table,
+                'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $table . '.xlf');
+        }
+    }
+
+    /**
      * @param array $ctrlProperties
      *
      * @return $this
@@ -392,6 +471,62 @@ class TcaService
         }
 
         return $this;
+    }
+
+    private function buildClassesTableMapping(): void
+    {
+        self::$classTableMapping = [];
+        $allExtensionInformation = $this->extensionInformationService->getExtensionInformation();
+
+        foreach ($allExtensionInformation as $extensionInformation) {
+            try {
+                $finder = Finder::create()
+                    ->files()
+                    ->in(ExtensionManagementUtility::extPath($extensionInformation->getExtensionKey()) . 'Classes/Domain/Model')
+                    ->name('*.php');
+            } catch (InvalidArgumentException $e) {
+                // No such directory in this extension
+                continue;
+            }
+
+            /** @var SplFileInfo $fileInfo */
+            foreach ($finder as $fileInfo) {
+                $classNameComponents = array_merge(
+                    [
+                        $extensionInformation->getVendorName(),
+                        $extensionInformation->getExtensionName(),
+                        'Domain\Model',
+                    ],
+                    explode('/', substr($fileInfo->getRelativePathname(), 0, -4))
+                );
+
+                $fullQualifiedClassName = implode('\\', $classNameComponents);
+                $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $fullQualifiedClassName);
+
+                if ($reflectionClass->isAbstract() || $reflectionClass->isInterface()) {
+                    continue;
+                }
+
+                $tableName = $this->convertClassNameToTableName($fullQualifiedClassName);
+
+                $tableExists = $this->connectionPool
+                    ->getConnectionForTable($tableName)
+                    ->getSchemaManager()
+                    ->tablesExist([$tableName]);
+
+                if (!$tableExists) {
+                    // This class seems to be no persistent domain model and will be skipped as a corresponding table is missing.
+                    continue;
+                }
+
+                if (StringUtility::beginsWith($tableName,
+                    'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
+                    self::$classTableMapping['tca'][$fullQualifiedClassName] = $tableName;
+                } else {
+                    self::$classTableMapping['tcaOverrides'][$fullQualifiedClassName] = $tableName;
+                }
+            }
+        }
     }
 
     /**

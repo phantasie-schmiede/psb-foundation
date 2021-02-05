@@ -42,17 +42,17 @@ abstract class AbstractModelWithDataManipulationProtectionRepository extends Abs
     }
 
     /**
-     * @param object $object
+     * @param object $modifiedObject
      *
      * @throws IllegalObjectTypeException
      * @throws UnknownObjectException
      */
-    public function update($object): void
+    public function update($modifiedObject): void
     {
-        if ($object instanceof DataManipulationProtectionInterface) {
-            $object->calculateCheckSum(true);
+        if ($modifiedObject instanceof DataManipulationProtectionInterface) {
+            $modifiedObject->calculateCheckSum(true);
         }
 
-        parent::update($object);
+        parent::update($modifiedObject);
     }
 }
