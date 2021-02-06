@@ -107,7 +107,7 @@ class DocCommentParserService implements LoggerAwareInterface
         $cachedDocComment = $this->readFromCache($identifier);
 
         if (false !== $cachedDocComment) {
-            //            return $cachedDocComment;
+            return $cachedDocComment;
         }
 
         $parsedDocComment = [];
