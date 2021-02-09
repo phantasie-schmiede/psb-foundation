@@ -34,24 +34,12 @@ class GlobalVariableService
     /**
      * @var array
      */
-    protected static array $globalVariableProviders = [];
+    protected static array $cachedVariables = [];
 
     /**
      * @var array
      */
-    protected static array $globalVariables = [];
-
-    /**
-     * @param string $path
-     *
-     * @return array
-     */
-    public static function getExplodedCsv(string $path): array
-    {
-        $csv = ArrayUtility::getValueByPath(self::$globalVariables, $path, '.');
-
-        return GeneralUtility::trimExplode(',', $csv, true);
-    }
+    protected static array $globalVariableProviders = [];
 
     /**
      * @param string|null $path
@@ -59,33 +47,52 @@ class GlobalVariableService
      * @return mixed
      * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
-    public static function getGlobalVariables(string $path = null)
+    public static function get(string $path = null)
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
+        $globalVariables = self::$cachedVariables;
 
-        foreach (self::$globalVariableProviders as $globalVariableProvider) {
-            $globalVariableProvider = $objectManager->get($globalVariableProvider);
+        if (null !== $path && self::has($path)) {
+            return VariableUtility::getValueByPath($globalVariables, $path);
+        }
 
-            if (!$globalVariableProvider instanceof GlobalVariableProviderInterface) {
-                throw new RuntimeException(__CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!',
-                    1612426722);
+        if (!empty(self::$globalVariableProviders)) {
+            if (GeneralUtility::getContainer()->get('boot.state')->done) {
+                $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
             }
 
-            if (false === $globalVariableProvider->isCacheable()) {
-                ArrayUtility::mergeRecursiveWithOverrule(self::$globalVariables,
-                    $globalVariableProvider->getGlobalVariables());
+            /** @var GlobalVariableProviderInterface|string $globalVariableProvider */
+            foreach (self::$globalVariableProviders as $index => &$globalVariableProvider) {
+                if (!$globalVariableProvider instanceof GlobalVariableProviderInterface) {
+                    if (isset($objectManager)) {
+                        $globalVariableProvider = $objectManager->get($globalVariableProvider);
+                    } elseif (true === $globalVariableProvider::isAvailableDuringBootProcess()) {
+                        $globalVariableProvider = GeneralUtility::makeInstance($globalVariableProvider);
+                    }
+                }
+
+                if ($globalVariableProvider instanceof GlobalVariableProviderInterface) {
+                    $variables = $globalVariableProvider->getGlobalVariables();
+                    ArrayUtility::mergeRecursiveWithOverrule($globalVariables, $variables);
+
+                    if (true === $globalVariableProvider->isCacheable()) {
+                        ArrayUtility::mergeRecursiveWithOverrule(self::$cachedVariables, $variables);
+                        unset (self::$globalVariableProviders[$index]);
+                    }
+                }
             }
+
+            unset ($globalVariableProvider);
         }
 
         if (null !== $path) {
             try {
-                return VariableUtility::getValueByPath(self::$globalVariables, $path);
+                return VariableUtility::getValueByPath($globalVariables, $path);
             } catch (Exception $e) {
                 throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562136068);
             }
         }
 
-        return self::$globalVariables;
+        return $globalVariables;
     }
 
     /**
@@ -96,7 +103,7 @@ class GlobalVariableService
     public static function has(string $path): bool
     {
         try {
-            ArrayUtility::getValueByPath(self::getGlobalVariables(), $path, '.');
+            ArrayUtility::getValueByPath(self::get(), $path, '.');
 
             return true;
         } catch (Exception $exception) {
@@ -111,6 +118,11 @@ class GlobalVariableService
      */
     public static function registerGlobalVariableProvider(string $className): void
     {
+        if (!class_implements($className, GlobalVariableProviderInterface::class)) {
+            throw new RuntimeException(__CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!',
+                1612426722);
+        }
+
         self::$globalVariableProviders[] = $className;
     }
 }

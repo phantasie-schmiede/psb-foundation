@@ -18,6 +18,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
 
 use Closure;
 use PSB\PsbFoundation\Service\GlobalVariableService;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
@@ -44,6 +45,7 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
      * @param RenderingContextInterface $renderingContext
      *
      * @return mixed
+     * @throws Exception
      */
     public static function renderStatic(
         array $arguments,
@@ -51,7 +53,7 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
         RenderingContextInterface $renderingContext
     ) {
         if (empty($arguments['path'])) {
-            $globalVariables = GlobalVariableService::getGlobalVariables();
+            $globalVariables = GlobalVariableService::get();
 
             foreach ($globalVariables as $key => $value) {
                 if (!$renderingContext->getVariableProvider()->exists($key)) {
@@ -62,6 +64,6 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
             return null;
         }
 
-        return GlobalVariableService::getGlobalVariables($arguments['path']);
+        return GlobalVariableService::get($arguments['path']);
     }
 }

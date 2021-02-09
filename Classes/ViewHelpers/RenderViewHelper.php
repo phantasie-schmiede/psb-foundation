@@ -18,6 +18,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
 
 use Closure;
 use PSB\PsbFoundation\Service\GlobalVariableService;
+use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
 /**
@@ -33,13 +34,14 @@ class RenderViewHelper extends \TYPO3Fluid\Fluid\ViewHelpers\RenderViewHelper
      * @param RenderingContextInterface $renderingContext
      *
      * @return mixed
+     * @throws Exception
      */
     public static function renderStatic(
         array $arguments,
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ) {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+        $globalVariables = GlobalVariableService::get();
 
         foreach ($globalVariables as $key => $value) {
             if (!isset($arguments['arguments'][$key])) {

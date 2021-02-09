@@ -34,6 +34,14 @@ class RequestParameterProvider implements GlobalVariableProviderInterface
     protected bool $cacheable = false;
 
     /**
+     * @return bool
+     */
+    public static function isAvailableDuringBootProcess(): bool
+    {
+        return true;
+    }
+
+    /**
      * @return array
      * @throws JsonException
      */

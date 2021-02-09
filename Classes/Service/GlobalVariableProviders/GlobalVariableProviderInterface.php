@@ -24,6 +24,14 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 interface GlobalVariableProviderInterface
 {
     /**
+     * This function has to return false if the provider uses e.g. dependency injection or TYPO3's CacheManager. Return
+     * true if it can safely be instantiated and executed in ext_localconf.php files.
+     *
+     * @return bool
+     */
+    public static function isAvailableDuringBootProcess(): bool;
+
+    /**
      * @return array
      */
     public function getGlobalVariables(): array;

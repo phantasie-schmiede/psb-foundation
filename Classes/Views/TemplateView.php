@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Views;
 
 use PSB\PsbFoundation\Service\GlobalVariableService;
+use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class TemplateView
@@ -27,7 +28,7 @@ class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
     public function initializeView(): void
     {
         parent::initializeView();
-        $this->assignMultiple(GlobalVariableService::getGlobalVariables());
+        $this->assignMultiple(GlobalVariableService::get());
     }
 
     /**
@@ -37,10 +38,11 @@ class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
      * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
      *
      * @return string
+     * @throws Exception
      */
     public function renderPartial($partialName, $sectionName, array $variables, $ignoreUnknown = false): string
     {
-        $globalVariables = GlobalVariableService::getGlobalVariables();
+        $globalVariables = GlobalVariableService::get();
 
         foreach ($globalVariables as $key => $value) {
             if (!isset($variables[$key])) {
