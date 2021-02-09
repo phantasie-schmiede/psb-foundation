@@ -26,9 +26,9 @@ use TYPO3\CMS\Core\Context\Context;
 trait ContextTrait
 {
     /**
-     * @var Context|null
+     * @var Context
      */
-    protected ?Context $context = null;
+    protected Context $context;
 
     /**
      * @param Context $context

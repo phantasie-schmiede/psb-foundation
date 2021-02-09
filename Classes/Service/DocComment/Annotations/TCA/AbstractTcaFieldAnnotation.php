@@ -73,8 +73,7 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
      */
     public function __construct(array $data = [])
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->tcaService = $objectManager->get(TcaService::class);
+        $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
         parent::__construct($data);
     }
 

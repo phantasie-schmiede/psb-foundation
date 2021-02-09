@@ -26,9 +26,9 @@ use PSB\PsbFoundation\Service\ObjectService;
 trait ObjectServiceTrait
 {
     /**
-     * @var ObjectService|null
+     * @var ObjectService
      */
-    protected ?ObjectService $objectService = null;
+    protected ObjectService $objectService;
 
     /**
      * @param ObjectService $objectService

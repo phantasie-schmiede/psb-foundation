@@ -85,26 +85,32 @@ class TcaService
      * @var array
      */
     protected static array $classTableMapping = [];
+
     /**
      * @var ClassesConfiguration|null
      */
     protected ?ClassesConfiguration $classesConfiguration = null;
+
     /**
      * @var array
      */
     private array $configuration;
+
     /**
      * @var string
      */
     private string $defaultLabelPath;
+
     /**
      * @var bool
      */
     private bool $overrideMode = false;
+
     /**
      * @var array
      */
     private array $preDefinedColumns;
+
     /**
      * @var string
      */
@@ -146,26 +152,24 @@ class TcaService
                     );
                 }
             }
-        } else {
+        } elseif ($autoCreateShowItemList) {
             // configuration must have at least one type defined
-            if ($autoCreateShowItemList) {
-                if ('' === $this->configuration['types'][0]) {
-                    $columns = array_keys($this->configuration['columns']);
+            if ('' === $this->configuration['types'][0]) {
+                $columns = array_keys($this->configuration['columns']);
 
-                    foreach ($columns as $column) {
-                        if (!in_array($column, $this->getPreDefinedColumns(), true)) {
-                            $this->addFieldToType($column);
-                        }
+                foreach ($columns as $column) {
+                    if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                        $this->addFieldToType($column);
                     }
                 }
+            }
 
-                // add default access fields to all types
-                $types = array_keys($this->configuration['types']);
+            // add default access fields to all types
+            $types = array_keys($this->configuration['types']);
 
-                foreach ($types as $type) {
-                    $this->addFieldToType('--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
-                        $type);
-                }
+            foreach ($types as $type) {
+                $this->addFieldToType('--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
+                    $type);
             }
         }
 

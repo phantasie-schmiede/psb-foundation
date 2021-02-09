@@ -26,9 +26,9 @@ use PSB\PsbFoundation\Service\ExtensionInformationService;
 trait ExtensionInformationServiceTrait
 {
     /**
-     * @var ExtensionInformationService|null
+     * @var ExtensionInformationService
      */
-    protected ?ExtensionInformationService $extensionInformationService = null;
+    protected ExtensionInformationService $extensionInformationService;
 
     /**
      * @param ExtensionInformationService $extensionInformationService

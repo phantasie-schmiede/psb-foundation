@@ -2,28 +2,10 @@ services:
   _defaults:
     autowire: true
     autoconfigure: true
-    public: true
+    public: false
 
   PSB\PsbFoundation\:
     resource: '../Classes/*'
 
-  PSB\PsbFoundation\Php\ExtendedReflectionClass:
-    public: false
-
-  PSB\PsbFoundation\Service\Configuration\FlexFormService:
-    autowire: false
-
-  PSB\PsbFoundation\Utility\Xml\AbstractXmlElement:
-    autowire: false
-
-  PSB\PsbFoundation\Domain\Model\AbstractModelWithDataManipulationProtection:
-    public: true
-
-  PSB\PsbFoundation\Service\ObjectService:
-    public: true
-
-  PSB\PsbFoundation\Service\DocCommentParserService:
-    public: true
-
-  PSB\PsbFoundation\Service\Configuration\RegistrationService:
+  PSB\PsbFoundation\Service\Configuration\TcaService:
     public: true

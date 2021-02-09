@@ -16,13 +16,12 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
+use Exception;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Service\DocComment\Annotations\AbstractAnnotation;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class TcaConfig
@@ -95,13 +94,29 @@ class Ctrl extends AbstractAnnotation
      * @param array $data
      *
      * @throws Exception
-     * @throws \Exception
      */
     public function __construct(array $data = [])
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->tcaService = $objectManager->get(TcaService::class);
+        $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
         parent::__construct($data);
+    }
+
+    /**
+     * @param string $targetScope
+     *
+     * @return array
+     * @throws ReflectionException
+     */
+    public function toArray(string $targetScope): array
+    {
+        $properties = parent::toArray($targetScope);
+        $ctrlConfiguration = [];
+
+        foreach ($properties as $key => $value) {
+            $ctrlConfiguration[TcaUtility::convertKey($key)] = $value;
+        }
+
+        return $ctrlConfiguration;
     }
 
     /**
@@ -261,23 +276,5 @@ class Ctrl extends AbstractAnnotation
     public function setLabelAltForce(bool $labelAltForce): void
     {
         $this->labelAltForce = $labelAltForce;
-    }
-
-    /**
-     * @param string $targetScope
-     *
-     * @return array
-     * @throws ReflectionException
-     */
-    public function toArray(string $targetScope): array
-    {
-        $properties = parent::toArray($targetScope);
-        $ctrlConfiguration = [];
-
-        foreach ($properties as $key => $value) {
-            $ctrlConfiguration[TcaUtility::convertKey($key)] = $value;
-        }
-
-        return $ctrlConfiguration;
     }
 }

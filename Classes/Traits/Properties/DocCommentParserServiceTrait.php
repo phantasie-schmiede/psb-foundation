@@ -26,9 +26,9 @@ use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 trait DocCommentParserServiceTrait
 {
     /**
-     * @var DocCommentParserService|null
+     * @var DocCommentParserService
      */
-    protected ?DocCommentParserService $docCommentParserService = null;
+    protected DocCommentParserService $docCommentParserService;
 
     /**
      * @param DocCommentParserService $docCommentParserService
