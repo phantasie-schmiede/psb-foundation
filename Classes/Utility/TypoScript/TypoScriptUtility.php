@@ -24,6 +24,7 @@ use UnexpectedValueException;
 
 /**
  * Class TypoScriptUtility
+ *
  * @package PSB\PsbFoundation\Utility
  */
 class TypoScriptUtility
@@ -65,16 +66,6 @@ class TypoScriptUtility
      * @var string
      */
     private static string $objectPath = '';
-
-    /**
-     * @param string $key
-     *
-     * @return string
-     */
-    public static function getPreparedTypoScriptConstant(string $key): string
-    {
-        return '{$' . $key . '}';
-    }
 
     /**
      * For use in Classes/Slots/Setup.php files
@@ -155,6 +146,16 @@ class TypoScriptUtility
         self::resetObjectPath();
 
         return ($debugOutput ?? '') . $generatedTypoScript;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return string
+     */
+    public static function getPreparedTypoScriptConstant(string $key): string
+    {
+        return '{$' . $key . '}';
     }
 
     /**
