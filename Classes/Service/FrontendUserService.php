@@ -18,11 +18,11 @@ namespace PSB\PsbFoundation\Service;
 
 use PSB\PsbFoundation\Traits\Properties\FrontendUserRepositoryTrait;
 use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
 use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class FrontendUserService
@@ -46,13 +46,12 @@ class FrontendUserService
 
     /**
      * @return int
+     * @throws AspectNotFoundException
      * @throws AspectPropertyNotFoundException
-     * @throws Exception
      */
     public function getCurrentUserId(): int
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $context = $objectManager->get(Context::class);
+        $context = GeneralUtility::makeInstance(Context::class);
 
         return $context->getAspect('frontend.user')->get('id');
     }

@@ -17,9 +17,9 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\ViewHelpers;
 
 use PSB\PsbFoundation\Service\LocalizationService;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class TranslateViewHelper
@@ -41,7 +41,8 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
      * @param string[] $alternativeLanguageKeys Alternative language keys if no translation does exist
      *
      * @return string|null
-     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
      */
     protected static function translate(
         $id,
@@ -50,8 +51,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         $languageKey,
         $alternativeLanguageKeys
     ): ?string {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $localizationService = $objectManager->get(LocalizationService::class);
+        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
         return $localizationService->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
     }

@@ -17,13 +17,12 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility\Backend;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 use TYPO3\CMS\Extensionmanager\Utility\InstallUtility;
 
 /**
  * Class SetupUtility
+ *
  * @package PSB\PsbFoundation\Utility\Backend
  */
 class SetupUtility
@@ -32,8 +31,6 @@ class SetupUtility
      * @param string $className
      * @param string $onInstallMethod
      * @param string $onUninstallMethod
-     *
-     * @throws Exception
      */
     public static function registerSetupSlots(
         string $className,
@@ -42,7 +39,7 @@ class SetupUtility
     ): void {
         // context conditions should not be placed inside ext_localconf.php (https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ConfigurationFiles/Index.html#best-practices-for-ext-tables-php-and-ext-localconf-php)
         if ('BE' === TYPO3_MODE) {
-            $dispatcher = GeneralUtility::makeInstance(ObjectManager::class)->get(Dispatcher::class);
+            $dispatcher = GeneralUtility::makeInstance(Dispatcher::class);
 
             $dispatcher->connect(
                 InstallUtility::class,

@@ -9,3 +9,6 @@ services:
 
   PSB\PsbFoundation\Service\Configuration\TcaService:
     public: true
+
+  PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider:
+    public: true

@@ -70,36 +70,12 @@ abstract class AbstractController extends ActionController
         ]));
 
         /** @noinspection PhpFieldAssignmentTypeMismatchInspection */
-        $this->repository = $this->objectManager->get(implode('\\', [
+        $this->repository = GeneralUtility::makeInstance(implode('\\', [
             $vendorName,
             $extensionName,
             'Domain\Repository',
             $domainModelName . 'Repository',
         ]));
-    }
-
-    /**
-     * @param bool $fullQualifiedClassName If set to true, function returns the full qualified class name
-     *
-     * @return string
-     */
-    public function getDomainModel(bool $fullQualifiedClassName = false): string
-    {
-        if (false === $fullQualifiedClassName) {
-            $classNameParts = explode('\\', $this->domainModel);
-
-            return array_pop($classNameParts);
-        }
-
-        return $this->domainModel;
-    }
-
-    /**
-     * @param string $domainModel
-     */
-    public function setDomainModel(string $domainModel): void
-    {
-        $this->domainModel = $domainModel;
     }
 
     /**
@@ -244,5 +220,29 @@ abstract class AbstractController extends ActionController
         } else {
             $this->redirect('list');
         }
+    }
+
+    /**
+     * @param bool $fullQualifiedClassName If set to true, function returns the full qualified class name
+     *
+     * @return string
+     */
+    public function getDomainModel(bool $fullQualifiedClassName = false): string
+    {
+        if (false === $fullQualifiedClassName) {
+            $classNameParts = explode('\\', $this->domainModel);
+
+            return array_pop($classNameParts);
+        }
+
+        return $this->domainModel;
+    }
+
+    /**
+     * @param string $domainModel
+     */
+    public function setDomainModel(string $domainModel): void
+    {
+        $this->domainModel = $domainModel;
     }
 }

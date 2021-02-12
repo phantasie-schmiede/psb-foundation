@@ -35,7 +35,6 @@ use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
-use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function count;
@@ -407,7 +406,6 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
@@ -416,9 +414,6 @@ abstract class AbstractModuleController extends ActionController
      */
     private function generateMenu(): void
     {
-        $uriBuilder = $this->objectManager->get(UriBuilder::class);
-        $uriBuilder->setRequest($this->request);
-
         $menu = $this->view->getModuleTemplate()->getDocHeaderComponent()->getMenuRegistry()->makeMenu();
         $identifier = (new ReflectionClass($this))->getShortName() . 'Menu';
         $menu->setIdentifier($identifier);
@@ -444,7 +439,6 @@ abstract class AbstractModuleController extends ActionController
     /**
      * @TODO: Action is not saved correctly. Shortcut always calls the default action. ($getVars should contain action)
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -488,9 +482,8 @@ abstract class AbstractModuleController extends ActionController
      */
     private function getHref(string $action, string $controller, array $parameters = []): string
     {
-        $uriBuilder = $this->objectManager->get(UriBuilder::class);
-        $uriBuilder->setRequest($this->request);
+        $this->uriBuilder->setRequest($this->request);
 
-        return $uriBuilder->reset()->uriFor($action, $parameters, $controller);
+        return $this->uriBuilder->reset()->uriFor($action, $parameters, $controller);
     }
 }

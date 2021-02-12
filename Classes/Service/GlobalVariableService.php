@@ -22,7 +22,6 @@ use PSB\PsbFoundation\Utility\VariableUtility;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class GlobalVariableService
@@ -56,18 +55,13 @@ class GlobalVariableService
         }
 
         if (!empty(self::$globalVariableProviders)) {
-            if (GeneralUtility::getContainer()->get('boot.state')->done) {
-                $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-            }
-
             /** @var GlobalVariableProviderInterface|string $globalVariableProvider */
             foreach (self::$globalVariableProviders as $index => &$globalVariableProvider) {
-                if (!$globalVariableProvider instanceof GlobalVariableProviderInterface) {
-                    if (isset($objectManager)) {
-                        $globalVariableProvider = $objectManager->get($globalVariableProvider);
-                    } elseif (true === $globalVariableProvider::isAvailableDuringBootProcess()) {
-                        $globalVariableProvider = GeneralUtility::makeInstance($globalVariableProvider);
-                    }
+                if (!$globalVariableProvider instanceof GlobalVariableProviderInterface
+                    && (true === $globalVariableProvider::isAvailableDuringBootProcess()
+                        || GeneralUtility::getContainer()->get('boot.state')->done)
+                ) {
+                    $globalVariableProvider = GeneralUtility::makeInstance($globalVariableProvider);
                 }
 
                 if ($globalVariableProvider instanceof GlobalVariableProviderInterface) {
@@ -118,7 +112,7 @@ class GlobalVariableService
      */
     public static function registerGlobalVariableProvider(string $className): void
     {
-        if (!class_implements($className, GlobalVariableProviderInterface::class)) {
+        if (!in_array(GlobalVariableProviderInterface::class, class_implements($className), true)) {
             throw new RuntimeException(__CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!',
                 1612426722);
         }

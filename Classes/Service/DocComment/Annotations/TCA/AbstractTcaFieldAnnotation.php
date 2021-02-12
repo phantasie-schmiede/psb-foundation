@@ -23,7 +23,6 @@ use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 /**
  * Class AbstractTcaFieldAnnotation

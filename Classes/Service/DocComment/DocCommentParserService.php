@@ -31,7 +31,6 @@ use ReflectionException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function get_class;
 use function in_array;
@@ -293,12 +292,6 @@ class DocCommentParserService implements LoggerAwareInterface
                     $properties = array_map(static function ($propertyValue) use ($namespaces) {
                         return StringUtility::convertString($propertyValue, true, $namespaces);
                     }, $properties);
-
-                    if (GeneralUtility::getContainer()->get('boot.state')->done) {
-                        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
-                        return $objectManager->get($annotationClass, $properties);
-                    }
 
                     return GeneralUtility::makeInstance($annotationClass, $properties);
                 }
