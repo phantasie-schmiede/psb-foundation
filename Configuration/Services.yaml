@@ -7,6 +7,18 @@ services:
   PSB\PsbFoundation\:
     resource: '../Classes/*'
 
+  PSB\PsbFoundation\EventListener\AfterPackageActivationEventListener:
+    tags:
+      - event: TYPO3\CMS\Core\Package\Event\AfterPackageActivationEvent
+        identifier: 'registerExtensionInformation'
+        name: event.listener
+
+  PSB\PsbFoundation\EventListener\AfterPackageDeactivationEventListener:
+    tags:
+      - event: TYPO3\CMS\Core\Package\Event\AfterPackageDeactivationEvent
+        identifier: 'deregisterExtensionInformation'
+        name: event.listener
+
   PSB\PsbFoundation\Service\Configuration\TcaService:
     public: true
 

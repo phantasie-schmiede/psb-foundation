@@ -27,8 +27,6 @@ defined('TYPO3_MODE') or die();
         }
     }
 
-    \PSB\PsbFoundation\Utility\Backend\SetupUtility::registerSetupSlots(\PSB\PsbFoundation\Slots\Setup::class);
-
     $typoScriptParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
     \PSB\PsbFoundation\Service\Configuration\FlexFormService::addValueParser($typoScriptParser);
 

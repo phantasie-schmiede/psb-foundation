@@ -68,7 +68,7 @@ class TypoScriptUtility
     private static string $objectPath = '';
 
     /**
-     * For use in Classes/Slots/Setup.php files
+     * For use in ext_localconf.php
      *
      * @param ExtensionInformationInterface $extensionInformation
      */
