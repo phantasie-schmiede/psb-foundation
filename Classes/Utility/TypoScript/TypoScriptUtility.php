@@ -199,7 +199,7 @@ class TypoScriptUtility
         $contentConfiguration[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']] = $internalContentType;
         $xhtmlCleaning = 'all';
 
-        if (PageObjectConfiguration::CONTENT_TYPES['JSON']) {
+        if (PageObjectConfiguration::CONTENT_TYPES['JSON'] === $pageTypeConfiguration->getContentType()) {
             $xhtmlCleaning = 0;
         }
 
