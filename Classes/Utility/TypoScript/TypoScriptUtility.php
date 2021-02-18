@@ -129,7 +129,7 @@ class TypoScriptUtility
      */
     public static function convertArrayToTypoScript(array $array): string
     {
-        if (GeneralUtility::getApplicationContext()->isDevelopment()) {
+        if (Environment::getContext()->isDevelopment()) {
             $backtrace = debug_backtrace();
             $debugInformation = [
                 'class'    => $backtrace[1]['class'],

@@ -28,6 +28,8 @@ class SiteConfigurationProvider implements GlobalVariableProviderInterface
 {
     use SiteFinderTrait;
 
+    public const KEY = 'siteConfiguration';
+
     /**
      * @var bool
      */
@@ -57,12 +59,11 @@ class SiteConfigurationProvider implements GlobalVariableProviderInterface
         $site = $this->siteFinder->getSiteByPageId((int)$GLOBALS['TSFE']->id);
         $this->setCacheable(true);
 
-        return ['siteConfiguration' => $site];
+        return [self::KEY => $site];
     }
 
     /**
-     * This must return false on first call. Otherwise the function getGlobalVariables() will never be called. When
-     * returned data isn't supposed to change anymore, set function's return value to true.
+     * When returned data isn't supposed to change anymore, set function's return value to true.
      *
      * @return bool
      */

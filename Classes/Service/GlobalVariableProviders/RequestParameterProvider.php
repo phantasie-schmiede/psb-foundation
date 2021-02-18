@@ -28,6 +28,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class RequestParameterProvider implements GlobalVariableProviderInterface
 {
+    public const KEY = 'parameters';
+
     /**
      * @var bool
      */
@@ -57,12 +59,11 @@ class RequestParameterProvider implements GlobalVariableProviderInterface
 
         $this->setCacheable(true);
 
-        return ['parameters' => $parameters];
+        return [self::KEY => $parameters];
     }
 
     /**
-     * This must return false on first call. Otherwise the function getGlobalVariables() will never be called. When
-     * returned data isn't supposed to change anymore, set function's return value to true.
+     * When returned data isn't supposed to change anymore, set function's return value to true.
      *
      * @return bool
      */
