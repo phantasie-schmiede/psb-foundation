@@ -10,9 +10,9 @@ $EM_CONF['psb_foundation'] = [
         'conflicts' => [
         ],
         'depends'   => [
-            'fluid_styled_content' => '10.4.2-10.4.99',
+            'fluid_styled_content' => '10.4.10-10.4.99',
             'php'                  => '7.4',
-            'typo3'                => '10.4.2-10.4.99',
+            'typo3'                => '10.4.10-10.4.99',
         ],
         'suggests'  => [
         ],
@@ -22,5 +22,5 @@ $EM_CONF['psb_foundation'] = [
     'state'            => 'beta',
     'title'            => 'PSbits | Foundation',
     'uploadfolder'     => false,
-    'version'          => '0.1.0',
+    'version'          => '1.0.0',
 ];
