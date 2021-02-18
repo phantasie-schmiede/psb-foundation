@@ -30,6 +30,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * Extensions may provide a YAML-file with constants that can be used in ext_localconf.php-files (before TypoScript is
  * available). Those constants can be accessed via the GlobalVariableService and are registered as
  * TypoScript-constants, too.
+ *
+ * If your constants are neither needed that early during TYPO3's bootstrap process nor are they context-specific, you
+ * may consider to place them in the config.yaml of your SiteConfiguration:
+ * https://docs.typo3.org/c/typo3/cms-core/master/en-us/Changelog/10.4/Feature-91080-SiteSettingsAsTsConstantsAndInTsConfig.html
+ *
  * To provide a simple configuration that is valid for all stages, just create the file
  * /Configuration/EarlyAccessConstants/constants.yaml inside your extension directory.
  * It is possible to provide context-specific files that enable you to manage the requirements of different stages. The
