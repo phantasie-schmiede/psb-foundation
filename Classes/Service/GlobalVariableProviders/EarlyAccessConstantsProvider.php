@@ -87,7 +87,7 @@ class EarlyAccessConstantsProvider implements GlobalVariableProviderInterface
             }
 
             if (file_exists($yamlFile)) {
-                $constants = Yaml::parseFile($yamlFile);
+                $constants = Yaml::parseFile($yamlFile) ?? [];
                 ArrayUtility::mergeRecursiveWithOverrule($mergedConstants, $constants);
             }
         }
