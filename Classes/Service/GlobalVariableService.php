@@ -50,7 +50,7 @@ class GlobalVariableService
 
         if (null !== $path) {
             try {
-                return ArrayUtility::getValueByPath($globalVariables, $path);
+                return ArrayUtility::getValueByPath($globalVariables, $path, '.');
             } catch (Exception $e) {
                 // Do nothing.
             }
@@ -81,7 +81,7 @@ class GlobalVariableService
         }
 
         if (null !== $path) {
-            return ArrayUtility::getValueByPath($globalVariables, $path);
+            return ArrayUtility::getValueByPath($globalVariables, $path, '.');
         }
 
         return $globalVariables;
