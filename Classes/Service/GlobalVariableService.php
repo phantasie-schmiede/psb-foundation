@@ -18,7 +18,6 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use PSB\PsbFoundation\Service\GlobalVariableProviders\GlobalVariableProviderInterface;
-use PSB\PsbFoundation\Utility\VariableUtility;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -44,14 +43,17 @@ class GlobalVariableService
      * @param string|null $path
      *
      * @return mixed
-     * @throws \TYPO3\CMS\Extbase\Object\Exception
      */
     public static function get(string $path = null)
     {
         $globalVariables = self::$cachedVariables;
 
-        if (null !== $path && self::has($path)) {
-            return VariableUtility::getValueByPath($globalVariables, $path);
+        if (null !== $path) {
+            try {
+                return ArrayUtility::getValueByPath($globalVariables, $path);
+            } catch (Exception $e) {
+                // Do nothing.
+            }
         }
 
         if (!empty(self::$globalVariableProviders)) {
@@ -79,11 +81,7 @@ class GlobalVariableService
         }
 
         if (null !== $path) {
-            try {
-                return VariableUtility::getValueByPath($globalVariables, $path);
-            } catch (Exception $e) {
-                throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562136068);
-            }
+            return ArrayUtility::getValueByPath($globalVariables, $path);
         }
 
         return $globalVariables;

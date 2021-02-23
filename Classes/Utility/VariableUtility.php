@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility;
 
+use RuntimeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -38,11 +39,14 @@ class VariableUtility
         $value = $variable;
 
         foreach ($pathSegments as $pathSegment) {
-            if (is_array($value)) {
+            if (is_array($value) && array_key_exists($pathSegment, $value)) {
                 $value = $value[$pathSegment];
             } elseif (is_object($value)) {
                 $getterMethod = 'get' . ucfirst($pathSegment);
                 $value = $value->$getterMethod();
+            } else {
+                throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array or object!',
+                    1614066725);
             }
         }
 
