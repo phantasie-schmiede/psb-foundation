@@ -88,11 +88,11 @@ class EarlyAccessConstantsProvider implements GlobalVariableProviderInterface
 
             if (file_exists($yamlFile)) {
                 $constants = Yaml::parseFile($yamlFile);
-                ExtensionManagementUtility::addTypoScriptConstants(TypoScriptUtility::convertArrayToTypoScript($constants));
                 ArrayUtility::mergeRecursiveWithOverrule($mergedConstants, $constants);
             }
         }
 
+        ExtensionManagementUtility::addTypoScriptConstants(TypoScriptUtility::convertArrayToTypoScript($mergedConstants));
         $this->setCacheable(true);
 
         return $mergedConstants;

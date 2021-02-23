@@ -20,12 +20,13 @@ use Doctrine\DBAL\Exception\TableNotFoundException;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
+use PSB\PsbFoundation\Traits\Properties\ConnectionPoolTrait;
+use PSB\PsbFoundation\Traits\Properties\ExtensionConfigurationTrait;
+use PSB\PsbFoundation\Traits\Properties\PackageManagerTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Core\Environment;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -37,95 +38,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class ExtensionInformationService
 {
+    use ConnectionPoolTrait, ExtensionConfigurationTrait, PackageManagerTrait;
+
     private const EXTENSION_INFORMATION_MAPPING_TABLE = 'tx_psbfoundation_extension_information_mapping';
 
     /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $path
-     *
-     * @return mixed
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @var ExtensionInformationInterface[]
      */
-    public function getConfiguration(
-        ExtensionInformationInterface $extensionInformation,
-        string $path = ''
-    ) {
-        $path = str_replace('.', '/', $path);
-        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class)
-            ->get($extensionInformation->getExtensionKey(), $path);
-
-        if (is_array($extensionConfiguration)) {
-            return GeneralUtility::makeInstance(TypoScriptService::class)
-                ->convertTypoScriptArrayToPlainArray($extensionConfiguration);
-        }
-
-        return $extensionConfiguration;
-    }
-
-    /**
-     * @return ExtensionInformationInterface[]
-     */
-    public function getExtensionInformation(): array
-    {
-        $extensionInformation = $this->getRegisteredClassInformation();
-        $extensionInformationInstances = [];
-
-        foreach ($extensionInformation as $information) {
-            if (!ExtensionManagementUtility::isLoaded($information['extension_key'])) {
-                $this->deregister($information['extension_key']);
-                continue;
-            }
-
-            /** @var ExtensionInformationInterface $extensionInformationClass */
-            $extensionInformationClass = GeneralUtility::makeInstance($information['class_name']);
-            $extensionInformationInstances[$extensionInformationClass->getExtensionKey()] = $extensionInformationClass;
-        }
-
-        return $extensionInformationInstances;
-    }
-
-    /**
-     * @param string $extensionKey
-     *
-     * @return string
-     */
-    public function getLanguageFilePath(string $extensionKey): string
-    {
-        return $this->getResourcePath($extensionKey) . 'Private/Language/';
-    }
-
-    /**
-     * @return array
-     */
-    public function getRegisteredClassInformation(): array
-    {
-        try {
-            return GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
-                ->select(['class_name', 'extension_key'], self::EXTENSION_INFORMATION_MAPPING_TABLE)
-                ->fetchAll();
-        } catch (TableNotFoundException $tableNotFoundException) {
-            return [];
-        }
-    }
-
-    /**
-     * @param string $extensionKey
-     *
-     * @return string
-     */
-    public function getResourcePath(string $extensionKey): string
-    {
-        $subDirectoryPath = '/' . $extensionKey . '/Resources/';
-        $resourcePath = Environment::getExtensionsPath() . $subDirectoryPath;
-
-        if (is_dir($resourcePath)) {
-            return $resourcePath;
-        }
-
-        return Environment::getFrameworkBasePath() . $subDirectoryPath;
-    }
+    private static array $extensionInformationInstances = [];
 
     /**
      * @param string $className
@@ -158,8 +78,7 @@ class ExtensionInformationService
      */
     public function deregister(string $extensionKey): void
     {
-        GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
+        $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
             ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
     }
 
@@ -223,8 +142,7 @@ class ExtensionInformationService
         $this->validateExtensionInformationClass($className);
         $this->validateExtensionKey($extensionKey);
 
-        GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
+        $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
             ->insert(self::EXTENSION_INFORMATION_MAPPING_TABLE,
                 [
                     'class_name'    => $className,
@@ -257,5 +175,103 @@ class ExtensionInformationService
             throw new ImplementationException(__CLASS__ . ': The key "' . $extensionKey . '" does not match any installed extension!',
                 1568738493);
         }
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $path
+     *
+     * @return mixed
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
+    public function getConfiguration(
+        ExtensionInformationInterface $extensionInformation,
+        string $path = ''
+    ) {
+        $path = str_replace('.', '/', $path);
+        $extensionConfiguration = $this->extensionConfiguration->get($extensionInformation->getExtensionKey(), $path);
+
+        if (is_array($extensionConfiguration)) {
+            return GeneralUtility::makeInstance(TypoScriptService::class)
+                ->convertTypoScriptArrayToPlainArray($extensionConfiguration);
+        }
+
+        return $extensionConfiguration;
+    }
+
+    /**
+     * @return ExtensionInformationInterface[]
+     */
+    public function getExtensionInformation(): array
+    {
+        if (empty(self::$extensionInformationInstances)) {
+            $extensionInformation = $this->getRegisteredClassInformation();
+
+            foreach ($extensionInformation as $className) {
+                /** @var ExtensionInformationInterface $extensionInformationClass */
+                $extensionInformationClass = GeneralUtility::makeInstance($className);
+                self::$extensionInformationInstances[$extensionInformationClass->getExtensionKey()] = $extensionInformationClass;
+            }
+        }
+
+        return self::$extensionInformationInstances;
+    }
+
+    /**
+     * @param string $extensionKey
+     *
+     * @return string
+     */
+    public function getLanguageFilePath(string $extensionKey): string
+    {
+        return $this->getResourcePath($extensionKey) . 'Private/Language/';
+    }
+
+    /**
+     * @return array
+     */
+    public function getRegisteredClassInformation(): array
+    {
+        try {
+            // We need to use the active packages to ensure that the dependencies are resolved in the correct order.
+            $activePackages = $this->packageManager->getActivePackages();
+            $orderedClassInformation = [];
+            $unorderedClassInformation = [];
+            $classInformationRows = $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
+                ->select(['class_name', 'extension_key'], self::EXTENSION_INFORMATION_MAPPING_TABLE)
+                ->fetchAll();
+
+            foreach ($classInformationRows as $row) {
+                $unorderedClassInformation[$row['extension_key']] = $row['class_name'];
+            }
+
+            foreach ($activePackages as $package) {
+                if (isset($unorderedClassInformation[$package->getPackageKey()])) {
+                    $orderedClassInformation[] = $unorderedClassInformation[$package->getPackageKey()];
+                }
+            }
+
+            return $orderedClassInformation;
+        } catch (TableNotFoundException $tableNotFoundException) {
+            return [];
+        }
+    }
+
+    /**
+     * @param string $extensionKey
+     *
+     * @return string
+     */
+    public function getResourcePath(string $extensionKey): string
+    {
+        $subDirectoryPath = '/' . $extensionKey . '/Resources/';
+        $resourcePath = Environment::getExtensionsPath() . $subDirectoryPath;
+
+        if (is_dir($resourcePath)) {
+            return $resourcePath;
+        }
+
+        return Environment::getFrameworkBasePath() . $subDirectoryPath;
     }
 }
