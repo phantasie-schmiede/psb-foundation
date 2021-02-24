@@ -18,6 +18,7 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use PSB\PsbFoundation\Service\GlobalVariableProviders\GlobalVariableProviderInterface;
+use PSB\PsbFoundation\Utility\VariableUtility;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -50,7 +51,7 @@ class GlobalVariableService
 
         if (null !== $path) {
             try {
-                return ArrayUtility::getValueByPath($globalVariables, $path, '.');
+                return VariableUtility::getValueByPath($globalVariables, $path);
             } catch (Exception $e) {
                 // Do nothing.
             }
@@ -81,7 +82,7 @@ class GlobalVariableService
         }
 
         if (null !== $path) {
-            return ArrayUtility::getValueByPath($globalVariables, $path, '.');
+            return VariableUtility::getValueByPath($globalVariables, $path);
         }
 
         return $globalVariables;
@@ -95,7 +96,7 @@ class GlobalVariableService
     public static function has(string $path): bool
     {
         try {
-            ArrayUtility::getValueByPath(self::get(), $path, '.');
+            VariableUtility::getValueByPath(self::get(), $path);
 
             return true;
         } catch (Exception $exception) {
