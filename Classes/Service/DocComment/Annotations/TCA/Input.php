@@ -29,9 +29,19 @@ class Input extends AbstractTcaFieldAnnotation
     public const TYPE = Fields::FIELD_TYPES['INPUT'];
 
     /**
+     * @var int|null
+     */
+    protected ?int $default = null;
+
+    /**
      * @var string
      */
     protected string $eval = 'trim';
+
+    /**
+     * @var bool
+     */
+    protected bool $readOnly = false;
 
     /**
      * @var string|null
@@ -42,6 +52,22 @@ class Input extends AbstractTcaFieldAnnotation
      * @var int
      */
     protected int $size = 20;
+
+    /**
+     * @return int|null
+     */
+    public function getDefault(): ?int
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param int|null $default
+     */
+    public function setDefault(?int $default): void
+    {
+        $this->default = $default;
+    }
 
     /**
      * @return string
@@ -89,5 +115,21 @@ class Input extends AbstractTcaFieldAnnotation
     public function setSize(int $size): void
     {
         $this->size = $size;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isReadOnly(): bool
+    {
+        return $this->readOnly;
+    }
+
+    /**
+     * @param bool $readOnly
+     */
+    public function setReadOnly(bool $readOnly): void
+    {
+        $this->readOnly = $readOnly;
     }
 }

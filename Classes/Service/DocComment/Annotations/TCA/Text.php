@@ -34,6 +34,11 @@ class Text extends AbstractTcaFieldAnnotation
     protected int $cols = 32;
 
     /**
+     * @var int|null
+     */
+    protected ?int $default = null;
+
+    /**
      * @var bool
      */
     protected bool $enableRichtext = false;
@@ -42,6 +47,11 @@ class Text extends AbstractTcaFieldAnnotation
      * @var string
      */
     protected string $eval = 'trim';
+
+    /**
+     * @var bool
+     */
+    protected bool $readOnly = false;
 
     /**
      * @var int
@@ -65,19 +75,19 @@ class Text extends AbstractTcaFieldAnnotation
     }
 
     /**
-     * @return bool
+     * @return int|null
      */
-    public function isEnableRichtext(): bool
+    public function getDefault(): ?int
     {
-        return $this->enableRichtext;
+        return $this->default;
     }
 
     /**
-     * @param bool $enableRichtext
+     * @param int|null $default
      */
-    public function setEnableRichtext(bool $enableRichtext): void
+    public function setDefault(?int $default): void
     {
-        $this->enableRichtext = $enableRichtext;
+        $this->default = $default;
     }
 
     /**
@@ -110,5 +120,37 @@ class Text extends AbstractTcaFieldAnnotation
     public function setRows(int $rows): void
     {
         $this->rows = $rows;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEnableRichtext(): bool
+    {
+        return $this->enableRichtext;
+    }
+
+    /**
+     * @param bool $enableRichtext
+     */
+    public function setEnableRichtext(bool $enableRichtext): void
+    {
+        $this->enableRichtext = $enableRichtext;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isReadOnly(): bool
+    {
+        return $this->readOnly;
+    }
+
+    /**
+     * @param bool $readOnly
+     */
+    public function setReadOnly(bool $readOnly): void
+    {
+        $this->readOnly = $readOnly;
     }
 }
