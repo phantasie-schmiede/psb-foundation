@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 use PSB\PsbFoundation\Traits\Properties\SiteFinderTrait;
+use PSB\PsbFoundation\Utility\ContextUtility;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 
 /**
@@ -50,7 +51,7 @@ class SiteConfigurationProvider implements GlobalVariableProviderInterface
     public function getGlobalVariables(): array
     {
         // not available in backend
-        if ('BE' === TYPO3_MODE) {
+        if (ContextUtility::isBackend()) {
             $this->setCacheable(true);
 
             return [];

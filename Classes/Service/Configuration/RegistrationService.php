@@ -30,6 +30,7 @@ use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
+use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
@@ -400,7 +401,7 @@ class RegistrationService
      */
     public function registerModules(ExtensionInformationInterface $extensionInformation): void
     {
-        if ('BE' !== TYPO3_MODE || !is_iterable($extensionInformation->getModules())) {
+        if (!ContextUtility::isBackend() || !is_iterable($extensionInformation->getModules())) {
             return;
         }
 
