@@ -152,6 +152,7 @@ class LocalizationService
      * initialized yet.
      *
      * @param string $key
+     * @param bool   $logMissingTranslation
      *
      * @return bool
      * @throws Exception
@@ -159,7 +160,7 @@ class LocalizationService
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws JsonException
      */
-    public function translationExists(string $key): bool
+    public function translationExists(string $key, bool $logMissingTranslation = true): bool
     {
         $keyParts = explode(':', $key);
 
@@ -196,7 +197,9 @@ class LocalizationService
             }
         }
 
-        $this->logMissingTranslations($key, false);
+        if (true === $logMissingTranslation) {
+            $this->logMissingTranslations($key, false);
+        }
 
         return false;
     }

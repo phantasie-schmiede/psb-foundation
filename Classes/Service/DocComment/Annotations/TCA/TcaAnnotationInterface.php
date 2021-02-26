@@ -24,6 +24,26 @@ namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 interface TcaAnnotationInterface
 {
     /**
+     * @param string      $className
+     * @param string|null $methodOrPropertyName
+     * @param array       $namespaces
+     * @param array       $properties
+     *
+     * @return array
+     */
+    public static function propertyPreProcessor(
+        string $className,
+        ?string $methodOrPropertyName,
+        array $namespaces,
+        array $properties
+    ): array;
+
+    /**
+     * @param bool $editableInFrontend
+     */
+    public function setEditableInFrontend(bool $editableInFrontend): void;
+
+    /**
      * @return string
      */
     public function getType(): string;
@@ -32,16 +52,4 @@ interface TcaAnnotationInterface
      * @return bool|null
      */
     public function isEditableInFrontend(): ?bool;
-
-    /**
-     * @param array $properties
-     *
-     * @return array
-     */
-    public static function propertyPreProcessor(array $properties): array;
-
-    /**
-     * @param bool $editableInFrontend
-     */
-    public function setEditableInFrontend(bool $editableInFrontend): void;
 }

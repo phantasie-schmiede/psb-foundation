@@ -146,7 +146,7 @@ class DocCommentParserService implements LoggerAwareInterface
                         2);
 
                     if (null !== $parameters) {
-                        $value = $this->processValue($annotationType, $className, $parameters);
+                        $value = $this->processValue($annotationType, $className, $methodOrPropertyName, $parameters);
                     } else {
                         $value = null;
                     }
@@ -189,10 +189,10 @@ class DocCommentParserService implements LoggerAwareInterface
                             if (is_array($parsedDocComment[$annotationType]) && !ArrayUtility::isAssociative($parsedDocComment[$annotationType])) {
                                 $indexOfLastElement = count($parsedDocComment[$annotationType]) - 1;
                                 $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($annotationType,
-                                    $className, $parameters);
+                                    $className, $methodOrPropertyName, $parameters);
                             } else {
                                 $parsedDocComment[$annotationType] = $this->processValue($annotationType, $className,
-                                    $parameters);
+                                    $methodOrPropertyName, $parameters);
                             }
                         } else {
                             $parameters = $commentLine;
@@ -244,13 +244,18 @@ class DocCommentParserService implements LoggerAwareInterface
     /**
      * @param string|null $annotationType
      * @param string      $className
+     * @param string|null $methodOrPropertyName
      * @param string      $value
      *
      * @return mixed
      * @throws JsonException
      */
-    private function processValue(?string $annotationType, string $className, string $value)
-    {
+    private function processValue(
+        ?string $annotationType,
+        string $className,
+        ?string $methodOrPropertyName,
+        string $value
+    ) {
         $value = str_replace('self::', $className . '::', $value);
 
         switch ($annotationType) {
@@ -280,17 +285,22 @@ class DocCommentParserService implements LoggerAwareInterface
                 $annotationClass = ObjectUtility::getFullQualifiedClassName($annotationType, $this->namespaces);
 
                 if (false !== $annotationClass) {
-                    $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $annotationClass);
+                    $namespaces = $this->namespaces;
                     $properties = $this->convertValueStringToPropertiesArray($value);
+                    $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $annotationClass);
 
                     if ($reflectionClass->implementsInterface(TcaAnnotationInterface::class)) {
                         /** @var TcaAnnotationInterface $annotationClass */
-                        $properties = $annotationClass::propertyPreProcessor($properties);
+                        $properties = $annotationClass::propertyPreProcessor($className, $methodOrPropertyName,
+                            $namespaces, $properties);
                     }
 
-                    $namespaces = $this->namespaces;
                     $properties = array_map(static function ($propertyValue) use ($namespaces) {
-                        return StringUtility::convertString($propertyValue, true, $namespaces);
+                        if (is_string(($propertyValue))) {
+                            return StringUtility::convertString($propertyValue, true, $namespaces);
+                        }
+
+                        return $propertyValue;
                     }, $properties);
 
                     return GeneralUtility::makeInstance($annotationClass, $properties);

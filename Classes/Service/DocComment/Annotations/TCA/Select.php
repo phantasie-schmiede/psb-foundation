@@ -16,10 +16,18 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
+use JsonException;
 use PSB\PsbFoundation\Service\Configuration\Fields;
+use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Service\ExtensionInformationService;
+use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class Select
@@ -111,6 +119,60 @@ class Select extends AbstractTcaFieldAnnotation
     protected int $size = 1;
 
     /**
+     * @param string      $className
+     * @param string|null $methodOrPropertyName
+     * @param array       $namespaces
+     * @param array       $properties
+     *
+     * @return array
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
+     */
+    public static function propertyPreProcessor(
+        string $className,
+        ?string $methodOrPropertyName,
+        array $namespaces,
+        array $properties
+    ): array {
+        if (isset($properties['items'])) {
+            $items = StringUtility::convertString($properties['items'], false, $namespaces);
+            $labeledItems = [];
+            $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
+            $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
+            $tcaService = GeneralUtility::makeInstance(TcaService::class);
+
+            foreach ($items as $value) {
+                $extensionInformation = $extensionInformationService->extractExtensionInformationFromClassName($className);
+                $idBasePath = 'LLL:EXT:' . $extensionInformation['extensionKey'] . '/Resources/Private/Language/Backend/Configuration/TCA/';
+                $tableName = $tcaService->convertClassNameToTableName($className);
+                $idFilenameAndLabel = $tableName . '.xlf:' . $methodOrPropertyName . '.' . $value;
+
+                $ids = [
+                    $idBasePath . $idFilenameAndLabel,
+                    $idBasePath . 'Overrides/' . $idFilenameAndLabel,
+                ];
+
+                $label = null;
+
+                foreach ($ids as $id) {
+                    if ($localizationService->translationExists($id, false)) {
+                        $label = $id;
+                        break;
+                    }
+                }
+
+                $labeledItems[] = [$label ?? $value, $value];
+            }
+
+            $properties['items'] = $labeledItems;
+        }
+
+        return parent::propertyPreProcessor($className, $methodOrPropertyName, $namespaces, $properties);
+    }
+
+    /**
      * @return int
      */
     public function getAutoSizeMax(): int
@@ -179,17 +241,6 @@ class Select extends AbstractTcaFieldAnnotation
      */
     public function getItems(): array
     {
-        if (ArrayUtility::isAssociative($this->items)) {
-            // This is the case if the values are extracted from a constant.
-            $items = [];
-
-            foreach ($this->items as $item) {
-                $items[] = [$item, $item];
-            }
-
-            $this->items = $items;
-        }
-
         return $this->items;
     }
 

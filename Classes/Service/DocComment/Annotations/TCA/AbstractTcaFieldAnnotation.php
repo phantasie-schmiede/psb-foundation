@@ -77,6 +77,52 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     }
 
     /**
+     * @param string      $className
+     * @param string|null $methodOrPropertyName
+     * @param array       $namespaces
+     * @param array       $properties
+     *
+     * @return array
+     */
+    public static function propertyPreProcessor(
+        string $className,
+        ?string $methodOrPropertyName,
+        array $namespaces,
+        array $properties
+    ): array {
+        if (isset($properties['linkedModel']) && !StringUtility::endsWith($properties['linkedModel'], '::class')) {
+            $properties['linkedModel'] .= '::class';
+        }
+
+        return $properties;
+    }
+
+    /**
+     * @param string $targetScope
+     *
+     * @return array
+     * @throws ReflectionException
+     */
+    public function toArray(string $targetScope): array
+    {
+        $properties = parent::toArray($targetScope);
+        $fieldConfiguration = [];
+        $fieldConfiguration['config']['type'] = $this->getType();
+
+        foreach ($properties as $key => $value) {
+            $key = TcaUtility::convertKey($key);
+
+            if (in_array($key, ['displayCond', 'exclude', 'label', 'onChange'], true)) {
+                $fieldConfiguration[$key] = $value;
+            } else {
+                $fieldConfiguration['config'][$key] = $value;
+            }
+        }
+
+        return $fieldConfiguration;
+    }
+
+    /**
      * @return array|string|null
      */
     public function getDisplayCond()
@@ -146,44 +192,5 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     public function setExclude(bool $exclude): void
     {
         $this->exclude = $exclude;
-    }
-
-    /**
-     * @param array $properties
-     *
-     * @return array
-     */
-    public static function propertyPreProcessor(array $properties): array
-    {
-        if (isset($properties['linkedModel']) && !StringUtility::endsWith($properties['linkedModel'], '::class')) {
-            $properties['linkedModel'] .= '::class';
-        }
-
-        return $properties;
-    }
-
-    /**
-     * @param string $targetScope
-     *
-     * @return array
-     * @throws ReflectionException
-     */
-    public function toArray(string $targetScope): array
-    {
-        $properties = parent::toArray($targetScope);
-        $fieldConfiguration = [];
-        $fieldConfiguration['config']['type'] = $this->getType();
-
-        foreach ($properties as $key => $value) {
-            $key = TcaUtility::convertKey($key);
-
-            if (in_array($key, ['displayCond', 'exclude', 'label'], true)) {
-                $fieldConfiguration[$key] = $value;
-            } else {
-                $fieldConfiguration['config'][$key] = $value;
-            }
-        }
-
-        return $fieldConfiguration;
     }
 }
