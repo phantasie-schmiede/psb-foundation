@@ -16,10 +16,19 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\ViewHelpers;
 
+use Closure;
+use InvalidArgumentException;
 use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Utility\ContextUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
+use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
+use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 
 /**
  * Class TranslateViewHelper
@@ -31,6 +40,69 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelper
 {
+    /**
+     * Return array element by key.
+     *
+     * @param array                     $arguments
+     * @param Closure                   $renderChildrenClosure
+     * @param RenderingContextInterface $renderingContext
+     *
+     * @return string
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     */
+    public static function renderStatic(
+        array $arguments,
+        Closure $renderChildrenClosure,
+        RenderingContextInterface $renderingContext
+    ) {
+        [
+            'default'              => $default,
+            'extensionName'        => $extensionName,
+            'id'                   => $id,
+            'key'                  => $key,
+            'translationArguments' => $translateArguments,
+        ] = $arguments;
+
+        // Use key if id is empty.
+        if (null === $id) {
+            $id = $key;
+        }
+
+        if ('' === (string)$id) {
+            throw new Exception('An argument "key" or "id" has to be provided', 1351584844);
+        }
+
+        /** @var ControllerContext $controllerContext */
+        $controllerContext = $renderingContext->getControllerContext();
+        $request = $controllerContext->getRequest();
+        $extensionName = $extensionName ?? $request->getControllerExtensionName();
+
+        if (!StringUtility::beginsWith($id, 'LLL:')) {
+            $id = self::buildId($id, $renderingContext, $request);
+        }
+
+        // @todo REMOVE BEFORE DEPLOYMENT!!!
+        \TYPO3\CMS\Core\Utility\DebugUtility::debug($id);
+
+        try {
+            $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey'],
+                $arguments['alternativeLanguageKeys']);
+        } catch (InvalidArgumentException $e) {
+            $value = null;
+        }
+
+        if (null === $value) {
+            $value = $default ?? $renderChildrenClosure();
+
+            if (!empty($translateArguments)) {
+                $value = vsprintf($value, $translateArguments);
+            }
+        }
+
+        return $value;
+    }
+
     /**
      * Wrapper call to static LocalizationService
      *
@@ -54,5 +126,46 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
         return $localizationService->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
+    }
+
+    /**
+     * @param string                    $id
+     * @param RenderingContextInterface $renderingContext
+     * @param Request                   $request
+     *
+     * @return string
+     */
+    private static function buildId(string $id, RenderingContextInterface $renderingContext, Request $request): string
+    {
+        if (0 < mb_strpos($id, ':')) {
+            [$alias, $id] = GeneralUtility::trimExplode(':', $id);
+            $templateVariableContainer = $renderingContext->getVariableProvider();
+
+            if ($templateVariableContainer->exists(RegisterLanguageFileViewHelper::VARIABLE_NAME)) {
+                $registry = $templateVariableContainer->get(RegisterLanguageFileViewHelper::VARIABLE_NAME);
+
+                if (isset($registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias])) {
+                    return 'LLL:' . $registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias] . ':' . $id;
+                }
+            }
+        }
+
+        $path = 'LLL:EXT:' . GeneralUtility::camelCaseToLowerCaseUnderscored($request->getControllerExtensionName()) . '/Resources/Private/Language/';
+
+        if (ContextUtility::isBackend()) {
+            $path .= 'Backend';
+        } else {
+            $path .= 'Frontend';
+        }
+
+        // Controller name may consist of several parts, e.g. Backend\Module.
+        $controllerName = explode('\\', $request->getControllerName());
+
+        // Remove Backend from array to avoid duplicate folder name in path.
+        if (1 < count($controllerName) && 'Backend' === $controllerName[0]) {
+            array_shift($controllerName);
+        }
+
+        return $path . '/' . implode('/', $controllerName) . '/' . $request->getControllerActionName() . '.xlf:' . $id;
     }
 }
