@@ -59,6 +59,11 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     protected ?string $label = null;
 
     /**
+     * @var string|null
+     */
+    protected ?string $onChange = null;
+
+    /**
      * @var TcaService
      */
     protected TcaService $tcaService;
@@ -152,6 +157,22 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     public function setLabel(?string $label): void
     {
         $this->label = $label;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOnChange(): ?string
+    {
+        return $this->onChange;
+    }
+
+    /**
+     * @param string|null $onChange
+     */
+    public function setOnChange(?string $onChange): void
+    {
+        $this->onChange = $onChange;
     }
 
     /**
