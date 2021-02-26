@@ -82,9 +82,6 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
             $id = self::buildId($id, $renderingContext, $request);
         }
 
-        // @todo REMOVE BEFORE DEPLOYMENT!!!
-        \TYPO3\CMS\Core\Utility\DebugUtility::debug($id);
-
         try {
             $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey'],
                 $arguments['alternativeLanguageKeys']);
