@@ -104,6 +104,7 @@ class TcaService
             foreach ($columns as $column) {
                 // only add new columns
                 if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                    $GLOBALS['TCA'][$this->table]['columns'][$column] = $this->configuration['columns'][$column];
                     ExtensionManagementUtility::addToAllTCAtypes(
                         $this->table,
                         $column
