@@ -24,12 +24,19 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 interface GlobalVariableProviderInterface
 {
     /**
-     * This function has to return false if the provider uses e.g. dependency injection or TYPO3's CacheManager. Return
-     * true if it can safely be instantiated and executed in ext_localconf.php files.
+     * You can use the ContextUtility to control if your provider should be called during this request and if it is
+     * ready to be instantiated.
      *
-     * @return bool
+     * Example:
+     * This function has to return false during TYPO3's bootstrap process if the provider uses dependency
+     * injection or TYPO3's CacheManager.
+     * return ContextUtility::isBootProcessRunning ? null : true;
+     *
+     * @return bool|null Return false if your provider should not be loaded during this request.
+     *                   Return true if your provider can be instantiated.
+     *                   Return null if the instantiation of your provider shall be postponed.
      */
-    public static function isAvailableDuringBootProcess(): bool;
+    public static function isAvailable(): ?bool;
 
     /**
      * @return array
