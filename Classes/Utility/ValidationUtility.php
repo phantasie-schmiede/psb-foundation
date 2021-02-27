@@ -20,6 +20,7 @@ use InvalidArgumentException;
 
 /**
  * Class ValidationUtility
+ *
  * @package PSB\PsbFoundation\Utility
  */
 class ValidationUtility
@@ -53,8 +54,8 @@ class ValidationUtility
     public static function checkKeyAgainstConstant(array $constant, string $key): void
     {
         if (!isset($constant[$key])) {
-            throw new InvalidArgumentException(self::class . ': Key "' . $key . '" is not present in constant. Possible keys: ' . implode(', ',
-                    array_keys($constant)), 1564122378);
+            throw new InvalidArgumentException(self::class . ': Key "' . $key . '" is not present in constant!',
+                1564122378);
         }
     }
 
@@ -65,8 +66,8 @@ class ValidationUtility
     public static function checkValueAgainstConstant(array $constant, $value): void
     {
         if (!in_array($value, $constant, true)) {
-            throw new InvalidArgumentException(self::class . ': Value "' . $value . '" is not present in constant. Possible values: ' . implode(', ',
-                    $constant), 1564068237);
+            throw new InvalidArgumentException(self::class . ': Value "' . $value . '" is not present in constant!',
+                1564068237);
         }
     }
 }
