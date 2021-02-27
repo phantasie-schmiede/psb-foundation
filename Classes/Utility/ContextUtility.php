@@ -16,6 +16,14 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility;
 
+use PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider;
+use PSB\PsbFoundation\Service\GlobalVariableService;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
+use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Class ContextUtility
  *
@@ -23,12 +31,67 @@ namespace PSB\PsbFoundation\Utility;
  */
 class ContextUtility
 {
+    public const DEFAULT_LANGUAGE_KEY = 'en';
+
+    public static function getCurrentBackendLanguage(): string
+    {
+        ValidationUtility::requiresBackendContext();
+        $language = $GLOBALS['BE_USER']->uc['lang'];
+
+        if ('' === $language) {
+            // Fallback to default language.
+            return self::DEFAULT_LANGUAGE_KEY;
+        }
+
+        return $language;
+    }
+
+    /**
+     * @return SiteLanguage
+     * @throws AspectNotFoundException
+     */
+    public static function getCurrentFrontendLanguage(): SiteLanguage
+    {
+        ValidationUtility::requiresFrontendContext();
+
+        /** @var Site $siteConfiguration */
+        $siteConfiguration = GlobalVariableService::get(SiteConfigurationProvider::KEY);
+        $context = GeneralUtility::makeInstance(Context::class);
+
+        return $siteConfiguration->getLanguageById($context->getPropertyFromAspect('language', 'id'));
+    }
+
+    /**
+     * @return string
+     * @throws AspectNotFoundException
+     */
+    public static function getCurrentLocale(): string
+    {
+        if (self::isBackend()) {
+            return self::getCurrentBackendLanguage();
+        }
+
+        if (self::isFrontend()) {
+            return self::getCurrentFrontendLanguage()->getLocale();
+        }
+
+        return self::DEFAULT_LANGUAGE_KEY;
+    }
+
     /**
      * @return bool
      */
     public static function isBackend(): bool
     {
         return (bool)(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_BE);
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isBootProcessRunning(): bool
+    {
+        return !GeneralUtility::getContainer()->get('boot.state')->done;
     }
 
     /**

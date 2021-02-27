@@ -16,7 +16,9 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility;
 
+use NumberFormatter;
 use RuntimeException;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -60,17 +62,14 @@ class FileUtility
      * @param int|string $input You can pass either the filesize or the filename.
      * @param int|null   $unit
      * @param int        $decimals
-     * @param string     $decimalSeparator
-     * @param string     $thousandsSeparator
      *
      * @return string
+     * @throws AspectNotFoundException
      */
     public static function formatFileSize(
         $input,
         int $unit = null,
-        int $decimals = 2,
-        $decimalSeparator = ',',
-        $thousandsSeparator = '.'
+        int $decimals = 2
     ): string {
         switch (true) {
             case is_int($input):
@@ -97,7 +96,9 @@ class FileUtility
         }
 
         $unitString = array_search($power ?? $unit, self::FILE_SIZE_UNITS, true);
+        $numberFormatter = StringUtility::getNumberFormatter();
+        $numberFormatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, $decimals);
 
-        return number_format($bytes, $decimals, $decimalSeparator, $thousandsSeparator) . ' ' . $unitString;
+        return $numberFormatter->format($bytes) . ' ' . $unitString;
     }
 }

@@ -18,7 +18,9 @@ namespace PSB\PsbFoundation\Utility;
 
 use Exception;
 use JsonException;
+use NumberFormatter;
 use RuntimeException;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -273,6 +275,17 @@ class StringUtility
     public static function explodeByLineBreaks(string $string)
     {
         return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string);
+    }
+
+    /**
+     * @param int $style
+     *
+     * @return NumberFormatter
+     * @throws AspectNotFoundException
+     */
+    public static function getNumberFormatter(int $style = NumberFormatter::DEFAULT_STYLE): NumberFormatter
+    {
+        return NumberFormatter::create(ContextUtility::getCurrentLocale(), $style);
     }
 
     /**
