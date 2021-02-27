@@ -61,32 +61,6 @@ class TcaService
         'uid',
     ];
 
-    /*
-     * This array constant compensates inconsistencies in TCA key naming. All keys that are not listed here will be
-     * transformed to lower_case_underscored.
-     */
-    private const PROPERTY_KEY_MAPPING = [
-        'autoSizeMax'        => 'autoSizeMax',
-        'dbType'             => 'dbType',
-        'defaultSortBy'      => 'default_sortby',
-        'editableInFrontend' => 'editableInFrontend',
-        'enableRichtext'     => 'enableRichtext',
-        'fallbackCharacter'  => 'fallbackCharacter',
-        'fieldControl'       => 'fieldControl',
-        'foreignSortBy'      => 'foreign_sortby',
-        'generatorOptions'   => 'generatorOptions',
-        'hideTable'          => 'hideTable',
-        'maxItems'           => 'maxitems',
-        'mm'                 => 'MM',
-        'mmHasUidField'      => 'MM_hasUidField',
-        'mmOppositeField'    => 'MM_opposite_field',
-        'readOnly'           => 'readOnly',
-        'renderType'         => 'renderType',
-        'rootLevel'          => 'rootLevel',
-        'sortBy'             => 'sortby',
-        'userFunc'           => 'userFunc',
-    ];
-
     /**
      * @var array
      */

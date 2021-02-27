@@ -25,6 +25,10 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class TcaUtility
 {
+    /*
+     * This array constant compensates inconsistencies in TCA key naming. All keys that are not listed here will be
+     * transformed to lower_case_underscored.
+     */
     private const PROPERTY_KEY_MAPPING = [
         'autoSizeMax'        => 'autoSizeMax',
         'dbType'             => 'dbType',
@@ -40,6 +44,8 @@ class TcaUtility
         'mm'                 => 'MM',
         'mmHasUidField'      => 'MM_hasUidField',
         'mmOppositeField'    => 'MM_opposite_field',
+        'onChange'           => 'onChange',
+        'readOnly'           => 'readOnly',
         'renderType'         => 'renderType',
         'rootLevel'          => 'rootLevel',
         'sortBy'             => 'sortby',
