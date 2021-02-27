@@ -29,9 +29,9 @@ class Input extends AbstractTcaFieldAnnotation
     public const TYPE = Fields::FIELD_TYPES['INPUT'];
 
     /**
-     * @var int|null
+     * @var int|string|null
      */
-    protected ?int $default = null;
+    protected $default = null;
 
     /**
      * @var string
@@ -54,17 +54,17 @@ class Input extends AbstractTcaFieldAnnotation
     protected int $size = 20;
 
     /**
-     * @return int|null
+     * @return int|string|null
      */
-    public function getDefault(): ?int
+    public function getDefault()
     {
         return $this->default;
     }
 
     /**
-     * @param int|null $default
+     * @param int|string|null $default
      */
-    public function setDefault(?int $default): void
+    public function setDefault($default): void
     {
         $this->default = $default;
     }

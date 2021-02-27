@@ -19,10 +19,12 @@ namespace PSB\PsbFoundation\Utility;
 use Exception;
 use JsonException;
 use NumberFormatter;
+use PSB\PsbFoundation\Service\TypoScriptProviderService;
 use RuntimeException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
  * Class StringUtility
@@ -58,6 +60,7 @@ class StringUtility
      * @param array       $namespaces
      *
      * @return mixed
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public static function convertString(?string $variable, $convertEmptyStringToNull = false, array $namespaces = [])
@@ -82,6 +85,15 @@ class StringUtility
 
             if (false !== $floatRepresentation) {
                 return $floatRepresentation;
+            }
+        }
+
+        if (self::beginsWith($variable, 'TS:') && !ContextUtility::isBootProcessRunning()) {
+            $typoscriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
+            [, $path] = GeneralUtility::trimExplode(':', $variable);
+
+            if ($typoscriptProviderService->has($path)) {
+                return $typoscriptProviderService->get($path);
             }
         }
 

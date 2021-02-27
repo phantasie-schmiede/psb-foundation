@@ -27,3 +27,6 @@ services:
 
   PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider:
     public: true
+
+  PSB\PsbFoundation\Service\TypoScriptProviderService:
+    public: true

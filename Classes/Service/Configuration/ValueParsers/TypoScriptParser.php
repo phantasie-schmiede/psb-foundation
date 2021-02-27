@@ -57,7 +57,7 @@ class TypoScriptParser implements ValueParserInterface
     public function processValue(?string $value)
     {
         try {
-            $typoScript = $this->typoScriptProviderService->getTypoScriptConfiguration($value);
+            $typoScript = $this->typoScriptProviderService->get($value);
         } catch (Exception $e) {
             throw new InvalidArgumentException(self::class . ': Marker ' . self::MARKER_TYPE . ' must be followed by a valid TypoScript path!',
                 1547210715);

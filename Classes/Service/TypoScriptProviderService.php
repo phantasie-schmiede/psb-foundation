@@ -56,6 +56,25 @@ class TypoScriptProviderService
     }
 
     /**
+     * @param array       $typoScript
+     * @param string|null $path
+     *
+     * @return mixed
+     */
+    private function getDemandedTypoScript(array $typoScript, string $path = null)
+    {
+        if (null !== $path) {
+            try {
+                return ArrayUtility::getValueByPath($typoScript, $path, '.');
+            } catch (Exception $e) {
+                throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562225431);
+            }
+        }
+
+        return $typoScript;
+    }
+
+    /**
      * @param string|null $path
      * @param string      $configurationType
      * @param string|null $extensionName
@@ -65,7 +84,7 @@ class TypoScriptProviderService
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
-    public function getTypoScriptConfiguration(
+    public function get(
         string $path = null,
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
         string $extensionName = null,
@@ -89,21 +108,25 @@ class TypoScriptProviderService
     }
 
     /**
-     * @param array       $typoScript
-     * @param string|null $path
+     * @param string      $path
+     * @param string      $configurationType
+     * @param string|null $extensionName
+     * @param string|null $pluginName
      *
-     * @return mixed
+     * @return bool
      */
-    private function getDemandedTypoScript(array $typoScript, string $path = null)
-    {
-        if (null !== $path) {
-            try {
-                return ArrayUtility::getValueByPath($typoScript, $path, '.');
-            } catch (Exception $e) {
-                throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562225431);
-            }
-        }
+    public function has(
+        string $path,
+        string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
+        string $extensionName = null,
+        string $pluginName = null
+    ): bool {
+        try {
+            $this->get($path, $configurationType, $extensionName, $pluginName);
 
-        return $typoScript;
+            return true;
+        } catch (Exception $exception) {
+            return false;
+        }
     }
 }
