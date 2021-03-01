@@ -39,11 +39,6 @@ class Input extends AbstractTcaFieldAnnotation
     protected string $eval = 'trim';
 
     /**
-     * @var bool
-     */
-    protected bool $readOnly = false;
-
-    /**
      * @var string|null
      */
     protected ?string $renderType = null;
@@ -115,21 +110,5 @@ class Input extends AbstractTcaFieldAnnotation
     public function setSize(int $size): void
     {
         $this->size = $size;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isReadOnly(): bool
-    {
-        return $this->readOnly;
-    }
-
-    /**
-     * @param bool $readOnly
-     */
-    public function setReadOnly(bool $readOnly): void
-    {
-        $this->readOnly = $readOnly;
     }
 }

@@ -49,11 +49,6 @@ class Text extends AbstractTcaFieldAnnotation
     protected string $eval = 'trim';
 
     /**
-     * @var bool
-     */
-    protected bool $readOnly = false;
-
-    /**
      * @var int
      */
     protected int $rows = 5;
@@ -136,21 +131,5 @@ class Text extends AbstractTcaFieldAnnotation
     public function setEnableRichtext(bool $enableRichtext): void
     {
         $this->enableRichtext = $enableRichtext;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isReadOnly(): bool
-    {
-        return $this->readOnly;
-    }
-
-    /**
-     * @param bool $readOnly
-     */
-    public function setReadOnly(bool $readOnly): void
-    {
-        $this->readOnly = $readOnly;
     }
 }

@@ -64,6 +64,11 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     protected ?string $onChange = null;
 
     /**
+     * @var bool
+     */
+    protected bool $readOnly = false;
+
+    /**
      * @var TcaService
      */
     protected TcaService $tcaService;
@@ -213,5 +218,21 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     public function setExclude(bool $exclude): void
     {
         $this->exclude = $exclude;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isReadOnly(): bool
+    {
+        return $this->readOnly;
+    }
+
+    /**
+     * @param bool $readOnly
+     */
+    public function setReadOnly(bool $readOnly): void
+    {
+        $this->readOnly = $readOnly;
     }
 }
