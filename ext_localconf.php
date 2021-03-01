@@ -27,9 +27,6 @@ defined('TYPO3_MODE') or die();
         }
     }
 
-    $typoScriptParser = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\ValueParsers\TypoScriptParser::class);
-    \PSB\PsbFoundation\Service\Configuration\FlexFormService::addValueParser($typoScriptParser);
-
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\View\TemplateView::class]['className'] = \PSB\PsbFoundation\Views\TemplateView::class;
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\ViewHelpers\RenderViewHelper::class]['className'] = \PSB\PsbFoundation\ViewHelpers\RenderViewHelper::class;
 
