@@ -19,6 +19,7 @@ namespace PSB\PsbFoundation\Service;
 use Exception;
 use JsonException;
 use PSB\PsbFoundation\Utility\StringUtility;
+use PSB\PsbFoundation\Utility\ValidationUtility;
 use RuntimeException;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -51,6 +52,7 @@ class TypoScriptProviderService
      */
     public function __construct(ConfigurationManager $configurationManager, TypoScriptService $typoScriptService)
     {
+        ValidationUtility::requiresBootstrappingDone();
         $this->configurationManager = $configurationManager;
         $this->typoScriptService = $typoScriptService;
     }

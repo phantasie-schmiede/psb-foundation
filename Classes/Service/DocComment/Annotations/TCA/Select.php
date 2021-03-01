@@ -143,11 +143,11 @@ class Select extends AbstractTcaFieldAnnotation
             $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
             $tcaService = GeneralUtility::makeInstance(TcaService::class);
 
-            foreach ($items as $value) {
+            foreach ($items as $key => $value) {
                 $extensionInformation = $extensionInformationService->extractExtensionInformationFromClassName($className);
                 $idBasePath = 'LLL:EXT:' . $extensionInformation['extensionKey'] . '/Resources/Private/Language/Backend/Configuration/TCA/';
                 $tableName = $tcaService->convertClassNameToTableName($className);
-                $idFilenameAndLabel = $tableName . '.xlf:' . $methodOrPropertyName . '.' . $value;
+                $idFilenameAndLabel = $tableName . '.xlf:' . $methodOrPropertyName . '.' . GeneralUtility::camelCaseToLowerCaseUnderscored(strtolower($key));
 
                 $ids = [
                     $idBasePath . $idFilenameAndLabel,
