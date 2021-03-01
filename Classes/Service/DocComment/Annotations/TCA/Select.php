@@ -63,6 +63,11 @@ class Select extends AbstractTcaFieldAnnotation
     protected int $autoSizeMax = 1;
 
     /**
+     * @var string|null
+     */
+    protected ?string $eval = null;
+
+    /**
      * @var array
      */
     protected array $fieldControl = [
@@ -188,6 +193,22 @@ class Select extends AbstractTcaFieldAnnotation
     public function setAutoSizeMax(int $autoSizeMax): void
     {
         $this->autoSizeMax = $autoSizeMax;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEval(): ?string
+    {
+        return $this->eval;
+    }
+
+    /**
+     * @param string|null $eval
+     */
+    public function setEval(?string $eval): void
+    {
+        $this->eval = $eval;
     }
 
     /**
