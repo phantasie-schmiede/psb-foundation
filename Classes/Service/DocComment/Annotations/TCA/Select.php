@@ -117,7 +117,7 @@ class Select extends AbstractTcaFieldAnnotation
     /**
      * @var string
      */
-    protected string $renderType = 'selectSingle';
+    protected string $renderType = self::RENDER_TYPES['SELECT_SINGLE'];
 
     /**
      * @var int
