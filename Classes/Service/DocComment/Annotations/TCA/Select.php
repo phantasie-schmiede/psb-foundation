@@ -154,7 +154,7 @@ class Select extends AbstractTcaFieldAnnotation
                 $extensionInformation = $extensionInformationService->extractExtensionInformationFromClassName($className);
                 $idBasePath = 'LLL:EXT:' . $extensionInformation['extensionKey'] . '/Resources/Private/Language/Backend/Configuration/TCA/';
                 $tableName = $tcaService->convertClassNameToTableName($className);
-                $idFilenameAndLabel = $tableName . '.xlf:' . $methodOrPropertyName . '.' . GeneralUtility::camelCaseToLowerCaseUnderscored(strtolower($key));
+                $idFilenameAndLabel = $tableName . '.xlf:' . $methodOrPropertyName . '.' . GeneralUtility::underscoredToLowerCamelCase(strtolower($key));
 
                 $ids = [
                     $idBasePath . $idFilenameAndLabel,
