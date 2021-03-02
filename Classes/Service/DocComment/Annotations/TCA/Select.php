@@ -41,10 +41,7 @@ class Select extends AbstractTcaFieldAnnotation
     use ExtensionInformationServiceTrait;
 
     public const EMPTY_DEFAULT_ITEM = [
-        [
-            'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Service/DocComment/Annotations/TCA/select.xlf:pleaseChoose',
-            0,
-        ],
+        'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Service/DocComment/Annotations/TCA/select.xlf:pleaseChoose' => 0,
     ];
 
     public const RENDER_TYPES = [

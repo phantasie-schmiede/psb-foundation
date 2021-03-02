@@ -45,6 +45,34 @@ class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
     protected int $maxItems = 0;
 
     /**
+     * @param string $targetScope
+     * @param string $columnName
+     *
+     * @return array
+     * @throws ReflectionException
+     */
+    public function toArray(string $targetScope, string $columnName = ''): array
+    {
+        $properties = parent::toArray($targetScope);
+        $fieldConfiguration = [];
+        $fieldConfiguration['config'] = ExtensionManagementUtility::getFileFieldTCAConfig($columnName,
+            [
+                'appearance' => $this->getAppearance(),
+                'maxitems'   => $this->getMaxItems(),
+            ], $this->getAllowedFileTypes());
+
+        foreach ($properties as $key => $value) {
+            $key = TcaUtility::convertKey($key);
+
+            if (in_array($key, ['displayCond', 'exclude', 'label'], true)) {
+                $fieldConfiguration[$key] = $value;
+            }
+        }
+
+        return $fieldConfiguration;
+    }
+
+    /**
      * @return string
      */
     public function getAllowedFileTypes(): string
@@ -90,33 +118,5 @@ class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
     public function setMaxItems(int $maxItems): void
     {
         $this->maxItems = $maxItems;
-    }
-
-    /**
-     * @param string $targetScope
-     * @param string $columnName
-     *
-     * @return array
-     * @throws ReflectionException
-     */
-    public function toArray(string $targetScope, string $columnName = ''): array
-    {
-        $properties = parent::toArray($targetScope);
-        $fieldConfiguration = [];
-        $fieldConfiguration['config'] = ExtensionManagementUtility::getFileFieldTCAConfig($columnName,
-            [
-                'appearance' => $this->getAppearance(),
-                'maxitems'   => $this->getMaxItems(),
-            ], $this->getAllowedFileTypes());
-
-        foreach ($properties as $key => $value) {
-            $key = TcaUtility::convertKey($key);
-
-            if (in_array($key, ['displayCond', 'exclude', 'label'], true)) {
-                $fieldConfiguration[$key] = $value;
-            }
-        }
-
-        return $fieldConfiguration;
     }
 }

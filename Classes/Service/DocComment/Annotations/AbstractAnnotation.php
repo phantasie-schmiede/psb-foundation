@@ -51,9 +51,11 @@ abstract class AbstractAnnotation
             $backtraceClasses[] = $step['class'];
         }
 
+        /*
+         * Don't let Doctrine's AnnotationReader continue, as it might throw exceptions because it is not able to
+         * resolve constants or array elements.
+         */
         if (!in_array(DocCommentParserService::class, $backtraceClasses, true)) {
-            // Don't let Doctrine's AnnotationReader continue, as it might throw exceptions because it is not able to
-            // resolve elements of array constants.
             return;
         }
 
