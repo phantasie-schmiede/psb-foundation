@@ -96,14 +96,14 @@ class TcaService
      */
     private string $table;
 
-    public function addAdditionalColumns(): void
+    protected function addAdditionalColumns(): void
     {
         if (true === $this->overrideMode) {
             $columns = array_keys($this->configuration['columns']);
 
             foreach ($columns as $column) {
                 // only add new columns
-                if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                if (!in_array($column, $this->preDefinedColumns, true)) {
                     $GLOBALS['TCA'][$this->table]['columns'][$column] = $this->configuration['columns'][$column];
                     ExtensionManagementUtility::addToAllTCAtypes(
                         $this->table,
@@ -121,7 +121,7 @@ class TcaService
      * @param string $field
      * @param int    $typeIndex
      */
-    public function addFieldToType(string $field, int $typeIndex = 0): void
+    protected function addFieldToType(string $field, int $typeIndex = 0): void
     {
         $separator = '';
 
@@ -138,7 +138,7 @@ class TcaService
      * @param string   $fieldList
      * @param int|null $index
      */
-    public function addType(string $fieldList, int $index = null): void
+    protected function addType(string $fieldList, int $index = null): void
     {
         if (null === $index) {
             if (0 < count($this->configuration['types'])) {
@@ -161,20 +161,20 @@ class TcaService
      * @throws ObjectException
      * @throws ReflectionException
      */
-    public function buildFromDocComment(string $className)
+    protected function buildFromDocComment(string $className)
     {
         $this->table = $this->convertClassNameToTableName($className);
         $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName($className)['extensionKey'];
-        $this->setDefaultLabelPath('LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/');
+        $this->defaultLabelPath = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/';
 
         if (isset($GLOBALS['TCA'][$this->table])) {
             $this->overrideMode = true;
-            $this->setDefaultLabelPath($this->getDefaultLabelPath() . 'Overrides/' . $this->table . '.xlf:');
-            $this->setConfiguration($GLOBALS['TCA'][$this->table]);
+            $this->defaultLabelPath .= 'Overrides/' . $this->table . '.xlf:';
+            $this->configuration = $GLOBALS['TCA'][$this->table];
         } else {
-            $this->setConfiguration($this->getDummyConfiguration($this->table));
-            $this->setDefaultLabelPath($this->getDefaultLabelPath() . $this->table . '.xlf:');
-            $title = $this->getDefaultLabelPath() . 'domain.model';
+            $this->configuration = $this->getDummyConfiguration($this->table);
+            $this->defaultLabelPath .= $this->table . '.xlf:';
+            $title = $this->defaultLabelPath . 'domain.model';
             $this->localizationService->translationExists($title);
             $this->setCtrlProperties([
                 'title' => $title,
@@ -202,7 +202,7 @@ class TcaService
          * Remember the predefined columns (e.g. for versioning, translating or when overriding an existing TCA entry)
          * in order to exclude them when auto-creating the showItemList.
          */
-        $this->setPreDefinedColumns(array_keys($this->configuration['columns']));
+        $this->preDefinedColumns = array_keys($this->configuration['columns']);
 
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
         $properties = $reflection->getProperties();
@@ -218,12 +218,12 @@ class TcaService
 
                     $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
-                    if (!in_array($columnName, $this->getPreDefinedColumns(), true)) {
+                    if (!in_array($columnName, $this->preDefinedColumns, true)) {
                         $propertyConfiguration = $annotation->toArray(DocCommentParserService::ANNOTATION_TARGETS['PROPERTY'],
                             $columnName);
 
                         if (!isset($propertyConfiguration['label'])) {
-                            $label = $this->getDefaultLabelPath() . $columnName;
+                            $label = $this->defaultLabelPath . $columnName;
                             $this->localizationService->translationExists($label);
                             $propertyConfiguration['label'] = $label;
                         }
@@ -356,7 +356,7 @@ class TcaService
      *
      * @return $this
      */
-    public function setCtrlProperties(array $ctrlProperties): self
+    protected function setCtrlProperties(array $ctrlProperties): self
     {
         foreach ($ctrlProperties as $property => $value) {
             $this->configuration['ctrl'][$property] = $value;
@@ -426,7 +426,7 @@ class TcaService
      *
      * @return array
      */
-    private function getDummyConfiguration(string $table): array
+    protected function getDummyConfiguration(string $table): array
     {
         /** @noinspection TranslationMissingInspection */
         $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
@@ -557,7 +557,7 @@ class TcaService
     /**
      * @throws Exception
      */
-    private function validateConfiguration(): void
+    protected function validateConfiguration(): void
     {
         if (isset($this->configuration['ctrl']['sortby'])) {
             if (isset($this->configuration['ctrl']['default_sortby'])) {
@@ -575,7 +575,7 @@ class TcaService
     /**
      * @return ClassesConfiguration
      */
-    public function getClassesConfiguration(): ClassesConfiguration
+    protected function getClassesConfiguration(): ClassesConfiguration
     {
         if (null === $this->classesConfiguration) {
             $this->classesConfiguration = $this->classesConfigurationFactory->createClassesConfiguration();
@@ -585,16 +585,12 @@ class TcaService
     }
 
     /**
-     * 'main' function
-     *
-     * Use the return of this function as return in your TCA-file
-     *
      * @param bool $autoCreateShowItemList
      *
      * @return array
      * @throws Exception
      */
-    public function getConfiguration(bool $autoCreateShowItemList = true): array
+    protected function getConfiguration(bool $autoCreateShowItemList = true): array
     {
         if ($autoCreateShowItemList) {
             // configuration must have at least one type defined
@@ -602,7 +598,7 @@ class TcaService
                 $columns = array_keys($this->configuration['columns']);
 
                 foreach ($columns as $column) {
-                    if (!in_array($column, $this->getPreDefinedColumns(), true)) {
+                    if (!in_array($column, $this->preDefinedColumns, true)) {
                         $this->addFieldToType($column);
                     }
                 }
@@ -620,60 +616,5 @@ class TcaService
         $this->validateConfiguration();
 
         return $this->configuration;
-    }
-
-    /**
-     * @param array $configuration
-     * @param bool  $merge
-     */
-    public function setConfiguration(array $configuration, bool $merge = false): void
-    {
-        if ($merge) {
-            ArrayUtility::mergeRecursiveWithOverrule($this->configuration, $configuration);
-        } else {
-            $this->configuration = $configuration;
-        }
-    }
-
-    /**
-     * @param string $property
-     *
-     * @return mixed
-     */
-    public function getCtrlProperty(string $property)
-    {
-        return $this->configuration['ctrl'][$property];
-    }
-
-    /**
-     * @return string
-     */
-    public function getDefaultLabelPath(): string
-    {
-        return $this->defaultLabelPath;
-    }
-
-    /**
-     * @param string $defaultLabelPath
-     */
-    public function setDefaultLabelPath(string $defaultLabelPath): void
-    {
-        $this->defaultLabelPath = $defaultLabelPath;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPreDefinedColumns(): array
-    {
-        return $this->preDefinedColumns;
-    }
-
-    /**
-     * @param array $preDefinedColumns
-     */
-    public function setPreDefinedColumns(array $preDefinedColumns): void
-    {
-        $this->preDefinedColumns = $preDefinedColumns;
     }
 }
