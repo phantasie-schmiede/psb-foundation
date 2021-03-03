@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use PSB\PsbFoundation\Service\LocalizationService;
 
 /**
- * Trait ConnectionPoolTrait
+ * Trait LocalizationServiceTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait ConnectionPoolTrait
+trait LocalizationServiceTrait
 {
     /**
-     * @var ConnectionPool
+     * @var LocalizationService
      */
-    protected ConnectionPool $connectionPool;
+    protected LocalizationService $localizationService;
 
     /**
-     * @param ConnectionPool $connectionPool
+     * @param LocalizationService $localizationService
      */
-    public function injectConnectionPool(ConnectionPool $connectionPool): void
+    public function injectLocalizationService(LocalizationService $localizationService): void
     {
-        $this->connectionPool = $connectionPool;
+        $this->localizationService = $localizationService;
     }
 }

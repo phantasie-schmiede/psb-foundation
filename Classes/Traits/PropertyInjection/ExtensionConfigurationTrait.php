@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 
 /**
- * Trait SiteFinderTrait
+ * Trait ExtensionConfigurationTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait SiteFinderTrait
+trait ExtensionConfigurationTrait
 {
     /**
-     * @var SiteFinder
+     * @var ExtensionConfiguration
      */
-    protected SiteFinder $siteFinder;
+    protected ExtensionConfiguration $extensionConfiguration;
 
     /**
-     * @param SiteFinder $siteFinder
+     * @param ExtensionConfiguration $extensionConfiguration
      */
-    public function injectSiteFinder(SiteFinder $siteFinder): void
+    public function injectExtensionConfiguration(ExtensionConfiguration $extensionConfiguration): void
     {
-        $this->siteFinder = $siteFinder;
+        $this->extensionConfiguration = $extensionConfiguration;
     }
 }

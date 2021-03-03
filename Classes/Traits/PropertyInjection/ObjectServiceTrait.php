@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Service\ObjectService;
 
 /**
- * Trait DocCommentParserServiceTrait
+ * Trait ObjectServiceTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait DocCommentParserServiceTrait
+trait ObjectServiceTrait
 {
     /**
-     * @var DocCommentParserService
+     * @var ObjectService
      */
-    protected DocCommentParserService $docCommentParserService;
+    protected ObjectService $objectService;
 
     /**
-     * @param DocCommentParserService $docCommentParserService
+     * @param ObjectService $objectService
      */
-    public function injectDocCommentParserService(DocCommentParserService $docCommentParserService): void
+    public function injectObjectService(ObjectService $objectService): void
     {
-        $this->docCommentParserService = $docCommentParserService;
+        $this->objectService = $objectService;
     }
 }

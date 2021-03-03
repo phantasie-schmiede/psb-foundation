@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use PSB\PsbFoundation\Service\FrontendUserService;
 
 /**
- * Trait ExtensionConfigurationTrait
+ * Trait FrontendUserServiceTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait ExtensionConfigurationTrait
+trait FrontendUserServiceTrait
 {
     /**
-     * @var ExtensionConfiguration
+     * @var FrontendUserService
      */
-    protected ExtensionConfiguration $extensionConfiguration;
+    protected FrontendUserService $frontendUserService;
 
     /**
-     * @param ExtensionConfiguration $extensionConfiguration
+     * @param FrontendUserService $frontendUserService
      */
-    public function injectExtensionConfiguration(ExtensionConfiguration $extensionConfiguration): void
+    public function injectFrontendUserService(FrontendUserService $frontendUserService): void
     {
-        $this->extensionConfiguration = $extensionConfiguration;
+        $this->frontendUserService = $frontendUserService;
     }
 }

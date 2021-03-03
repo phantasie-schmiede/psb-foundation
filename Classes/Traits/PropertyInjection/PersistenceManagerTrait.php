@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Service\Configuration\TcaService;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
- * Trait TcaServiceTrait
+ * Trait PersistenceManagerTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait TcaServiceTrait
+trait PersistenceManagerTrait
 {
     /**
-     * @var TcaService|null
+     * @var PersistenceManager
      */
-    protected ?TcaService $tcaService = null;
+    protected PersistenceManager $persistenceManager;
 
     /**
-     * @param TcaService $tcaService
+     * @param PersistenceManager $persistenceManager
      */
-    public function injectTcaService(TcaService $tcaService): void
+    public function injectPersistenceManager(PersistenceManager $persistenceManager): void
     {
-        $this->tcaService = $tcaService;
+        $this->persistenceManager = $persistenceManager;
     }
 }

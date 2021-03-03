@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\ViewHelpers\Debug;
 
-use PSB\PsbFoundation\Traits\Properties\StopWatchServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\StopWatchServiceTrait;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**

@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Extbase\Property\PropertyMapper;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 /**
- * Trait PropertyMapperTrait
+ * Trait TypoScriptServiceTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait PropertyMapperTrait
+trait TypoScriptServiceTrait
 {
     /**
-     * @var PropertyMapper
+     * @var TypoScriptService
      */
-    protected PropertyMapper $propertyMapper;
+    protected TypoScriptService $typoScriptService;
 
     /**
-     * @param PropertyMapper $propertyMapper
+     * @param TypoScriptService $typoScriptService
      */
-    public function injectPropertyMapper(PropertyMapper $propertyMapper): void
+    public function injectTypoScriptService(TypoScriptService $typoScriptService): void
     {
-        $this->propertyMapper = $propertyMapper;
+        $this->typoScriptService = $typoScriptService;
     }
 }

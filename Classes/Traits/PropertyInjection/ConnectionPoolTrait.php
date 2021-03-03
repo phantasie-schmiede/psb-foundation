@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Service\FrontendUserService;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 
 /**
- * Trait FrontendUserServiceTrait
+ * Trait ConnectionPoolTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait FrontendUserServiceTrait
+trait ConnectionPoolTrait
 {
     /**
-     * @var FrontendUserService
+     * @var ConnectionPool
      */
-    protected FrontendUserService $frontendUserService;
+    protected ConnectionPool $connectionPool;
 
     /**
-     * @param FrontendUserService $frontendUserService
+     * @param ConnectionPool $connectionPool
      */
-    public function injectFrontendUserService(FrontendUserService $frontendUserService): void
+    public function injectConnectionPool(ConnectionPool $connectionPool): void
     {
-        $this->frontendUserService = $frontendUserService;
+        $this->connectionPool = $connectionPool;
     }
 }

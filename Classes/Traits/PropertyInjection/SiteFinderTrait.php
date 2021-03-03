@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Service\LocalizationService;
+use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
- * Trait LocalizationServiceTrait
+ * Trait SiteFinderTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait LocalizationServiceTrait
+trait SiteFinderTrait
 {
     /**
-     * @var LocalizationService
+     * @var SiteFinder
      */
-    protected LocalizationService $localizationService;
+    protected SiteFinder $siteFinder;
 
     /**
-     * @param LocalizationService $localizationService
+     * @param SiteFinder $siteFinder
      */
-    public function injectLocalizationService(LocalizationService $localizationService): void
+    public function injectSiteFinder(SiteFinder $siteFinder): void
     {
-        $this->localizationService = $localizationService;
+        $this->siteFinder = $siteFinder;
     }
 }

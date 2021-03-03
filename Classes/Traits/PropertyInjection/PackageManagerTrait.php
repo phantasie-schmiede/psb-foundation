@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Package\PackageManager;
 
 /**
- * Trait TypoScriptServiceTrait
+ * Trait PackageManagerTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait TypoScriptServiceTrait
+trait PackageManagerTrait
 {
     /**
-     * @var TypoScriptService
+     * @var PackageManager
      */
-    protected TypoScriptService $typoScriptService;
+    protected PackageManager $packageManager;
 
     /**
-     * @param TypoScriptService $typoScriptService
+     * @param PackageManager $packageManager
      */
-    public function injectTypoScriptService(TypoScriptService $typoScriptService): void
+    public function injectPackageManager(PackageManager $packageManager): void
     {
-        $this->typoScriptService = $typoScriptService;
+        $this->packageManager = $packageManager;
     }
 }

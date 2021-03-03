@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Data\ExtensionInformation;
+use PSB\PsbFoundation\Service\Debug\StopWatchService;
 
 /**
- * Trait ExtensionInformationTrait
+ * Trait StopWatchServiceTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait ExtensionInformationTrait
+trait StopWatchServiceTrait
 {
     /**
-     * @var ExtensionInformation
+     * @var StopWatchService
      */
-    protected ExtensionInformation $extensionInformation;
+    protected StopWatchService $stopWatchService;
 
     /**
-     * @param ExtensionInformation $extensionInformation
+     * @param StopWatchService $stopWatchService
      */
-    public function injectExtensionInformation(ExtensionInformation $extensionInformation): void
+    public function injectStopWatchService(StopWatchService $stopWatchService): void
     {
-        $this->extensionInformation = $extensionInformation;
+        $this->stopWatchService = $stopWatchService;
     }
 }

@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\EventListener;
 
-use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use TYPO3\CMS\Core\Package\Event\AfterPackageDeactivationEvent;
 
 /**

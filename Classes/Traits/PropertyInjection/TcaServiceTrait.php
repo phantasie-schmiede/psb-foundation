@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Service\ObjectService;
+use PSB\PsbFoundation\Service\Configuration\TcaService;
 
 /**
- * Trait ObjectServiceTrait
+ * Trait TcaServiceTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait ObjectServiceTrait
+trait TcaServiceTrait
 {
     /**
-     * @var ObjectService
+     * @var TcaService|null
      */
-    protected ObjectService $objectService;
+    protected ?TcaService $tcaService = null;
 
     /**
-     * @param ObjectService $objectService
+     * @param TcaService $tcaService
      */
-    public function injectObjectService(ObjectService $objectService): void
+    public function injectTcaService(TcaService $tcaService): void
     {
-        $this->objectService = $objectService;
+        $this->tcaService = $tcaService;
     }
 }

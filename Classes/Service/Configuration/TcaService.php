@@ -24,11 +24,11 @@ use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Ctrl;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
 use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
-use PSB\PsbFoundation\Traits\Properties\ClassesConfigurationFactoryTrait;
-use PSB\PsbFoundation\Traits\Properties\ConnectionPoolTrait;
-use PSB\PsbFoundation\Traits\Properties\DocCommentParserServiceTrait;
-use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
-use PSB\PsbFoundation\Traits\Properties\LocalizationServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\ClassesConfigurationFactoryTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\DocCommentParserServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -432,7 +432,7 @@ class TcaService
         $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
 
         return [
-            'ctrl'      => [
+            'ctrl'     => [
                 'adminOnly'                => false,
                 //'copyAfterDuplFields' => 'colPos, sys_language_uid',
                 'crdate'                   => 'crdate',
@@ -456,7 +456,6 @@ class TcaService
                 'readOnly'                 => false,
                 'rootLevel'                => 0,
                 'searchFields'             => '',
-                'setToDefaultOnCopy'       => '',
                 'thumbnail'                => '',
                 'title'                    => 'My record',
                 'translationSource'        => 'l10n_source',
@@ -469,14 +468,11 @@ class TcaService
                 //'useColumnsForDefaultValues' => '',
                 'versioningWS'             => true,
             ],
-            'interface' => [
-                'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden',
-            ],
-            'types'     => [
+            'types'    => [
                 0 => ['showitem' => ''],
             ],
-            'palettes'  => [],
-            'columns'   => [
+            'palettes' => [],
+            'columns'  => [
                 'sys_language_uid' => [
                     'exclude' => 1,
                     'label'   => $ll . 'language',
@@ -493,7 +489,6 @@ class TcaService
                 ],
                 'l10n_parent'      => [
                     'displayCond' => 'FIELD:sys_language_uid:>:0',
-                    'exclude'     => 1,
                     'label'       => $ll . 'l18n_parent',
                     'config'      => [
                         'type'                => 'select',

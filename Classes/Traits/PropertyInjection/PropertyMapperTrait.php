@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Extbase\Property\PropertyMapper;
 
 /**
- * Trait ContextTrait
+ * Trait PropertyMapperTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait ContextTrait
+trait PropertyMapperTrait
 {
     /**
-     * @var Context
+     * @var PropertyMapper
      */
-    protected Context $context;
+    protected PropertyMapper $propertyMapper;
 
     /**
-     * @param Context $context
+     * @param PropertyMapper $propertyMapper
      */
-    public function injectContext(Context $context): void
+    public function injectPropertyMapper(PropertyMapper $propertyMapper): void
     {
-        $this->context = $context;
+        $this->propertyMapper = $propertyMapper;
     }
 }

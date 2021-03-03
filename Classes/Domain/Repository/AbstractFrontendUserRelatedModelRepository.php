@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Domain\Repository;
 
 use PSB\PsbFoundation\Domain\Model\AbstractFrontendUserRelatedModel;
-use PSB\PsbFoundation\Traits\Properties\FrontendUserServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\FrontendUserServiceTrait;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
 use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;

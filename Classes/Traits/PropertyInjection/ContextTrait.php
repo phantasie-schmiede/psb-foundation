@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Core\Context\Context;
 
 /**
- * Trait PersistenceManagerTrait
+ * Trait ContextTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait PersistenceManagerTrait
+trait ContextTrait
 {
     /**
-     * @var PersistenceManager
+     * @var Context
      */
-    protected PersistenceManager $persistenceManager;
+    protected Context $context;
 
     /**
-     * @param PersistenceManager $persistenceManager
+     * @param Context $context
      */
-    public function injectPersistenceManager(PersistenceManager $persistenceManager): void
+    public function injectContext(Context $context): void
     {
-        $this->persistenceManager = $persistenceManager;
+        $this->context = $context;
     }
 }

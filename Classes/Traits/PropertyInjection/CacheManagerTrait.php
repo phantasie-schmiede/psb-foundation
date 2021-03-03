@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository;
+use TYPO3\CMS\Core\Cache\CacheManager;
 
 /**
- * Trait FrontendUserRepositoryTrait
+ * Trait CacheManagerTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait FrontendUserRepositoryTrait
+trait CacheManagerTrait
 {
     /**
-     * @var FrontendUserRepository
+     * @var CacheManager
      */
-    protected FrontendUserRepository $frontendUserRepository;
+    protected CacheManager $cacheManager;
 
     /**
-     * @param FrontendUserRepository $frontendUserRepository
+     * @param CacheManager $cacheManager
      */
-    public function injectFrontendUserRepository(FrontendUserRepository $frontendUserRepository): void
+    public function injectCacheManager(CacheManager $cacheManager): void
     {
-        $this->frontendUserRepository = $frontendUserRepository;
+        $this->cacheManager = $cacheManager;
     }
 }

@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
 
 use PSB\PsbFoundation\Service\Configuration\Fields;
-use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 
 /**
  * Class Inline

@@ -18,8 +18,8 @@ namespace PSB\PsbFoundation\Service;
 
 use JsonException;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Mm;
-use PSB\PsbFoundation\Traits\Properties\ConnectionPoolTrait;
-use PSB\PsbFoundation\Traits\Properties\DocCommentParserServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\DocCommentParserServiceTrait;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;

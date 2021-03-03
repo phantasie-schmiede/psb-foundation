@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
-use PSB\PsbFoundation\Traits\Properties\SiteFinderTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\SiteFinderTrait;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 

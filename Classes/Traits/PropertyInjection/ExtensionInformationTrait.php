@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Core\Cache\CacheManager;
+use PSB\PsbFoundation\Data\ExtensionInformation;
 
 /**
- * Trait CacheManagerTrait
+ * Trait ExtensionInformationTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait CacheManagerTrait
+trait ExtensionInformationTrait
 {
     /**
-     * @var CacheManager
+     * @var ExtensionInformation
      */
-    protected CacheManager $cacheManager;
+    protected ExtensionInformation $extensionInformation;
 
     /**
-     * @param CacheManager $cacheManager
+     * @param ExtensionInformation $extensionInformation
      */
-    public function injectCacheManager(CacheManager $cacheManager): void
+    public function injectExtensionInformation(ExtensionInformation $extensionInformation): void
     {
-        $this->cacheManager = $cacheManager;
+        $this->extensionInformation = $extensionInformation;
     }
 }

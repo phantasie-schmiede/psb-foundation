@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Traits\Properties;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Service\Debug\StopWatchService;
+use TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository;
 
 /**
- * Trait StopWatchServiceTrait
+ * Trait FrontendUserRepositoryTrait
  *
  * @package PSB\PsbFoundation\Traits\Properties
  */
-trait StopWatchServiceTrait
+trait FrontendUserRepositoryTrait
 {
     /**
-     * @var StopWatchService
+     * @var FrontendUserRepository
      */
-    protected StopWatchService $stopWatchService;
+    protected FrontendUserRepository $frontendUserRepository;
 
     /**
-     * @param StopWatchService $stopWatchService
+     * @param FrontendUserRepository $frontendUserRepository
      */
-    public function injectStopWatchService(StopWatchService $stopWatchService): void
+    public function injectFrontendUserRepository(FrontendUserRepository $frontendUserRepository): void
     {
-        $this->stopWatchService = $stopWatchService;
+        $this->frontendUserRepository = $frontendUserRepository;
     }
 }

@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Controller;
 
 use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
-use PSB\PsbFoundation\Traits\Properties\ExtensionInformationServiceTrait;
-use PSB\PsbFoundation\Traits\Properties\PropertyMapperTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\PropertyMapperTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
