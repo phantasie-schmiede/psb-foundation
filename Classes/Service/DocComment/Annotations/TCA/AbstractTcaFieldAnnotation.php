@@ -31,6 +31,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnotationInterface
 {
+    // Override this constant in extending classes!
     public const  TYPE = '';
 
     /**
@@ -54,14 +55,19 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     protected bool $exclude = false;
 
     /**
-     * @var string|null
+     * @var string
      */
-    protected ?string $label = null;
+    protected string $label = '';
 
     /**
      * @var string|null
      */
     protected ?string $onChange = null;
+
+    /**
+     * @var string
+     */
+    protected string $position = '';
 
     /**
      * @var bool
@@ -108,14 +114,12 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     }
 
     /**
-     * @param string $targetScope
-     *
      * @return array
      * @throws ReflectionException
      */
-    public function toArray(string $targetScope): array
+    public function toArray(): array
     {
-        $properties = parent::toArray($targetScope);
+        $properties = parent::toArray();
         $fieldConfiguration = [];
         $fieldConfiguration['config']['type'] = $this->getType();
 
@@ -124,7 +128,7 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
 
             if (in_array($key, ['displayCond', 'exclude', 'label', 'onChange'], true)) {
                 $fieldConfiguration[$key] = $value;
-            } else {
+            } elseif ('position' !== $key) {
                 $fieldConfiguration['config'][$key] = $value;
             }
         }
@@ -149,17 +153,17 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getLabel(): ?string
+    public function getLabel(): string
     {
         return $this->label;
     }
 
     /**
-     * @param string|null $label
+     * @param string $label
      */
-    public function setLabel(?string $label): void
+    public function setLabel(string $label): void
     {
         $this->label = $label;
     }
@@ -178,6 +182,22 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     public function setOnChange(?string $onChange): void
     {
         $this->onChange = $onChange;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPosition(): string
+    {
+        return $this->position;
+    }
+
+    /**
+     * @param string $position
+     */
+    public function setPosition(string $position): void
+    {
+        $this->position = $position;
     }
 
     /**

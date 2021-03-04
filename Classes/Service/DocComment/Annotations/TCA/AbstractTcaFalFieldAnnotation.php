@@ -45,15 +45,14 @@ class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
     protected int $maxItems = 0;
 
     /**
-     * @param string $targetScope
      * @param string $columnName
      *
      * @return array
      * @throws ReflectionException
      */
-    public function toArray(string $targetScope, string $columnName = ''): array
+    public function toArray(string $columnName = ''): array
     {
-        $properties = parent::toArray($targetScope);
+        $properties = parent::toArray();
         $fieldConfiguration = [];
         $fieldConfiguration['config'] = ExtensionManagementUtility::getFileFieldTCAConfig($columnName,
             [

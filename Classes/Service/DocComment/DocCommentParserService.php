@@ -45,12 +45,6 @@ class DocCommentParserService implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    public const ANNOTATION_TARGETS = [
-        'CLASS'    => 'class',
-        'METHOD'   => 'method',
-        'PROPERTY' => 'property',
-    ];
-
     private const ANNOTATION_TYPES = [
         'DESCRIPTION' => 'description',
         'PACKAGE'     => 'package',

@@ -21,9 +21,9 @@ use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
+use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\AbstractTcaFalFieldAnnotation;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Ctrl;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
-use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 use PSB\PsbFoundation\Traits\PropertyInjection\ClassesConfigurationFactoryTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\DocCommentParserServiceTrait;
@@ -32,7 +32,6 @@ use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
-use RuntimeException;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -42,7 +41,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
-use function count;
 
 /**
  * Class TcaService
@@ -69,31 +67,6 @@ class TcaService
      * @var ClassesConfiguration|null
      */
     protected ?ClassesConfiguration $classesConfiguration = null;
-
-    /**
-     * @var array
-     */
-    protected array $configuration;
-
-    /**
-     * @var string
-     */
-    protected string $defaultLabelPath;
-
-    /**
-     * @var bool
-     */
-    protected bool $overrideMode = false;
-
-    /**
-     * @var array
-     */
-    protected array $preDefinedColumns;
-
-    /**
-     * @var string
-     */
-    protected string $table;
 
     /**
      * This function will be executed when the core builds the TCA, but as it does not return an array there will be no
@@ -123,17 +96,7 @@ class TcaService
 
         if (isset(self::$classTableMapping[$key])) {
             foreach (self::$classTableMapping[$key] as $fullQualifiedClassName => $tableName) {
-                $tcaConfiguration = $this->buildFromDocComment($fullQualifiedClassName);
-
-                if ($overrideMode) {
-                    $tcaConfiguration->addAdditionalColumns();
-                } else {
-                    if (false === $tcaConfiguration) {
-                        continue;
-                    }
-
-                    $GLOBALS['TCA'][$tableName] = $tcaConfiguration->getConfiguration();
-                }
+                $this->buildFromDocComment($fullQualifiedClassName, $tableName);
             }
         }
     }
@@ -205,60 +168,6 @@ class TcaService
         }
     }
 
-    protected function addAdditionalColumns(): void
-    {
-        if (true === $this->overrideMode) {
-            $columns = array_keys($this->configuration['columns']);
-
-            foreach ($columns as $column) {
-                // only add new columns
-                if (!in_array($column, $this->preDefinedColumns, true)) {
-                    $GLOBALS['TCA'][$this->table]['columns'][$column] = $this->configuration['columns'][$column];
-                    ExtensionManagementUtility::addToAllTCAtypes(
-                        $this->table,
-                        $column
-                    );
-                }
-            }
-        } else {
-            throw new RuntimeException(__CLASS__ . ': addAdditionalColumns() must be called in override mode only!',
-                1614156644);
-        }
-    }
-
-    /**
-     * @param string $field
-     * @param int    $typeIndex
-     */
-    protected function addFieldToType(string $field, int $typeIndex = 0): void
-    {
-        $separator = '';
-
-        if (isset($this->configuration['types'][$typeIndex]['showitem'])
-            && '' !== $this->configuration['types'][$typeIndex]['showitem']
-        ) {
-            $separator = ', ';
-        }
-
-        $this->configuration['types'][$typeIndex]['showitem'] .= $separator . $field;
-    }
-
-    /**
-     * @param string   $fieldList
-     * @param int|null $index
-     */
-    protected function addType(string $fieldList, int $index = null): void
-    {
-        if (null === $index) {
-            if (0 < count($this->configuration['types'])) {
-                $index = max(array_keys($this->configuration['types'])) + 1;
-            } else {
-                $index = 0;
-            }
-        }
-        $this->configuration['types'][$index] = ['showitem' => $fieldList];
-    }
-
     protected function buildClassesTableMapping(): void
     {
         self::$classTableMapping = [];
@@ -317,35 +226,18 @@ class TcaService
 
     /**
      * @param string $className
+     * @param string $tableName
      *
-     * @return $this|false
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidArgumentForHashGenerationException
      * @throws JsonException
      * @throws ObjectException
      * @throws ReflectionException
+     * @throws MisconfiguredTcaException
      */
-    protected function buildFromDocComment(string $className)
+    protected function buildFromDocComment(string $className, string $tableName): void
     {
-        $this->table = $this->convertClassNameToTableName($className);
-        $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName($className)['extensionKey'];
-        $this->defaultLabelPath = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/';
-
-        if (isset($GLOBALS['TCA'][$this->table])) {
-            $this->overrideMode = true;
-            $this->defaultLabelPath .= 'Overrides/' . $this->table . '.xlf:';
-            $this->configuration = $GLOBALS['TCA'][$this->table];
-        } else {
-            $this->configuration = $this->getDummyConfiguration($this->table);
-            $this->defaultLabelPath .= $this->table . '.xlf:';
-            $title = $this->defaultLabelPath . 'domain.model';
-            $this->localizationService->translationExists($title);
-            $this->setCtrlProperties([
-                'title' => $title,
-            ]);
-        }
-
         $docComment = $this->docCommentParserService->parsePhpDocComment($className);
         $editableInFrontend = false;
 
@@ -356,21 +248,20 @@ class TcaService
             if (true === $ctrl->isEditableInFrontend()) {
                 $editableInFrontend = true;
             }
-
-            $this->setCtrlProperties($ctrl->toArray(DocCommentParserService::ANNOTATION_TARGETS['CLASS']));
-        } elseif (false === $this->overrideMode) {
-            // This model is excluded from auto-configuration as it has no Ctrl-annotation.
-            return false;
         }
 
-        /*
-         * Remember the predefined columns (e.g. for versioning, translating or when overriding an existing TCA entry)
-         * in order to exclude them when auto-creating the showItemList.
-         */
-        $this->preDefinedColumns = array_keys($this->configuration['columns']);
+        $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName($className)['extensionKey'];
+        $defaultLabelPath = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/';
+
+        if (isset($GLOBALS['TCA'][$tableName])) {
+            $defaultLabelPath .= 'Overrides/' . $tableName . '.xlf:';
+        } else {
+            $defaultLabelPath .= $tableName . '.xlf:';
+        }
 
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
         $properties = $reflection->getProperties();
+        $columnConfigurations = [];
 
         foreach ($properties as $property) {
             $docComment = $this->docCommentParserService->parsePhpDocComment($className, $property->getName());
@@ -383,27 +274,47 @@ class TcaService
 
                     $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
-                    if (!in_array($columnName, $this->preDefinedColumns, true)) {
-                        $propertyConfiguration = $annotation->toArray(DocCommentParserService::ANNOTATION_TARGETS['PROPERTY'],
-                            $columnName);
-
-                        if (!isset($propertyConfiguration['label'])) {
-                            $label = $this->defaultLabelPath . $columnName;
-                            $this->localizationService->translationExists($label);
-                            $propertyConfiguration['label'] = $label;
-                        }
-
-                        $this->configuration['columns'][$columnName] = $propertyConfiguration;
-                        $this->addFieldToType($columnName);
-                    } elseif (true === $editableInFrontend) {
-                        // @TODO: use a constant for 'editableInFrontend'?
-                        $GLOBALS['TCA'][$this->table]['columns'][$columnName]['editableInFrontend'] = true;
+                    if ('' === $annotation->getLabel()) {
+                        $label = $defaultLabelPath . $columnName;
+                        $this->localizationService->translationExists($label);
+                        $annotation->setLabel($label);
                     }
+
+                    $columnConfigurations[$columnName] = $annotation;
                 }
             }
         }
 
-        return $this;
+        if ([] === $columnConfigurations) {
+            // No annotated properties found in class. Do nothing.
+            return;
+        }
+
+        if (!isset($GLOBALS['TCA'][$tableName])) {
+            $GLOBALS['TCA'][$tableName] = $this->getDummyConfiguration($tableName);
+            $title = $defaultLabelPath . 'domain.model';
+            $this->localizationService->translationExists($title);
+            $GLOBALS['TCA'][$tableName]['ctrl']['title'] = $title;
+        }
+
+        if (isset ($ctrl)) {
+            foreach ($ctrl->toArray() as $property => $value) {
+                $GLOBALS['TCA'][$tableName]['ctrl'][$property] = $value;
+            }
+        }
+
+        foreach ($columnConfigurations as $columnName => $annotation) {
+            if ($annotation instanceof AbstractTcaFalFieldAnnotation) {
+                $columnConfiguration = $annotation->toArray($columnName);
+            } else {
+                $columnConfiguration = $annotation->toArray();
+            }
+
+            ExtensionManagementUtility::addTCAcolumns($tableName, [$columnName => $columnConfiguration]);
+            ExtensionManagementUtility::addToAllTCAtypes($tableName, $columnName, '', $annotation->getPosition());
+        }
+
+        $this->validateConfiguration($tableName);
     }
 
     /**
@@ -416,40 +327,6 @@ class TcaService
         }
 
         return $this->classesConfiguration;
-    }
-
-    /**
-     * @param bool $autoCreateShowItemList
-     *
-     * @return array
-     * @throws Exception
-     */
-    protected function getConfiguration(bool $autoCreateShowItemList = true): array
-    {
-        if ($autoCreateShowItemList) {
-            // configuration must have at least one type defined
-            if ('' === $this->configuration['types'][0]) {
-                $columns = array_keys($this->configuration['columns']);
-
-                foreach ($columns as $column) {
-                    if (!in_array($column, $this->preDefinedColumns, true)) {
-                        $this->addFieldToType($column);
-                    }
-                }
-            }
-
-            // add default access fields to all types
-            $types = array_keys($this->configuration['types']);
-
-            foreach ($types as $type) {
-                $this->addFieldToType('--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.access, hidden, starttime, endtime',
-                    $type);
-            }
-        }
-
-        $this->validateConfiguration();
-
-        return $this->configuration;
     }
 
     /**
@@ -586,32 +463,22 @@ class TcaService
     }
 
     /**
-     * @param array $ctrlProperties
+     * @param string $tableName
      *
-     * @return $this
+     * @throws MisconfiguredTcaException
      */
-    protected function setCtrlProperties(array $ctrlProperties): self
+    protected function validateConfiguration(string $tableName): void
     {
-        foreach ($ctrlProperties as $property => $value) {
-            $this->configuration['ctrl'][$property] = $value;
-        }
+        $configuration = $GLOBALS['TCA'][$tableName];
 
-        return $this;
-    }
-
-    /**
-     * @throws Exception
-     */
-    protected function validateConfiguration(): void
-    {
-        if (isset($this->configuration['ctrl']['sortby'])) {
-            if (isset($this->configuration['ctrl']['default_sortby'])) {
-                throw new MisconfiguredTcaException($this->table . ': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.',
+        if (isset($configuration['ctrl']['sortby'])) {
+            if (isset($configuration['ctrl']['default_sortby'])) {
+                throw new MisconfiguredTcaException($tableName . ': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.',
                     1541107594);
             }
 
-            if (in_array($this->configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
-                throw new MisconfiguredTcaException($this->table . ': Your current configuration would overwrite a reserved system column with sorting values!',
+            if (in_array($configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
+                throw new MisconfiguredTcaException($tableName . ': Your current configuration would overwrite a reserved system column with sorting values!',
                     1541107601);
             }
         }

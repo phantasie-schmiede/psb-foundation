@@ -77,15 +77,11 @@ abstract class AbstractAnnotation
     }
 
     /**
-     * @param string $targetScope
-     *
      * @return array
      * @throws ReflectionException
      */
-    public function toArray(string $targetScope): array
+    public function toArray(): array
     {
-        ValidationUtility::checkValueAgainstConstant(DocCommentParserService::ANNOTATION_TARGETS, $targetScope);
-
         return ObjectUtility::toArray($this);
     }
 }

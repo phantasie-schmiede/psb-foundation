@@ -44,6 +44,21 @@ interface TcaAnnotationInterface
     public function setEditableInFrontend(bool $editableInFrontend): void;
 
     /**
+     * @param string $label
+     */
+    public function setLabel(string $label);
+
+    /**
+     * @return string
+     */
+    public function getLabel(): string;
+
+    /**
+     * @return string
+     */
+    public function getPosition(): string;
+
+    /**
      * @return string
      */
     public function getType(): string;
