@@ -54,4 +54,68 @@ class Slug extends AbstractTcaFieldAnnotation
             '/' => '',
         ],
     ];
+
+    /**
+     * @return string
+     */
+    public function getDefault(): string
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param string $default
+     */
+    public function setDefault(string $default): void
+    {
+        $this->default = $default;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEval(): string
+    {
+        return $this->eval;
+    }
+
+    /**
+     * @param string $eval
+     */
+    public function setEval(string $eval): void
+    {
+        $this->eval = $eval;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFallbackCharacter(): string
+    {
+        return $this->fallbackCharacter;
+    }
+
+    /**
+     * @param string $fallbackCharacter
+     */
+    public function setFallbackCharacter(string $fallbackCharacter): void
+    {
+        $this->fallbackCharacter = $fallbackCharacter;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratorOptions(): array
+    {
+        return $this->generatorOptions;
+    }
+
+    /**
+     * @param array $generatorOptions
+     */
+    public function setGeneratorOptions(array $generatorOptions): void
+    {
+        $this->generatorOptions = $generatorOptions;
+    }
 }

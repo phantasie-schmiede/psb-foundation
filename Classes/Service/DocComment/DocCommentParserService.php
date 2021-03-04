@@ -182,11 +182,9 @@ class DocCommentParserService implements LoggerAwareInterface
 
                             if (is_array($parsedDocComment[$annotationType]) && !ArrayUtility::isAssociative($parsedDocComment[$annotationType])) {
                                 $indexOfLastElement = count($parsedDocComment[$annotationType]) - 1;
-                                $parsedDocComment[$annotationType][$indexOfLastElement] = $this->processValue($annotationType,
-                                    $className, $methodOrPropertyName, $parameters);
+                                $parsedDocComment[$annotationType][$indexOfLastElement] = $parameters;
                             } else {
-                                $parsedDocComment[$annotationType] = $this->processValue($annotationType, $className,
-                                    $methodOrPropertyName, $parameters);
+                                $parsedDocComment[$annotationType] = $parameters;
                             }
                         } else {
                             $parameters = $commentLine;
