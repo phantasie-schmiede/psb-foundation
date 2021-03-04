@@ -21,7 +21,7 @@ use PSB\PsbFoundation\Service\Debug\StopWatchService;
 /**
  * Trait StopWatchServiceTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait StopWatchServiceTrait
 {

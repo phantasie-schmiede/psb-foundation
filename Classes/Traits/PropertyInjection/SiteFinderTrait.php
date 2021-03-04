@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Site\SiteFinder;
 /**
  * Trait SiteFinderTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait SiteFinderTrait
 {

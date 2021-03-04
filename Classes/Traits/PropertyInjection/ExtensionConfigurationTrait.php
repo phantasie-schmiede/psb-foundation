@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 /**
  * Trait ExtensionConfigurationTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait ExtensionConfigurationTrait
 {

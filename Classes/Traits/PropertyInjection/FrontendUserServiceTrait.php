@@ -21,7 +21,7 @@ use PSB\PsbFoundation\Service\FrontendUserService;
 /**
  * Trait FrontendUserServiceTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait FrontendUserServiceTrait
 {

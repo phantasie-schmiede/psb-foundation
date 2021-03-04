@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Cache\CacheManager;
 /**
  * Trait CacheManagerTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait CacheManagerTrait
 {

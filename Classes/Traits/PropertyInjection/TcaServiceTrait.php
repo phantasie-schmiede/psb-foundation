@@ -21,7 +21,7 @@ use PSB\PsbFoundation\Service\Configuration\TcaService;
 /**
  * Trait TcaServiceTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait TcaServiceTrait
 {

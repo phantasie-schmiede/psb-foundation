@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 /**
  * Trait TypoScriptServiceTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait TypoScriptServiceTrait
 {

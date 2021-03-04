@@ -21,7 +21,7 @@ use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 /**
  * Trait ClassesConfigurationFactoryTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait ClassesConfigurationFactoryTrait
 {

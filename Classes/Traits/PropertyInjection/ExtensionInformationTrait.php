@@ -21,7 +21,7 @@ use PSB\PsbFoundation\Data\ExtensionInformation;
 /**
  * Trait ExtensionInformationTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait ExtensionInformationTrait
 {

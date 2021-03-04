@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 /**
  * Trait ConnectionPoolTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait ConnectionPoolTrait
 {

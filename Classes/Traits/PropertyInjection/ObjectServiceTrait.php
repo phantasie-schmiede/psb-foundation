@@ -21,7 +21,7 @@ use PSB\PsbFoundation\Service\ObjectService;
 /**
  * Trait ObjectServiceTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait ObjectServiceTrait
 {

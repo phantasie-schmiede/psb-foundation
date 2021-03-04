@@ -21,7 +21,7 @@ use TYPO3\CMS\Extbase\Domain\Repository\FrontendUserRepository;
 /**
  * Trait FrontendUserRepositoryTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait FrontendUserRepositoryTrait
 {

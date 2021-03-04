@@ -21,7 +21,7 @@ use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
 /**
  * Trait DocCommentParserServiceTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait DocCommentParserServiceTrait
 {

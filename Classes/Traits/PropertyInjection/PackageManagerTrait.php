@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Package\PackageManager;
 /**
  * Trait PackageManagerTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait PackageManagerTrait
 {

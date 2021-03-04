@@ -21,7 +21,7 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 /**
  * Trait PersistenceManagerTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait PersistenceManagerTrait
 {

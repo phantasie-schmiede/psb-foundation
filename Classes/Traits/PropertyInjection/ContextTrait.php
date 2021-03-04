@@ -21,7 +21,7 @@ use TYPO3\CMS\Core\Context\Context;
 /**
  * Trait ContextTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait ContextTrait
 {

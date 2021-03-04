@@ -21,7 +21,7 @@ use TYPO3\CMS\Extbase\Property\PropertyMapper;
 /**
  * Trait PropertyMapperTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait PropertyMapperTrait
 {

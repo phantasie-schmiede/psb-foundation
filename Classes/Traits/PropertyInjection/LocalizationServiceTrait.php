@@ -21,7 +21,7 @@ use PSB\PsbFoundation\Service\LocalizationService;
 /**
  * Trait LocalizationServiceTrait
  *
- * @package PSB\PsbFoundation\Traits\Properties
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
 trait LocalizationServiceTrait
 {
