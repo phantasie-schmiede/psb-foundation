@@ -32,4 +32,46 @@ class Integer extends Input
      * @var string
      */
     protected string $eval = 'int';
+
+    /**
+     * @var int|null
+     */
+    protected ?int $max = null;
+
+    /**
+     * @var int|null
+     */
+    protected ?int $min = null;
+
+    /**
+     * @return int|null
+     */
+    public function getMax(): ?int
+    {
+        return $this->max;
+    }
+
+    /**
+     * @param int|null $max
+     */
+    public function setMax(?int $max): void
+    {
+        $this->max = $max;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMin(): ?int
+    {
+        return $this->min;
+    }
+
+    /**
+     * @param int|null $min
+     */
+    public function setMin(?int $min): void
+    {
+        $this->min = $min;
+    }
 }

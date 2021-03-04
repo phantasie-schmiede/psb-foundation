@@ -43,6 +43,7 @@ class TcaUtility
         'maxItems'           => 'maxitems',
         'mm'                 => 'MM',
         'mmHasUidField'      => 'MM_hasUidField',
+        'mmMatchFields'      => 'MM_match_fields',
         'mmOppositeField'    => 'MM_opposite_field',
         'onChange'           => 'onChange',
         'readOnly'           => 'readOnly',

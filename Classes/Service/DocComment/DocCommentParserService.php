@@ -21,6 +21,7 @@ use PSB\PsbFoundation\Cache\CacheEntry;
 use PSB\PsbFoundation\Cache\CacheEntryRepository;
 use PSB\PsbFoundation\Php\ExtendedReflectionClass;
 use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
+use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\SecurityUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -31,6 +32,7 @@ use ReflectionException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use function get_class;
 use function in_array;
@@ -203,7 +205,7 @@ class DocCommentParserService implements LoggerAwareInterface
             }
         }
 
-        if (GeneralUtility::getContainer()->get('boot.state')->done) {
+        if (!ContextUtility::isBootProcessRunning()) {
             $this->writeToCache($identifier, $parsedDocComment);
         }
 
@@ -240,6 +242,7 @@ class DocCommentParserService implements LoggerAwareInterface
      * @param string      $value
      *
      * @return mixed
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     private function processValue(

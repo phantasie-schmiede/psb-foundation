@@ -76,6 +76,23 @@ class Inline extends AbstractTcaFieldAnnotation
     protected int $maxItems = 99;
 
     /**
+     * name of the mm-table
+     *
+     * @var string|null
+     */
+    protected ?string $mm = null;
+
+    /**
+     * @var array|null
+     */
+    protected ?array $mmMatchFields = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $mmOppositeField = null;
+
+    /**
      * @return array
      */
     public function getAppearance(): array
@@ -177,5 +194,53 @@ class Inline extends AbstractTcaFieldAnnotation
     public function setMaxItems(int $maxItems): void
     {
         $this->maxItems = $maxItems;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMm(): ?string
+    {
+        return $this->mm;
+    }
+
+    /**
+     * @param string|null $mm
+     */
+    public function setMm(?string $mm): void
+    {
+        $this->mm = $mm;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getMmMatchFields(): ?array
+    {
+        return $this->mmMatchFields;
+    }
+
+    /**
+     * @param array|null $mmMatchFields
+     */
+    public function setMmMatchFields(?array $mmMatchFields): void
+    {
+        $this->mmMatchFields = $mmMatchFields;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMmOppositeField(): ?string
+    {
+        return $this->mmOppositeField;
+    }
+
+    /**
+     * @param string|null $mmOppositeField
+     */
+    public function setMmOppositeField(?string $mmOppositeField): void
+    {
+        $this->mmOppositeField = $mmOppositeField;
     }
 }

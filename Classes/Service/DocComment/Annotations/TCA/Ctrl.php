@@ -54,6 +54,11 @@ class Ctrl extends AbstractAnnotation
     protected bool $hideTable = false;
 
     /**
+     * @var string|null
+     */
+    protected ?string $iconfile;
+
+    /**
      * @var string
      */
     protected string $label = '';
@@ -131,6 +136,22 @@ class Ctrl extends AbstractAnnotation
     public function setDefaultSortBy(?string $defaultSortBy): void
     {
         $this->defaultSortBy = $defaultSortBy;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getIconfile(): ?string
+    {
+        return $this->iconfile;
+    }
+
+    /**
+     * @param string|null $iconfile
+     */
+    public function setIconfile(?string $iconfile): void
+    {
+        $this->iconfile = $iconfile;
     }
 
     /**
