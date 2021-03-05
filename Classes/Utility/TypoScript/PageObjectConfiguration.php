@@ -25,10 +25,14 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
  */
 class PageObjectConfiguration
 {
+    public const CONTENT_TYPE_HTML = 'text/html';
+    public const CONTENT_TYPE_JSON = 'application/json';
+    public const CONTENT_TYPE_XML = 'text/xml';
+
     public const CONTENT_TYPES = [
-        'HTML' => 'text/html',
-        'JSON' => 'application/json',
-        'XML'  => 'text/xml',
+        'HTML' => self::CONTENT_TYPE_HTML,
+        'JSON' => self::CONTENT_TYPE_JSON,
+        'XML'  => self::CONTENT_TYPE_XML,
     ];
 
     /**

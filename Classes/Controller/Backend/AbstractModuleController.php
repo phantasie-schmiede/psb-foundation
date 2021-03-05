@@ -16,11 +16,11 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Controller\Backend;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Module\ButtonConfiguration;
-use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleAction;
-use PSB\PsbFoundation\Traits\PropertyInjection\DocCommentParserServiceTrait;
+use PSB\PsbFoundation\Annotation\ModuleAction;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
 use ReflectionClass;
@@ -50,7 +50,7 @@ use function in_array;
  */
 abstract class AbstractModuleController extends ActionController
 {
-    use DocCommentParserServiceTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
+    use ExtensionInformationServiceTrait, LocalizationServiceTrait;
 
     protected const HEADER_COMPONENTS = [
         'ACTION_BUTTONS'  => 'actionButtons',
@@ -335,30 +335,22 @@ abstract class AbstractModuleController extends ActionController
      * automatically. This can be prevented with the ModuleAction-annotation, see addTemplateAction.
      *
      * @return array
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws JsonException
-     * @throws ReflectionException
      */
     private function buildTemplateActions(): array
     {
         $actions = GeneralUtility::makeInstance(ReflectionClass::class, $this)->getMethods(ReflectionMethod::IS_PUBLIC);
+        $annotationReader = new AnnotationReader();
 
         foreach ($actions as $action) {
             $actionName = $action->getName();
-            $action = preg_replace('/Action$/', '', $actionName, 1, $count);
+            $actionName = preg_replace('/Action$/', '', $actionName, 1, $count);
 
             if (1 === $count) {
-                $docComment = $this->docCommentParserService->parsePhpDocComment($this, $actionName);
-                $doNotRender = false;
+                /** @var ModuleAction|null $moduleAction */
+                $moduleAction = $annotationReader->getMethodAnnotation($action, ModuleAction::class);
 
-                if (isset($docComment[ModuleAction::class])) {
-                    /** @var ModuleAction $moduleAction */
-                    $moduleAction = $docComment[ModuleAction::class];
-                    $doNotRender = $moduleAction->isDoNotRender();
-                }
-
-                if (!$doNotRender) {
-                    $this->addTemplateAction($action);
+                if (null === $moduleAction || false === $moduleAction->isDoNotRender()) {
+                    $this->addTemplateAction($actionName);
                 }
             }
         }

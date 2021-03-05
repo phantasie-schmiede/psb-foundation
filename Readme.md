@@ -88,8 +88,8 @@ Renaming your extension during development will require less effort.
 
 - Classes/Controller/YourController.php
   ```php
-  use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
-  use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
+  use PSB\PsbFoundation\Annotation\PluginAction;
+  use PSB\PsbFoundation\Annotation\PluginConfig;
 
   /**
    * @PluginConfig(iconIdentifier="special-icon")
@@ -138,10 +138,10 @@ Available annotations can be found in `psb_foundation/Classes/Service/DocComment
 
 Example:
 ```php
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
+use PSB\PsbFoundation\Annotation\TCA;
 
 /**
- * @TCA\Ctrl (label=name, searchFields="description, name")
+ * @TCA\Ctrl (label="name", searchFields="description, name")
  */
 class YourClass
 {
@@ -163,7 +163,7 @@ class YourClass
 
 Example:
 ```php
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA;
+use PSB\PsbFoundation\Annotation\TCA;
 
 class YourClass
 {

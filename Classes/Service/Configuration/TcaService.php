@@ -16,17 +16,18 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\Configuration;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
 use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\AbstractTcaFalFieldAnnotation;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Ctrl;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\TcaAnnotationInterface;
+use PSB\PsbFoundation\Annotation\TCA\AbstractTcaFalFieldAnnotation;
+use PSB\PsbFoundation\Annotation\TCA\Ctrl;
+use PSB\PsbFoundation\Annotation\TCA\Select;
+use PSB\PsbFoundation\Annotation\TCA\TcaAnnotationInterface;
 use PSB\PsbFoundation\Traits\PropertyInjection\ClassesConfigurationFactoryTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\DocCommentParserServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -36,11 +37,11 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
-use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class TcaService
@@ -49,7 +50,7 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
  */
 class TcaService
 {
-    use ClassesConfigurationFactoryTrait, ConnectionPoolTrait, DocCommentParserServiceTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
+    use ClassesConfigurationFactoryTrait, ConnectionPoolTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
 
     protected const PROTECTED_COLUMNS = [
         'crdate',
@@ -230,24 +231,22 @@ class TcaService
      *
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidArgumentForHashGenerationException
      * @throws JsonException
+     * @throws MisconfiguredTcaException
      * @throws ObjectException
      * @throws ReflectionException
-     * @throws MisconfiguredTcaException
      */
     protected function buildFromDocComment(string $className, string $tableName): void
     {
-        $docComment = $this->docCommentParserService->parsePhpDocComment($className);
+        $annotationReader = new AnnotationReader();
+        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
+
+        /** @var Ctrl|null $ctrl */
+        $ctrl = $annotationReader->getClassAnnotation($reflection, Ctrl::class);
         $editableInFrontend = false;
 
-        if (isset($docComment[Ctrl::class])) {
-            /** @var Ctrl $ctrl */
-            $ctrl = $docComment[Ctrl::class];
-
-            if (true === $ctrl->isEditableInFrontend()) {
-                $editableInFrontend = true;
-            }
+        if (null !== $ctrl && true === $ctrl->isEditableInFrontend()) {
+            $editableInFrontend = true;
         }
 
         $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName($className)['extensionKey'];
@@ -259,12 +258,11 @@ class TcaService
             $defaultLabelPath .= $tableName . '.xlf:';
         }
 
-        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
         $properties = $reflection->getProperties();
         $columnConfigurations = [];
 
         foreach ($properties as $property) {
-            $docComment = $this->docCommentParserService->parsePhpDocComment($className, $property->getName());
+            $docComment = $annotationReader->getPropertyAnnotations($property);
 
             foreach ($docComment as $annotation) {
                 if ($annotation instanceof TcaAnnotationInterface) {
@@ -278,6 +276,14 @@ class TcaService
                         $label = $defaultLabelPath . $columnName;
                         $this->localizationService->translationExists($label);
                         $annotation->setLabel($label);
+                    }
+
+                    if ($annotation instanceof Select
+                        && [] !== $annotation->getItems()
+                        && ArrayUtility::isAssociative($annotation->getItems()
+                        )) {
+                        $annotation->setItems($this->processSelectItemsArray($annotation->getItems(),
+                            $defaultLabelPath . $columnName . '.'));
                     }
 
                     $columnConfigurations[$columnName] = $annotation;
@@ -297,7 +303,7 @@ class TcaService
             $GLOBALS['TCA'][$tableName]['ctrl']['title'] = $title;
         }
 
-        if (isset ($ctrl)) {
+        if (null !== $ctrl) {
             foreach ($ctrl->toArray() as $property => $value) {
                 $GLOBALS['TCA'][$tableName]['ctrl'][$property] = $value;
             }
@@ -460,6 +466,34 @@ class TcaService
                 ],
             ],
         ];
+    }
+
+    /**
+     * @param array  $items
+     * @param string $labelPath
+     *
+     * @return array
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
+     * @throws ObjectException
+     */
+    protected function processSelectItemsArray(array $items, string $labelPath): array
+    {
+        $selectItems = [];
+
+        foreach ($items as $key => $value) {
+            $identifier = GeneralUtility::underscoredToLowerCamelCase($key);
+            $label = $labelPath . $identifier;
+
+            if (!$this->localizationService->translationExists($label, false)) {
+                $label = ucfirst($identifier);
+            }
+
+            $selectItems[] = [$label, $value];
+        }
+
+        return $selectItems;
     }
 
     /**

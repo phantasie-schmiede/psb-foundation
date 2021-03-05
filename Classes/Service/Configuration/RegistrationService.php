@@ -17,16 +17,18 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\Configuration;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\CachedReader;
+use Doctrine\Common\Annotations\IndexedReader;
 use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
-use PSB\PsbFoundation\Service\DocComment\Annotations\AjaxPageType;
-use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleAction;
-use PSB\PsbFoundation\Service\DocComment\Annotations\ModuleConfig;
-use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
-use PSB\PsbFoundation\Service\DocComment\Annotations\PluginConfig;
-use PSB\PsbFoundation\Service\DocComment\DocCommentParserService;
+use PSB\PsbFoundation\Annotation\AjaxPageType;
+use PSB\PsbFoundation\Annotation\ModuleAction;
+use PSB\PsbFoundation\Annotation\ModuleConfig;
+use PSB\PsbFoundation\Annotation\PluginAction;
+use PSB\PsbFoundation\Annotation\PluginConfig;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
@@ -673,9 +675,6 @@ class RegistrationService
      * @param string $pluginName
      *
      * @return array
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws JsonException
-     * @throws ReflectionException
      */
     private function collectActionsAndConfiguration(
         array $controllerClassNames,
@@ -685,14 +684,14 @@ class RegistrationService
         $configuration = [];
         $controllersAndCachedActions = [];
         $controllersAndUncachedActions = [];
-        $docCommentParserService = GeneralUtility::makeInstance(DocCommentParserService::class);
+        $annotationReader = new IndexedReader(new AnnotationReader());
         $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
 
         foreach ($controllerClassNames as $controllerClassName) {
+            $controller = GeneralUtility::makeInstance(ReflectionClass::class, $controllerClassName);
             $controllersAndCachedActions[$controllerClassName] = [];
 
             if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
-                $controller = GeneralUtility::makeInstance(ReflectionClass::class, $controllerClassName);
                 $methods = $controller->getMethods();
 
                 foreach ($methods as $method) {
@@ -706,8 +705,8 @@ class RegistrationService
                         continue;
                     }
 
-                    $docComment = $docCommentParserService->parsePhpDocComment($controllerClassName,
-                        $methodName);
+                    /** @var ModuleAction|null $moduleAction */
+                    $docComment = $annotationReader->getMethodAnnotations($method);
 
                     if (isset($docComment[ModuleAction::class])) {
                         /** @var ModuleAction $action */
@@ -772,7 +771,7 @@ class RegistrationService
 
             if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] !== $collectMode) {
                 Typo3CoreArrayUtility::mergeRecursiveWithOverrule($configuration,
-                    $docCommentParserService->parsePhpDocComment($controllerClassName));
+                    $annotationReader->getClassAnnotations($controller));
             }
         }
 

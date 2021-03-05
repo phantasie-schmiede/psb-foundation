@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Controller;
 
-use PSB\PsbFoundation\Service\DocComment\Annotations\PluginAction;
+use PSB\PsbFoundation\Annotation\PluginAction;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\PropertyMapperTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;

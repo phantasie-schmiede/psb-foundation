@@ -14,38 +14,38 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Domain\Model;
+namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Annotation\TCA\Input;
+use PSB\PsbFoundation\Service\Configuration\Fields;
 
 /**
- * Class ModelWithName
+ * Class Checkbox
  *
- * Adds a property "name" to your model.
- *
- * @package PSB\PsbFoundation\Domain\Model
+ * @Annotation
+ * @package PSB\PsbFoundation\Annotation\TCA
  */
-abstract class AbstractModelWithName extends AbstractModel
+class Checkbox extends AbstractTcaFieldAnnotation
 {
-    /**
-     * @var string
-     * @Input()
-     */
-    protected string $name = '';
+    public const TYPE = Fields::FIELD_TYPES['CHECKBOX'];
 
     /**
-     * @return string
+     * @var bool
      */
-    public function getName(): string
+    protected bool $default = false;
+
+    /**
+     * @return bool
+     */
+    public function isDefault(): bool
     {
-        return $this->name;
+        return $this->default;
     }
 
     /**
-     * @param string $name
+     * @param bool $default
      */
-    public function setName(string $name): void
+    public function setDefault(bool $default): void
     {
-        $this->name = $name;
+        $this->default = $default;
     }
 }

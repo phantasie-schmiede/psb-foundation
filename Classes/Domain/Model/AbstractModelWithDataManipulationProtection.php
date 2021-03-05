@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Domain\Model;
 
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Input;
+use PSB\PsbFoundation\Annotation\TCA\Input;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\SecurityUtility;
 use ReflectionException;

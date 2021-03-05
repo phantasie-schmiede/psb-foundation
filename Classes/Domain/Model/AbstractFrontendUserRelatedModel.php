@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Domain\Model;
 
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Select;
+use PSB\PsbFoundation\Annotation\TCA\Select;
 use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
 
 /**
@@ -30,7 +30,7 @@ abstract class AbstractFrontendUserRelatedModel extends AbstractModelWithDataMan
 {
     /**
      * @var FrontendUser|null
-     * @Select(editableInFrontend=false, linkedModel="FrontendUser")
+     * @Select(editableInFrontend=false, linkedModel=FrontendUser::class)
      */
     protected ?FrontendUser $frontendUser = null;
 

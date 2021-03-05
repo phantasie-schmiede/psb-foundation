@@ -16,16 +16,14 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service;
 
-use JsonException;
-use PSB\PsbFoundation\Service\DocComment\Annotations\TCA\Mm;
+use Doctrine\Common\Annotations\AnnotationReader;
+use PSB\PsbFoundation\Annotation\TCA\Mm;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\DocCommentParserServiceTrait;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
-use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 
 /**
  * Class ObjectService
@@ -34,29 +32,31 @@ use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationExcepti
  */
 class ObjectService
 {
-    use ConnectionPoolTrait, DocCommentParserServiceTrait;
+    use ConnectionPoolTrait;
 
     /**
      * @param AbstractDomainObject $object
      * @param string               $property
      *
      * @return array
-     * @throws InvalidArgumentForHashGenerationException
-     * @throws JsonException
      * @throws ReflectionException
      */
     public function resolveMultipleMmRelation(AbstractDomainObject $object, string $property): array
     {
-        $docComment = $this->docCommentParserService->parsePhpDocComment($object, $property);
+        // Store each ObjectStorage element by uid.
+        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $object);
+        $reflectionProperty = $reflectionClass->getProperty($property);
 
-        if (!isset($docComment[Mm::class])) {
+        $annotationReader = new AnnotationReader();
+
+        /** @var Mm|null $mm */
+        $mm = $annotationReader->getPropertyAnnotation($reflectionProperty, Mm::class);
+
+        if (null === $mm) {
             throw new RuntimeException(__CLASS__ . ': The property "' . $property . '" of object "' . get_class($object) . '" is not of TCA type mm!',
                 1584867595);
         }
 
-        // Store each ObjectStorage element by uid.
-        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $object);
-        $reflectionProperty = $reflectionClass->getProperty($property);
         $reflectionProperty->setAccessible(true);
         $objectStorageElements = $reflectionProperty->getValue($object);
         $objectStorageElementsByUid = [];
@@ -67,8 +67,6 @@ class ObjectService
         }
 
         // Get all mm-relation entries.
-        /** @var Mm $mm */
-        $mm = $docComment[Mm::class];
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($mm->getMm());
         $statement = $queryBuilder
             ->select('uid_foreign')
