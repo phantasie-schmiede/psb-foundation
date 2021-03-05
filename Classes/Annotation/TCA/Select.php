@@ -37,12 +37,18 @@ class Select extends AbstractTcaFieldAnnotation
         ],
     ];
 
+    public const RENDER_TYPE_SELECT_SINGLE                = 'selectSingle';
+    public const RENDER_TYPE_SELECT_SINGLE_BOX            = 'selectSingleBox';
+    public const RENDER_TYPE_SELECT_CHECK_BOX             = 'selectCheckBox';
+    public const RENDER_TYPE_SELECT_MULTIPLE_SIDE_BY_SIDE = 'selectMultipleSideBySide';
+    public const RENDER_TYPE_SELECT_TREE                  = 'selectTree';
+
     public const RENDER_TYPES = [
-        'SELECT_SINGLE'                => 'selectSingle',
-        'SELECT_SINGLE_BOX'            => 'selectSingleBox',
-        'SELECT_CHECK_BOX'             => 'selectCheckBox',
-        'SELECT_MULTIPLE_SIDE_BY_SIDE' => 'selectMultipleSideBySide',
-        'SELECT_TREE'                  => 'selectTree',
+        'SELECT_SINGLE'                => self::RENDER_TYPE_SELECT_SINGLE,
+        'SELECT_SINGLE_BOX'            => self::RENDER_TYPE_SELECT_SINGLE_BOX,
+        'SELECT_CHECK_BOX'             => self::RENDER_TYPE_SELECT_CHECK_BOX,
+        'SELECT_MULTIPLE_SIDE_BY_SIDE' => self::RENDER_TYPE_SELECT_MULTIPLE_SIDE_BY_SIDE,
+        'SELECT_TREE'                  => self::RENDER_TYPE_SELECT_TREE,
     ];
 
     public const TYPE = Fields::FIELD_TYPES['SELECT'];
