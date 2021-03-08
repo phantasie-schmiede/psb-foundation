@@ -20,12 +20,12 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Data\ExtensionInformationInterface;
-use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Annotation\TCA\AbstractTcaFalFieldAnnotation;
 use PSB\PsbFoundation\Annotation\TCA\Ctrl;
 use PSB\PsbFoundation\Annotation\TCA\Select;
 use PSB\PsbFoundation\Annotation\TCA\TcaAnnotationInterface;
+use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Traits\PropertyInjection\ClassesConfigurationFactoryTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
@@ -51,6 +51,8 @@ use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
 class TcaService
 {
     use ClassesConfigurationFactoryTrait, ConnectionPoolTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
+
+    public const UNSET_KEYWORD = 'UNSET';
 
     protected const PROTECTED_COLUMNS = [
         'crdate',
@@ -305,7 +307,11 @@ class TcaService
 
         if (null !== $ctrl) {
             foreach ($ctrl->toArray() as $property => $value) {
-                $GLOBALS['TCA'][$tableName]['ctrl'][$property] = $value;
+                if (self::UNSET_KEYWORD === $value) {
+                    unset($GLOBALS['TCA'][$tableName]['ctrl'][$property]);
+                } else {
+                    $GLOBALS['TCA'][$tableName]['ctrl'][$property] = $value;
+                }
             }
         }
 
