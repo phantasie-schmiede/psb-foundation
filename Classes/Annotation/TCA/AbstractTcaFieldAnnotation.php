@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Annotation\TCA;
 
 use Exception;
-use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Annotation\AbstractAnnotation;
+use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -52,6 +52,16 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
      * @var bool
      */
     protected bool $exclude = false;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $l10nDisplay = null;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $l10nMode = null;
 
     /**
      * @var string
@@ -104,7 +114,7 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
         foreach ($properties as $key => $value) {
             $key = TcaUtility::convertKey($key);
 
-            if (in_array($key, ['displayCond', 'exclude', 'label', 'onChange'], true)) {
+            if (in_array($key, ['displayCond', 'exclude', 'label', 'l10nDisplay', 'l10nMode', 'onChange'], true)) {
                 $fieldConfiguration[$key] = $value;
             } elseif ('position' !== $key) {
                 $fieldConfiguration['config'][$key] = $value;
@@ -128,6 +138,38 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     public function setDisplayCond($displayCond): void
     {
         $this->displayCond = $displayCond;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getL10nDisplay(): ?string
+    {
+        return $this->l10nDisplay;
+    }
+
+    /**
+     * @param string|null $l10nDisplay
+     */
+    public function setL10nDisplay(?string $l10nDisplay): void
+    {
+        $this->l10nDisplay = $l10nDisplay;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getL10nMode(): ?string
+    {
+        return $this->l10nMode;
+    }
+
+    /**
+     * @param string|null $l10nMode
+     */
+    public function setL10nMode(?string $l10nMode): void
+    {
+        $this->l10nMode = $l10nMode;
     }
 
     /**

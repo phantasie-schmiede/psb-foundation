@@ -17,8 +17,8 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Annotation\TCA;
 
 use Exception;
-use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Annotation\AbstractAnnotation;
+use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -33,6 +33,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class Ctrl extends AbstractAnnotation
 {
+    /**
+     * This property holds the property names which have been defined explicitly as annotation arguments. This allows
+     * to decide which values to use when overriding an existing configuration.
+     *
+     * @var string[]
+     */
+    protected array $_setProperties = [];
+
     /**
      * @var string|null
      */
@@ -102,6 +110,9 @@ class Ctrl extends AbstractAnnotation
      */
     public function __construct(array $data = [])
     {
+        $this->_setProperties = array_map(static function ($key) {
+            return TcaUtility::convertKey($key);
+        }, array_keys($data));
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
         parent::__construct($data);
     }
@@ -230,6 +241,14 @@ class Ctrl extends AbstractAnnotation
     public function setSearchFields(?string $searchFields): void
     {
         $this->searchFields = $searchFields;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getSetProperties(): array
+    {
+        return $this->_setProperties;
     }
 
     /**

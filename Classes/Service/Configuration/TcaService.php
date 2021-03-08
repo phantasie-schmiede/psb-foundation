@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\Configuration;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Exception;
 use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Annotation\TCA\AbstractTcaFalFieldAnnotation;
@@ -28,6 +27,7 @@ use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Traits\PropertyInjection\ClassesConfigurationFactoryTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\DataMapperTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -50,7 +50,7 @@ use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
  */
 class TcaService
 {
-    use ClassesConfigurationFactoryTrait, ConnectionPoolTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
+    use ClassesConfigurationFactoryTrait, ConnectionPoolTrait, DataMapperTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
 
     public const UNSET_KEYWORD = 'UNSET';
 
@@ -82,8 +82,12 @@ class TcaService
      *                           domain models) is added to the TCA.
      *                           If set to true, the configuration of all extending domain models is added to the TCA.
      *
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
+     * @throws MisconfiguredTcaException
+     * @throws ObjectException
      * @throws ReflectionException
-     * @throws Exception
      */
     public function buildTca(bool $overrideMode): void
     {
@@ -99,33 +103,19 @@ class TcaService
 
         if (isset(self::$classTableMapping[$key])) {
             foreach (self::$classTableMapping[$key] as $fullQualifiedClassName => $tableName) {
-                $this->buildFromDocComment($fullQualifiedClassName, $tableName);
+                $this->buildFromDocComment($fullQualifiedClassName, $overrideMode, $tableName);
             }
         }
     }
 
     /**
-     * TYPO3's DataMapper can't be used here as it would create an incomplete class information cache due to the early
-     * stage in which this function gets called!
-     *
      * @param string $className
      *
      * @return string
      */
     public function convertClassNameToTableName(string $className): string
     {
-        $classesConfiguration = $this->getClassesConfiguration();
-
-        if ($classesConfiguration->hasClass($className)) {
-            return $classesConfiguration->getConfigurationFor($className)['tableName'];
-        }
-
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        // overwrite vendor name with extension prefix
-        $classNameParts[0] = 'tx';
-
-        return strtolower(implode('_', $classNameParts));
+        return $this->dataMapper->convertClassNameToTableName($className);
     }
 
     /**
@@ -229,6 +219,7 @@ class TcaService
 
     /**
      * @param string $className
+     * @param bool   $overrideMode
      * @param string $tableName
      *
      * @throws ExtensionConfigurationExtensionNotConfiguredException
@@ -238,19 +229,20 @@ class TcaService
      * @throws ObjectException
      * @throws ReflectionException
      */
-    protected function buildFromDocComment(string $className, string $tableName): void
+    protected function buildFromDocComment(string $className, bool $overrideMode, string $tableName): void
     {
         $annotationReader = new AnnotationReader();
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
 
         /** @var Ctrl|null $ctrl */
         $ctrl = $annotationReader->getClassAnnotation($reflection, Ctrl::class);
-        $editableInFrontend = false;
 
-        if (null !== $ctrl && true === $ctrl->isEditableInFrontend()) {
-            $editableInFrontend = true;
+        if (!$overrideMode && null === $ctrl) {
+            // @TODO: emit warning?
+            return;
         }
 
+        $editableInFrontend = (null !== $ctrl && true === $ctrl->isEditableInFrontend());
         $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName($className)['extensionKey'];
         $defaultLabelPath = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/';
 
@@ -298,7 +290,7 @@ class TcaService
             return;
         }
 
-        if (!isset($GLOBALS['TCA'][$tableName])) {
+        if (!$overrideMode) {
             $GLOBALS['TCA'][$tableName] = $this->getDummyConfiguration($tableName);
             $title = $defaultLabelPath . 'domain.model';
             $this->localizationService->translationExists($title);
@@ -306,7 +298,15 @@ class TcaService
         }
 
         if (null !== $ctrl) {
-            foreach ($ctrl->toArray() as $property => $value) {
+            $ctrlProperties = $ctrl->toArray();
+
+            if ($overrideMode) {
+                $ctrlProperties = array_filter($ctrlProperties, static function ($key) use ($ctrl) {
+                    return in_array($key, $ctrl->getSetProperties(), true);
+                }, ARRAY_FILTER_USE_KEY);
+            }
+
+            foreach ($ctrlProperties as $property => $value) {
                 if (self::UNSET_KEYWORD === $value) {
                     unset($GLOBALS['TCA'][$tableName]['ctrl'][$property]);
                 } else {

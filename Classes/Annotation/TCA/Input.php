@@ -39,6 +39,11 @@ class Input extends AbstractTcaFieldAnnotation
     protected string $eval = 'trim';
 
     /**
+     * @var int|null
+     */
+    protected ?int $max = null;
+
+    /**
      * @var string|null
      */
     protected ?string $renderType = null;
@@ -78,6 +83,22 @@ class Input extends AbstractTcaFieldAnnotation
     public function setEval(string $eval): void
     {
         $this->eval = $eval;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMax(): ?int
+    {
+        return $this->max;
+    }
+
+    /**
+     * @param int|null $max
+     */
+    public function setMax(?int $max): void
+    {
+        $this->max = $max;
     }
 
     /**
