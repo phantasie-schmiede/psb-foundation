@@ -141,14 +141,19 @@ class ExtensionInformationService
     ): void {
         $this->validateExtensionInformationClass($className);
         $this->validateExtensionKey($extensionKey);
+        $identifiers = [
+            'class_name'    => $className,
+            'extension_key' => $extensionKey,
+        ];
 
-        $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
-            ->insert(self::EXTENSION_INFORMATION_MAPPING_TABLE,
-                [
-                    'class_name'    => $className,
-                    'extension_key' => $extensionKey,
-                ]
-            );
+        $connection = $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE);
+        $checkForExistentKey = $connection->select(['class_name', 'extension_key'],
+            self::EXTENSION_INFORMATION_MAPPING_TABLE, $identifiers)
+            ->fetchAll();
+
+        if (0 === count($checkForExistentKey)) {
+            $connection->insert(self::EXTENSION_INFORMATION_MAPPING_TABLE, $identifiers);
+        }
     }
 
     /**
