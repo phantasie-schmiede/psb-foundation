@@ -106,6 +106,11 @@ class Select extends AbstractTcaFieldAnnotation
     protected int $maxItems = 1;
 
     /**
+     * @var int
+     */
+    protected int $minItems = 0;
+
+    /**
      * @var bool
      */
     protected bool $multiple = false;
@@ -250,6 +255,22 @@ class Select extends AbstractTcaFieldAnnotation
     public function setMaxItems(int $maxItems): void
     {
         $this->maxItems = $maxItems;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinItems(): int
+    {
+        return $this->minItems;
+    }
+
+    /**
+     * @param int $minItems
+     */
+    public function setMinItems(int $minItems): void
+    {
+        $this->minItems = $minItems;
     }
 
     /**

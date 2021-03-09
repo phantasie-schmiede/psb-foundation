@@ -34,6 +34,27 @@ class Checkbox extends AbstractTcaFieldAnnotation
     protected bool $default = false;
 
     /**
+     * @var array
+     */
+    protected array $items = [];
+
+    /**
+     * @return array
+     */
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
+    /**
+     * @param array $items
+     */
+    public function setItems(array $items): void
+    {
+        $this->items = $items;
+    }
+
+    /**
      * @return bool
      */
     public function isDefault(): bool

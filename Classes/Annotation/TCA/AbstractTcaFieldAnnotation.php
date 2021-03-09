@@ -33,6 +33,8 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     // Override this constant in extending classes!
     public const  TYPE = '';
 
+    public const TYPE_LIST_NONE = 'none';
+
     /**
      * @var array|string|null
      */
@@ -87,6 +89,11 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
      * @var TcaService
      */
     protected TcaService $tcaService;
+
+    /**
+     * @var string
+     */
+    protected string $typeList = '';
 
     /**
      * AbstractTcaFieldAnnotation constructor.
@@ -226,6 +233,22 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     public function getType(): string
     {
         return static::TYPE;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeList(): string
+    {
+        return $this->typeList;
+    }
+
+    /**
+     * @param string $typeList
+     */
+    public function setTypeList(string $typeList): void
+    {
+        $this->typeList = $typeList;
     }
 
     /**

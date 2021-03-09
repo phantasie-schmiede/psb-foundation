@@ -20,6 +20,8 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Annotation\TCA\AbstractTcaFalFieldAnnotation;
+use PSB\PsbFoundation\Annotation\TCA\AbstractTcaFieldAnnotation;
+use PSB\PsbFoundation\Annotation\TCA\Checkbox;
 use PSB\PsbFoundation\Annotation\TCA\Ctrl;
 use PSB\PsbFoundation\Annotation\TCA\Select;
 use PSB\PsbFoundation\Annotation\TCA\TcaAnnotationInterface;
@@ -272,7 +274,7 @@ class TcaService
                         $annotation->setLabel($label);
                     }
 
-                    if ($annotation instanceof Select
+                    if (($annotation instanceof Checkbox || $annotation instanceof Select)
                         && [] !== $annotation->getItems()
                         && ArrayUtility::isAssociative($annotation->getItems()
                         )) {
@@ -323,7 +325,30 @@ class TcaService
             }
 
             ExtensionManagementUtility::addTCAcolumns($tableName, [$columnName => $columnConfiguration]);
-            ExtensionManagementUtility::addToAllTCAtypes($tableName, $columnName, '', $annotation->getPosition());
+
+            if (AbstractTcaFieldAnnotation::TYPE_LIST_NONE === $annotation->getTypeList()) {
+                // Do not add this field to any type. It will not be visible in the backend.
+                continue;
+            }
+
+            $position = $annotation->getPosition();
+
+            if ('' !== $position) {
+                [$prefix, $value] = GeneralUtility::trimExplode(':', $position);
+
+                if ('tab' === $prefix) {
+                    $tabLabel = $defaultLabelPath . 'tab.' . $value;
+
+                    if (!$this->localizationService->translationExists($tabLabel, false)) {
+                        $tabLabel = $value;
+                    }
+
+                    $columnName = '--div--;' . $tabLabel . ', ' . $columnName;
+                    $position = '';
+                }
+            }
+
+            ExtensionManagementUtility::addToAllTCAtypes($tableName, $columnName, '', $position);
         }
 
         $this->validateConfiguration($tableName);
