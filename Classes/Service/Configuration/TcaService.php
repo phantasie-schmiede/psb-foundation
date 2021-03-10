@@ -25,11 +25,8 @@ use PSB\PsbFoundation\Annotation\TCA\Checkbox;
 use PSB\PsbFoundation\Annotation\TCA\Ctrl;
 use PSB\PsbFoundation\Annotation\TCA\Select;
 use PSB\PsbFoundation\Annotation\TCA\TcaAnnotationInterface;
-use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
-use PSB\PsbFoundation\Traits\PropertyInjection\ClassesConfigurationFactoryTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\DataMapperTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -44,6 +41,7 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
+use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 
 /**
  * Class TcaService
@@ -52,7 +50,7 @@ use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
  */
 class TcaService
 {
-    use ClassesConfigurationFactoryTrait, ConnectionPoolTrait, DataMapperTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
+    use ConnectionPoolTrait, ExtensionInformationServiceTrait, LocalizationServiceTrait;
 
     public const UNSET_KEYWORD = 'UNSET';
 
@@ -69,9 +67,25 @@ class TcaService
     protected static array $classTableMapping = [];
 
     /**
-     * @var ClassesConfiguration|null
+     * @var ClassesConfiguration
      */
-    protected ?ClassesConfiguration $classesConfiguration = null;
+    protected ClassesConfiguration $classesConfiguration;
+
+    /**
+     * @var ClassesConfigurationFactory
+     */
+    protected ClassesConfigurationFactory $classesConfigurationFactory;
+
+    /**
+     * TcaService constructor.
+     *
+     * @param ClassesConfigurationFactory $classesConfigurationFactory
+     */
+    public function __construct(ClassesConfigurationFactory $classesConfigurationFactory)
+    {
+        $this->classesConfigurationFactory = $classesConfigurationFactory;
+        $this->classesConfiguration = $this->classesConfigurationFactory->createClassesConfiguration();
+    }
 
     /**
      * This function will be executed when the core builds the TCA, but as it does not return an array there will be no
@@ -117,7 +131,24 @@ class TcaService
      */
     public function convertClassNameToTableName(string $className): string
     {
-        return $this->dataMapper->convertClassNameToTableName($className);
+        if ($this->classesConfiguration->hasClass($className)) {
+            $classSettings = $this->classesConfiguration->getConfigurationFor($className);
+
+            if (isset($classSettings['tableName']) && '' !== $classSettings['tableName']) {
+                return $classSettings['tableName'];
+            }
+        }
+
+        $classNameParts = explode('\\', $className);
+
+        // Skip vendor and product name for core classes
+        if (StringUtility::beginsWith($className, 'TYPO3\\CMS\\')) {
+            $classPartsToSkip = 2;
+        } else {
+            $classPartsToSkip = 1;
+        }
+
+        return 'tx_' . strtolower(implode('_', array_slice($classNameParts, $classPartsToSkip)));
     }
 
     /**
@@ -128,39 +159,15 @@ class TcaService
      */
     public function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
-        if (null !== $className) {
-            $classesConfiguration = $this->getClassesConfiguration();
+        if (null !== $className && $this->classesConfiguration->hasClass($className)) {
+            $configuration = $this->classesConfiguration->getConfigurationFor($className);
 
-            if ($classesConfiguration->hasClass($className)) {
-                $configuration = $classesConfiguration->getConfigurationFor($className);
-
-                if (isset($configuration['properties'][$propertyName])) {
-                    return $configuration['properties'][$propertyName]['fieldName'];
-                }
+            if (isset($configuration['properties'][$propertyName])) {
+                return $configuration['properties'][$propertyName]['fieldName'];
             }
         }
 
         return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
-    }
-
-    /**
-     * For usage in ext_tables.php
-     *
-     * @param ExtensionInformationInterface $extensionInformation
-     */
-    public function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
-    {
-        $identifier = 'tx_' . mb_strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
-
-        $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
-            return StringUtility::beginsWith($key, $identifier);
-        });
-
-        foreach ($newTables as $table) {
-            ExtensionManagementUtility::allowTableOnStandardPages($table);
-            ExtensionManagementUtility::addLLrefForTCAdescr($table,
-                'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $table . '.xlf');
-        }
     }
 
     protected function buildClassesTableMapping(): void
@@ -348,22 +355,11 @@ class TcaService
                 }
             }
 
-            ExtensionManagementUtility::addToAllTCAtypes($tableName, $columnName, $annotation->getTypeList() ?? '', $position);
+            ExtensionManagementUtility::addToAllTCAtypes($tableName, $columnName, $annotation->getTypeList() ?? '',
+                $position);
         }
 
         $this->validateConfiguration($tableName);
-    }
-
-    /**
-     * @return ClassesConfiguration
-     */
-    protected function getClassesConfiguration(): ClassesConfiguration
-    {
-        if (null === $this->classesConfiguration) {
-            $this->classesConfiguration = $this->classesConfigurationFactory->createClassesConfiguration();
-        }
-
-        return $this->classesConfiguration;
     }
 
     /**

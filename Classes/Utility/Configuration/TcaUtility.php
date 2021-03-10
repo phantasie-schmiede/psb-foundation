@@ -16,6 +16,9 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\Configuration;
 
+use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Utility\StringUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -61,5 +64,24 @@ class TcaUtility
     public static function convertKey(string $key): string
     {
         return self::PROPERTY_KEY_MAPPING[$key] ?? GeneralUtility::camelCaseToLowerCaseUnderscored($key);
+    }
+
+    /**
+     * For usage in ext_tables.php
+     *
+     * @param ExtensionInformationInterface $extensionInformation
+     */
+    public static function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
+    {
+        $identifier = 'tx_' . mb_strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
+        $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
+            return StringUtility::beginsWith($key, $identifier);
+        });
+
+        foreach ($newTables as $table) {
+            ExtensionManagementUtility::allowTableOnStandardPages($table);
+            ExtensionManagementUtility::addLLrefForTCAdescr($table,
+                'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $table . '.xlf');
+        }
     }
 }
