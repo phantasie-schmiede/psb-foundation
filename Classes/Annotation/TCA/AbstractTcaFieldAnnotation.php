@@ -91,9 +91,9 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     protected TcaService $tcaService;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $typeList = '';
+    protected ?string $typeList = null;
 
     /**
      * AbstractTcaFieldAnnotation constructor.
@@ -236,17 +236,17 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getTypeList(): string
+    public function getTypeList(): ?string
     {
         return $this->typeList;
     }
 
     /**
-     * @param string $typeList
+     * @param string|null $typeList
      */
-    public function setTypeList(string $typeList): void
+    public function setTypeList(?string $typeList): void
     {
         $this->typeList = $typeList;
     }

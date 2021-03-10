@@ -348,7 +348,7 @@ class TcaService
                 }
             }
 
-            ExtensionManagementUtility::addToAllTCAtypes($tableName, $columnName, '', $position);
+            ExtensionManagementUtility::addToAllTCAtypes($tableName, $columnName, $annotation->getTypeList() ?? '', $position);
         }
 
         $this->validateConfiguration($tableName);
