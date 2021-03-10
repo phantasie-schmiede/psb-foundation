@@ -34,6 +34,11 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 class StringUtility
 {
     /**
+     * mb_strrpos() is used for performance reasons here. mb_strpos() would search the whole string if the needle isn't
+     * found right at the beginning. The combination of a reversed search and the negative offset ensure that only the
+     * relevant part of the string is searched. Additionally mb_strrpos has a better performance than mb_substr().
+     * @TODO: Replace with str_starts_with() when switching to PHP 8!
+     *
      * @param string $string
      * @param string $beginning
      *
@@ -263,6 +268,8 @@ class StringUtility
     }
 
     /**
+     * @TODO: Replace with str_ends_with() when switching to PHP 8!
+     *
      * @param string $string
      * @param string $ending
      *
