@@ -363,15 +363,12 @@ class TcaService
     }
 
     /**
-     * @param string $table
+     * @param string $tableName
      *
      * @return array
      */
-    protected function getDummyConfiguration(string $table): array
+    protected function getDummyConfiguration(string $tableName): array
     {
-        /** @noinspection TranslationMissingInspection */
-        $ll = 'LLL:EXT:lang/locallang_general.xlf:LGL.';
-
         return [
             'ctrl'     => [
                 'adminOnly'                => false,
@@ -414,82 +411,86 @@ class TcaService
             ],
             'palettes' => [],
             'columns'  => [
-                'sys_language_uid' => [
-                    'exclude' => 1,
-                    'label'   => $ll . 'language',
+                'endtime'          => [
                     'config'  => [
-                        'type'                => 'select',
-                        'renderType'          => 'selectSingle',
-                        'foreign_table'       => 'sys_language',
-                        'foreign_table_where' => 'ORDER BY sys_language.title',
-                        'items'               => [
-                            [$ll . 'allLanguages', -1],
-                            [$ll . 'default_value', 0],
+                        'behaviour'  => [
+                            'allowLanguageSynchronization' => true,
                         ],
+                        'default'    => 0,
+                        'eval'       => 'datetime, int',
+                        'range'      => [
+                            'upper' => mktime(0, 0, 0, 1, 1, 2038),
+                        ],
+                        'renderType' => 'inputDateTime',
+                        'type'       => 'input',
                     ],
+                    'exclude' => true,
+                    'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
                 ],
-                'l10n_parent'      => [
-                    'displayCond' => 'FIELD:sys_language_uid:>:0',
-                    'label'       => $ll . 'l18n_parent',
-                    'config'      => [
-                        'type'                => 'select',
-                        'renderType'          => 'selectSingle',
-                        'items'               => [
-                            ['', 0],
+                'hidden'           => [
+                    'config'  => [
+                        'items'      => [
+                            [
+                                0                    => '',
+                                1                    => '',
+                                'invertStateDisplay' => true,
+                            ],
                         ],
-                        'foreign_table'       => $table,
-                        'foreign_table_where' => ' AND ' . $table . '.pid =###CURRENT_PID### AND ' . $table . '.sys_language_uid IN (-1,0)',
+                        'renderType' => 'checkboxToggle',
+                        'type'       => 'check',
                     ],
+                    'exclude' => true,
+                    'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.enabled',
                 ],
                 'l10n_diffsource'  => [
                     'config' => [
-                        'type' => 'passthrough',
+                        'default' => '',
+                        'type'    => 'passthrough',
                     ],
                 ],
-                't3ver_label'      => [
-                    'label'  => $ll . 'versionLabel',
-                    'config' => [
-                        'type' => 'input',
-                        'size' => 30,
-                        'max'  => 255,
+                'l10n_parent'      => [
+                    'config'      => [
+                        'default'             => 0,
+                        'foreign_table'       => $tableName,
+                        'foreign_table_where' => 'AND ' . $tableName . '.pid=###CURRENT_PID### AND ' . $tableName . '.sys_language_uid IN (-1,0)',
+                        'items'               => [
+                            ['', 0],
+                        ],
+                        'renderType'          => 'selectSingle',
+                        'type'                => 'select',
                     ],
-                ],
-                'hidden'           => [
-                    'exclude' => 1,
-                    'label'   => $ll . 'hidden',
-                    'config'  => [
-                        'type' => 'check',
-                    ],
+                    'displayCond' => 'FIELD:sys_language_uid:>:0',
+                    'label'       => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
                 ],
                 'starttime'        => [
-                    'exclude' => 1,
-                    'label'   => $ll . 'starttime',
                     'config'  => [
-                        'type'       => 'input',
-                        'renderType' => 'inputDateTime',
-                        'size'       => 13,
-                        'eval'       => 'datetime',
-                        'checkbox'   => 0,
-                        'default'    => 0,
-                        'range'      => [
-                            'lower' => mktime(0, 0, 0, (int)date('m'), (int)date('d'), (int)date('Y')),
+                        'behaviour'  => [
+                            'allowLanguageSynchronization' => true,
                         ],
+                        'default'    => 0,
+                        'eval'       => 'datetime, int',
+                        'renderType' => 'inputDateTime',
+                        'type'       => 'input',
                     ],
+                    'exclude' => true,
+                    'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
                 ],
-                'endtime'          => [
-                    'exclude' => 1,
-                    'label'   => $ll . 'endtime',
+                'sys_language_uid' => [
                     'config'  => [
-                        'type'       => 'input',
-                        'renderType' => 'inputDateTime',
-                        'size'       => 13,
-                        'eval'       => 'datetime',
-                        'checkbox'   => 0,
                         'default'    => 0,
-                        'range'      => [
-                            'lower' => mktime(0, 0, 0, (int)date('m'), (int)date('d'), (int)date('Y')),
+                        'items'      => [
+                            [
+                                'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages',
+                                -1,
+                                'flags-multiple',
+                            ],
                         ],
+                        'renderType' => 'selectSingle',
+                        'special'    => 'languages',
+                        'type'       => 'select',
                     ],
+                    'exclude' => true,
+                    'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
                 ],
             ],
         ];
