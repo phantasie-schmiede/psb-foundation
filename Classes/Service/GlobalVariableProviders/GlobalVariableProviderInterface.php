@@ -44,7 +44,8 @@ interface GlobalVariableProviderInterface
     public function getGlobalVariables(): array;
 
     /**
-     * When returned data isn't supposed to change anymore, set function's return value to true.
+     * When returned data may change during the request, set function's return value to false. This function is
+     * called after getGlobalVariables().
      *
      * @return bool
      */

@@ -16,41 +16,46 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
-use PSB\PsbFoundation\Traits\PropertyInjection\SiteFinderTrait;
-use PSB\PsbFoundation\Utility\ContextUtility;
-use TYPO3\CMS\Core\Exception\SiteNotFoundException;
-
 /**
- * Class SiteConfigurationProvider
+ * Class AbstractProvider
  *
  * @package PSB\PsbFoundation\Service\GlobalVariableProviders
  */
-class SiteConfigurationProvider extends AbstractProvider
+abstract class AbstractProvider implements GlobalVariableProviderInterface
 {
-    use SiteFinderTrait;
-
-    public const KEY = 'siteConfiguration';
+    /**
+     * @var bool
+     */
+    protected bool $cacheable = true;
 
     /**
+     * Overwrite this method in extending class!
+     *
      * @return bool|null
      */
     public static function isAvailable(): ?bool
     {
-        if (!ContextUtility::isFrontend()) {
-            return false;
-        }
-
-        return ContextUtility::isBootProcessRunning() ? null : true;
+        return false;
     }
 
     /**
+     * Overwrite this method in extending class!
+     *
      * @return array
-     * @throws SiteNotFoundException
      */
     public function getGlobalVariables(): array
     {
-        $site = $this->siteFinder->getSiteByPageId((int)$GLOBALS['TSFE']->id);
+        // TODO: Implement getGlobalVariables() method.
+        return  [];
+    }
 
-        return [self::KEY => $site];
+    /**
+     * When returned data isn't supposed to change anymore, set function's return value to true.
+     *
+     * @return bool
+     */
+    public function isCacheable(): bool
+    {
+        return $this->cacheable;
     }
 }
