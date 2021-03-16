@@ -32,6 +32,24 @@ class RequestParameterProvider extends AbstractProvider
     public const KEY = 'parameters';
 
     /**
+     * @return array
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     */
+    public static function getRequestParameters(): array
+    {
+        $parameters = GeneralUtility::_GET();
+        ArrayUtility::mergeRecursiveWithOverrule($parameters, GeneralUtility::_POST());
+
+        array_walk_recursive($parameters, static function (&$item) {
+            $item = filter_var($item, FILTER_SANITIZE_STRING);
+            $item = StringUtility::convertString($item);
+        });
+
+        return $parameters;
+    }
+
+    /**
      * @return bool|null
      */
     public static function isAvailable(): ?bool
@@ -46,14 +64,6 @@ class RequestParameterProvider extends AbstractProvider
      */
     public function getGlobalVariables(): array
     {
-        $parameters = GeneralUtility::_GET();
-        ArrayUtility::mergeRecursiveWithOverrule($parameters, GeneralUtility::_POST());
-
-        array_walk_recursive($parameters, static function (&$item) {
-            $item = filter_var($item, FILTER_SANITIZE_STRING);
-            $item = StringUtility::convertString($item);
-        });
-
-        return [self::KEY => $parameters];
+        return [self::KEY => self::getRequestParameters()];
     }
 }
