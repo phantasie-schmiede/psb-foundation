@@ -296,7 +296,7 @@ As defined in `psb_foundation/Classes/Service/Configuration/Fields.php`:
 
 - user
   ```
-  'eval'       => 'required,trim',
+  'eval'       => 'required, trim',
   'parameters' => [],
   'size'       => 50,
   'type'       => 'user',

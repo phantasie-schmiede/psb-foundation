@@ -29,12 +29,12 @@ class Date extends DateTime
     public const TYPE = Fields::FIELD_TYPES['DATE'];
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $dbType = 'date';
+    protected ?string $dbType = 'date';
 
     /**
      * @var string
      */
-    protected string $eval = 'date,null';
+    protected string $eval = 'date, null';
 }

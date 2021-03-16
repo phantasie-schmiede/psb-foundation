@@ -29,14 +29,14 @@ class DateTime extends Input
     public const TYPE = Fields::FIELD_TYPES['DATETIME'];
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $dbType = 'datetime';
+    protected ?string $dbType = 'datetime';
 
     /**
      * @var string
      */
-    protected string $eval = 'datetime,null';
+    protected string $eval = 'datetime, null';
 
     /**
      * @var string|null
