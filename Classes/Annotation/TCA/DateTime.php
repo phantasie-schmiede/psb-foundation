@@ -49,17 +49,17 @@ class DateTime extends Input
     protected int $size = 12;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDbType(): string
+    public function getDbType(): ?string
     {
         return $this->dbType;
     }
 
     /**
-     * @param string $dbType
+     * @param string|null $dbType
      */
-    public function setDbType(string $dbType): void
+    public function setDbType(?string $dbType): void
     {
         $this->dbType = $dbType;
     }
