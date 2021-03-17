@@ -69,7 +69,7 @@ class EarlyAccessConstantsProvider extends AbstractProvider
         $allExtensionInformation = $extensionInformationService->getExtensionInformation();
 
         // This builds the path for a context-specific file with a lowercase filename.
-        $contextParts = explode('/', (string)Environment::getContext());
+        $contextParts = explode('/', Environment::getContext()->__toString());
         $lastIndex = count($contextParts) - 1;
         $contextParts[$lastIndex] = lcfirst($contextParts[$lastIndex]);
         $filePath = self::DIRECTORY . implode('/', $contextParts) . '.yaml';

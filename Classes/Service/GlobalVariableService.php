@@ -61,12 +61,13 @@ class GlobalVariableService
             /** @var GlobalVariableProviderInterface|string $globalVariableProvider */
             foreach (self::$globalVariableProviders as $index => &$globalVariableProvider) {
                 if (!$globalVariableProvider instanceof GlobalVariableProviderInterface) {
-                    switch ($globalVariableProvider::isAvailable()) {
-                        case false:
-                            unset (self::$globalVariableProviders[$index]);
-                            break;
-                        case true:
-                            $globalVariableProvider = GeneralUtility::makeInstance($globalVariableProvider);
+                    $availability = $globalVariableProvider::isAvailable();
+
+                    // $availability can also be null.
+                    if (false === $availability) {
+                        unset (self::$globalVariableProviders[$index]);
+                    } elseif (true === $availability) {
+                        $globalVariableProvider = GeneralUtility::makeInstance($globalVariableProvider);
                     }
                 }
 

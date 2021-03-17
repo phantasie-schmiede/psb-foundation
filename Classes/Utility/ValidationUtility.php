@@ -79,9 +79,9 @@ class ValidationUtility
         }
     }
 
-    public static function requiresBootstrappingDone(): void
+    public static function requiresTypoScriptLoaded(): void
     {
-        if (ContextUtility::isBootProcessRunning()) {
+        if (ContextUtility::isTypoScriptAvailable()) {
             throw new RuntimeException(__CLASS__ . ': This method is not allowed during the bootstrap process of TYPO3! Do not call it within or from ext_localconf.php',
                 1614416275);
         }

@@ -101,4 +101,20 @@ class ContextUtility
     {
         return (bool)(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_FE);
     }
+
+    /**
+     * @return bool
+     */
+    public static function isTypoScriptAvailable(): bool
+    {
+        if (null !== $GLOBALS['TSFE'] && isset($GLOBALS['TSFE']) && self::isFrontend()) {
+            return true;
+        }
+
+        if (self::isBackend() && !self::isBootProcessRunning()) {
+            return true;
+        }
+
+        return false;
+    }
 }

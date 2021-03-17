@@ -52,7 +52,7 @@ class TypoScriptProviderService
      */
     public function __construct(ConfigurationManager $configurationManager, TypoScriptService $typoScriptService)
     {
-        ValidationUtility::requiresBootstrappingDone();
+        ValidationUtility::requiresTypoScriptLoaded();
         $this->configurationManager = $configurationManager;
         $this->typoScriptService = $typoScriptService;
     }

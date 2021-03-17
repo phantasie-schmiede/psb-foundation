@@ -40,7 +40,7 @@ class SiteConfigurationProvider extends AbstractProvider
             return false;
         }
 
-        return ContextUtility::isBootProcessRunning() ? null : true;
+        return ContextUtility::isTypoScriptAvailable() ? null : true;
     }
 
     /**
