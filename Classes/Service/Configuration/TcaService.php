@@ -383,7 +383,7 @@ class TcaService
                 ],
                 //'groupName' => '',
                 'hideAtCopy'               => false,
-                'iconfile'                 => 'EXT:core/Resources/Public/Icons/T3Icons/mimetypes/mimetypes-x-sys_action.svg',
+                'iconfile'                 => 'EXT:core/Resources/Public/Icons/T3Icons/svgs/mimetypes/mimetypes-x-sys_action.svg',
                 'is_static'                => false,
                 'label'                    => 'uid',
                 'label_alt'                => '',
