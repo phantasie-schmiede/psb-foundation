@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 
 /**
  * Trait PersistenceManagerTrait
@@ -26,14 +26,14 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 trait PersistenceManagerTrait
 {
     /**
-     * @var PersistenceManager
+     * @var PersistenceManagerInterface
      */
-    protected PersistenceManager $persistenceManager;
+    protected PersistenceManagerInterface $persistenceManager;
 
     /**
-     * @param PersistenceManager $persistenceManager
+     * @param PersistenceManagerInterface $persistenceManager
      */
-    public function injectPersistenceManager(PersistenceManager $persistenceManager): void
+    public function injectPersistenceManager(PersistenceManagerInterface $persistenceManager): void
     {
         $this->persistenceManager = $persistenceManager;
     }

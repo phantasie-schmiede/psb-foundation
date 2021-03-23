@@ -29,7 +29,7 @@ class ModuleConfig extends AbstractAnnotation
     /**
      * @var string
      */
-    protected string $access = '';
+    protected string $access = 'group, user';
 
     /**
      * @var string

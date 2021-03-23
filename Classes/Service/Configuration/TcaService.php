@@ -276,7 +276,7 @@ class TcaService
                     $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
                     if ('' === $annotation->getLabel()) {
-                        $label = $defaultLabelPath . $columnName;
+                        $label = $defaultLabelPath . $property->getName();
                         $this->localizationService->translationExists($label);
                         $annotation->setLabel($label);
                     }
@@ -286,7 +286,7 @@ class TcaService
                         && ArrayUtility::isAssociative($annotation->getItems()
                         )) {
                         $annotation->setItems($this->processSelectItemsArray($annotation->getItems(),
-                            $defaultLabelPath . $columnName . '.'));
+                            $defaultLabelPath . $property->getName() . '.'));
                     }
 
                     $columnConfigurations[$columnName] = $annotation;
