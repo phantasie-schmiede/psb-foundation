@@ -14,14 +14,14 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Views;
+namespace PSB\PsbFoundation\View;
 
 use PSB\PsbFoundation\Service\GlobalVariableService;
 use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class TemplateView
- * @package PSB\PsbFoundation\Views
+ * @package PSB\PsbFoundation\View
  */
 class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
 {
