@@ -19,6 +19,7 @@ namespace PSB\PsbFoundation\ViewHelpers\Variable;
 use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Utility\StringUtility;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
@@ -31,13 +32,14 @@ class MathViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerArgument('a', 'mixed', 'Variable name for cycle (starts with 1)', true);
-        $this->registerArgument('b', 'mixed', 'Variable name for index (starts with 0)', true);
+        $this->registerArgument('a', 'mixed', 'first operand', true);
+        $this->registerArgument('b', 'mixed', 'second operand', true);
         $this->registerArgument('operator', 'string', 'Mathematical operation to perform (+, -, *, /, **)', true);
     }
 
     /**
      * @return mixed
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public function render()

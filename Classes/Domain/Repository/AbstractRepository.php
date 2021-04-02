@@ -27,6 +27,8 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
 abstract class AbstractRepository extends Repository
 {
     /**
+     * This function is called in psb_templates.
+     *
      * @return array|QueryResultInterface
      */
     public function findTcaSelectItems()

@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Controller;
 
 use PSB\PsbFoundation\Annotation\PluginAction;
-use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Traits\PropertyInjection\PropertyMapperTrait;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
@@ -42,12 +42,17 @@ use function get_class;
  */
 abstract class AbstractController extends ActionController
 {
-    use ExtensionInformationServiceTrait, PropertyMapperTrait;
+    use PropertyMapperTrait;
 
     /**
      * @var string
      */
     protected string $domainModel;
+
+    /**
+     * @var ExtensionInformationService
+     */
+    protected ExtensionInformationService $extensionInformationService;
 
     /**
      * @var Repository
@@ -57,10 +62,13 @@ abstract class AbstractController extends ActionController
     /**
      * The constructor determines the related model and repository classes of the instantiated controller following
      * Extbase conventions.
+     *
+     * @param ExtensionInformationService $extensionInformationService
      */
-    public function __construct()
+    public function __construct(ExtensionInformationService $extensionInformationService)
     {
         [$vendorName, $extensionName] = GeneralUtility::trimExplode('\\', get_class($this));
+        $this->extensionInformationService = $extensionInformationService;
         $domainModelName = $this->extensionInformationService->convertControllerClassToBaseName(get_class($this));
         $this->setDomainModel(implode('\\', [
             $vendorName,
