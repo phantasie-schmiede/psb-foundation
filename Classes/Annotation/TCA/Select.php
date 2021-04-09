@@ -59,6 +59,11 @@ class Select extends AbstractTcaFieldAnnotation
     protected int $autoSizeMax = 1;
 
     /**
+     * @var mixed
+     */
+    protected $default;
+
+    /**
      * @var string|null
      */
     protected ?string $eval = null;
@@ -139,6 +144,22 @@ class Select extends AbstractTcaFieldAnnotation
     public function setAutoSizeMax(int $autoSizeMax): void
     {
         $this->autoSizeMax = $autoSizeMax;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param mixed $default
+     */
+    public function setDefault($default): void
+    {
+        $this->default = $default;
     }
 
     /**
