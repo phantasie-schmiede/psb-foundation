@@ -111,10 +111,6 @@ class ContextUtility
             return true;
         }
 
-        if (self::isBackend() && !self::isBootProcessRunning()) {
-            return true;
-        }
-
-        return false;
+        return !self::isBootProcessRunning();
     }
 }

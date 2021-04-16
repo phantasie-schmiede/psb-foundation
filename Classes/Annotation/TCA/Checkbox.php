@@ -26,17 +26,28 @@ use PSB\PsbFoundation\Service\Configuration\Fields;
  */
 class Checkbox extends AbstractTcaFieldAnnotation
 {
+    public const RENDER_TYPES = [
+        'CHECKBOX_LABELED_TOGGLE' => 'checkboxLabeledToggle',
+        'CHECKBOX_TOGGLE'         => 'checkboxToggle',
+        'DEFAULT'                 => 'default',
+    ];
+
     public const TYPE = Fields::FIELD_TYPES['CHECKBOX'];
 
     /**
-     * @var bool
+     * @var int
      */
-    protected bool $default = false;
+    protected int $default = 0;
 
     /**
      * @var array
      */
     protected array $items = [];
+
+    /**
+     * @var string
+     */
+    protected string $renderType = self::RENDER_TYPES['CHECKBOX_TOGGLE'];
 
     /**
      * @return array
@@ -55,18 +66,34 @@ class Checkbox extends AbstractTcaFieldAnnotation
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function isDefault(): bool
+    public function getDefault(): int
     {
         return $this->default;
     }
 
     /**
-     * @param bool $default
+     * @param bool|int $default
      */
-    public function setDefault(bool $default): void
+    public function setDefault($default): void
     {
-        $this->default = $default;
+        $this->default = (int)$default;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRenderType(): string
+    {
+        return $this->renderType;
+    }
+
+    /**
+     * @param string $renderType
+     */
+    public function setRenderType(string $renderType): void
+    {
+        $this->renderType = $renderType;
     }
 }

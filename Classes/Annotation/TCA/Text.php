@@ -34,9 +34,9 @@ class Text extends AbstractTcaFieldAnnotation
     protected int $cols = 32;
 
     /**
-     * @var int|null
+     * @var string|null
      */
-    protected ?int $default = null;
+    protected ?string $default = null;
 
     /**
      * @var bool
@@ -70,17 +70,17 @@ class Text extends AbstractTcaFieldAnnotation
     }
 
     /**
-     * @return int|null
+     * @return string|null
      */
-    public function getDefault(): ?int
+    public function getDefault(): ?string
     {
         return $this->default;
     }
 
     /**
-     * @param int|null $default
+     * @param string|null $default
      */
-    public function setDefault(?int $default): void
+    public function setDefault(?string $default): void
     {
         $this->default = $default;
     }
