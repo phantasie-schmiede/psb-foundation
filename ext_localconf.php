@@ -29,9 +29,4 @@ defined('TYPO3_MODE') or die();
 
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\View\TemplateView::class]['className'] = \PSB\PsbFoundation\View\TemplateView::class;
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Fluid\ViewHelpers\RenderViewHelper::class]['className'] = \PSB\PsbFoundation\ViewHelpers\RenderViewHelper::class;
-
-    // DocCommentParser-cache
-    if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['psbfoundation'])) {
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['psbfoundation'] = [];
-    }
 })();
