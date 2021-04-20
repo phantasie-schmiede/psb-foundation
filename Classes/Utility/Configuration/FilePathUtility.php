@@ -28,7 +28,7 @@ class FilePathUtility
     /**
      * For use in php-files located in EXT:extension_key/Configuration/.
      *
-     * @param string|null $filename custom filename without extension
+     * @param string|null $filename custom filename without extension (.xlf is added automatically)
      *
      * @return string
      */
@@ -36,7 +36,7 @@ class FilePathUtility
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
         $callingFile = $trace[0]['file'];
-        $shortPath = str_replace(Environment::getExtensionsPath() . '/', 'EXT:', $callingFile);
+        $shortPath = str_replace(Environment::getExtensionsPath() . '/', 'LLL:EXT:', $callingFile);
         $pathParts = explode('/', $shortPath);
         $extensionPath = array_shift($pathParts);
         $callingFilename = array_pop($pathParts);
