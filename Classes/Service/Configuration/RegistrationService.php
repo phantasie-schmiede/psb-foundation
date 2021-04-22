@@ -18,17 +18,16 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\Configuration;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\Common\Annotations\IndexedReader;
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
-use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Annotation\AjaxPageType;
 use PSB\PsbFoundation\Annotation\ModuleAction;
 use PSB\PsbFoundation\Annotation\ModuleConfig;
 use PSB\PsbFoundation\Annotation\PluginAction;
 use PSB\PsbFoundation\Annotation\PluginConfig;
+use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
+use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
@@ -38,7 +37,6 @@ use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use ReflectionClass;
-use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
@@ -49,7 +47,6 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Object\Exception;
-use TYPO3\CMS\Extbase\Security\Exception\InvalidArgumentForHashGenerationException;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 /**
@@ -198,9 +195,7 @@ class RegistrationService
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidArgumentForHashGenerationException
      * @throws JsonException
-     * @throws ReflectionException
      */
     public function configurePlugins(ExtensionInformationInterface $extensionInformation): void
     {
@@ -397,9 +392,7 @@ class RegistrationService
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidArgumentForHashGenerationException
      * @throws JsonException
-     * @throws ReflectionException
      */
     public function registerModules(ExtensionInformationInterface $extensionInformation): void
     {
@@ -495,9 +488,7 @@ class RegistrationService
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidArgumentForHashGenerationException
      * @throws JsonException
-     * @throws ReflectionException
      */
     public function registerPlugins(ExtensionInformationInterface $extensionInformation): void
     {

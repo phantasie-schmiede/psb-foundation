@@ -23,7 +23,6 @@ namespace PSB\PsbFoundation\Service\Configuration;
  * or TCA.
  *
  * @package PSB\PsbFoundation\Service\Configuration
- * @see     \PSB\PsbFoundation\Service\Configuration\FlexFormService
  * @see     \PSB\PsbFoundation\Service\Configuration\TcaService
  */
 class Fields

@@ -1,0 +1,33 @@
+{
+	"authors": [
+		{
+			"email": "dn@phantasie-schmiede.de",
+			"name": "Daniel Ablass",
+			"role": "Developer"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"PSB\\PsbFoundation\\": "Classes/"
+		}
+	},
+	"description": "Configuration framework for TYPO3 extension development",
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "psb_foundation"
+		}
+	},
+	"keywords": [
+		"configuration",
+		"development",
+		"extension",
+		"typo3"
+	],
+	"license": "GPL-2.0-or-later",
+	"name": "psb/foundation",
+	"require": {
+		"php": "^7.4",
+		"typo3/cms-core": "^10.4"
+	},
+	"type": "typo3-cms-extension"
+}
