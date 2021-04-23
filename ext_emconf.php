@@ -17,10 +17,8 @@ $EM_CONF['psb_foundation'] = [
         'suggests'  => [
         ],
     ],
-    'createDirs'       => '',
     'description'      => 'Configuration framework for TYPO3 extension development',
     'state'            => 'stable',
     'title'            => 'PSbits | Foundation',
-    'uploadfolder'     => false,
     'version'          => '1.0.0',
 ];
