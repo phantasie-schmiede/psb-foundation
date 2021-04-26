@@ -18,12 +18,12 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use JsonException;
+use PSB\PsbFoundation\Traits\PropertyInjection\ConfigurationManagerTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\TypoScriptServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use RuntimeException;
-use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
@@ -34,27 +34,14 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
  */
 class TypoScriptProviderService
 {
-    /**
-     * @var ConfigurationManager
-     */
-    protected ConfigurationManager $configurationManager;
-
-    /**
-     * @var TypoScriptService
-     */
-    protected TypoScriptService $typoScriptService;
+    use ConfigurationManagerTrait, TypoScriptServiceTrait;
 
     /**
      * TypoScriptProviderService constructor.
-     *
-     * @param ConfigurationManager $configurationManager
-     * @param TypoScriptService    $typoScriptService
      */
-    public function __construct(ConfigurationManager $configurationManager, TypoScriptService $typoScriptService)
+    public function __construct()
     {
         ValidationUtility::requiresTypoScriptLoaded();
-        $this->configurationManager = $configurationManager;
-        $this->typoScriptService = $typoScriptService;
     }
 
     /**
