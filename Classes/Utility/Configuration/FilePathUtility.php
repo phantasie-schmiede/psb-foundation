@@ -42,6 +42,6 @@ class FilePathUtility
         $callingFilename = array_pop($pathParts);
         $filename = ($filename ?? str_replace('.php', '', $callingFilename)) . '.xlf:';
 
-        return $extensionPath . '/Resources/Private/Language/Backend/' . implode('/', $pathParts) . '/' . $filename;
+        return $extensionPath . '/Resources/Private/Language/Backend/' . implode('/', $pathParts) . '/' . lcfirst($filename);
     }
 }
