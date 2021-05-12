@@ -121,7 +121,7 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
         foreach ($properties as $key => $value) {
             $key = TcaUtility::convertKey($key);
 
-            if (in_array($key, ['displayCond', 'exclude', 'label', 'l10nDisplay', 'l10nMode', 'onChange'], true)) {
+            if (in_array($key, ['displayCond', 'exclude', 'label', 'l10n_display', 'l10n_mode', 'onChange'], true)) {
                 $fieldConfiguration[$key] = $value;
             } elseif ('position' !== $key) {
                 $fieldConfiguration['config'][$key] = $value;

@@ -36,6 +36,7 @@ class TcaUtility
         'autoSizeMax'        => 'autoSizeMax',
         'dbType'             => 'dbType',
         'defaultSortBy'      => 'default_sortby',
+        'displayCond'        => 'displayCond',
         'editableInFrontend' => 'editableInFrontend',
         'enableRichtext'     => 'enableRichtext',
         'fallbackCharacter'  => 'fallbackCharacter',
