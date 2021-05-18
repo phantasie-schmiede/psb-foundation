@@ -32,11 +32,13 @@ class ArrayUtility
      */
     public static function countRecursive(array $array): int
     {
-        $count = count($array);
+        $count = 0;
 
         foreach ($array as $element) {
             if (is_array($element)) {
                 $count += self::countRecursive($element);
+            } else {
+                $count ++;
             }
         }
 

@@ -149,10 +149,10 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
 
         $path = 'LLL:EXT:' . GeneralUtility::camelCaseToLowerCaseUnderscored($request->getControllerExtensionName()) . '/Resources/Private/Language/';
 
-        if (ContextUtility::isBackend()) {
-            $path .= 'Backend';
-        } else {
+        if (ContextUtility::isFrontend()) {
             $path .= 'Frontend';
+        } else {
+            $path .= 'Backend';
         }
 
         // Controller name may consist of several parts, e.g. Backend\Module.
