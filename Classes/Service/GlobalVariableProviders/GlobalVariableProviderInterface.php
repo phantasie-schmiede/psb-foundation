@@ -24,6 +24,13 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 interface GlobalVariableProviderInterface
 {
     /**
+     * Each provider has to define a unique key which serves as entry point for the available data.
+     *
+     * @return string
+     */
+    public static function getKey(): string;
+
+    /**
      * You can use the ContextUtility to control if your provider should be called during this request and if it is
      * ready to be instantiated.
      *

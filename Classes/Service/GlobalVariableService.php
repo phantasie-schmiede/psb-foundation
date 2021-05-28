@@ -120,6 +120,14 @@ class GlobalVariableService
                 1612426722);
         }
 
-        self::$globalVariableProviders[] = $className;
+        /** @var GlobalVariableProviderInterface $className It's still a string! But we want code completion for static properties! */
+        $key = $className::getKey();
+
+        if (isset(self::$globalVariableProviders[$key])) {
+            throw new RuntimeException(__CLASS__ . ': The provider key "' . $key . '" has already been registered! (in conflict with: ' . self::$globalVariableProviders[$key] . ')',
+                1622220440);
+        }
+
+        self::$globalVariableProviders[$key] = $className;
     }
 }

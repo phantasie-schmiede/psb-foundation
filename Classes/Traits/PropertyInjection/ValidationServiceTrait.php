@@ -16,25 +16,25 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Domain\Repository\Typo3\FrontendUserRepository;
+use PSB\PsbFoundation\Service\ValidationService;
 
 /**
- * Trait FrontendUserRepositoryTrait
+ * Trait ValidationServiceTrait
  *
  * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
-trait FrontendUserRepositoryTrait
+trait ValidationServiceTrait
 {
     /**
-     * @var FrontendUserRepository
+     * @var ValidationService
      */
-    protected FrontendUserRepository $frontendUserRepository;
+    protected ValidationService $validationService;
 
     /**
-     * @param FrontendUserRepository $frontendUserRepository
+     * @param ValidationService $validationService
      */
-    public function injectFrontendUserRepository(FrontendUserRepository $frontendUserRepository): void
+    public function injectValidationService(ValidationService $validationService): void
     {
-        $this->frontendUserRepository = $frontendUserRepository;
+        $this->validationService = $validationService;
     }
 }

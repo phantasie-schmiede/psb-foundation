@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file datatype="plaintext" date="2021-05-26T23:37:00+01:00" original="messages" product-name="psb_foundation" source-language="en">
+		<header />
+		<body>
+			<trans-unit id="flashMessage.redirect.bodytext">
+				<source>You must log in to proceed.</source>
+			</trans-unit>
+			<trans-unit id="flashMessage.redirect.header">
+				<source>Missing authentication</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

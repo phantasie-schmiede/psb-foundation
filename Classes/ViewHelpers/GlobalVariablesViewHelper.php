@@ -45,7 +45,6 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
      * @param RenderingContextInterface $renderingContext
      *
      * @return mixed
-     * @throws Exception
      */
     public static function renderStatic(
         array $arguments,

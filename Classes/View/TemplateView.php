@@ -38,7 +38,6 @@ class TemplateView extends \TYPO3\CMS\Fluid\View\TemplateView
      * @param boolean $ignoreUnknown Ignore an unknown section and just return an empty string
      *
      * @return string
-     * @throws Exception
      */
     public function renderPartial($partialName, $sectionName, array $variables, $ignoreUnknown = false): string
     {

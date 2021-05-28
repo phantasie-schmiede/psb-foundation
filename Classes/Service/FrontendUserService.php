@@ -16,13 +16,16 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service;
 
+use PSB\PsbFoundation\Domain\Model\Typo3\Page;
+use PSB\PsbFoundation\Domain\Model\Typo3\TtContent;
 use PSB\PsbFoundation\Traits\PropertyInjection\FrontendUserRepositoryTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\PageRepositoryTrait;
+use PSB\PsbFoundation\Traits\PropertyInjection\TtContentRepositoryTrait;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FrontendUser;
-use TYPO3\CMS\Extbase\Object\Exception;
 
 /**
  * Class FrontendUserService
@@ -31,12 +34,12 @@ use TYPO3\CMS\Extbase\Object\Exception;
  */
 class FrontendUserService
 {
-    use FrontendUserRepositoryTrait;
+    use FrontendUserRepositoryTrait, PageRepositoryTrait, TtContentRepositoryTrait;
 
     /**
      * @return FrontendUser|null
+     * @throws AspectNotFoundException
      * @throws AspectPropertyNotFoundException
-     * @throws Exception
      */
     public function getCurrentUser(): ?FrontendUser
     {
@@ -54,5 +57,30 @@ class FrontendUserService
         $context = GeneralUtility::makeInstance(Context::class);
 
         return $context->getAspect('frontend.user')->get('id');
+    }
+
+    /**
+     * @return Page|null
+     */
+    public function getLoginPage(): ?Page
+    {
+        /** @var TtContent|null $plugin */
+        $plugin = $this->ttContentRepository->findByCType('felogin_login')->getFirst();
+
+        if (null !== $plugin) {
+            /** @noinspection PhpIncompatibleReturnTypeInspection */
+            return $this->pageRepository->findByUid($plugin->getPid());
+        }
+
+        return null;
+    }
+
+    /**
+     * @return Page|null
+     */
+    public function getSysFolder(): ?Page
+    {
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->pageRepository->findByModule('fe_users')->getFirst();
     }
 }

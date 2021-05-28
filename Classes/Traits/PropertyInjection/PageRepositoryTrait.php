@@ -16,25 +16,25 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Domain\Repository\Typo3\FrontendUserRepository;
+use PSB\PsbFoundation\Domain\Repository\Typo3\PageRepository;
 
 /**
- * Trait FrontendUserRepositoryTrait
+ * Trait PageRepositoryTrait
  *
  * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
-trait FrontendUserRepositoryTrait
+trait PageRepositoryTrait
 {
     /**
-     * @var FrontendUserRepository
+     * @var PageRepository
      */
-    protected FrontendUserRepository $frontendUserRepository;
+    protected PageRepository $pageRepository;
 
     /**
-     * @param FrontendUserRepository $frontendUserRepository
+     * @param PageRepository $pageRepository
      */
-    public function injectFrontendUserRepository(FrontendUserRepository $frontendUserRepository): void
+    public function injectPageRepository(PageRepository $pageRepository): void
     {
-        $this->frontendUserRepository = $frontendUserRepository;
+        $this->pageRepository = $pageRepository;
     }
 }

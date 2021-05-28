@@ -16,25 +16,25 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Domain\Repository\Typo3\FrontendUserRepository;
+use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 
 /**
- * Trait FrontendUserRepositoryTrait
+ * Trait UriBuilderTrait
  *
  * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
-trait FrontendUserRepositoryTrait
+trait UriBuilderTrait
 {
     /**
-     * @var FrontendUserRepository
+     * @var UriBuilder
      */
-    protected FrontendUserRepository $frontendUserRepository;
+    protected UriBuilder $uriBuilder;
 
     /**
-     * @param FrontendUserRepository $frontendUserRepository
+     * @param UriBuilder $uriBuilder
      */
-    public function injectFrontendUserRepository(FrontendUserRepository $frontendUserRepository): void
+    public function injectUriBuilder(UriBuilder $uriBuilder): void
     {
-        $this->frontendUserRepository = $frontendUserRepository;
+        $this->uriBuilder = $uriBuilder;
     }
 }

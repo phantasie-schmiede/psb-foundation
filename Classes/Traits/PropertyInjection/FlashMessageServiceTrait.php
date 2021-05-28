@@ -16,25 +16,25 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Domain\Repository\Typo3\FrontendUserRepository;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
 
 /**
- * Trait FrontendUserRepositoryTrait
+ * Trait FlashMessageServiceTrait
  *
  * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
-trait FrontendUserRepositoryTrait
+trait FlashMessageServiceTrait
 {
     /**
-     * @var FrontendUserRepository
+     * @var FlashMessageService
      */
-    protected FrontendUserRepository $frontendUserRepository;
+    protected FlashMessageService $flashMessageService;
 
     /**
-     * @param FrontendUserRepository $frontendUserRepository
+     * @param FlashMessageService $flashMessageService
      */
-    public function injectFrontendUserRepository(FrontendUserRepository $frontendUserRepository): void
+    public function injectFlashMessageService(FlashMessageService $flashMessageService): void
     {
-        $this->frontendUserRepository = $frontendUserRepository;
+        $this->flashMessageService = $flashMessageService;
     }
 }
