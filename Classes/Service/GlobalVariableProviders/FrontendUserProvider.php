@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 use PSB\PsbFoundation\Traits\PropertyInjection\FrontendUserServiceTrait;
-use PSB\PsbFoundation\Utility\ContextUtility;
+use PSB\PsbFoundation\Utility\ValidationUtility;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Context\Exception\AspectPropertyNotFoundException;
 
@@ -33,24 +33,14 @@ class FrontendUserProvider extends AbstractProvider
     public const KEY = 'frontendUser';
 
     /**
-     * @return bool|null
-     */
-    public static function isAvailable(): ?bool
-    {
-        if (!ContextUtility::isFrontend()) {
-            return false;
-        }
-
-        return ContextUtility::isTypoScriptAvailable() ? true : null;
-    }
-
-    /**
      * @return array
      * @throws AspectPropertyNotFoundException
      * @throws AspectNotFoundException
      */
     public function getGlobalVariables(): array
     {
+        ValidationUtility::requiresFrontendContext();
+        ValidationUtility::requiresTypoScriptLoaded();
         $this->setCacheable(true);
 
         return [

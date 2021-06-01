@@ -17,7 +17,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 use PSB\PsbFoundation\Traits\PropertyInjection\SiteFinderTrait;
-use PSB\PsbFoundation\Utility\ContextUtility;
+use PSB\PsbFoundation\Utility\ValidationUtility;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 
 /**
@@ -32,23 +32,13 @@ class SiteConfigurationProvider extends AbstractProvider
     public const KEY = 'siteConfiguration';
 
     /**
-     * @return bool|null
-     */
-    public static function isAvailable(): ?bool
-    {
-        if (!ContextUtility::isFrontend()) {
-            return false;
-        }
-
-        return ContextUtility::isTypoScriptAvailable() ? true : null;
-    }
-
-    /**
      * @return array
      * @throws SiteNotFoundException
      */
     public function getGlobalVariables(): array
     {
+        ValidationUtility::requiresFrontendContext();
+        ValidationUtility::requiresTypoScriptLoaded();
         $site = $this->siteFinder->getSiteByPageId((int)$GLOBALS['TSFE']->id);
 
         return [self::KEY => $site];

@@ -50,14 +50,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class EarlyAccessConstantsProvider extends AbstractProvider
 {
     public const DIRECTORY = '/Configuration/EarlyAccessConstants/';
-
-    /**
-     * @return bool|null
-     */
-    public static function isAvailable(): ?bool
-    {
-        return true;
-    }
+    public const KEY = 'earlyAccessConstants';
 
     /**
      * @return array
@@ -89,6 +82,6 @@ class EarlyAccessConstantsProvider extends AbstractProvider
 
         ExtensionManagementUtility::addTypoScriptConstants(TypoScriptUtility::convertArrayToTypoScript($mergedConstants));
 
-        return $mergedConstants;
+        return [self::KEY => $mergedConstants];
     }
 }

@@ -33,16 +33,6 @@ abstract class AbstractProvider implements GlobalVariableProviderInterface
     /**
      * Overwrite this method in extending class!
      *
-     * @return bool|null
-     */
-    public static function isAvailable(): ?bool
-    {
-        return false;
-    }
-
-    /**
-     * Overwrite this method in extending class!
-     *
      * @return array
      */
     public function getGlobalVariables(): array

@@ -31,21 +31,6 @@ interface GlobalVariableProviderInterface
     public static function getKey(): string;
 
     /**
-     * You can use the ContextUtility to control if your provider should be called during this request and if it is
-     * ready to be instantiated.
-     *
-     * Example:
-     * This function has to return false during TYPO3's bootstrap process if the provider uses dependency
-     * injection or TYPO3's CacheManager.
-     * return ContextUtility::isBootProcessRunning ? null : true;
-     *
-     * @return bool|null Return false if your provider should not be loaded during this request.
-     *                   Return true if your provider can be instantiated.
-     *                   Return null if the instantiation of your provider shall be postponed.
-     */
-    public static function isAvailable(): ?bool;
-
-    /**
      * @return array
      */
     public function getGlobalVariables(): array;

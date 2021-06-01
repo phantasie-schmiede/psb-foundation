@@ -41,55 +41,42 @@ class GlobalVariableService
     protected static array $globalVariableProviders = [];
 
     /**
-     * @param string|null $path
+     * @param string $path
      *
      * @return mixed
      */
-    public static function get(string $path = null)
+    public static function get(string $path)
     {
         $globalVariables = self::$cachedVariables;
 
-        if (null !== $path) {
-            try {
-                return VariableUtility::getValueByPath($globalVariables, $path);
-            } catch (Exception $e) {
-                // Do nothing.
-            }
-        }
-
-        if (!empty(self::$globalVariableProviders)) {
-            /** @var GlobalVariableProviderInterface|string $globalVariableProvider */
-            foreach (self::$globalVariableProviders as $index => &$globalVariableProvider) {
-                if (!$globalVariableProvider instanceof GlobalVariableProviderInterface) {
-                    $availability = $globalVariableProvider::isAvailable();
-
-                    // $availability can also be null.
-                    if (false === $availability) {
-                        unset (self::$globalVariableProviders[$index]);
-                    } elseif (true === $availability) {
-                        $globalVariableProvider = GeneralUtility::makeInstance($globalVariableProvider);
-                    }
-                }
-
-                if ($globalVariableProvider instanceof GlobalVariableProviderInterface) {
-                    $variables = $globalVariableProvider->getGlobalVariables();
-                    ArrayUtility::mergeRecursiveWithOverrule($globalVariables, $variables);
-
-                    if (true === $globalVariableProvider->isCacheable()) {
-                        ArrayUtility::mergeRecursiveWithOverrule(self::$cachedVariables, $variables);
-                        unset (self::$globalVariableProviders[$index]);
-                    }
-                }
-            }
-
-            unset ($globalVariableProvider);
-        }
-
-        if (null !== $path) {
+        try {
             return VariableUtility::getValueByPath($globalVariables, $path);
+        } catch (Exception $e) {
+            // Do nothing.
         }
 
-        return $globalVariables;
+        $pathElements = explode('.', $path);
+        $key = array_shift($pathElements);
+
+        if (!isset(self::$globalVariableProviders[$key])) {
+            throw new RuntimeException(__CLASS__ . ': Key "' . $key . '" is not registered! Available keys are: ' . implode(', ',
+                    array_keys(self::$globalVariableProviders)) . '.',
+                1622575130);
+        }
+
+        if (!self::$globalVariableProviders[$key] instanceof GlobalVariableProviderInterface) {
+            self::$globalVariableProviders[$key] = GeneralUtility::makeInstance(self::$globalVariableProviders[$key]);
+        }
+
+        $variables = self::$globalVariableProviders[$key]->getGlobalVariables();
+        ArrayUtility::mergeRecursiveWithOverrule($globalVariables, $variables);
+
+        if (true === self::$globalVariableProviders[$key]->isCacheable()) {
+            ArrayUtility::mergeRecursiveWithOverrule(self::$cachedVariables, $variables);
+            unset (self::$globalVariableProviders[$key]);
+        }
+
+        return VariableUtility::getValueByPath($globalVariables, $path);
     }
 
     /**
@@ -100,7 +87,7 @@ class GlobalVariableService
     public static function has(string $path): bool
     {
         try {
-            VariableUtility::getValueByPath(self::get(), $path);
+            self::get($path);
 
             return true;
         } catch (Exception $exception) {

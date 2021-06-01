@@ -50,14 +50,6 @@ class RequestParameterProvider extends AbstractProvider
     }
 
     /**
-     * @return bool|null
-     */
-    public static function isAvailable(): ?bool
-    {
-        return true;
-    }
-
-    /**
      * @return array
      * @throws InvalidConfigurationTypeException
      * @throws JsonException

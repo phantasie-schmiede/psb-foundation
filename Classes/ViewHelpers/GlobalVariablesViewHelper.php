@@ -18,27 +18,16 @@ namespace PSB\PsbFoundation\ViewHelpers;
 
 use Closure;
 use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
  * Class GlobalVariablesViewHelper
+ *
  * @package PSB\PsbFoundation\ViewHelpers
  */
 class GlobalVariablesViewHelper extends AbstractViewHelper
 {
-    public function initializeArguments(): void
-    {
-        parent::initializeArguments();
-        $this->registerArgument('path', 'string', 'array path separated with dots', false);
-    }
-
-    public function render(): void
-    {
-        static::renderStatic([], $this->buildRenderChildrenClosure(), $this->renderingContext);
-    }
-
     /**
      * @param array                     $arguments
      * @param Closure                   $renderChildrenClosure
@@ -51,18 +40,17 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ) {
-        if (empty($arguments['path'])) {
-            $globalVariables = GlobalVariableService::get();
-
-            foreach ($globalVariables as $key => $value) {
-                if (!$renderingContext->getVariableProvider()->exists($key)) {
-                    $renderingContext->getVariableProvider()->add($key, $value);
-                }
-            }
-
-            return null;
-        }
-
         return GlobalVariableService::get($arguments['path']);
+    }
+
+    public function initializeArguments(): void
+    {
+        parent::initializeArguments();
+        $this->registerArgument('path', 'string', 'array path separated with dots', true);
+    }
+
+    public function render(): void
+    {
+        static::renderStatic($this->arguments, $this->buildRenderChildrenClosure(), $this->renderingContext);
     }
 }
