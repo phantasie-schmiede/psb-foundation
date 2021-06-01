@@ -68,7 +68,7 @@ class StringUtility
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
-    public static function convertString(?string $variable, $convertEmptyStringToNull = false, array $namespaces = [])
+    public static function convertString(?string $variable, bool $convertEmptyStringToNull = false, array $namespaces = [])
     {
         if (null === $variable || ($convertEmptyStringToNull && '' === $variable)) {
             return null;
@@ -107,57 +107,58 @@ class StringUtility
             [$className, $constantName] = GeneralUtility::trimExplode('::', $variable, true, 2);
             $className = ObjectUtility::getFullQualifiedClassName($className, $namespaces);
 
+            // If $className is false, we have a false positive. It's not a constant, but for example CSS.
             if (false !== $className) {
                 if ('class' === $constantName) {
                     return $className;
                 }
 
                 $variable = $className . '::' . $constantName;
-            }
 
-            /*
-             * find all [...] segments after constant name and convert each one separately before trying to access that
-             * array path.
-             */
-            if (0 < preg_match_all('/\[\'?(.*)\'?(](?=\[)|]$)/U', $constantName, $pathSegments)) {
-                $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
-                    return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
-                }, $pathSegments[1]);
+                /*
+                 * find all [...] segments after constant name and convert each one separately before trying to access that
+                 * array path.
+                 */
+                if (0 < preg_match_all('/\[\'?(.*)\'?(](?=\[)|]$)/U', $constantName, $pathSegments)) {
+                    $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
+                        return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
+                    }, $pathSegments[1]);
 
-                // get constant array (path information is stripped away)
-                $variable = constant(preg_replace('/\[\'?(.*)\'?]/', '', $variable));
+                    // get constant array (path information is stripped away)
+                    $variable = constant(preg_replace('/\[\'?(.*)\'?]/', '', $variable));
 
-                try {
-                    // now try to access the array path
-                    return ArrayUtility::getValueByPath($variable, $pathSegments);
-                } catch (Exception $exception) {
-                    throw new RuntimeException('Path "[' . implode('][', $pathSegments) . ']" does not exist in array!',
-                        1548170593);
+                    try {
+                        // now try to access the array path
+                        return ArrayUtility::getValueByPath($variable, $pathSegments);
+                    } catch (Exception $exception) {
+                        throw new RuntimeException('Path "[' . implode('][', $pathSegments) . ']" does not exist in array!',
+                            1548170593);
+                    }
                 }
-            }
 
-            // check for dot-notation of array path
-            if (false !== mb_strpos($constantName, '.')) {
-                $pathSegments = explode('.', $constantName);
-                $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
-                    return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
-                }, $pathSegments);
+                // check for dot-notation of array path
+                if (false !== mb_strpos($constantName, '.')) {
+                    $pathSegments = explode('.', $constantName);
+                    $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
+                        return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
+                    }, $pathSegments);
 
-                // remove constant name from array
-                array_shift($pathSegments);
+                    // remove constant name from array
+                    array_shift($pathSegments);
 
-                $variable = constant(mb_substr($variable, 0, mb_strpos($variable, '.')));
+                    $variable = constant(mb_substr($variable, 0, mb_strpos($variable, '.')));
 
-                try {
-                    // now try to access the array path
-                    return ArrayUtility::getValueByPath($variable, $pathSegments);
-                } catch (Exception $exception) {
-                    throw new RuntimeException('Path "' . implode('.', $pathSegments) . '" does not exist in array!',
-                        1589385393);
+                    try {
+                        // now try to access the array path
+                        return ArrayUtility::getValueByPath($variable, $pathSegments);
+                    } catch (Exception $exception) {
+                        throw new RuntimeException('Path "' . implode('.', $pathSegments) . '" does not exist in array!',
+                            1589385393);
+                    }
                 }
-            }
 
-            return constant($variable);
+                return constant($variable);
+            }
         }
 
         // check for JSON
