@@ -396,7 +396,7 @@ class RegistrationService
      */
     public function registerModules(ExtensionInformationInterface $extensionInformation): void
     {
-        if (!ContextUtility::isBackend() || !is_iterable($extensionInformation->getModules())) {
+        if (!is_iterable($extensionInformation->getModules())) {
             return;
         }
 
@@ -760,10 +760,8 @@ class RegistrationService
                 }
             }
 
-            if (self::COLLECT_MODES['CONFIGURE_PLUGINS'] !== $collectMode) {
-                Typo3CoreArrayUtility::mergeRecursiveWithOverrule($configuration,
-                    $annotationReader->getClassAnnotations($controller));
-            }
+            Typo3CoreArrayUtility::mergeRecursiveWithOverrule($configuration,
+                $annotationReader->getClassAnnotations($controller));
         }
 
         if (self::COLLECT_MODES['REGISTER_PLUGINS'] !== $collectMode) {
