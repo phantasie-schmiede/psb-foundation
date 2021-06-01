@@ -20,6 +20,7 @@ use PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider;
 use PSB\PsbFoundation\Service\GlobalVariableService;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
+use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -83,7 +84,7 @@ class ContextUtility
      */
     public static function isBackend(): bool
     {
-        return (bool)(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_BE);
+        return ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend();
     }
 
     /**
@@ -99,7 +100,7 @@ class ContextUtility
      */
     public static function isFrontend(): bool
     {
-        return (bool)(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_FE);
+        return ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isFrontend();
     }
 
     /**
