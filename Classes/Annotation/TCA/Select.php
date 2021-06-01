@@ -32,7 +32,7 @@ class Select extends AbstractTcaFieldAnnotation
 
     public const EMPTY_DEFAULT_ITEM = [
         [
-            'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Service/DocComment/Annotations/TCA/select.xlf:pleaseChoose',
+            'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Annotation/TCA/select.xlf:pleaseChoose',
             0,
         ],
     ];
