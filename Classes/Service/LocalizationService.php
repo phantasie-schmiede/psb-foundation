@@ -46,7 +46,7 @@ class LocalizationService
      */
     public function logMissingTranslations(string $key, bool $keyExists): void
     {
-        if ((bool)GeneralUtility::makeInstance(ExtensionInformationService::class)
+        if (true === (bool)GeneralUtility::makeInstance(ExtensionInformationService::class)
             ->getConfiguration(GeneralUtility::makeInstance(ExtensionInformation::class),
                 'debug.logMissingTranslations')) {
             $connection = GeneralUtility::makeInstance(ConnectionPool::class)
