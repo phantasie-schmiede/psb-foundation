@@ -29,7 +29,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
  */
 class RequestParameterProvider extends AbstractProvider
 {
-    public const KEY = 'parameters';
+    public const KEY = 'psbFoundation-parameters';
 
     /**
      * @return array
@@ -56,6 +56,6 @@ class RequestParameterProvider extends AbstractProvider
      */
     public function getGlobalVariables(): array
     {
-        return [self::KEY => self::getRequestParameters()];
+        return self::getRequestParameters();
     }
 }

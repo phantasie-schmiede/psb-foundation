@@ -68,12 +68,11 @@ class GlobalVariableService
             self::$globalVariableProviders[$key] = GeneralUtility::makeInstance(self::$globalVariableProviders[$key]);
         }
 
-        $variables = self::$globalVariableProviders[$key]->getGlobalVariables();
+        $variables = [$key => self::$globalVariableProviders[$key]->getGlobalVariables()];
         ArrayUtility::mergeRecursiveWithOverrule($globalVariables, $variables);
 
         if (true === self::$globalVariableProviders[$key]->isCacheable()) {
-            ArrayUtility::mergeRecursiveWithOverrule(self::$cachedVariables, $variables);
-            unset (self::$globalVariableProviders[$key]);
+            self::$cachedVariables = $globalVariables;
         }
 
         return VariableUtility::getValueByPath($globalVariables, $path);

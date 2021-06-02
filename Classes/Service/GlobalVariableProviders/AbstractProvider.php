@@ -23,6 +23,9 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
  */
 abstract class AbstractProvider implements GlobalVariableProviderInterface
 {
+    /**
+     * Overwrite this constant with a unique value in extending class!
+     */
     public const KEY = '';
 
     /**
@@ -31,19 +34,7 @@ abstract class AbstractProvider implements GlobalVariableProviderInterface
     protected bool $cacheable = true;
 
     /**
-     * Overwrite this method in extending class!
-     *
-     * @return array
-     */
-    public function getGlobalVariables(): array
-    {
-        // TODO: Implement getGlobalVariables() method in extending class!
-        return [];
-    }
-
-    /**
-     * This must return false on first call. Otherwise the function getGlobalVariables() will never be called. When
-     * returned data isn't supposed to change anymore, set function's return value to true.
+     * When returned data may change during a request, set function's return value to false.
      *
      * @return bool
      */

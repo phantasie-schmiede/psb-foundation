@@ -30,7 +30,7 @@ class FrontendUserProvider extends AbstractProvider
 {
     use FrontendUserServiceTrait;
 
-    public const KEY = 'frontendUser';
+    public const KEY = 'psbFoundation-frontendUser';
 
     /**
      * @return array
@@ -41,14 +41,11 @@ class FrontendUserProvider extends AbstractProvider
     {
         ValidationUtility::requiresFrontendContext();
         ValidationUtility::requiresTypoScriptLoaded();
-        $this->setCacheable(true);
 
         return [
-            self::KEY => [
-                'loginPage' => $this->frontendUserService->getLoginPage(),
-                'sysFolder' => $this->frontendUserService->getSysFolder(),
-                'user'      => $this->frontendUserService->getCurrentUser(),
-            ],
+            'loginPage' => $this->frontendUserService->getLoginPage(),
+            'sysFolder' => $this->frontendUserService->getSysFolder(),
+            'user'      => $this->frontendUserService->getCurrentUser(),
         ];
     }
 }
