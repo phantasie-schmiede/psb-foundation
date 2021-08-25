@@ -197,11 +197,6 @@ class TypoScriptUtility
         }
 
         $contentConfiguration[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']] = $internalContentType;
-        $xhtmlCleaning = 'all';
-
-        if (PageObjectConfiguration::CONTENT_TYPES['JSON'] === $pageTypeConfiguration->getContentType()) {
-            $xhtmlCleaning = 0;
-        }
 
         $typoScript = [
             self::TYPO_SCRIPT_KEYS['CONDITION']               => 'request.getQueryParams()[\'type\'] == ' . $pageTypeConfiguration->getTypeNum(),
@@ -217,7 +212,6 @@ class TypoScriptUtility
                     'admPanel'             => false,
                     'debug'                => false,
                     'disableAllHeaderCode' => $pageTypeConfiguration->isDisableAllHeaderCode(),
-                    'xhtml_cleaning'       => $xhtmlCleaning,
                 ],
                 'typeNum'                             => $pageTypeConfiguration->getTypeNum(),
             ],

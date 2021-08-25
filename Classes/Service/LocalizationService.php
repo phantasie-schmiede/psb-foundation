@@ -91,7 +91,7 @@ class LocalizationService
     ): ?string {
         $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey,
             $alternativeLanguageKeys);
-        $this->logMissingTranslations($key, $translation ? true : false);
+        $this->logMissingTranslations($key, (bool)$translation);
 
         return $translation;
     }
