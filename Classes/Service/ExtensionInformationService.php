@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service;
 
+use Doctrine\DBAL\Driver\Exception;
 use Doctrine\DBAL\Exception\TableNotFoundException;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
@@ -28,7 +29,6 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotCon
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -133,6 +133,7 @@ class ExtensionInformationService
      *                          \PSB\PsbFoundation\Data\AbstractExtensionInformation)
      * @param string $extensionKey
      *
+     * @throws Exception
      * @throws ImplementationException
      */
     public function register(
@@ -140,19 +141,18 @@ class ExtensionInformationService
         string $extensionKey
     ): void {
         $this->validateExtensionInformationClass($className);
-        $this->validateExtensionKey($extensionKey);
-        $identifiers = [
+        $data = [
             'class_name'    => $className,
             'extension_key' => $extensionKey,
         ];
 
         $connection = $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE);
         $checkForExistentKey = $connection->select(['class_name', 'extension_key'],
-            self::EXTENSION_INFORMATION_MAPPING_TABLE, $identifiers)
-            ->fetchAll();
+            self::EXTENSION_INFORMATION_MAPPING_TABLE, $data)
+            ->fetchAllAssociative();
 
         if (0 === count($checkForExistentKey)) {
-            $connection->insert(self::EXTENSION_INFORMATION_MAPPING_TABLE, $identifiers);
+            $connection->insert(self::EXTENSION_INFORMATION_MAPPING_TABLE, $data);
         }
     }
 
@@ -166,19 +166,6 @@ class ExtensionInformationService
         if (!in_array(ExtensionInformationInterface::class, class_implements($className), true)) {
             throw new ImplementationException(__CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
                 1568738348);
-        }
-    }
-
-    /**
-     * @param string $extensionKey
-     *
-     * @throws ImplementationException
-     */
-    private function validateExtensionKey(string $extensionKey): void
-    {
-        if (!ExtensionManagementUtility::isLoaded($extensionKey)) {
-            throw new ImplementationException(__CLASS__ . ': The key "' . $extensionKey . '" does not match any installed extension!',
-                1568738493);
         }
     }
 
@@ -208,9 +195,9 @@ class ExtensionInformationService
     /**
      * @return ExtensionInformationInterface[]
      */
-    public function getExtensionInformation(): array
+    public function getExtensionInformation(bool $allowCaching = true): array
     {
-        if (empty(self::$extensionInformationInstances)) {
+        if (false === $allowCaching || empty(self::$extensionInformationInstances)) {
             $extensionInformation = $this->getRegisteredClassInformation();
 
             foreach ($extensionInformation as $className) {

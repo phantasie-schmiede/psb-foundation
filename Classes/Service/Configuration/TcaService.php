@@ -62,6 +62,11 @@ class TcaService
     ];
 
     /**
+     * @var bool
+     */
+    protected static bool $allowCaching = true;
+
+    /**
      * @var array
      */
     protected static array $classTableMapping = [];
@@ -107,7 +112,7 @@ class TcaService
      */
     public function buildTca(bool $overrideMode): void
     {
-        if (empty(self::$classTableMapping)) {
+        if (false === self::$allowCaching || empty(self::$classTableMapping)) {
             $this->buildClassesTableMapping();
         }
 
@@ -173,7 +178,7 @@ class TcaService
     protected function buildClassesTableMapping(): void
     {
         self::$classTableMapping = [];
-        $allExtensionInformation = $this->extensionInformationService->getExtensionInformation();
+        $allExtensionInformation = $this->extensionInformationService->getExtensionInformation(false);
 
         foreach ($allExtensionInformation as $extensionInformation) {
             try {

@@ -40,6 +40,11 @@ class GlobalVariableService
      */
     protected static array $globalVariableProviders = [];
 
+    public static function clearRegistration(): void
+    {
+        self::$globalVariableProviders = [];
+    }
+
     /**
      * @param string $path
      *

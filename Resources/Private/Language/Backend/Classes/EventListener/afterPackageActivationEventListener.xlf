@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file datatype="plaintext" date="2021-06-21T15:20:00+01:00" original="messages" product-name="psb_foundation" source-language="en">
+		<header />
+		<body>
+			<trans-unit id="error.noSingleInstallation">
+				<source>psb_foundation has to be installed first! This is done now and %1$s has been deactivated. Please remove newly created tables and try again.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

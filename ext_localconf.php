@@ -3,6 +3,12 @@
 defined('TYPO3_MODE') or die();
 
 (static function () {
+    /*
+     * It is necessary to force a clear registration state for the GlobalVariableService because the InstallUtility
+     * causes a second execution of all ext_localconf.php-files. This always happens when an extension is installed.
+     * @see \TYPO3\CMS\Extensionmanager\Utility\InstallUtility, line 349
+     */
+    \PSB\PsbFoundation\Service\GlobalVariableService::clearRegistration();
     \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider(\PSB\PsbFoundation\Service\GlobalVariableProviders\EarlyAccessConstantsProvider::class);
     \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider(\PSB\PsbFoundation\Service\GlobalVariableProviders\FrontendUserProvider::class);
     \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider(\PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider::class);
