@@ -31,10 +31,23 @@ class TtContent extends AbstractEntity
     protected string $cType = '';
 
     /**
+     * @var string
+     */
+    protected string $listType = '';
+
+    /**
      * @return string
      */
     public function getCType(): string
     {
         return $this->cType;
+    }
+
+    /**
+     * @return string
+     */
+    public function getListType(): string
+    {
+        return $this->listType;
     }
 }

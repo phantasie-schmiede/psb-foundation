@@ -38,4 +38,17 @@ class TtContentRepository extends Repository
 
         return $query->execute();
     }
+
+    /**
+     * @param string $listType
+     *
+     * @return QueryResultInterface
+     */
+    public function findByListType(string $listType): QueryResultInterface
+    {
+        $query = $this->createQuery();
+        $query->matching($query->equals('listType', $listType));
+
+        return $query->execute();
+    }
 }
