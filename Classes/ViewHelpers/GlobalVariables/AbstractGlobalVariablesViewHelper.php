@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\ViewHelpers\GlobalVariables;
 
+use PSB\PsbFoundation\Service\GlobalVariableService;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 
 /**
@@ -28,11 +29,26 @@ abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerArgument('path', 'string', 'array path separated with dots', true);
+        $this->registerArgument('path', 'string', 'array path separated with dots');
     }
 
     public function render(): void
     {
         static::renderStatic($this->arguments, $this->buildRenderChildrenClosure(), $this->renderingContext);
+    }
+
+    /**
+     * @param string $baseKey
+     * @param array  $arguments
+     *
+     * @return mixed
+     */
+    protected static function getVariable(string $baseKey, array $arguments)
+    {
+        if (!empty($arguments['path'])) {
+            $baseKey .= '.' . $arguments['path'];
+        }
+
+        return GlobalVariableService::get($baseKey);
     }
 }

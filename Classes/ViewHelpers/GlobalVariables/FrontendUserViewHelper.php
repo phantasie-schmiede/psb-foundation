@@ -18,7 +18,6 @@ namespace PSB\PsbFoundation\ViewHelpers\GlobalVariables;
 
 use Closure;
 use PSB\PsbFoundation\Service\GlobalVariableProviders\FrontendUserProvider;
-use PSB\PsbFoundation\Service\GlobalVariableService;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
 /**
@@ -40,6 +39,6 @@ class FrontendUserViewHelper extends AbstractGlobalVariablesViewHelper
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ) {
-        return GlobalVariableService::get(FrontendUserProvider::getKey() . '.' . $arguments['path']);
+        return parent::getVariable(FrontendUserProvider::getKey(), $arguments);
     }
 }
