@@ -43,7 +43,6 @@ class Inline extends AbstractTcaFieldAnnotation
         'levelLinksPosition'              => 'bottom',
         'showAllLocalizationLink'         => true,
         'showPossibleLocalizationRecords' => true,
-        'showRemovedLocalizationRecords'  => true,
         'showSynchronizationLink'         => true,
         'useSortable'                     => true,
     ];

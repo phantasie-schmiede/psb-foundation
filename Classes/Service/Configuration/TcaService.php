@@ -482,17 +482,7 @@ class TcaService
                 ],
                 'sys_language_uid' => [
                     'config'  => [
-                        'default'    => 0,
-                        'items'      => [
-                            [
-                                'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages',
-                                -1,
-                                'flags-multiple',
-                            ],
-                        ],
-                        'renderType' => 'selectSingle',
-                        'special'    => 'languages',
-                        'type'       => 'select',
+                        'type'       => 'language',
                     ],
                     'exclude' => true,
                     'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
