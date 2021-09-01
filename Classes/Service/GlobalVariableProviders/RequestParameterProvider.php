@@ -18,6 +18,7 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 use JsonException;
 use PSB\PsbFoundation\Utility\StringUtility;
+use PSB\PsbFoundation\Utility\VariableUtility;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
@@ -30,6 +31,16 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 class RequestParameterProvider extends AbstractProvider
 {
     public const KEY = 'psbFoundation-parameters';
+
+    /**
+     * @return mixed
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     */
+    public static function getRequestParameter(string $key, bool $strict = false)
+    {
+        return VariableUtility::getValueByPath(self::getRequestParameters(), $key, $strict);
+    }
 
     /**
      * @return array

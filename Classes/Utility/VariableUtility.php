@@ -29,11 +29,12 @@ class VariableUtility
     /**
      * @param array|object $variable
      * @param string       $path
+     * @param bool         $strict
      * @param string       $delimiter
      *
      * @return mixed
      */
-    public static function getValueByPath($variable, string $path, string $delimiter = '.')
+    public static function getValueByPath($variable, string $path, bool $strict = true, string $delimiter = '.')
     {
         $pathSegments = GeneralUtility::trimExplode($delimiter, $path);
         $value = $variable;
@@ -45,6 +46,10 @@ class VariableUtility
                 $getterMethod = 'get' . ucfirst($pathSegment);
                 $value = $value->$getterMethod();
             } else {
+                if (false === $strict) {
+                    return null;
+                }
+
                 throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array or object!',
                     1614066725);
             }
