@@ -30,8 +30,8 @@ use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Traits\PropertyInjection\IconRegistryTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
-use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
@@ -41,7 +41,6 @@ use RuntimeException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
-use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -56,6 +55,8 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
  */
 class RegistrationService
 {
+    use IconRegistryTrait;
+
     public const PAGE_TYPE_REGISTRATION_MODES = [
         'EXT_TABLES'   => 'ext_tables',
         'TCA_OVERRIDE' => 'tca_override',
@@ -119,8 +120,7 @@ class RegistrationService
 
         $configuration = [
             'description'          => $description,
-            'iconIdentifier'       => GeneralUtility::makeInstance(IconRegistry::class)
-                ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
+            'iconIdentifier'       => $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
             'title'                => $title,
             'tt_content_defValues' => [
                 'CType'     => 'list',
@@ -441,8 +441,7 @@ class RegistrationService
                     [
                         'access'                => $access ?? 'group, user',
                         'icon'                  => $icon ?? null,
-                        'iconIdentifier'        => GeneralUtility::makeInstance(IconRegistry::class)
-                            ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
+                        'iconIdentifier'        => $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
                         'labels'                => $labels,
                         'navigationComponentId' => $navigationComponentId ?? null,
                     ]
@@ -521,8 +520,7 @@ class RegistrationService
                     $extensionInformation->getExtensionName(),
                     $pluginName,
                     $title,
-                    GeneralUtility::makeInstance(IconRegistry::class)
-                        ->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
+                    $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
                 );
             }
 

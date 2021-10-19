@@ -211,16 +211,6 @@ class TcaService
 
                 $tableName = $this->convertClassNameToTableName($fullQualifiedClassName);
 
-                $tableExists = $this->connectionPool
-                    ->getConnectionForTable($tableName)
-                    ->getSchemaManager()
-                    ->tablesExist([$tableName]);
-
-                if (!$tableExists) {
-                    // This class seems to be no persistent domain model and will be skipped as a corresponding table is missing.
-                    continue;
-                }
-
                 if (StringUtility::beginsWith($tableName,
                     'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
                     self::$classTableMapping['tca'][$fullQualifiedClassName] = $tableName;

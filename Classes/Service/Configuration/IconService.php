@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\Configuration;
 
+use PSB\PsbFoundation\Traits\PropertyInjection\IconRegistryTrait;
 use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
-use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -27,6 +27,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class IconService
 {
+    use IconRegistryTrait;
+
     /**
      * For use in ext_localconf.php files
      *
@@ -41,14 +43,13 @@ class IconService
     ): void {
         $path = GeneralUtility::getFileAbsFileName('EXT:' . $extensionKey . '/' . trim($path, '/'));
         $iconFiles = GeneralUtility::getFilesInDir($path, 'svg', true, '', 'Extension.*');
-        $iconRegistry = GeneralUtility::makeInstance(IconRegistry::class);
 
         if (is_iterable($iconFiles)) {
             foreach ($iconFiles as $iconFile) {
                 $fileName = pathinfo($iconFile, PATHINFO_FILENAME);
 
                 if ([] === $iconNames || in_array($fileName, $iconNames, true)) {
-                    $iconRegistry->registerIcon(
+                    $this->iconRegistry->registerIcon(
                         $extensionKey . '-' . str_replace('_', '-',
                             GeneralUtility::camelCaseToLowerCaseUnderscored($fileName)),
                         SvgIconProvider::class,
