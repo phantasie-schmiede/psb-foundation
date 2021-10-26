@@ -37,12 +37,6 @@ class Select extends AbstractTcaFieldAnnotation
         ],
     ];
 
-    public const RENDER_TYPE_SELECT_SINGLE                = 'selectSingle';
-    public const RENDER_TYPE_SELECT_SINGLE_BOX            = 'selectSingleBox';
-    public const RENDER_TYPE_SELECT_CHECK_BOX             = 'selectCheckBox';
-    public const RENDER_TYPE_SELECT_MULTIPLE_SIDE_BY_SIDE = 'selectMultipleSideBySide';
-    public const RENDER_TYPE_SELECT_TREE                  = 'selectTree';
-
     public const RENDER_TYPES = [
         'SELECT_SINGLE'                => self::RENDER_TYPE_SELECT_SINGLE,
         'SELECT_SINGLE_BOX'            => self::RENDER_TYPE_SELECT_SINGLE_BOX,
@@ -51,7 +45,13 @@ class Select extends AbstractTcaFieldAnnotation
         'SELECT_TREE'                  => self::RENDER_TYPE_SELECT_TREE,
     ];
 
-    public const TYPE = Fields::FIELD_TYPES['SELECT'];
+    // @TODO: Are these necessary?!
+    public const RENDER_TYPE_SELECT_CHECK_BOX             = 'selectCheckBox';
+    public const RENDER_TYPE_SELECT_MULTIPLE_SIDE_BY_SIDE = 'selectMultipleSideBySide';
+    public const RENDER_TYPE_SELECT_SINGLE                = 'selectSingle';
+    public const RENDER_TYPE_SELECT_SINGLE_BOX            = 'selectSingleBox';
+    public const RENDER_TYPE_SELECT_TREE                  = 'selectTree';
+    public const TYPE                                     = Fields::FIELD_TYPES['SELECT'];
 
     /**
      * @var int
@@ -121,6 +121,11 @@ class Select extends AbstractTcaFieldAnnotation
     protected bool $multiple = false;
 
     /**
+     * @var array
+     */
+    protected array $prependItem = [];
+
+    /**
      * @var string
      */
     protected string $renderType = self::RENDER_TYPES['SELECT_SINGLE'];
@@ -129,6 +134,14 @@ class Select extends AbstractTcaFieldAnnotation
      * @var int
      */
     protected int $size = 1;
+
+    /**
+     * @param array $prependItem
+     */
+    public function setPrependItem(array $prependItem): void
+    {
+        $this->prependItem = $prependItem;
+    }
 
     /**
      * @return int
@@ -231,6 +244,9 @@ class Select extends AbstractTcaFieldAnnotation
      */
     public function getItems(): array
     {
+        $this->items = array_merge($this->prependItem, $this->items);
+        $this->prependItem = [];
+
         return $this->items;
     }
 
