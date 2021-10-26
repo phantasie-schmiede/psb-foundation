@@ -25,6 +25,12 @@ services:
         identifier: 'registerExtensionInformation'
         name: event.listener
 
+  PSB\PsbFoundation\Service\Configuration\IconService:
+    public: true
+
+  PSB\PsbFoundation\Service\Configuration\RegistrationService:
+    public: true
+
   PSB\PsbFoundation\Service\Configuration\TcaService:
     public: true
 
