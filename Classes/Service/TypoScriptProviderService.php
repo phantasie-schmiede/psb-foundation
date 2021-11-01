@@ -36,9 +36,6 @@ class TypoScriptProviderService
 {
     use ConfigurationManagerTrait, TypoScriptServiceTrait;
 
-    /**
-     * TypoScriptProviderService constructor.
-     */
     public function __construct()
     {
         ValidationUtility::requiresTypoScriptLoaded();

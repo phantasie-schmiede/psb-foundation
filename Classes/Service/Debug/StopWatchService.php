@@ -52,8 +52,6 @@ class StopWatchService
     protected array $timeLog = [];
 
     /**
-     * StopwatchUtility constructor.
-     *
      * @param string $header
      * @param int    $precision
      */

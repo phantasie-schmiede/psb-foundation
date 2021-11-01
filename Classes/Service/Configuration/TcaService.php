@@ -82,8 +82,6 @@ class TcaService
     protected ClassesConfigurationFactory $classesConfigurationFactory;
 
     /**
-     * TcaService constructor.
-     *
      * @param ClassesConfigurationFactory $classesConfigurationFactory
      */
     public function __construct(ClassesConfigurationFactory $classesConfigurationFactory)

@@ -102,8 +102,6 @@ class Ctrl extends AbstractAnnotation
     protected TcaService $tcaService;
 
     /**
-     * AbstractTcaFieldAnnotation constructor.
-     *
      * @param array $data
      *
      * @throws Exception

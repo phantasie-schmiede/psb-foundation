@@ -37,8 +37,6 @@ abstract class AbstractModelWithDataManipulationProtection extends AbstractModel
     protected string $checksum = '';
 
     /**
-     * AbstractModelWithDataManipulationProtection constructor.
-     *
      * @throws InvalidArgumentForHashGenerationException
      * @throws ReflectionException
      */

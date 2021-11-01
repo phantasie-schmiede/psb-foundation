@@ -32,8 +32,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 abstract class AbstractAnnotation
 {
     /**
-     * AbstractAnnotation constructor.
-     *
      * Maps associative arrays to object properties. Requires the class to have appropriate setter-methods.
      *
      * @param array $data

@@ -96,8 +96,6 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     protected ?string $typeList = null;
 
     /**
-     * AbstractTcaFieldAnnotation constructor.
-     *
      * @param array $data
      *
      * @throws Exception
