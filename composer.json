@@ -40,9 +40,10 @@
 	"name": "psb/psb-foundation",
 	"require": {
 		"php": "^7.4",
-		"typo3/cms-core": "^10.4 || ^11.2"
+		"typo3/cms-core": "^11.5"
 	},
 	"require-dev": {
+		"roave/security-advisories": "dev-latest",
 		"typo3/testing-framework": "^6.8"
 	},
 	"type": "typo3-cms-extension"

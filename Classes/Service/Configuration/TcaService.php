@@ -201,6 +201,11 @@ class TcaService
                 );
 
                 $fullQualifiedClassName = implode('\\', $classNameComponents);
+
+                if (!class_exists($fullQualifiedClassName)) {
+                    continue;
+                }
+
                 $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $fullQualifiedClassName);
 
                 if ($reflectionClass->isAbstract() || $reflectionClass->isInterface()) {
