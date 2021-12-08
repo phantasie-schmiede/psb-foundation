@@ -24,15 +24,6 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 interface GlobalVariableProviderInterface
 {
     /**
-     * Each provider has to define a unique key which serves as entry point for the available data. Example:
-     * 'myExt-myKey'
-     * Your key must not contain a dot!
-     *
-     * @return string
-     */
-    public static function getKey(): string;
-
-    /**
      * @return mixed
      */
     public function getGlobalVariables();

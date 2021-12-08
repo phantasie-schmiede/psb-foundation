@@ -24,11 +24,6 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 abstract class AbstractProvider implements GlobalVariableProviderInterface
 {
     /**
-     * Overwrite this constant with a unique value in extending class!
-     */
-    public const KEY = '';
-
-    /**
      * @var bool
      */
     protected bool $cacheable = true;
@@ -49,13 +44,5 @@ abstract class AbstractProvider implements GlobalVariableProviderInterface
     public function setCacheable(bool $cacheable): void
     {
         $this->cacheable = $cacheable;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getKey(): string
-    {
-        return static::KEY;
     }
 }

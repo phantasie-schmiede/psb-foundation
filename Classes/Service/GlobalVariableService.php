@@ -40,11 +40,6 @@ class GlobalVariableService
      */
     protected static array $globalVariableProviders = [];
 
-    public static function clearRegistration(): void
-    {
-        self::$globalVariableProviders = [];
-    }
-
     /**
      * @param string $path
      *
@@ -70,7 +65,7 @@ class GlobalVariableService
         }
 
         if (!self::$globalVariableProviders[$key] instanceof GlobalVariableProviderInterface) {
-            self::$globalVariableProviders[$key] = GeneralUtility::makeInstance(self::$globalVariableProviders[$key]);
+            self::$globalVariableProviders[$key] = GeneralUtility::makeInstance($key);
         }
 
         $variables = [$key => self::$globalVariableProviders[$key]->getGlobalVariables()];
@@ -111,14 +106,7 @@ class GlobalVariableService
                 1612426722);
         }
 
-        /** @var GlobalVariableProviderInterface $className It's still a string! But we want code completion for static properties! */
-        $key = $className::getKey();
-
-        if (isset(self::$globalVariableProviders[$key])) {
-            throw new RuntimeException(__CLASS__ . ': The provider key "' . $key . '" has already been registered! (in conflict with: ' . self::$globalVariableProviders[$key] . ')',
-                1622220440);
-        }
-
-        self::$globalVariableProviders[$key] = $className;
+        // The value is just a placeholder for the instance which might be instantiated.
+        self::$globalVariableProviders[$className] = '';
     }
 }

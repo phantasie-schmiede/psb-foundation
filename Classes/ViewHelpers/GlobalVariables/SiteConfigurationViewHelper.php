@@ -39,6 +39,6 @@ class SiteConfigurationViewHelper extends AbstractGlobalVariablesViewHelper
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ) {
-        return parent::getVariable(SiteConfigurationProvider::getKey(), $arguments);
+        return parent::getVariable(SiteConfigurationProvider::class, $arguments);
     }
 }

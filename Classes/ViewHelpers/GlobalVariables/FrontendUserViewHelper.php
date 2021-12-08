@@ -39,6 +39,6 @@ class FrontendUserViewHelper extends AbstractGlobalVariablesViewHelper
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ) {
-        return parent::getVariable(FrontendUserProvider::getKey(), $arguments);
+        return parent::getVariable(FrontendUserProvider::class, $arguments);
     }
 }

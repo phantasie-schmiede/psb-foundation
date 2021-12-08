@@ -56,7 +56,7 @@ class ContextUtility
         ValidationUtility::requiresFrontendContext();
 
         /** @var Site $siteConfiguration */
-        $siteConfiguration = GlobalVariableService::get(SiteConfigurationProvider::KEY);
+        $siteConfiguration = GlobalVariableService::get(SiteConfigurationProvider::class);
         $context = GeneralUtility::makeInstance(Context::class);
 
         return $siteConfiguration->getLanguageById($context->getPropertyFromAspect('language', 'id'));

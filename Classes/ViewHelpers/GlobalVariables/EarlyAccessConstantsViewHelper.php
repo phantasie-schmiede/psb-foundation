@@ -39,6 +39,6 @@ class EarlyAccessConstantsViewHelper extends AbstractGlobalVariablesViewHelper
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ) {
-        return parent::getVariable(EarlyAccessConstantsProvider::getKey(), $arguments);
+        return parent::getVariable(EarlyAccessConstantsProvider::class, $arguments);
     }
 }

@@ -39,6 +39,6 @@ class RequestParameterViewHelper extends AbstractGlobalVariablesViewHelper
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
     ) {
-        return parent::getVariable(RequestParameterProvider::getKey(), $arguments);
+        return parent::getVariable(RequestParameterProvider::class, $arguments);
     }
 }

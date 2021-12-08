@@ -50,7 +50,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class EarlyAccessConstantsProvider extends AbstractProvider
 {
     public const DIRECTORY = '/Configuration/EarlyAccessConstants/';
-    public const KEY = 'psbFoundation-earlyAccessConstants';
 
     /**
      * @return array

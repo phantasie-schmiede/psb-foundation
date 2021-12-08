@@ -30,8 +30,6 @@ class FrontendUserProvider extends AbstractProvider
 {
     use FrontendUserServiceTrait;
 
-    public const KEY = 'psbFoundation-frontendUser';
-
     /**
      * @return array
      * @throws AspectPropertyNotFoundException

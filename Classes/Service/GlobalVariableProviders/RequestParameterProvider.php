@@ -30,8 +30,6 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
  */
 class RequestParameterProvider extends AbstractProvider
 {
-    public const KEY = 'psbFoundation-parameters';
-
     /**
      * @return mixed
      * @throws InvalidConfigurationTypeException

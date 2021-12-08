@@ -30,8 +30,6 @@ class SiteConfigurationProvider extends AbstractProvider
 {
     use SiteFinderTrait;
 
-    public const KEY = 'psbFoundation-siteConfiguration';
-
     /**
      * @return Site
      * @throws SiteNotFoundException
