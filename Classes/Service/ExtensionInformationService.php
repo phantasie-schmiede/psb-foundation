@@ -16,12 +16,9 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service;
 
-use Doctrine\DBAL\Driver\Exception;
-use Doctrine\DBAL\Exception\TableNotFoundException;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionConfigurationTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\PackageManagerTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -38,14 +35,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class ExtensionInformationService
 {
-    use ConnectionPoolTrait, ExtensionConfigurationTrait, PackageManagerTrait;
-
-    private const EXTENSION_INFORMATION_MAPPING_TABLE = 'tx_psbfoundation_extension_information_mapping';
+    use ExtensionConfigurationTrait, PackageManagerTrait;
 
     /**
      * @var ExtensionInformationInterface[]
      */
-    private static array $extensionInformationInstances = [];
+    protected array $extensionInformationInstances = [];
 
     /**
      * @param string $className
@@ -71,15 +66,6 @@ class ExtensionInformationService
         }
 
         return substr($fullControllerName, 0, -10);
-    }
-
-    /**
-     * @param string $extensionKey
-     */
-    public function deregister(string $extensionKey): void
-    {
-        $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
-            ->delete(self::EXTENSION_INFORMATION_MAPPING_TABLE, ['extension_key' => $extensionKey]);
     }
 
     /**
@@ -128,44 +114,43 @@ class ExtensionInformationService
     }
 
     /**
-     * @param string $className Full qualified class name of your extension information class (must implement
-     *                          \PSB\PsbFoundation\Data\ExtensionInformationInterface, you can extend
-     *                          \PSB\PsbFoundation\Data\AbstractExtensionInformation)
-     * @param string $extensionKey
+     * This function is called once and very early in ext_localconf.php. It scans all active packages and checks if
+     * there is an ExtensionInformation-class. If so, an instance is created and stored for upcoming usages. The order
+     * of the stored instances respects the dependency as resolved by the PackageManager. This register is used for a
+     * series of automated tasks like TCA-generation, icon registration and plugin configuration.
      *
-     * @throws Exception
+     * @return void
      * @throws ImplementationException
      */
-    public function register(
-        string $className,
-        string $extensionKey
-    ): void {
-        $this->validateExtensionInformationClass($className);
-        $data = [
-            'class_name'    => $className,
-            'extension_key' => $extensionKey,
-        ];
-
-        $connection = $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE);
-        $checkForExistentKey = $connection->select(['class_name', 'extension_key'],
-            self::EXTENSION_INFORMATION_MAPPING_TABLE, $data)
-            ->fetchAllAssociative();
-
-        if (0 === count($checkForExistentKey)) {
-            $connection->insert(self::EXTENSION_INFORMATION_MAPPING_TABLE, $data);
-        }
-    }
-
-    /**
-     * @param string $className
-     *
-     * @throws ImplementationException
-     */
-    private function validateExtensionInformationClass(string $className): void
+    public function register(): void
     {
-        if (!in_array(ExtensionInformationInterface::class, class_implements($className), true)) {
-            throw new ImplementationException(__CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
-                1568738348);
+        if (!empty($this->extensionInformationInstances)) {
+            return;
+        }
+
+        $activePackages = $this->packageManager->getActivePackages();
+
+        foreach ($activePackages as $package) {
+            $extensionKey = $package->getPackageKey();
+            $fileName = $package->getPackagePath() . '/Classes/Data/ExtensionInformation.php';
+            $vendorName = $this->extractVendorNameFromFile($fileName);
+
+            if (null !== $vendorName) {
+                $className = implode('\\', [
+                    $vendorName,
+                    GeneralUtility::underscoredToUpperCamelCase($extensionKey),
+                    'Data\ExtensionInformation',
+                ]);
+
+                if (class_exists($className)) {
+                    if (!in_array(ExtensionInformationInterface::class, class_implements($className), true)) {
+                        throw new ImplementationException(__CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
+                            1568738348);
+                    }
+
+                    $this->extensionInformationInstances[$extensionKey] = GeneralUtility::makeInstance($className);
+                }
+            }
         }
     }
 
@@ -195,19 +180,9 @@ class ExtensionInformationService
     /**
      * @return ExtensionInformationInterface[]
      */
-    public function getExtensionInformation(bool $allowCaching = true): array
+    public function getExtensionInformation(): array
     {
-        if (false === $allowCaching || empty(self::$extensionInformationInstances)) {
-            $extensionInformation = $this->getRegisteredClassInformation();
-
-            foreach ($extensionInformation as $className) {
-                /** @var ExtensionInformationInterface $extensionInformationClass */
-                $extensionInformationClass = GeneralUtility::makeInstance($className);
-                self::$extensionInformationInstances[$extensionInformationClass->getExtensionKey()] = $extensionInformationClass;
-            }
-        }
-
-        return self::$extensionInformationInstances;
+        return $this->extensionInformationInstances;
     }
 
     /**
@@ -218,36 +193,6 @@ class ExtensionInformationService
     public function getLanguageFilePath(string $extensionKey): string
     {
         return $this->getResourcePath($extensionKey) . 'Private/Language/';
-    }
-
-    /**
-     * @return array
-     */
-    public function getRegisteredClassInformation(): array
-    {
-        try {
-            // We need to use the active packages to ensure that the dependencies are resolved in the correct order.
-            $activePackages = $this->packageManager->getActivePackages();
-            $orderedClassInformation = [];
-            $unorderedClassInformation = [];
-            $classInformationRows = $this->connectionPool->getConnectionForTable(self::EXTENSION_INFORMATION_MAPPING_TABLE)
-                ->select(['class_name', 'extension_key'], self::EXTENSION_INFORMATION_MAPPING_TABLE)
-                ->fetchAll();
-
-            foreach ($classInformationRows as $row) {
-                $unorderedClassInformation[$row['extension_key']] = $row['class_name'];
-            }
-
-            foreach ($activePackages as $package) {
-                if (isset($unorderedClassInformation[$package->getPackageKey()])) {
-                    $orderedClassInformation[] = $unorderedClassInformation[$package->getPackageKey()];
-                }
-            }
-
-            return $orderedClassInformation;
-        } catch (TableNotFoundException $tableNotFoundException) {
-            return [];
-        }
     }
 
     /**

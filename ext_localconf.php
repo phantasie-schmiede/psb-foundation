@@ -10,6 +10,7 @@ defined('TYPO3_MODE') or die();
 
     // configure all plugins of those extensions which provide an ExtensionInformation-class and add TypoScript if missing
     $extensionInformationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\ExtensionInformationService::class);
+    $extensionInformationService->register();
     $iconService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\IconService::class);
     $registrationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\RegistrationService::class);
     $allExtensionInformation = $extensionInformationService->getExtensionInformation();

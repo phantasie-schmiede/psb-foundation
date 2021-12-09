@@ -7,24 +7,6 @@ services:
   PSB\PsbFoundation\:
     resource: '../Classes/*'
 
-  PSB\PsbFoundation\EventListener\AfterPackageActivationEventListener:
-    tags:
-      - event: TYPO3\CMS\Core\Package\Event\AfterPackageActivationEvent
-        identifier: 'validateExtensionInstallation'
-        name: event.listener
-
-  PSB\PsbFoundation\EventListener\AfterPackageDeactivationEventListener:
-    tags:
-      - event: TYPO3\CMS\Core\Package\Event\AfterPackageDeactivationEvent
-        identifier: 'deregisterExtensionInformation'
-        name: event.listener
-
-  PSB\PsbFoundation\EventListener\BeforePackageActivationEventListener:
-    tags:
-      - event: TYPO3\CMS\Core\Package\Event\BeforePackageActivationEvent
-        identifier: 'registerExtensionInformation'
-        name: event.listener
-
   PSB\PsbFoundation\Service\Configuration\IconService:
     public: true
 

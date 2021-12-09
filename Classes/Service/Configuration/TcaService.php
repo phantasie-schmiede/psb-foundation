@@ -176,7 +176,7 @@ class TcaService
     protected function buildClassesTableMapping(): void
     {
         self::$classTableMapping = [];
-        $allExtensionInformation = $this->extensionInformationService->getExtensionInformation(false);
+        $allExtensionInformation = $this->extensionInformationService->getExtensionInformation();
 
         foreach ($allExtensionInformation as $extensionInformation) {
             try {
