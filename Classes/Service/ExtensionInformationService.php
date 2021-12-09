@@ -132,7 +132,7 @@ class ExtensionInformationService
 
         foreach ($activePackages as $package) {
             $extensionKey = $package->getPackageKey();
-            $fileName = $package->getPackagePath() . '/Classes/Data/ExtensionInformation.php';
+            $fileName = $package->getPackagePath() . 'Classes/Data/ExtensionInformation.php';
             $vendorName = $this->extractVendorNameFromFile($fileName);
 
             if (null !== $vendorName) {
