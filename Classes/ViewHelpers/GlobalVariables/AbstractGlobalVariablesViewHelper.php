@@ -32,9 +32,12 @@ abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
         $this->registerArgument('path', 'string', 'array path separated with dots');
     }
 
-    public function render(): void
+    /**
+     * @return mixed
+     */
+    public function render()
     {
-        static::renderStatic($this->arguments, $this->buildRenderChildrenClosure(), $this->renderingContext);
+        return static::renderStatic($this->arguments, $this->buildRenderChildrenClosure(), $this->renderingContext);
     }
 
     /**
