@@ -45,6 +45,7 @@ class TcaUtility
         'generatorOptions'   => 'generatorOptions',
         'hideTable'          => 'hideTable',
         'maxItems'           => 'maxitems',
+        'minItems'           => 'minitems',
         'mm'                 => 'MM',
         'mmHasUidField'      => 'MM_hasUidField',
         'mmMatchFields'      => 'MM_match_fields',
