@@ -14,7 +14,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Service\Configuration;
+namespace PSB\PsbFoundation\Library;
 
 /**
  * Class Fields
@@ -25,9 +25,9 @@ namespace PSB\PsbFoundation\Service\Configuration;
  * @package PSB\PsbFoundation\Service\Configuration
  * @see     \PSB\PsbFoundation\Service\Configuration\TcaService
  */
-class Fields
+class TcaFields
 {
-    public const FIELD_TYPES = [
+    public const TYPES = [
         'CHECKBOX'    => 'check',
         'DATE'        => 'input',
         'DATETIME'    => 'input',

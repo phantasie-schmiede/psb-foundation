@@ -29,6 +29,11 @@ class PluginConfig extends AbstractAnnotation
     /**
      * @var string
      */
+    protected string $flexForm = '';
+
+    /**
+     * @var string
+     */
     protected string $group = '';
 
     /**
@@ -40,6 +45,22 @@ class PluginConfig extends AbstractAnnotation
      * @var string
      */
     protected string $title = '';
+
+    /**
+     * @return string
+     */
+    public function getFlexForm(): string
+    {
+        return $this->flexForm;
+    }
+
+    /**
+     * @param string $flexForm
+     */
+    public function setFlexForm(string $flexForm): void
+    {
+        $this->flexForm = $flexForm;
+    }
 
     /**
      * @return string

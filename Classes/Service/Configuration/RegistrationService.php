@@ -30,6 +30,7 @@ use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Traits\PropertyInjection\FlexFormServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\IconRegistryTrait;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -55,7 +56,7 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
  */
 class RegistrationService
 {
-    use IconRegistryTrait;
+    use FlexFormServiceTrait, IconRegistryTrait;
 
     public const PAGE_TYPE_REGISTRATION_MODES = [
         'EXT_TABLES'   => 'ext_tables',
@@ -502,10 +503,27 @@ class RegistrationService
                 [$pluginConfiguration] = $this->collectActionsAndConfiguration($controllerClassNames,
                     self::COLLECT_MODES['REGISTER_PLUGINS']);
 
+                $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $pluginName . '.xml';
+
                 if (isset($pluginConfiguration[PluginConfig::class])) {
                     /** @var PluginConfig $pluginConfig */
                     $pluginConfig = $pluginConfiguration[PluginConfig::class];
                     $title = $pluginConfig->getTitle();
+
+                    if ('' !== $pluginConfig->getFlexForm()) {
+                        $flexFormFilePath = $pluginConfig->getFlexForm();
+
+                        if (false === strpos($flexFormFilePath, 'EXT:')) {
+                            $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $flexFormFilePath;
+                        }
+                    }
+                }
+
+                $flexFormFilePath = GeneralUtility::getFileAbsFileName($flexFormFilePath);
+
+                if (file_exists($flexFormFilePath)) {
+                    $pluginSignature = strtolower($extensionInformation->getExtensionName()) . '_' . strtolower($pluginName);
+                    $this->flexFormService->register(file_get_contents($flexFormFilePath), $pluginSignature);
                 }
 
                 if (!isset($title)) {

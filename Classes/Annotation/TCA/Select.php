@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Service\Configuration\Fields;
+use PSB\PsbFoundation\Library\TcaFields;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 
@@ -51,7 +51,12 @@ class Select extends AbstractTcaFieldAnnotation
     public const RENDER_TYPE_SELECT_SINGLE                = 'selectSingle';
     public const RENDER_TYPE_SELECT_SINGLE_BOX            = 'selectSingleBox';
     public const RENDER_TYPE_SELECT_TREE                  = 'selectTree';
-    public const TYPE                                     = Fields::FIELD_TYPES['SELECT'];
+    public const TYPE                                     = TcaFields::TYPES['SELECT'];
+
+    /**
+     * @var bool
+     */
+    protected bool $allowNonIdValues = false;
 
     /**
      * @var int
@@ -134,6 +139,22 @@ class Select extends AbstractTcaFieldAnnotation
      * @var int
      */
     protected int $size = 1;
+
+    /**
+     * @return bool
+     */
+    public function isAllowNonIdValues(): bool
+    {
+        return $this->allowNonIdValues;
+    }
+
+    /**
+     * @param bool $allowNonIdValues
+     */
+    public function setAllowNonIdValues(bool $allowNonIdValues): void
+    {
+        $this->allowNonIdValues = $allowNonIdValues;
+    }
 
     /**
      * @param array $prependItem

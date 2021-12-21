@@ -57,11 +57,11 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         RenderingContextInterface $renderingContext
     ) {
         [
-            'default'              => $default,
-            'extensionName'        => $extensionName,
-            'id'                   => $id,
-            'key'                  => $key,
-            'translationArguments' => $translateArguments,
+            'arguments'     => $translateArguments,
+            'default'       => $default,
+            'extensionName' => $extensionName,
+            'id'            => $id,
+            'key'           => $key,
         ] = $arguments;
 
         // Use key if id is empty.
@@ -120,9 +120,8 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         $languageKey,
         $alternativeLanguageKeys
     ): ?string {
-        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
-
-        return $localizationService->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
+        return GeneralUtility::makeInstance(LocalizationService::class)
+            ->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
     }
 
     /**

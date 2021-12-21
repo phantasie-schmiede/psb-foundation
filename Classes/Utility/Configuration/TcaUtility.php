@@ -33,6 +33,7 @@ class TcaUtility
      * transformed to lower_case_underscored.
      */
     private const PROPERTY_KEY_MAPPING = [
+        'allowNonIdValues'   => 'allowNonIdValues',
         'autoSizeMax'        => 'autoSizeMax',
         'dbType'             => 'dbType',
         'defaultSortBy'      => 'default_sortby',

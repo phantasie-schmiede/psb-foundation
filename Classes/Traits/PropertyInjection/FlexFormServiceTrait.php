@@ -14,27 +14,27 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Traits\PropertyInjection;
 
-use PSB\PsbFoundation\Library\TcaFields;
+use PSB\PsbFoundation\Service\Configuration\FlexFormService;
 
 /**
- * Class Time
+ * Trait FlexFormServiceTrait
  *
- * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Traits\PropertyInjection
  */
-class Time extends DateTime
+trait FlexFormServiceTrait
 {
-    public const TYPE = TcaFields::TYPES['TIME'];
+    /**
+     * @var FlexFormService
+     */
+    protected FlexFormService $flexFormService;
 
     /**
-     * @var string|null
+     * @param FlexFormService $flexFormService
      */
-    protected ?string $dbType = 'time';
-
-    /**
-     * @var string
-     */
-    protected string $eval = 'null, time';
+    public function injectFlexFormService(FlexFormService $flexFormService): void
+    {
+        $this->flexFormService = $flexFormService;
+    }
 }

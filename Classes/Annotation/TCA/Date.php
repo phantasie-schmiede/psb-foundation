@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Service\Configuration\Fields;
+use PSB\PsbFoundation\Library\TcaFields;
 
 /**
  * Class Date
@@ -26,7 +26,7 @@ use PSB\PsbFoundation\Service\Configuration\Fields;
  */
 class Date extends DateTime
 {
-    public const TYPE = Fields::FIELD_TYPES['DATE'];
+    public const TYPE = TcaFields::TYPES['DATE'];
 
     /**
      * @var string|null
