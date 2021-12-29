@@ -121,7 +121,7 @@ cd ../testing-docker || exit 1
 ROOT_DIR=`readlink -f ${PWD}/../../`
 TEST_SUITE="unit"
 DBMS="mariadb"
-PHP_VERSION="7.2"
+PHP_VERSION="7.4"
 PHP_XDEBUG_ON=0
 PHP_XDEBUG_PORT=9003
 EXTRA_TEST_OPTIONS=""

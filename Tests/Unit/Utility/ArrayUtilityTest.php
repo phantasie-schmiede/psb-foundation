@@ -27,13 +27,6 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 class ArrayUtilityTest extends UnitTestCase
 {
     /**
-     * @TODO: Why is this needed? This test should not create Singleton instances!
-     *
-     * @var bool
-     */
-    protected $resetSingletonInstances = true;
-
-    /**
      * @test
      * @dataProvider countRecursiveDataProvider
      *
