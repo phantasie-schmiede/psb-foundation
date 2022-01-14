@@ -70,9 +70,9 @@ class Inline extends AbstractTcaFieldAnnotation
     protected ?string $linkedModel = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    protected int $maxItems = 99;
+    protected ?int $maxItems = null;
 
     /**
      * name of the mm-table
@@ -112,10 +112,6 @@ class Inline extends AbstractTcaFieldAnnotation
      */
     public function getForeignField(): string
     {
-        if (null === $this->tcaService) {
-            return $this->foreignField;
-        }
-
         return $this->tcaService->convertPropertyNameToColumnName($this->foreignField);
     }
 
@@ -174,23 +170,23 @@ class Inline extends AbstractTcaFieldAnnotation
     {
         $this->linkedModel = $linkedModel;
 
-        if (null !== $this->tcaService && class_exists($linkedModel)) {
+        if (class_exists($linkedModel)) {
             $this->setForeignTable($this->tcaService->convertClassNameToTableName($linkedModel));
         }
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getMaxItems(): int
+    public function getMaxItems(): ?int
     {
         return $this->maxItems;
     }
 
     /**
-     * @param int $maxItems
+     * @param int|null $maxItems
      */
-    public function setMaxItems(int $maxItems): void
+    public function setMaxItems(?int $maxItems): void
     {
         $this->maxItems = $maxItems;
     }

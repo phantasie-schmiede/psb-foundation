@@ -60,6 +60,16 @@ class StringUtility
     }
 
     /**
+     * @param string $variable
+     *
+     * @return float
+     */
+    public static function convertToFloat(string $variable): float
+    {
+        return (float)str_replace(',', '.', $variable);
+    }
+
+    /**
      * @param string|null $variable
      * @param bool        $convertEmptyStringToNull
      * @param array       $namespaces
