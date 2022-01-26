@@ -16,7 +16,10 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\TypoScript;
 
+use InvalidArgumentException;
+use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class PageObjectConfiguration
@@ -25,16 +28,14 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
  */
 class PageObjectConfiguration
 {
-    public const CONTENT_TYPE_HTML = 'text/html';
-    public const CONTENT_TYPE_JSON = 'application/json';
-    public const CONTENT_TYPE_XML = 'text/xml';
-
     public const CONTENT_TYPES = [
         'HTML' => self::CONTENT_TYPE_HTML,
         'JSON' => self::CONTENT_TYPE_JSON,
         'XML'  => self::CONTENT_TYPE_XML,
     ];
-
+    public const CONTENT_TYPE_HTML = 'text/html';
+    public const CONTENT_TYPE_JSON = 'application/json';
+    public const CONTENT_TYPE_XML  = 'text/xml';
     /**
      * @var string
      */
@@ -150,13 +151,30 @@ class PageObjectConfiguration
     }
 
     /**
-     * @param string $controller
+     * This setter converts the class name to the controller identifier within its extension.
+     * (removing the Vendor\ExtensionName\Controller\-part from the beginning and the 'Controller'-suffix from the end)
+     *
+     * @param string $controllerClassName the full qualified class name of a controller
      *
      * @return $this
      */
-    public function setController(string $controller): self
+    public function setController(string $controllerClassName): self
     {
-        $this->controller = $controller;
+        if (!StringUtility::endsWith($controllerClassName, 'Controller')) {
+            throw new InvalidArgumentException(__CLASS__ . ': ' . $controllerClassName . ' does not meet the conventions for controller class names!',
+                1560233166);
+        }
+
+        $classNameParts = GeneralUtility::trimExplode('\\', $controllerClassName, true);
+
+        if (4 > count($classNameParts)) {
+            throw new InvalidArgumentException(__CLASS__ . ': ' . $controllerClassName . ' is not a full qualified (namespaced) class name!',
+                1560233275);
+        }
+
+        $controllerNameParts = array_slice($classNameParts, 3);
+        $fullControllerName = implode('\\', $controllerNameParts);
+        $this->controller = substr($fullControllerName, 0, -10);
 
         return $this;
     }

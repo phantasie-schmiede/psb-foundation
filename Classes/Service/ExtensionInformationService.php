@@ -24,7 +24,7 @@ use PSB\PsbFoundation\Traits\PropertyInjection\PackageManagerTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
-use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -41,32 +41,6 @@ class ExtensionInformationService
      * @var ExtensionInformationInterface[]
      */
     protected array $extensionInformationInstances = [];
-
-    /**
-     * @param string $className
-     *
-     * @return string The controller name (without the 'Controller'-part at the end) or respectively the name of the
-     *                related domain model
-     */
-    public function convertControllerClassToBaseName(string $className): string
-    {
-        $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
-
-        if (4 > count($classNameParts)) {
-            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-                1560233275);
-        }
-
-        $controllerNameParts = array_slice($classNameParts, 3);
-        $fullControllerName = implode('\\', $controllerNameParts);
-
-        if (!StringUtility::endsWith($fullControllerName, 'Controller')) {
-            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a controller class!',
-                1560233166);
-        }
-
-        return substr($fullControllerName, 0, -10);
-    }
 
     /**
      * @param string $className
@@ -116,8 +90,8 @@ class ExtensionInformationService
     /**
      * This function is called once and very early in ext_localconf.php. It scans all active packages and checks if
      * there is an ExtensionInformation-class. If so, an instance is created and stored for upcoming usages. The order
-     * of the stored instances respects the dependency as resolved by the PackageManager. This register is used for a
-     * series of automated tasks like TCA-generation, icon registration and plugin configuration.
+     * of the stored instances respects their dependencies as resolved by the PackageManager. This register is used for
+     * a series of automated tasks like TCA-generation, icon registration and plugin configuration.
      *
      * @return void
      * @throws ImplementationException
@@ -155,6 +129,9 @@ class ExtensionInformationService
     }
 
     /**
+     * Additional wrapper function to access specific settings defined in ext_conf_template.txt of an extension more
+     * easily.
+     *
      * @param ExtensionInformationInterface $extensionInformation
      * @param string                        $path
      *
@@ -186,29 +163,27 @@ class ExtensionInformationService
     }
 
     /**
-     * @param string $extensionKey
+     * @param ExtensionInformationInterface $extensionInformation
      *
      * @return string
+     * @throws UnknownPackageException
      */
-    public function getLanguageFilePath(string $extensionKey): string
+    public function getLanguageFilePath(ExtensionInformationInterface $extensionInformation): string
     {
-        return $this->getResourcePath($extensionKey) . 'Private/Language/';
+        return $this->getResourcePath($extensionInformation) . 'Private/Language/';
     }
 
     /**
-     * @param string $extensionKey
+     * @param ExtensionInformationInterface $extensionInformation
      *
      * @return string
+     * @throws UnknownPackageException
      */
-    public function getResourcePath(string $extensionKey): string
+    public function getResourcePath(ExtensionInformationInterface $extensionInformation): string
     {
-        $subDirectoryPath = '/' . $extensionKey . '/Resources/';
-        $resourcePath = Environment::getExtensionsPath() . $subDirectoryPath;
+        $subDirectoryPath = '/' . $extensionInformation->getExtensionKey() . '/Resources/';
 
-        if (is_dir($resourcePath)) {
-            return $resourcePath;
-        }
-
-        return Environment::getFrameworkBasePath() . $subDirectoryPath;
+        return $this->packageManager->getPackage($extensionInformation->getExtensionKey())
+                ->getPackagePath() . $subDirectoryPath;
     }
 }

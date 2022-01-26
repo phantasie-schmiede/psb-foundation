@@ -319,13 +319,7 @@ class TypoScriptUtility
      */
     private static function createIndentation(int $indentationLevel): string
     {
-        $indentation = '';
-
-        for ($i = 0; $i < $indentationLevel; $i++) {
-            $indentation .= self::INDENTATION;
-        }
-
-        return $indentation;
+        return str_repeat(self::INDENTATION, $indentationLevel);
     }
 
     /**

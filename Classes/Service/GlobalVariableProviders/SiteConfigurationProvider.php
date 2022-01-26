@@ -18,6 +18,8 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 use PSB\PsbFoundation\Traits\PropertyInjection\SiteFinderTrait;
 use PSB\PsbFoundation\Utility\ValidationUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\Entity\Site;
 
@@ -32,6 +34,8 @@ class SiteConfigurationProvider extends AbstractProvider
 
     /**
      * @return Site
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      * @throws SiteNotFoundException
      */
     public function getGlobalVariables(): Site

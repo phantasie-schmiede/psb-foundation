@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 
@@ -45,13 +44,17 @@ class Select extends AbstractTcaFieldAnnotation
         'SELECT_TREE'                  => self::RENDER_TYPE_SELECT_TREE,
     ];
 
-    // @TODO: Are these necessary?!
+    /*
+     * Necessary for access in phpDoc-annotations.
+     * @TODO: Can be removed when switching to php-attributes in php 8.
+     */
     public const RENDER_TYPE_SELECT_CHECK_BOX             = 'selectCheckBox';
     public const RENDER_TYPE_SELECT_MULTIPLE_SIDE_BY_SIDE = 'selectMultipleSideBySide';
     public const RENDER_TYPE_SELECT_SINGLE                = 'selectSingle';
     public const RENDER_TYPE_SELECT_SINGLE_BOX            = 'selectSingleBox';
     public const RENDER_TYPE_SELECT_TREE                  = 'selectTree';
-    public const TYPE                                     = TcaFields::TYPES['SELECT'];
+
+    public const TYPE = self::TYPES['SELECT'];
 
     /**
      * @var bool
@@ -139,22 +142,6 @@ class Select extends AbstractTcaFieldAnnotation
      * @var int
      */
     protected int $size = 1;
-
-    /**
-     * @return bool
-     */
-    public function isAllowNonIdValues(): bool
-    {
-        return $this->allowNonIdValues;
-    }
-
-    /**
-     * @param bool $allowNonIdValues
-     */
-    public function setAllowNonIdValues(bool $allowNonIdValues): void
-    {
-        $this->allowNonIdValues = $allowNonIdValues;
-    }
 
     /**
      * @param array $prependItem
@@ -362,6 +349,22 @@ class Select extends AbstractTcaFieldAnnotation
     public function setSize(int $size): void
     {
         $this->size = $size;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAllowNonIdValues(): bool
+    {
+        return $this->allowNonIdValues;
+    }
+
+    /**
+     * @param bool $allowNonIdValues
+     */
+    public function setAllowNonIdValues(bool $allowNonIdValues): void
+    {
+        $this->allowNonIdValues = $allowNonIdValues;
     }
 
     /**

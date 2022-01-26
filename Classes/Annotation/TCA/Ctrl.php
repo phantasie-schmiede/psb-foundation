@@ -47,16 +47,6 @@ class Ctrl extends AbstractAnnotation
     protected ?string $defaultSortBy = 'uid DESC';
 
     /**
-     * If set to true, \PSB\PsbFoundation\ViewHelpers\Form\BuildFromTcaViewHelper can be used for this domain model.
-     * This accounts for all properties annotated with \PSB\PsbFoundation\Annotation\TCA\*. In
-     * order to activate this feature only for certain properties, see AbstractTcaFieldAnnotation.
-     *
-     * @var bool
-     * @see AbstractTcaFieldAnnotation
-     */
-    protected bool $editableInFrontend = false;
-
-    /**
      * @var bool
      */
     protected bool $hideTable = false;
@@ -264,22 +254,6 @@ class Ctrl extends AbstractAnnotation
     {
         $this->setDefaultSortBy(null);
         $this->sortBy = $sortBy;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEditableInFrontend(): bool
-    {
-        return $this->editableInFrontend;
-    }
-
-    /**
-     * @param bool $editableInFrontend
-     */
-    public function setEditableInFrontend(bool $editableInFrontend): void
-    {
-        $this->editableInFrontend = $editableInFrontend;
     }
 
     /**

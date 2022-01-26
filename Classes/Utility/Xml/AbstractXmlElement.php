@@ -37,7 +37,7 @@ class AbstractXmlElement implements XmlElementInterface
     protected array $_attributes = [];
 
     /**
-     * @var array Should be of type mixed, but Extbase throws an error in that case. Thus we have to use this
+     * @var array Should be of type mixed, but Extbase throws an error in that case. Thus, we have to use this
      *            workaround.
      */
     protected array $_nodeValue = [];

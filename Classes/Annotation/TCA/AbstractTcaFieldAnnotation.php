@@ -28,27 +28,39 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnotationInterface
+abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnotationInterface
 {
     // Override this constant in extending classes!
     public const  TYPE = '';
 
     public const TYPE_LIST_NONE = 'none';
 
+    public const TYPES = [
+        'CHECKBOX'    => 'check',
+        'DATE'        => 'input',
+        'DATETIME'    => 'input',
+        'DOCUMENT'    => 'document',
+        'FILE'        => 'file',
+        'FLOAT'       => 'input',
+        'GROUP'       => 'group',
+        'IMAGE'       => 'image',
+        'INLINE'      => 'inline',
+        'INPUT'       => 'input',
+        'INTEGER'     => 'input',
+        'LINK'        => 'input',
+        'MM'          => 'select',
+        'PASSTHROUGH' => 'passthrough',
+        'SELECT'      => 'select',
+        'SLUG'        => 'slug',
+        'TEXT'        => 'text',
+        'TIME'        => 'input',
+        'USER'        => 'user',
+    ];
+
     /**
      * @var array|string|null
      */
     protected $displayCond;
-
-    /**
-     * If set to true, \PSB\PsbFoundation\ViewHelpers\Form\BuildFromTcaViewHelper can be used for this domain model.
-     * This accounts only for this property. In order to activate this feature for all properties of this model, see
-     * Ctrl annotation.
-     *
-     * @var bool
-     * @see Ctrl
-     */
-    protected ?bool $editableInFrontend = null;
 
     /**
      * @var bool
@@ -247,22 +259,6 @@ class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnota
     public function setTypeList(?string $typeList): void
     {
         $this->typeList = $typeList;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function isEditableInFrontend(): ?bool
-    {
-        return $this->editableInFrontend;
-    }
-
-    /**
-     * @param bool $editableInFrontend
-     */
-    public function setEditableInFrontend(bool $editableInFrontend): void
-    {
-        $this->editableInFrontend = $editableInFrontend;
     }
 
     /**

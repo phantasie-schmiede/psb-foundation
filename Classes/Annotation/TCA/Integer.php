@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
-
 /**
  * Class Integer
  *
@@ -26,7 +24,7 @@ use PSB\PsbFoundation\Library\TcaFields;
  */
 class Integer extends Input
 {
-    public const TYPE = TcaFields::TYPES['INTEGER'];
+    public const TYPE = self::TYPES['INTEGER'];
 
     /**
      * @var string

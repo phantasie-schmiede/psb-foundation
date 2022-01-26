@@ -34,11 +34,6 @@ class ModuleAction extends AbstractAnnotation
     protected bool $default = false;
 
     /**
-     * @var bool
-     */
-    protected bool $doNotRender = false;
-
-    /**
      * @return bool
      */
     public function isDefault(): bool
@@ -52,21 +47,5 @@ class ModuleAction extends AbstractAnnotation
     public function setDefault(bool $default): void
     {
         $this->default = $default;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDoNotRender(): bool
-    {
-        return $this->doNotRender;
-    }
-
-    /**
-     * @param bool $doNotRender
-     */
-    public function setDoNotRender(bool $doNotRender): void
-    {
-        $this->doNotRender = $doNotRender;
     }
 }

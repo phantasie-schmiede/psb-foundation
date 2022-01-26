@@ -35,6 +35,9 @@ class ObjectService
     use ConnectionPoolTrait;
 
     /**
+     * If you have a select field in TCA with 'multiple' set to true, Extbase still returns each selected record only
+     * once. This method returns the whole selected set sorted as in backend.
+     *
      * @param AbstractDomainObject $object
      * @param string               $property
      *

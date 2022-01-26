@@ -18,6 +18,8 @@ namespace PSB\PsbFoundation\Utility;
 
 use PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider;
 use PSB\PsbFoundation\Service\GlobalVariableService;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Http\ApplicationType;
@@ -89,6 +91,8 @@ class ContextUtility
 
     /**
      * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public static function isBootProcessRunning(): bool
     {
@@ -105,10 +109,12 @@ class ContextUtility
 
     /**
      * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public static function isTypoScriptAvailable(): bool
     {
-        if (null !== $GLOBALS['TSFE'] && isset($GLOBALS['TSFE']) && self::isFrontend()) {
+        if (null !== $GLOBALS['TSFE'] && self::isFrontend()) {
             return true;
         }
 

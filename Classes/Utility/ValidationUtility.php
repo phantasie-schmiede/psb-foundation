@@ -17,6 +17,8 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility;
 
 use InvalidArgumentException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 
 /**
@@ -86,6 +88,11 @@ class ValidationUtility
         }
     }
 
+    /**
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public static function requiresTypoScriptLoaded(): void
     {
         if (!ContextUtility::isTypoScriptAvailable()) {

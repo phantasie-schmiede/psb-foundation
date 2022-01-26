@@ -39,7 +39,7 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExis
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception as ObjectException;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 
@@ -92,9 +92,9 @@ class TcaService
 
     /**
      * This function will be executed when the core builds the TCA, but as it does not return an array there will be no
-     * entry for the required file. Instead this function expands the TCA on its own by scanning through the domain
+     * entry for the required file, instead this function expands the TCA on its own by scanning through the domain
      * models of all registered extensions (extensions which provide an ExtensionInformation class, see
-     * \PSB\PsbFoundation\Data\AbstractExtensionInformation).
+     * \PSB\PsbFoundation\Data\ExtensionInformationInterface).
      * Transient domain models (those without a corresponding table in the database) will be skipped.
      *
      * @param bool $overrideMode If set to false, the configuration of all original domain models (not extending other
@@ -103,9 +103,9 @@ class TcaService
      *
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws MisconfiguredTcaException
-     * @throws ObjectException
      * @throws ReflectionException
      */
     public function buildTca(bool $overrideMode): void
@@ -231,9 +231,9 @@ class TcaService
      *
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws MisconfiguredTcaException
-     * @throws ObjectException
      * @throws ReflectionException
      */
     protected function buildFromDocComment(string $className, bool $overrideMode, string $tableName): void
@@ -249,7 +249,6 @@ class TcaService
             return;
         }
 
-        $editableInFrontend = (null !== $ctrl && true === $ctrl->isEditableInFrontend());
         $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName($className)['extensionKey'];
         $defaultLabelPath = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/';
 
@@ -267,10 +266,6 @@ class TcaService
 
             foreach ($docComment as $annotation) {
                 if ($annotation instanceof TcaAnnotationInterface) {
-                    if (true === $editableInFrontend && false !== $annotation->isEditableInFrontend()) {
-                        $annotation->setEditableInFrontend(true);
-                    }
-
                     $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
                     if ('' === $annotation->getLabel()) {
@@ -475,7 +470,7 @@ class TcaService
                 ],
                 'sys_language_uid' => [
                     'config'  => [
-                        'type'       => 'language',
+                        'type' => 'language',
                     ],
                     'exclude' => true,
                     'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
@@ -491,8 +486,8 @@ class TcaService
      * @return array
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
-     * @throws ObjectException
      */
     protected function processSelectItemsArray(array $items, string $labelPath): array
     {

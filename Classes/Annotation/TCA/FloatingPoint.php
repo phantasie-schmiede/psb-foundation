@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
-
 /**
  * Class FloatingPoint
  *
@@ -26,7 +24,7 @@ use PSB\PsbFoundation\Library\TcaFields;
  */
 class FloatingPoint extends Input
 {
-    public const TYPE = TcaFields::TYPES['FLOAT'];
+    public const TYPE = self::TYPES['FLOAT'];
 
     /**
      * @var string

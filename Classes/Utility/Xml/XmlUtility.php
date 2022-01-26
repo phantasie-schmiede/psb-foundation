@@ -22,7 +22,7 @@ use RuntimeException;
 use SimpleXMLElement;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
  * Class XmlUtility
@@ -40,30 +40,12 @@ class XmlUtility
     ];
 
     /**
-     * @param array  $array
-     * @param string $path
-     * @param bool   $strict
-     *
-     * @return mixed
-     */
-    public static function getNodeValue(array $array, string $path, bool $strict = true)
-    {
-        $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
-
-        if (false === $strict && !ArrayUtility::isValidPath($array, $path, '.')) {
-            return null;
-        }
-
-        return ArrayUtility::getValueByPath($array, $path, '.');
-    }
-
-    /**
      * @param SimpleXMLElement|string $xml
      * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
      * @param array                   $mapping
      *
      * @return array|object
-     * @throws Exception
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public static function convertFromXml($xml, bool $sortAlphabetically = false, array $mapping = [])
@@ -143,6 +125,24 @@ class XmlUtility
      * @param array  $array
      * @param string $path
      * @param bool   $strict
+     *
+     * @return mixed
+     */
+    public static function getNodeValue(array $array, string $path, bool $strict = true)
+    {
+        $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
+
+        if (false === $strict && !ArrayUtility::isValidPath($array, $path, '.')) {
+            return null;
+        }
+
+        return ArrayUtility::getValueByPath($array, $path, '.');
+    }
+
+    /**
+     * @param array  $array
+     * @param string $path
+     * @param bool   $strict
      */
     public static function removeNode(array &$array, string $path, bool $strict = false): void
     {
@@ -181,7 +181,7 @@ class XmlUtility
      * @param bool                    $rootLevel This is an internal parameter only to be set from within this function.
      *
      * @return array|object|string
-     * @throws Exception
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     private static function buildFromXml(bool $sortAlphabetically, $xml, array $mapping, bool $rootLevel = true)
@@ -281,22 +281,20 @@ class XmlUtility
             $linebreak = '';
         }
 
-        if (is_string($key)) {
-            $xml .= $indentation . '<' . $key;
+        $xml .= $indentation . '<' . $key;
 
-            if (is_array($value) && isset($value[self::SPECIAL_KEYS['ATTRIBUTES']]) && is_array($value[self::SPECIAL_KEYS['ATTRIBUTES']])) {
-                foreach ($value[self::SPECIAL_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
-                    $xml .= ' ' . $attributeName . '="' . $attributeValue . '"';
-                }
-
-                unset($value[self::SPECIAL_KEYS['ATTRIBUTES']]);
+        if (is_array($value) && isset($value[self::SPECIAL_KEYS['ATTRIBUTES']]) && is_array($value[self::SPECIAL_KEYS['ATTRIBUTES']])) {
+            foreach ($value[self::SPECIAL_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
+                $xml .= ' ' . $attributeName . '="' . $attributeValue . '"';
             }
 
-            $xml .= '>';
+            unset($value[self::SPECIAL_KEYS['ATTRIBUTES']]);
+        }
 
-            if (is_array($value) && isset($value[self::SPECIAL_KEYS['NODE_VALUE']])) {
-                $value = $value[self::SPECIAL_KEYS['NODE_VALUE']];
-            }
+        $xml .= '>';
+
+        if (is_array($value) && isset($value[self::SPECIAL_KEYS['NODE_VALUE']])) {
+            $value = $value[self::SPECIAL_KEYS['NODE_VALUE']];
         }
 
         if (is_array($value) || $value instanceof XmlElementInterface) {
@@ -305,13 +303,11 @@ class XmlUtility
             $xml .= $value;
         }
 
-        if (is_string($key)) {
-            if ('' === $value) {
-                $xml = rtrim($xml, '>');
-                $xml .= ' />' . $linebreak;
-            } else {
-                $xml .= '</' . $key . '>' . $linebreak;
-            }
+        if ('' === $value) {
+            $xml = rtrim($xml, '>');
+            $xml .= ' />' . $linebreak;
+        } else {
+            $xml .= '</' . $key . '>' . $linebreak;
         }
 
         return $xml;
@@ -324,22 +320,17 @@ class XmlUtility
      */
     private static function createIndentation(int $indentationLevel): string
     {
-        $indentation = '';
-
-        for ($i = 0; $i < $indentationLevel; $i++) {
-            $indentation .= self::INDENTATION;
-        }
-
-        return $indentation;
+        return str_repeat(self::INDENTATION, $indentationLevel);
     }
 
     /**
      * @param SimpleXMLElement $node
      *
-     * @return array|bool|float|int|string|null
+     * @return array
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
-    private static function parseTextNode(SimpleXMLElement $node)
+    private static function parseTextNode(SimpleXMLElement $node): array
     {
         if (count($node->attributes())) {
             foreach ($node->attributes() as $attributeName => $value) {

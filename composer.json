@@ -39,6 +39,7 @@
 	"license": "GPL-2.0-or-later",
 	"name": "psb/psb-foundation",
 	"require": {
+		"ext-simplexml": "*",
 		"php": "^7.4",
 		"typo3/cms-core": "^11.5"
 	},

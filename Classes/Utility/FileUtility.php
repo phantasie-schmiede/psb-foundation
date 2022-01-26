@@ -55,9 +55,9 @@ class FileUtility
     }
 
     /**
-     * Convert file size to a human readable string
+     * Convert file size to a human-readable string.
      *
-     * To enforce a specific unit use a value of FILE_SIZE_UNITS as second parameter
+     * To enforce a specific unit use a value of FILE_SIZE_UNITS as second parameter.
      *
      * @param int|string $input You can pass either the filesize or the filename.
      * @param int|null   $unit

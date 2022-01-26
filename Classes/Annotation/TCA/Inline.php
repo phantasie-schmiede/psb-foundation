@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 
 /**
@@ -29,7 +28,7 @@ class Inline extends AbstractTcaFieldAnnotation
 {
     use ExtensionInformationServiceTrait;
 
-    public const TYPE = TcaFields::TYPES['INLINE'];
+    public const TYPE = self::TYPES['INLINE'];
 
     /**
      * @var array

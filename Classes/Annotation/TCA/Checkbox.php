@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
-
 /**
  * Class Checkbox
  *
@@ -32,7 +30,7 @@ class Checkbox extends AbstractTcaFieldAnnotation
         'DEFAULT'                 => 'default',
     ];
 
-    public const TYPE = TcaFields::TYPES['CHECKBOX'];
+    public const TYPE = self::TYPES['CHECKBOX'];
 
     /**
      * @var int

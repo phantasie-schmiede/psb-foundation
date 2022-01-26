@@ -22,6 +22,8 @@ use PSB\PsbFoundation\Traits\PropertyInjection\ConfigurationManagerTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\TypoScriptServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
@@ -36,6 +38,10 @@ class TypoScriptProviderService
 {
     use ConfigurationManagerTrait, TypoScriptServiceTrait;
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function __construct()
     {
         ValidationUtility::requiresTypoScriptLoaded();
@@ -61,7 +67,13 @@ class TypoScriptProviderService
     }
 
     /**
-     * @param string|null $path
+     * Wrapper function for the ConfigurationManager.
+     *
+     * This function returns the requested part of the TypoScript with converted value types. Unset constants are
+     * replaced with NULL. By default, the whole TypoScript is taken into account. Example:
+     * $this->typoScriptProviderService->get('config.headerComment');
+     *
+     * @param string|null $path concatenate path segments by '.'
      * @param string      $configurationType
      * @param string|null $extensionName
      * @param string|null $pluginName
@@ -82,7 +94,7 @@ class TypoScriptProviderService
         array_walk_recursive($typoScript, static function (&$item) {
             if (is_string($item)) {
                 // if constants are not set
-                if (0 === mb_strpos($item, '{$')) {
+                if (StringUtility::beginsWith($item, '{$')) {
                     $item = null;
                 } else {
                     $item = StringUtility::convertString($item);

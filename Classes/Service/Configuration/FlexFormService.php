@@ -28,9 +28,10 @@ class FlexFormService
     public const ALL_PLUGINS = '*';
 
     /**
-     * @param string $xml Pass the raw XML-data, not the file path!
-     * @param string $pluginSignature '*' if you add a FlexForm for a content element, otherwise: '[extensionkey]_[pluginname]'
-     * @param string $cType
+     * @param string $xml             Pass the raw XML-data, not the file path!
+     * @param string $pluginSignature '*' if you add a FlexForm for a content element, otherwise:
+     *                                '[extensionkey]_[pluginname]'
+     * @param string $cType           Plugins use the default value ('list').
      *
      * @return void
      */
@@ -43,7 +44,6 @@ class FlexFormService
 
         ExtensionManagementUtility::addPiFlexFormValue(
             $pluginSignature,
-            // Flexform configuration schema file
             $xml,
             $cType
         );

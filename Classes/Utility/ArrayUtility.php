@@ -38,7 +38,7 @@ class ArrayUtility
             if (is_array($element)) {
                 $count += self::countRecursive($element);
             } else {
-                $count ++;
+                $count++;
             }
         }
 
@@ -73,8 +73,6 @@ class ArrayUtility
         bool $returnIndex = false,
         bool $searchForSubstring = false
     ) {
-        $result = false;
-
         foreach ($haystack as $key => $value) {
             if ($value === $needle || (true === $searchForSubstring && is_string($value) && false !== strpos($value,
                         $needle))) {
@@ -90,7 +88,7 @@ class ArrayUtility
             }
         }
 
-        return $result;
+        return false;
     }
 
     /**
@@ -114,6 +112,8 @@ class ArrayUtility
     }
 
     /**
+     * This function shuffles associative arrays and those with integer keys - even multidimensional ones if desired.
+     *
      * @param array $array
      * @param bool  $recursive
      */

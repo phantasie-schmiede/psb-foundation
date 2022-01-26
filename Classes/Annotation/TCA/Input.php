@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
-
 /**
  * Class Input
  *
@@ -26,7 +24,7 @@ use PSB\PsbFoundation\Library\TcaFields;
  */
 class Input extends AbstractTcaFieldAnnotation
 {
-    public const TYPE = TcaFields::TYPES['INPUT'];
+    public const TYPE = self::TYPES['INPUT'];
 
     /**
      * @var int|string|null

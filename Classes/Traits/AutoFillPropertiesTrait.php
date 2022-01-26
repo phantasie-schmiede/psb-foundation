@@ -45,10 +45,6 @@ trait AutoFillPropertiesTrait
             if ($reflectionClass->hasMethod($setterMethodName)) {
                 $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $setterMethodName);
                 $reflectionMethod->invoke($this, $value);
-            } elseif (!StringUtility::beginsWith($property, '@')) {
-                // Show missing getter-methods.
-//                \TYPO3\CMS\Core\Utility\DebugUtility::debug($property, get_class($this));
-//                \TYPO3\CMS\Core\Utility\DebugUtility::debug($properties, get_class($this));
             }
         }
     }

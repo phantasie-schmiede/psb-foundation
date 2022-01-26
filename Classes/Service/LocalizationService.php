@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExis
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\Exception;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use function array_slice;
 
@@ -47,8 +47,8 @@ class LocalizationService
     public function logMissingTranslations(string $key, bool $keyExists): void
     {
         if (true === (bool)GeneralUtility::makeInstance(ExtensionInformationService::class)
-            ->getConfiguration(GeneralUtility::makeInstance(ExtensionInformation::class),
-                'debug.logMissingTranslations')) {
+                ->getConfiguration(GeneralUtility::makeInstance(ExtensionInformation::class),
+                    'debug.logMissingTranslations')) {
             $connection = GeneralUtility::makeInstance(ConnectionPool::class)
                 ->getConnectionForTable(self::MISSING_TRANSLATIONS_TABLE);
 
@@ -155,9 +155,9 @@ class LocalizationService
      * @param bool   $logMissingTranslation
      *
      * @return bool
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public function translationExists(string $key, bool $logMissingTranslation = true): bool
@@ -166,8 +166,6 @@ class LocalizationService
 
         if ('LLL' === $keyParts[0]) {
             unset($keyParts[0]);
-        } else {
-            // @TODO: generate warning
         }
 
         $id = array_pop($keyParts);
@@ -178,8 +176,8 @@ class LocalizationService
             $xmlData = XmlUtility::convertFromXml(file_get_contents($languageFilePath));
 
             if (isset($xmlData['xliff']['file']['body']['trans-unit'])) {
+                // If file contains only one label, an additional array level has to be added for the following foreach.
                 if (ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
-                    // If file contains only one label, an additional array level has to be added for the following foreach.
                     $xmlData['xliff']['file']['body']['trans-unit'] = [$xmlData['xliff']['file']['body']['trans-unit']];
                 }
 

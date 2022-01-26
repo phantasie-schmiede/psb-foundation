@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
-
 /**
  * Class DateTime
  *
@@ -26,7 +24,7 @@ use PSB\PsbFoundation\Library\TcaFields;
  */
 class DateTime extends Input
 {
-    public const TYPE = TcaFields::TYPES['DATETIME'];
+    public const TYPE = self::TYPES['DATETIME'];
 
     /**
      * @var string|null

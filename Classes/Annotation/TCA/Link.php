@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
-
 /**
  * Class Link
  *
@@ -26,7 +24,7 @@ use PSB\PsbFoundation\Library\TcaFields;
  */
 class Link extends Input
 {
-    public const TYPE = TcaFields::TYPES['LINK'];
+    public const TYPE = self::TYPES['LINK'];
 
     /**
      * @var string|null

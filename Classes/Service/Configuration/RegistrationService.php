@@ -32,21 +32,19 @@ use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Traits\PropertyInjection\FlexFormServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\IconRegistryTrait;
-use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use ReflectionClass;
-use RuntimeException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Extbase\Object\Exception;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
 /**
@@ -92,9 +90,9 @@ class RegistrationService
      * @param string      $pluginName
      * @param string|null $iconIdentifier
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public function addPluginToElementWizard(
@@ -135,67 +133,11 @@ class RegistrationService
     /**
      * For use in ext_localconf.php files
      *
-     * @param string      $contentType
-     * @param string      $extensionKey
-     * @param string      $group
-     * @param string|null $iconIdentifier
-     * @param string|null $templatePath
-     *
-     * @throws Exception
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws JsonException
-     */
-    public function configureContentType(
-        string $contentType,
-        string $extensionKey,
-        string $group,
-        string $iconIdentifier = null,
-        string $templatePath = null
-    ): void {
-        $internalContentType = $this->buildContentTypeKey($extensionKey, $contentType);
-        $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . $contentType;
-
-        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
-        $localizationService->translationExists($ll . '.description');
-        $localizationService->translationExists($ll . '.title');
-
-        $configuration = [
-            'description'          => $ll . '.description',
-            'iconIdentifier'       => $iconIdentifier ?? $contentType,
-            'title'                => $ll . '.title',
-            'tt_content_defValues' => [
-                'CType' => $internalContentType,
-            ],
-        ];
-
-        $this->addElementWizardItem($configuration, $extensionKey, $group, $internalContentType);
-
-        $directory = 'EXT:' . $extensionKey . '/Resources/Private/Templates/Content/';
-        $fileName = GeneralUtility::underscoredToUpperCamelCase($contentType) . '.html';
-        $previewTemplate = GeneralUtility::getFileAbsFileName($directory . 'Preview/' . $fileName);
-
-        if (is_file($previewTemplate)) {
-            $pageTS['mod']['web_layout']['tt_content']['preview'][$internalContentType] = $previewTemplate;
-            ExtensionManagementUtility::addPageTSConfig(TypoScriptUtility::convertArrayToTypoScript($pageTS));
-        }
-
-        $typoScript['tt_content'][$internalContentType] = [
-            TypoScriptUtility::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'FLUIDTEMPLATE',
-            'file'                                             => $templatePath ?? $directory . $fileName,
-        ];
-
-        ExtensionManagementUtility::addTypoScriptSetup(TypoScriptUtility::convertArrayToTypoScript($typoScript));
-    }
-
-    /**
-     * For use in ext_localconf.php files
-     *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public function configurePlugins(ExtensionInformationInterface $extensionInformation): void
@@ -234,165 +176,13 @@ class RegistrationService
     }
 
     /**
-     * For use in Configuration/TCA/Overrides/tt_content.php files
-     *
-     * @param string      $extensionKey
-     * @param string      $group
-     * @param string      $key
-     * @param string      $position Format is "position:key". Possible values for position are after, before and in.
-     *                              Example: "before:text"
-     * @param string|null $iconIdentifier
-     * @param string|null $title
-     *
-     * @throws Exception
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws JsonException
-     */
-    public function registerContentType(
-        string $extensionKey,
-        string $group,
-        string $key,
-        string $position,
-        string $iconIdentifier = null,
-        string $title = null
-    ): void {
-        if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'])) {
-            throw new RuntimeException(__CLASS__ . ': TCA is not available yet!', 1553261710);
-        }
-
-        $internalKey = $this->buildContentTypeKey($extensionKey, $key);
-        $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
-
-        if (null === $title) {
-            $title = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
-            $localizationService->translationExists($title);
-        }
-
-        ExtensionManagementUtility::addPlugin(
-            [
-                $title,
-                $internalKey,
-                $iconIdentifier ?? $key,
-            ],
-            'CType',
-            $extensionKey
-        );
-
-        $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$internalKey] = $iconIdentifier ?? $key;
-
-        $activeGroup = 'standard';
-        $contentTypeGroups = [];
-        $groupLabels = [];
-        $newContentTypeConfiguration = [];
-
-        foreach ($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] as $contentTypeConfiguration) {
-            switch ($contentTypeConfiguration[1]) {
-                case '--div--':
-                    $labelParts = explode('.', $contentTypeConfiguration[0]);
-                    $activeGroup = array_pop($labelParts);
-                    $groupLabels[$activeGroup] = $contentTypeConfiguration[0];
-                    break;
-                case $internalKey:
-                    $newContentTypeConfiguration = $contentTypeConfiguration;
-                    break;
-                default:
-                    $contentTypeGroups[$activeGroup][] = $contentTypeConfiguration;
-            }
-        }
-
-        [$operator, $target] = explode(':', $position);
-
-        if ('in' === $operator) {
-            $contentTypeGroups[$target][] = $newContentTypeConfiguration;
-        } else {
-            [$group, $index] = explode('.',
-                array_search($target, Typo3CoreArrayUtility::flatten($contentTypeGroups), true));
-
-            if ('after' === $operator) {
-                $index++;
-            }
-
-            $contentTypeGroups[$group] = ArrayUtility::insertIntoArray($contentTypeGroups[$group],
-                [$newContentTypeConfiguration], $index);
-        }
-
-        $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'] = [];
-
-        foreach ($contentTypeGroups as $groupKey => $groupElements) {
-            if (isset($groupLabels[$groupKey]) && !empty($groupLabels[$groupKey])) {
-                $groupKey = $groupLabels[$groupKey];
-            } else {
-                $groupKey = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $groupKey . '.header';
-                $localizationService->translationExists($groupKey);
-            }
-
-            $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'][] = [
-                $groupKey,
-                '--div--',
-            ];
-
-            array_push($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'], ...$groupElements);
-        }
-
-        $file = GeneralUtility::getFileAbsFileName('EXT:' . $extensionKey . '/Configuration/TCA/Content/' . $key . '.php');
-
-        if (is_file($file)) {
-            /** @noinspection PhpIncludeInspection */
-            $tcaOfContentType = require $file;
-
-            if (is_array($tcaOfContentType)) {
-                $coreFields = [];
-                $contentTypeFields = [];
-
-                foreach ($tcaOfContentType as $field => $configuration) {
-                    if (!isset($GLOBALS['TCA']['tt_content']['columns'][$field])) {
-                        $contentTypeCondition = 'FIELD:CType:=:' . $internalKey;
-                        if (isset($configuration['displayCond'])) {
-                            $configuration['displayCond'] = [
-                                'AND' => [
-                                    $contentTypeCondition,
-                                    $configuration['displayCond'],
-                                ],
-                            ];
-                        } else {
-                            $configuration['displayCond'] = $contentTypeCondition;
-                        }
-
-                        $GLOBALS['TCA']['tt_content']['columns'][$field] = $configuration;
-                        $contentTypeFields[] = $field;
-                    } else {
-                        $coreFields[] = $field;
-                    }
-                }
-
-                $elementTitle = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . $key . '.title';
-
-                $showItems = [
-                    '--palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:palette.general;general',
-                    implode(',', $coreFields ?? []),
-                    '--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:tabs.access',
-                    '--palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:palette.visibility;visibility',
-                    '--palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xml:palette.access;access',
-                    '--div--;' . $elementTitle,
-                    implode(',', $contentTypeFields ?? []),
-                ];
-
-                $GLOBALS['TCA']['tt_content']['types'][$internalKey] = [
-                    'showitem' => implode(',', $showItems),
-                ];
-            }
-        }
-    }
-
-    /**
      * For use in ext_tables.php files
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public function registerModules(ExtensionInformationInterface $extensionInformation): void
@@ -455,9 +245,9 @@ class RegistrationService
      * @param ExtensionInformationInterface $extensionInformation
      * @param string                        $mode
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public function registerPageTypes(ExtensionInformationInterface $extensionInformation, string $mode): void
@@ -485,9 +275,9 @@ class RegistrationService
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     public function registerPlugins(ExtensionInformationInterface $extensionInformation): void
@@ -550,9 +340,9 @@ class RegistrationService
      * @param string $extensionKey
      * @param string $key
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     private function addElementWizardGroup(string $extensionKey, string $key): void
@@ -574,9 +364,9 @@ class RegistrationService
      * @param string $group
      * @param string $key
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     private function addElementWizardItem(
@@ -618,9 +408,9 @@ class RegistrationService
      * @param string $iconIdentifier
      * @param string $name
      *
-     * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
     private function addPageTypeToPagesTca(
@@ -663,17 +453,6 @@ class RegistrationService
                 ],
             ]
         );
-    }
-
-    /**
-     * @param string $extensionKey
-     * @param string $contentType
-     *
-     * @return string
-     */
-    private function buildContentTypeKey(string $extensionKey, string $contentType): string
-    {
-        return mb_strtolower(str_replace('_', '', $extensionKey) . '_' . $contentType);
     }
 
     /**
@@ -755,8 +534,7 @@ class RegistrationService
                             $pageObjectConfiguration->setAction($actionName);
                             $pageObjectConfiguration->setCacheable($ajaxPageType->isCacheable());
                             $pageObjectConfiguration->setContentType($ajaxPageType->getContentType());
-                            $controllerName = $extensionInformationService->convertControllerClassToBaseName($controllerClassName);
-                            $pageObjectConfiguration->setController($controllerName);
+                            $pageObjectConfiguration->setController($controllerClassName);
                             $pageObjectConfiguration->setDisableAllHeaderCode($ajaxPageType->isDisableAllHeaderCode());
                             $pageObjectConfiguration->setExtensionName($extensionInformation['extensionName']);
                             $pageObjectConfiguration->setPluginName($pluginName);
@@ -765,7 +543,7 @@ class RegistrationService
                                 'ajax',
                                 $extensionInformation['vendorName'],
                                 $extensionInformation['extensionName'],
-                                $controllerName,
+                                $pageObjectConfiguration->getController(),
                                 $actionName,
                             ]));
                             $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);

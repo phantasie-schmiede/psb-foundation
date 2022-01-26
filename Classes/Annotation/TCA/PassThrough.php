@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
-
 /**
  * Class PassThrough
  *
@@ -26,5 +24,5 @@ use PSB\PsbFoundation\Library\TcaFields;
  */
 class PassThrough extends AbstractTcaFieldAnnotation
 {
-    public const TYPE = TcaFields::TYPES['PASSTHROUGH'];
+    public const TYPE = self::TYPES['PASSTHROUGH'];
 }

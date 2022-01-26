@@ -16,8 +16,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA;
 
-use PSB\PsbFoundation\Library\TcaFields;
-
 /**
  * Class Slug
  *
@@ -26,7 +24,7 @@ use PSB\PsbFoundation\Library\TcaFields;
  */
 class Slug extends AbstractTcaFieldAnnotation
 {
-    public const TYPE = TcaFields::TYPES['SLUG'];
+    public const TYPE = self::TYPES['SLUG'];
 
     /**
      * @var string

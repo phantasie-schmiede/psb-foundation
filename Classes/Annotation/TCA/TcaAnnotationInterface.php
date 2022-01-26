@@ -24,11 +24,6 @@ namespace PSB\PsbFoundation\Annotation\TCA;
 interface TcaAnnotationInterface
 {
     /**
-     * @param bool $editableInFrontend
-     */
-    public function setEditableInFrontend(bool $editableInFrontend): void;
-
-    /**
      * @param string $label
      */
     public function setLabel(string $label);
@@ -47,9 +42,4 @@ interface TcaAnnotationInterface
      * @return string
      */
     public function getType(): string;
-
-    /**
-     * @return bool|null
-     */
-    public function isEditableInFrontend(): ?bool;
 }
