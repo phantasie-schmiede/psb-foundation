@@ -17,10 +17,10 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Exception;
 use PSB\PsbFoundation\Annotation\TCA\Mm;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use ReflectionClass;
-use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
@@ -42,7 +42,7 @@ class ObjectService
      * @param string               $property
      *
      * @return array
-     * @throws ReflectionException
+     * @throws Exception
      */
     public function resolveMultipleMmRelation(AbstractDomainObject $object, string $property): array
     {

@@ -294,7 +294,9 @@ class TcaService
 
         if (!$overrideMode) {
             $GLOBALS['TCA'][$tableName] = $this->getDummyConfiguration($tableName);
-            $title = $defaultLabelPath . 'domain.model';
+
+            // default title may be overwritten by Ctrl-annotation in next block
+            $title = $defaultLabelPath . 'ctrl.title';
             $this->localizationService->translationExists($title);
             $GLOBALS['TCA'][$tableName]['ctrl']['title'] = $title;
         }

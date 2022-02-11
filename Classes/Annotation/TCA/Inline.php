@@ -47,6 +47,8 @@ class Inline extends AbstractTcaFieldAnnotation
     ];
 
     /**
+     * You can use the property name. It will be converted to the column name automatically.
+     *
      * @var string
      */
     protected string $foreignField = '';

@@ -35,7 +35,7 @@ use function array_slice;
  */
 class LocalizationService
 {
-    private const MISSING_TRANSLATIONS_TABLE = 'tx_psbfoundation_missing_translations';
+    private const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
 
     /**
      * @param string $key
@@ -44,21 +44,21 @@ class LocalizationService
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
-    public function logMissingTranslations(string $key, bool $keyExists): void
+    public function logMissingLanguageLabels(string $key, bool $keyExists): void
     {
         if (true === (bool)GeneralUtility::makeInstance(ExtensionInformationService::class)
                 ->getConfiguration(GeneralUtility::makeInstance(ExtensionInformation::class),
-                    'debug.logMissingTranslations')) {
+                    'debug.logMissingLanguageLabels')) {
             $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getConnectionForTable(self::MISSING_TRANSLATIONS_TABLE);
+                ->getConnectionForTable(self::MISSING_LANGUAGE_LABELS_TABLE);
 
             // Avoid duplicates without using a select query as check for existing entries
-            $connection->delete(self::MISSING_TRANSLATIONS_TABLE, [
+            $connection->delete(self::MISSING_LANGUAGE_LABELS_TABLE, [
                 'locallang_key' => $key,
             ]);
 
             if (false === $keyExists) {
-                $connection->insert(self::MISSING_TRANSLATIONS_TABLE, [
+                $connection->insert(self::MISSING_LANGUAGE_LABELS_TABLE, [
                     'locallang_key' => $key,
                 ]);
             }
@@ -91,7 +91,7 @@ class LocalizationService
     ): ?string {
         $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey,
             $alternativeLanguageKeys);
-        $this->logMissingTranslations($key, (bool)$translation);
+        $this->logMissingLanguageLabels($key, (bool)$translation);
 
         return $translation;
     }
@@ -186,7 +186,7 @@ class LocalizationService
                         $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
 
                         if ($id === $transUnitTagAttributes['id']) {
-                            $this->logMissingTranslations($key, true);
+                            $this->logMissingLanguageLabels($key, true);
 
                             return true;
                         }
@@ -196,7 +196,7 @@ class LocalizationService
         }
 
         if (true === $logMissingTranslation) {
-            $this->logMissingTranslations($key, false);
+            $this->logMissingLanguageLabels($key, false);
         }
 
         return false;

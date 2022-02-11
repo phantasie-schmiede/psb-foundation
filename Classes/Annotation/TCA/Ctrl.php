@@ -57,11 +57,15 @@ class Ctrl extends AbstractAnnotation
     protected ?string $iconfile = null;
 
     /**
+     * You can use the property name. It will be converted to the column name automatically.
+     *
      * @var string
      */
     protected string $label = '';
 
     /**
+     * You can use property names. They will be converted to their column names automatically.
+     *
      * @var string|null
      */
     protected ?string $labelAlt = null;
@@ -90,6 +94,16 @@ class Ctrl extends AbstractAnnotation
      * @var TcaService
      */
     protected TcaService $tcaService;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $title = null;
+
+    /**
+     * @var string
+     */
+    protected string $type = '';
 
     /**
      * @param array $data
@@ -158,10 +172,6 @@ class Ctrl extends AbstractAnnotation
      */
     public function getLabel(): string
     {
-        if (null === $this->tcaService) {
-            return $this->label;
-        }
-
         return $this->tcaService->convertPropertyNameToColumnName($this->label);
     }
 
@@ -178,7 +188,7 @@ class Ctrl extends AbstractAnnotation
      */
     public function getLabelAlt(): ?string
     {
-        if (null === $this->labelAlt || null === $this->tcaService) {
+        if (null === $this->labelAlt) {
             return null;
         }
 
@@ -254,6 +264,38 @@ class Ctrl extends AbstractAnnotation
     {
         $this->setDefaultSortBy(null);
         $this->sortBy = $sortBy;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param string|null $title
+     */
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param string $type
+     */
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 
     /**

@@ -144,11 +144,124 @@ class Select extends AbstractTcaFieldAnnotation
     protected int $size = 1;
 
     /**
+     * @var array|null
+     */
+    protected ?array $treeConfig = null;
+
+    /**
+     * You can use the property name. It will be converted to the column name automatically.
+     *
+     * @var string
+     */
+    protected string $treeConfigChildrenField = '';
+
+    /**
+     * @var string
+     */
+    protected string $treeConfigDataProvider = '';
+
+    /**
+     * @var bool|null
+     */
+    protected ?bool $treeConfigExpandAll = null;
+
+    /**
+     * @var int
+     */
+    protected int $treeConfigMaxLevels = 0;
+
+    /**
+     * @var string
+     */
+    protected string $treeConfigNonSelectableLevels = '0';
+
+    /**
+     * You can use the property name. It will be converted to the column name automatically.
+     *
+     * @var string
+     */
+    protected string $treeConfigParentField = '';
+
+    /**
+     * @var bool|null
+     */
+    protected ?bool $treeConfigShowHeader = null;
+
+    /**
+     * @var string
+     */
+    protected string $treeConfigStartingPoints = '';
+
+    /**
      * @param array $prependItem
      */
     public function setPrependItem(array $prependItem): void
     {
         $this->prependItem = $prependItem;
+    }
+
+    /**
+     * @param string $treeConfigChildrenField
+     */
+    public function setTreeConfigChildrenField(string $treeConfigChildrenField): void
+    {
+        $this->treeConfigChildrenField = $treeConfigChildrenField;
+    }
+
+    /**
+     * @param string $treeConfigDataProvider
+     */
+    public function setTreeConfigDataProvider(string $treeConfigDataProvider): void
+    {
+        $this->treeConfigDataProvider = $treeConfigDataProvider;
+    }
+
+    /**
+     * @param bool|null $treeConfigExpandAll
+     */
+    public function setTreeConfigExpandAll(?bool $treeConfigExpandAll): void
+    {
+        $this->treeConfigExpandAll = $treeConfigExpandAll;
+    }
+
+    /**
+     * @param int $treeConfigMaxLevels
+     */
+    public function setTreeConfigMaxLevels(int $treeConfigMaxLevels): void
+    {
+        $this->treeConfigMaxLevels = $treeConfigMaxLevels;
+    }
+
+    /**
+     * @param string $treeConfigNonSelectableLevels
+     */
+    public function setTreeConfigNonSelectableLevels(string $treeConfigNonSelectableLevels): void
+    {
+        $this->treeConfigNonSelectableLevels = $treeConfigNonSelectableLevels;
+    }
+
+    /**
+     * @param string $treeConfigParentField
+     */
+    public function setTreeConfigParentField(string $treeConfigParentField): void
+    {
+        $this->treeConfigParentField = $treeConfigParentField;
+    }
+
+    /**
+     * @param bool|null $treeConfigShowHeader
+     */
+    public function setTreeConfigShowHeader(?bool $treeConfigShowHeader): void
+    {
+        $this->treeConfigShowHeader = $treeConfigShowHeader;
+    }
+
+    /**
+     * @param string $treeConfigStartingPoints
+     */
+    public function setTreeConfigStartingPoints(string $treeConfigStartingPoints): void
+    {
+        $this->treeConfigStartingPoints = $treeConfigStartingPoints;
     }
 
     /**
@@ -349,6 +462,47 @@ class Select extends AbstractTcaFieldAnnotation
     public function setSize(int $size): void
     {
         $this->size = $size;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getTreeConfig(): ?array
+    {
+        if (self::RENDER_TYPES['SELECT_TREE'] !== $this->renderType) {
+            return null;
+        }
+
+        $configuration = [
+            'childrenField' => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigChildrenField),
+            'parentField'   => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigParentField),
+        ];
+
+        if (null !== $this->treeConfigExpandAll) {
+            $configuration['appearance']['expandAll'] = $this->treeConfigExpandAll;
+        }
+
+        if (0 < $this->treeConfigMaxLevels) {
+            $configuration['appearance']['maxLevels'] = $this->treeConfigMaxLevels;
+        }
+
+        if ('0' !== $this->treeConfigNonSelectableLevels) {
+            $configuration['appearance']['nonSelectableLevels'] = $this->treeConfigNonSelectableLevels;
+        }
+
+        if (null !== $this->treeConfigShowHeader) {
+            $configuration['appearance']['showHeader'] = $this->treeConfigShowHeader;
+        }
+
+        if ('' !== $this->treeConfigDataProvider) {
+            $configuration['dataProvider'] = $this->treeConfigDataProvider;
+        }
+
+        if ('' !== $this->treeConfigStartingPoints) {
+            $configuration['startingPoints'] = $this->treeConfigStartingPoints;
+        }
+
+        return $configuration;
     }
 
     /**

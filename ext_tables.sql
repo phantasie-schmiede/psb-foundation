@@ -16,8 +16,8 @@ CREATE TABLE cache_psbfoundation_tags (
 );
 
 #
-# Table structure for table 'tx_psbfoundation_missing_translations'
+# Table structure for table 'tx_psbfoundation_missing_language_labels'
 #
-CREATE TABLE tx_psbfoundation_missing_translations (
+CREATE TABLE tx_psbfoundation_missing_language_labels (
     locallang_key varchar(255) DEFAULT '' NOT NULL
 );

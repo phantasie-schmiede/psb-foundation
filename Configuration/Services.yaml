@@ -19,9 +19,6 @@ services:
   PSB\PsbFoundation\Service\ExtensionInformationService:
     public: true
 
-  PSB\PsbFoundation\Service\GlobalVariableProviders\FrontendUserProvider:
-    public: true
-
   PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider:
     public: true
 

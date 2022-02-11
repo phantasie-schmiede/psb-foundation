@@ -20,6 +20,8 @@ use Exception;
 use JsonException;
 use NumberFormatter;
 use PSB\PsbFoundation\Service\TypoScriptProviderService;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -37,6 +39,7 @@ class StringUtility
      * mb_strrpos() is used for performance reasons here. mb_strpos() would search the whole string if the needle isn't
      * found right at the beginning. The combination of a reversed search and the negative offset ensure that only the
      * relevant part of the string is searched. Additionally mb_strrpos has a better performance than mb_substr().
+     *
      * @TODO: Replace with str_starts_with() when switching to php 8!
      *
      * @param string $string
@@ -60,26 +63,21 @@ class StringUtility
     }
 
     /**
-     * @param string $variable
-     *
-     * @return float
-     */
-    public static function convertToFloat(string $variable): float
-    {
-        return (float)str_replace(',', '.', $variable);
-    }
-
-    /**
      * @param string|null $variable
      * @param bool        $convertEmptyStringToNull
      * @param array       $namespaces
      *
      * @return mixed
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
-    public static function convertString(?string $variable, bool $convertEmptyStringToNull = false, array $namespaces = [])
-    {
+    public static function convertString(
+        ?string $variable,
+        bool $convertEmptyStringToNull = false,
+        array $namespaces = []
+    ) {
         if (null === $variable || ($convertEmptyStringToNull && '' === $variable)) {
             return null;
         }
@@ -89,7 +87,7 @@ class StringUtility
             return $variable;
         }
 
-        if (1 === strlen($variable) || !self::beginsWith($variable, '0')) {
+        if (1 === strlen($variable) || !self::beginsWith($variable, '0') || in_array($variable[1], ['.', ','], true)) {
             $intRepresentation = filter_var($variable, FILTER_VALIDATE_INT);
 
             if (false !== $intRepresentation) {
@@ -141,7 +139,8 @@ class StringUtility
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
                     } catch (Exception $exception) {
-                        throw new RuntimeException('Path "[' . implode('][', $pathSegments) . ']" does not exist in array!',
+                        throw new RuntimeException('Path "[' . implode('][',
+                                $pathSegments) . ']" does not exist in array!',
                             1548170593);
                     }
                 }
@@ -162,7 +161,8 @@ class StringUtility
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
                     } catch (Exception $exception) {
-                        throw new RuntimeException('Path "' . implode('.', $pathSegments) . '" does not exist in array!',
+                        throw new RuntimeException('Path "' . implode('.',
+                                $pathSegments) . '" does not exist in array!',
                             1589385393);
                     }
                 }
@@ -192,6 +192,16 @@ class StringUtility
             default:
                 return $variable;
         }
+    }
+
+    /**
+     * @param string $variable
+     *
+     * @return float
+     */
+    public static function convertToFloat(string $variable): float
+    {
+        return (float)str_replace(',', '.', $variable);
     }
 
     /**

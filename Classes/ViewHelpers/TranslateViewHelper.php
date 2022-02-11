@@ -34,7 +34,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
  * Class TranslateViewHelper
  *
  * Overwrites the core ViewHelper in order to use \PSB\PsbFoundation\Service\LocalizationService which is able to log
- * missing translations.
+ * missing language labels.
  *
  * @package PSB\PsbFoundation\ViewHelpers
  */

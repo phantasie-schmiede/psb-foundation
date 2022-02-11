@@ -19,6 +19,8 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 use JsonException;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\VariableUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
@@ -31,9 +33,14 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 class RequestParameterProvider extends AbstractProvider
 {
     /**
+     * @param string $key
+     * @param bool   $strict
+     *
      * @return mixed
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public static function getRequestParameter(string $key, bool $strict = false)
     {
@@ -41,9 +48,13 @@ class RequestParameterProvider extends AbstractProvider
     }
 
     /**
+     * @TODO: Remove public access. Data should be retrieved via GlobalVariableService only!
+     *
      * @return array
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public static function getRequestParameters(): array
     {
@@ -60,8 +71,10 @@ class RequestParameterProvider extends AbstractProvider
 
     /**
      * @return array
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public function getGlobalVariables(): array
     {

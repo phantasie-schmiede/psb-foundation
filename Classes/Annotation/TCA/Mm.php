@@ -51,6 +51,8 @@ class Mm extends Select
     protected ?bool $mmHasUidField = null;
 
     /**
+     * You can use the property name. It will be converted to the column name automatically.
+     *
      * @var string|null
      */
     protected ?string $mmOppositeField = null;
@@ -102,7 +104,7 @@ class Mm extends Select
      */
     public function getMmOppositeField(): ?string
     {
-        if (null === $this->mmOppositeField || null === $this->tcaService) {
+        if (null === $this->mmOppositeField) {
             return null;
         }
 

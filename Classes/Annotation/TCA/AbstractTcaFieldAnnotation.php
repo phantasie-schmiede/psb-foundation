@@ -33,6 +33,7 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
     // Override this constant in extending classes!
     public const  TYPE = '';
 
+    // If you don't want a field to be shown in backend at all, set this value for typeList.
     public const TYPE_LIST_NONE = 'none';
 
     public const TYPES = [
