@@ -11,7 +11,7 @@ $EM_CONF['psb_foundation'] = [
         ],
         'depends'   => [
             'php'   => '7.4',
-            'typo3' => '10.4.10-11.2.99',
+            'typo3' => '11.5.5-11.5.99',
         ],
         'suggests'  => [
         ],
