@@ -229,8 +229,8 @@ class TypoScriptUtility
      */
     public static function registerTypoScript(
         ExtensionInformationInterface $extensionInformation,
-        string $path = 'Configuration/TypoScript',
-        string $title = 'Main configuration'
+        string $path,
+        string $title
     ): void {
         ExtensionManagementUtility::addStaticFile($extensionInformation->getExtensionKey(), $path, $title);
     }

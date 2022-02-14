@@ -30,7 +30,7 @@ class IconService
     use IconRegistryTrait;
 
     /**
-     * For use in ext_localconf.php files
+     * For use in ext_localconf.php-files
      *
      * @param string $extensionKey
      * @param array  $iconNames

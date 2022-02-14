@@ -6,6 +6,8 @@
 - [TCA generation](#tca-generation)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
 - [Registering and configuring modules](#registering-and-configuring-modules)
+- [Auto-registration of TypoScript-files](#auto-registration-of-typoscript-files)
+- [Auto-registration of icons](#auto-registration-of-icons)
 - [Extension settings](#extension-settings)
 - [Helper classes](#helper-classes)
   - [ContextUtility](#contextutility)
@@ -28,7 +30,6 @@ The goal of this extension is to
 - reduce number of hard-coded string identifiers and keys, and therefore the likelihood of errors due to typos
 
 ### Getting started
-
 Create the following file: `[your_extension_directory]/Classes/Data/ExtensionInformation.php`. Define the class and make
 it extend `PSB\PsbFoundation\Data\AbstractExtensionInformation`.
 
@@ -58,7 +59,6 @@ the `PSB\PsbFoundation\Data\ExtensionInformationInterface`. All extensions that 
 account during automated configuration processes, e.g. during TCA generation or icon registration.
 
 ### TCA generation
-
 You don't need to create a special file for your domain model in `Configuration/TCA` anymore!
 psb_foundation will scan your `Classes/Domain/Model`-directory for all classes (skipping abstract ones) that have an
 annotation of type `PSB\PsbFoundation\Annotation\TCA\Ctrl` in their PHPDoc-comment. The script checks if your model
@@ -180,13 +180,11 @@ class YourModel
 ```
 
 #### Extending domain models
-
 When you are extending domain models (even from extensions that don't make use of psb_foundation) you have to add the
 @TCA\Ctrl-annotation. You have the possibility to override ctrl-settings. If you don't want to override anything: just
 leave out the brackets. The default values of the annotation class will have no effect in this case.
 
 #### Default language label paths and additional configuration options
-
 * If you don't provide a title in the Ctrl-annotation, this path will be
   tried: `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:ctrl.title`
 * If you don't provide a label for a property, this path will be
@@ -199,7 +197,6 @@ leave out the brackets. The default values of the annotation class will have no 
   way: `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName].[arrayKeyTransformedToLowerCamelCase]`
 
 ### Registering and configuring plugins
-
 - Classes/Data/ExtensionInformation.php
   ```php
   public const PLUGINS = [
@@ -253,14 +250,12 @@ setting an icon identifier). Actions without the `PluginAction`-annotation won't
 values and comments in `EXT:psb_foundation/Classes/Annotation/`.
 
 #### FlexForms
-
 If there is a file named `[your_extension_directory]/Configuration/FlexForms/[PluginName].xml` it will be registered
 automatically. You can override this default by setting the `flexForm`-property of the `PluginConfig`-annotation. You
 can either provide a filename if your XML-file is located inside the `Configuration/FlexForms/`-directory or a full file
 path beginning with `EXT:`.
 
 #### Content element wizard
-
 Plugins will be added to the wizard automatically. There will be a tab for each vendor. You can override the location of
 your wizard entry by setting the `group`-property of the `PluginConfig`-annotation. The following language labels are
 taken into account automatically if defined:
@@ -274,7 +269,6 @@ of the content element wizard. If a new tab is created, its label will be fetche
 here: `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:[group].header`
 
 ### Registering and configuring modules
-
 This process is very similar to the way plugins are registered.
 
 - Classes/Data/ExtensionInformation.php
@@ -339,6 +333,19 @@ class YourModuleController extends AbstractModuleController
     }
 }
 ```
+
+### Auto-registration of TypoScript-files
+If there are `.typoscript`-files located in `[your_extension_directory]/Configuration/TypoScript]`, psb_foundation will execute `\PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::registerTypoScript()` for that directory.
+You can provide a custom title for the select item in the template module with `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TCA/Overrides/sys_template.xlf:template.title` -
+defaults to `'Main configuration'`.
+
+### Auto-registration of icons
+All SVG-icons located in `[your_extension_directoy]/Resources/Public/Icons` will be registered automatically (except `Extension.svg`)
+The extension key and the file name are used as icon identifier.
+
+Examples (filename => icon identifier):
+- `logo.svg` => `your-extension-key-logo`
+- `MainMenu.svg` => `your-extension-key-main-menu`
 
 ### Extension settings
 #### Log missing language labels
