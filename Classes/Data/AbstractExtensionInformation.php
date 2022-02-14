@@ -42,8 +42,8 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
      *
      * The keys (doktype) have to be of type integer. Name is the only mandatory value.
      * If you don't provide an icon identifier this default identifier will be used:
-     * pageType-yourPageTypeName
-     * In each case your svg-file needs to be located in this directory:
+     * page-type-your-page-type-name
+     * In each case your SVG-file needs to be located in this directory:
      * EXT:your_extension/Resources/Public/Icons/
      * All icons in that directory will be registered by their name automatically.
      *
@@ -56,7 +56,7 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
         /*
          * doktype => [
          *     'allowedTables'  => ['*'],
-         *     'iconIdentifier' => 'pageType-yourPageTypeName'
+         *     'iconIdentifier' => 'page-type-your-page-type-name'
          *     'label'          => 'Your page type name'
          *     'name'           => 'yourPageTypeName',
          *     'type'           => 'web',

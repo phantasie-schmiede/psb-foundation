@@ -56,6 +56,12 @@ class RegistrationService
 {
     use FlexFormServiceTrait, IconRegistryTrait;
 
+    public const ICON_SUFFIXES = [
+        'CONTENT_FROM_PID' => '-contentFromPid',
+        'ROOT'             => '-root',
+        'HIDE_IN_MENU'     => '-hideinmenu',
+    ];
+
     public const PAGE_TYPE_REGISTRATION_MODES = [
         'EXT_TABLES'   => 'ext_tables',
         'TCA_OVERRIDE' => 'tca_override',
@@ -261,11 +267,9 @@ class RegistrationService
 
         foreach ($pageTypes as $doktype => $configuration) {
             if (self::PAGE_TYPE_REGISTRATION_MODES['EXT_TABLES'] === $mode) {
-                $this->addPageTypeToGlobals($doktype, $configuration['allowedTables'] ?? ['*'],
-                    $configuration['type'] ?? 'web');
+                $this->addPageTypeToGlobals($configuration, $doktype);
             } else {
-                $this->addPageTypeToPagesTca($doktype, $extensionInformation->getExtensionKey(),
-                    $configuration['iconIdentifier'] ?? ('page-type-' . $configuration['name']), $configuration['name']);
+                $this->addPageTypeToPagesTca($configuration, $doktype, $extensionInformation->getExtensionKey());
             }
         }
     }
@@ -384,16 +388,17 @@ class RegistrationService
     }
 
     /**
-     * @param int            $doktype
-     * @param array|string[] $allowedTables
-     * @param string         $type
+     * @param array $configuration
+     * @param int   $doktype
+     *
+     * @return void
      */
-    private function addPageTypeToGlobals(int $doktype, array $allowedTables = ['*'], string $type = 'web'): void
+    private function addPageTypeToGlobals(array $configuration, int $doktype): void
     {
         // Add new page type:
         $GLOBALS['PAGES_TYPES'][$doktype] = [
-            'type'          => $type,
-            'allowedTables' => implode(',', $allowedTables),
+            'type'          => $configuration['type'] ?? 'web',
+            'allowedTables' => $configuration['allowedTables'] ? implode(',', $configuration['allowedTables']) : '*',
         ];
 
         // Allow backend users to drag and drop the new page type:
@@ -403,10 +408,9 @@ class RegistrationService
     }
 
     /**
+     * @param array  $configuration
      * @param int    $doktype
      * @param string $extensionKey
-     * @param string $iconIdentifier
-     * @param string $name
      *
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -414,14 +418,17 @@ class RegistrationService
      * @throws JsonException
      */
     private function addPageTypeToPagesTca(
+        array $configuration,
         int $doktype,
-        string $extensionKey,
-        string $iconIdentifier,
-        string $name
+        string $extensionKey
     ): void {
         $table = 'pages';
-        $label = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.' . $name;
-        GeneralUtility::makeInstance(LocalizationService::class)->translationExists($label);
+        $label = $configuration['label'] ?? 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.' . $configuration['name'];
+
+        if (false === GeneralUtility::makeInstance(LocalizationService::class)->translationExists($label)) {
+            $label = ucfirst(str_replace('_', ' ',
+                GeneralUtility::camelCaseToLowerCaseUnderscored($configuration['name'])));
+        }
 
         // Add new page type as possible select item:
         ExtensionManagementUtility::addTcaSelectItem(
@@ -430,24 +437,34 @@ class RegistrationService
             [
                 $label,
                 $doktype,
-                'EXT:' . $extensionKey . '/Resources/Public/Icons/' . $iconIdentifier . '.svg',
             ],
             '1',
             'after'
         );
 
+        $iconIdentifier = $configuration['iconIdentifier'] ?? 'page-type-' . str_replace('_', '-',
+                GeneralUtility::camelCaseToLowerCaseUnderscored($configuration['name']));
+
+        $icons = [
+            $doktype => $iconIdentifier,
+        ];
+
+        foreach (self::ICON_SUFFIXES as $suffix) {
+            if ($this->iconRegistry->isRegistered($iconIdentifier . $suffix)) {
+                $icons[$doktype . $suffix] = $iconIdentifier . $suffix;
+            }
+        }
+
         Typo3CoreArrayUtility::mergeRecursiveWithOverrule(
             $GLOBALS['TCA'][$table],
             [
-                // add icon for new page type:
+                // add icons for new page type:
                 'ctrl'  => [
-                    'typeicon_classes' => [
-                        $doktype => $iconIdentifier,
-                    ],
+                    'typeicon_classes' => $icons,
                 ],
                 // add all page standard fields and tabs to your new page type
                 'types' => [
-                    (string)$doktype => [
+                    $doktype => [
                         'showitem' => $GLOBALS['TCA'][$table]['types'][PageRepository::DOKTYPE_DEFAULT]['showitem'],
                     ],
                 ],

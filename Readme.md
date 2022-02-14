@@ -6,6 +6,7 @@
 - [TCA generation](#tca-generation)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
 - [Registering and configuring modules](#registering-and-configuring-modules)
+- [Registering custom page types](#registering-custom-page-types)
 - [Auto-registration of TypoScript-files](#auto-registration-of-typoscript-files)
 - [Auto-registration of icons](#auto-registration-of-icons)
 - [Extension settings](#extension-settings)
@@ -19,6 +20,7 @@
 This extension:
 - generates the TCA for your domain models by reading its PHPDoc-annotations
 - configures and registers modules and plugins based on PHPDoc-annotations in your controllers
+- registers custom page types
 - auto-registers existing FlexForms, TypoScript and icons
 - provides convenient ways to access often used core-functionalities
 
@@ -28,6 +30,10 @@ The goal of this extension is to
 - allow code completion for TCA-settings
 - reduce duplicate code
 - reduce number of hard-coded string identifiers and keys, and therefore the likelihood of errors due to typos
+
+The stronger use of convention over configuration simplifies the adaptation to breaking changes in those parts this extension handles.
+Think about the updated registration of icons (`Configuration/Icons.php`) or the way plugin configuration has changed (remove vendor, add full qualified controller classname) in TYPO3 v11.
+You wouldn't have had to refactor each and every extension of yours. Some small changes in psb_foundation and you are ready to go.
 
 ### Getting started
 Create the following file: `EXT:your_extension/Classes/Data/ExtensionInformation.php`. Define the class and make
@@ -333,6 +339,37 @@ class YourModuleController extends AbstractModuleController
     }
 }
 ```
+
+### Registering custom page types
+Classes/Data/ExtensionInformation.php
+  ```php
+  public const PAGE_TYPES = [
+      123 => [ // doktype serves as key
+          'allowedTables'  => ['*'],
+          'iconIdentifier' => 'page-type-your-page-type-name'
+          'label'          => 'Your page type name'
+          'name'           => 'yourPageTypeName',
+          'type'           => 'web',
+      ],
+      ...
+  ];
+  ```
+
+The keys (doktype) have to be of type integer. `name` is the only mandatory value.
+If you don't provide an icon identifier this default identifier will be used: `page-type-your-page-type-name`.
+The identifier is also used as base for further icon-variants.
+
+Example (`'name' => 'custom'`):
+- page-type-custom
+- page-type-custom-contentFromPid
+- page-type-custom-hideinmenu
+- page-type-custom-root
+
+You don't have to provide all these icons. The icons for regular pages will be used as fallback.
+Your SVG-files should to be located in this directory: `EXT:your_extension/Resources/Public/Icons/`
+All icons in that directory will be registered by their name automatically.
+Unless `label` is defined, `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.yourPageTypeName` will be used.
+If that key doesn't exist, `name` will be transformed from "yourPageTypeName" to "Your page type name".
 
 ### Auto-registration of TypoScript-files
 If there are `.typoscript`-files located in `EXT:your_extension/Configuration/TypoScript]`, psb_foundation will execute `\PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::registerTypoScript()` for that directory.
