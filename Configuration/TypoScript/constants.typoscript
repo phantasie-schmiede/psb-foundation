@@ -1,3 +1,0 @@
-[extensionLoaded('psb_templates')]
-  <INCLUDE_TYPOSCRIPT: source="FILE:EXT:psb_templates/Configuration/TypoScript/constants.typoscript">
-[end]

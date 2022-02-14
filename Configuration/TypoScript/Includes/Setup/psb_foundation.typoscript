@@ -1,9 +1,0 @@
-[extensionLoaded('psb_templates')]
-  plugin.tx_psbfoundation {
-    view {
-      layoutRootPaths.0 = {$plugin.tx_psbtemplates.view.layoutRootPath}
-      partialRootPaths.0 = {$plugin.tx_psbtemplates.view.partialRootPath}
-      templateRootPaths.0 = {$plugin.tx_psbtemplates.view.templateRootPath}
-    }
-  }
-[end]
