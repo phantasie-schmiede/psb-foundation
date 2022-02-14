@@ -17,7 +17,7 @@
   - [TypoScriptProviderService](#typoscriptproviderservice)
 
 ### What does it do?
-This extension:
+This extension
 - generates the TCA for your domain models by reading its PHPDoc-annotations
 - configures and registers modules and plugins based on PHPDoc-annotations in your controllers
 - registers custom page types
