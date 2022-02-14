@@ -30,7 +30,7 @@ The goal of this extension is to
 - reduce number of hard-coded string identifiers and keys, and therefore the likelihood of errors due to typos
 
 ### Getting started
-Create the following file: `[your_extension_directory]/Classes/Data/ExtensionInformation.php`. Define the class and make
+Create the following file: `EXT:your_extension/Classes/Data/ExtensionInformation.php`. Define the class and make
 it extend `PSB\PsbFoundation\Data\AbstractExtensionInformation`.
 
 Example:
@@ -54,7 +54,7 @@ You can use inherited functions like `getExtensionKey()` or `getVendorName()` to
 you want to.
 
 psb_foundation (don't forget to add it to your extension's dependencies) searches all active packages for the
-file `[your_extension_directory]/Classes/Data/ExtensionInformation.php` and checks if that class implements
+file `EXT:your_extension/Classes/Data/ExtensionInformation.php` and checks if that class implements
 the `PSB\PsbFoundation\Data\ExtensionInformationInterface`. All extensions that meet these requirements are taken into
 account during automated configuration processes, e.g. during TCA generation or icon registration.
 
@@ -186,15 +186,15 @@ leave out the brackets. The default values of the annotation class will have no 
 
 #### Default language label paths and additional configuration options
 * If you don't provide a title in the Ctrl-annotation, this path will be
-  tried: `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:ctrl.title`
+  tried: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:ctrl.title`
 * If you don't provide a label for a property, this path will be
-  tried: `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName]`
+  tried: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName]`
 * You can add new tabs (will be transformed to `--div--;...`) by setting position to `tab:[identifier]`. `[identifier]`
   may be a full `LLL:`-path. If following label exists, this will be
-  used: `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:tab.[identifier]`
+  used: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:tab.[identifier]`
 * When you use the items-property for a select field, you may provide a simple associative array. It will be transformed
   into the required multi-level format. The labels will be build this
-  way: `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName].[arrayKeyTransformedToLowerCamelCase]`
+  way: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName].[arrayKeyTransformedToLowerCamelCase]`
 
 ### Registering and configuring plugins
 - Classes/Data/ExtensionInformation.php
@@ -250,7 +250,7 @@ setting an icon identifier). Actions without the `PluginAction`-annotation won't
 values and comments in `EXT:psb_foundation/Classes/Annotation/`.
 
 #### FlexForms
-If there is a file named `[your_extension_directory]/Configuration/FlexForms/[PluginName].xml` it will be registered
+If there is a file named `EXT:your_extension/Configuration/FlexForms/[PluginName].xml` it will be registered
 automatically. You can override this default by setting the `flexForm`-property of the `PluginConfig`-annotation. You
 can either provide a filename if your XML-file is located inside the `Configuration/FlexForms/`-directory or a full file
 path beginning with `EXT:`.
@@ -260,13 +260,13 @@ Plugins will be added to the wizard automatically. There will be a tab for each 
 your wizard entry by setting the `group`-property of the `PluginConfig`-annotation. The following language labels are
 taken into account automatically if defined:
 
-- `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:`
+- `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:`
     * \[group\].elements.\[pluginName\].description
     * \[group\].elements.\[pluginName\].title
 
 [group] defaults to the vendor name (lowercase) if not set within `PluginConfig`-annotation. That also defines the tab
 of the content element wizard. If a new tab is created, its label will be fetched from
-here: `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:[group].header`
+here: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:[group].header`
 
 ### Registering and configuring modules
 This process is very similar to the way plugins are registered.
@@ -335,17 +335,17 @@ class YourModuleController extends AbstractModuleController
 ```
 
 ### Auto-registration of TypoScript-files
-If there are `.typoscript`-files located in `[your_extension_directory]/Configuration/TypoScript]`, psb_foundation will execute `\PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::registerTypoScript()` for that directory.
-You can provide a custom title for the select item in the template module with `[your_extension_directory]/Resources/Private/Language/Backend/Configuration/TCA/Overrides/sys_template.xlf:template.title` -
+If there are `.typoscript`-files located in `EXT:your_extension/Configuration/TypoScript]`, psb_foundation will execute `\PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::registerTypoScript()` for that directory.
+You can provide a custom title for the select item in the template module with `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/sys_template.xlf:template.title` -
 defaults to `'Main configuration'`.
 
 ### Auto-registration of icons
-All SVG-icons located in `[your_extension_directoy]/Resources/Public/Icons` will be registered automatically (except `Extension.svg`)
+All PNG- and SVG-files located in `EXT:your_extension/Resources/Public/Icons` will be registered automatically.
 The extension key and the file name are used as icon identifier.
 
 Examples (filename => icon identifier):
 - `logo.svg` => `your-extension-key-logo`
-- `MainMenu.svg` => `your-extension-key-main-menu`
+- `MainMenu.png` => `your-extension-key-main-menu`
 
 ### Extension settings
 #### Log missing language labels

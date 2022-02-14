@@ -55,10 +55,11 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
     public const PAGE_TYPES = [
         /*
          * doktype => [
-         *     'allowedTables' => ['*'],
+         *     'allowedTables'  => ['*'],
          *     'iconIdentifier' => 'pageType-yourPageTypeName'
-         *     'label' => 'Your page type name'
-         *     'name' => 'yourPageTypeName',
+         *     'label'          => 'Your page type name'
+         *     'name'           => 'yourPageTypeName',
+         *     'type'           => 'web',
          * ],
          */
     ];

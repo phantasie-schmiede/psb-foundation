@@ -7,9 +7,6 @@ services:
   PSB\PsbFoundation\:
     resource: '../Classes/*'
 
-  PSB\PsbFoundation\Service\Configuration\IconService:
-    public: true
-
   PSB\PsbFoundation\Service\Configuration\RegistrationService:
     public: true
 

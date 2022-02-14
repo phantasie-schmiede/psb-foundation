@@ -265,7 +265,7 @@ class RegistrationService
                     $configuration['type'] ?? 'web');
             } else {
                 $this->addPageTypeToPagesTca($doktype, $extensionInformation->getExtensionKey(),
-                    $configuration['iconIdentifier'] ?? ('pageType-' . $configuration['name']), $configuration['name']);
+                    $configuration['iconIdentifier'] ?? ('page-type-' . $configuration['name']), $configuration['name']);
             }
         }
     }

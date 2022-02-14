@@ -17,6 +17,11 @@ defined('TYPO3_MODE') or die();
 
     foreach ($allExtensionInformation as $extensionInformation) {
         $path = ExtensionManagementUtility::extPath($extensionInformation->getExtensionKey()) . 'Configuration/TypoScript';
+
+        if (!is_dir($path)) {
+            continue;
+        }
+
         $finder = Finder::create()->files()->in($path)->name('*.typoscript');
 
         if (true === $finder->hasResults()) {
