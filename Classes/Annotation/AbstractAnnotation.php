@@ -44,7 +44,7 @@ abstract class AbstractAnnotation
             $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $this);
 
             foreach ($data as $propertyName => $propertyValue) {
-                $setterMethodName = 'set' . ucfirst($propertyName);
+                $setterMethodName = 'set' . GeneralUtility::underscoredToUpperCamelCase($propertyName);
 
                 if ($reflectionClass->hasMethod($setterMethodName)) {
                     $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $setterMethodName);

@@ -19,20 +19,23 @@ namespace PSB\PsbFoundation\Annotation\TCA;
 use Exception;
 use PSB\PsbFoundation\Annotation\AbstractAnnotation;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
-use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
-use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class TcaConfig
  *
- * https://docs.typo3.org/m/typo3/reference-tca/master/en-us/Ctrl/Index.html
- *
  * @Annotation
+ * @link    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Index.html
  * @package PSB\PsbFoundation\Annotation\TCA
  */
 class Ctrl extends AbstractAnnotation
 {
+    /**
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Ext.html
+     */
+    protected ?array $EXT = null;
+
     /**
      * This property holds the property names which have been defined explicitly as annotation arguments. This allows
      * to decide which values to use when overriding an existing configuration.
@@ -42,53 +45,198 @@ class Ctrl extends AbstractAnnotation
     protected array $_setProperties = [];
 
     /**
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/AdminOnly.html
+     */
+    protected ?bool $adminOnly = false;
+
+    /**
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Container.html
+     */
+    protected ?array $container = null;
+
+    /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CopyAfterDuplFields.html
+     */
+    protected ?string $copyAfterDuplFields = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Crdate.html
+     */
+    protected ?string $crdate = 'crdate';
+
+    /**
+     * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CruserId.html
+     */
+    protected string $cruser_id = 'cruser_id';
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DefaultSortby.html
      */
     protected ?string $defaultSortBy = 'uid DESC';
 
     /**
-     * @var bool
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Delete.html
      */
-    protected bool $hideTable = false;
+    protected ?string $delete = 'deleted';
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DescriptionColumn.html
      */
-    protected ?string $iconfile = null;
+    protected ?string $descriptionColumn = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Editlock.html
+     */
+    protected ?string $editlock = null;
+
+    /**
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Enablecolumns.html
+     */
+    protected ?array $enablecolumns = [
+        'disabled'  => 'hidden',
+        'endtime'   => 'endtime',
+        'starttime' => 'starttime',
+    ];
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/FormattedLabelUserFunc.html
+     */
+    protected ?string $formattedLabel_userFunc = null;
+
+    /**
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/FormattedLabelUserFuncOptions.html
+     */
+    protected ?array $formattedLabel_userFunc_options = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/GroupName.html
+     */
+    protected ?string $groupName = null;
+
+    /**
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideAtCopy.html
+     */
+    protected ?bool $hideAtCopy = false;
+
+    /**
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideTable.html
+     */
+    protected ?bool $hideTable = false;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Iconfile.html
+     */
+    protected ?string $iconfile = 'EXT:core/Resources/Public/Icons/T3Icons/svgs/mimetypes/mimetypes-x-sys_action.svg';
+
+    /**
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/IsStatic.html
+     */
+    protected ?bool $is_static = false;
 
     /**
      * You can use the property name. It will be converted to the column name automatically.
      *
-     * @var string
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
      */
-    protected string $label = '';
+    protected ?string $label = 'uid';
 
     /**
      * You can use property names. They will be converted to their column names automatically.
      *
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
      */
-    protected ?string $labelAlt = null;
+    protected ?string $label_alt = null;
 
     /**
-     * @var bool
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
      */
-    protected bool $labelAltForce = false;
-
-    /**
-     * @var int
-     */
-    protected int $rootLevel = 0;
+    protected ?bool $label_alt_force = null;
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/LabelUserfunc.html
+     */
+    protected ?string $label_userFunc = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/LanguageField.html
+     */
+    protected ?string $languageField = 'sys_language_uid';
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/OrigUid.html
+     */
+    protected ?string $origUid = 't3_origuid';
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/PrependAtCopy.html
+     */
+    protected ?string $prependAtCopy = null;
+
+    /**
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ReadOnly.html
+     */
+    protected ?bool $readOnly = false;
+
+    /**
+     * @var int|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/RootLevel.html
+     */
+    protected ?int $rootLevel = 0;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SearchFields.html
      */
     protected ?string $searchFields = null;
 
     /**
-     * @var string|null
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
      */
-    protected ?string $sortBy = null;
+    protected ?array $security = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SeliconField.html
+     */
+    protected ?string $selicon_field = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ShadowColumnsForNewPlaceholders.html
+     */
+    protected ?string $shadowColumnsForNewPlaceholders = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Sortby.html
+     */
+    protected ?string $sortby = null;
 
     /**
      * @var TcaService
@@ -97,13 +245,69 @@ class Ctrl extends AbstractAnnotation
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Title.html
      */
     protected ?string $title = null;
 
     /**
-     * @var string
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TransOrigDiffSourceField.html
      */
-    protected string $type = '';
+    protected ?string $transOrigDiffSourceField = 'l10n_diffsource';
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TransOrigPointerField.html
+     */
+    protected ?string $transOrigPointerField = 'l10n_parent';
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TranslationSource.html
+     */
+    protected ?string $translationSource = 'l10n_source';
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Tstamp.html
+     */
+    protected ?string $tstamp = 'tstamp';
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Type.html
+     */
+    protected ?string $type = null;
+
+    /**
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconClasses.html
+     */
+    protected ?array $typeicon_classes = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconColumn.html
+     */
+    protected ?string $typeicon_column = null;
+
+    /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/UseColumnsForDefaultValues.html
+     */
+    protected ?string $useColumnsForDefaultValues = null;
+
+    /**
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/VersioningWS.html
+     */
+    protected ?bool $versioningWS = null;
+
+    /**
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/VersioningWSAlwaysAllowLiveEdit.html
+     */
+    protected ?bool $versioningWS_alwaysAllowLiveEdit = null;
 
     /**
      * @param array $data
@@ -112,27 +316,89 @@ class Ctrl extends AbstractAnnotation
      */
     public function __construct(array $data = [])
     {
-        $this->_setProperties = array_map(static function ($key) {
-            return TcaUtility::convertKey($key);
-        }, array_keys($data));
+        $this->_setProperties = array_keys($data);
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
         parent::__construct($data);
     }
 
     /**
-     * @return array
-     * @throws ReflectionException
+     * @return bool|null
      */
-    public function toArray(): array
+    public function getAdminOnly(): ?bool
     {
-        $properties = parent::toArray();
-        $ctrlConfiguration = [];
+        return $this->adminOnly;
+    }
 
-        foreach ($properties as $key => $value) {
-            $ctrlConfiguration[TcaUtility::convertKey($key)] = $value;
-        }
+    /**
+     * @param bool|null $adminOnly
+     */
+    public function setAdminOnly(?bool $adminOnly): void
+    {
+        $this->adminOnly = $adminOnly;
+    }
 
-        return $ctrlConfiguration;
+    /**
+     * @return array|null
+     */
+    public function getContainer(): ?array
+    {
+        return $this->container;
+    }
+
+    /**
+     * @param array|null $container
+     */
+    public function setContainer(?array $container): void
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCopyAfterDuplFields(): ?string
+    {
+        return $this->copyAfterDuplFields;
+    }
+
+    /**
+     * @param string|null $copyAfterDuplFields
+     */
+    public function setCopyAfterDuplFields(?string $copyAfterDuplFields): void
+    {
+        $this->copyAfterDuplFields = $copyAfterDuplFields;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCrdate(): ?string
+    {
+        return $this->crdate;
+    }
+
+    /**
+     * @param string|null $crdate
+     */
+    public function setCrdate(?string $crdate): void
+    {
+        $this->crdate = $crdate;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCruserId(): string
+    {
+        return $this->cruser_id;
+    }
+
+    /**
+     * @param string $cruser_id
+     */
+    public function setCruserId(string $cruser_id): void
+    {
+        $this->cruser_id = $cruser_id;
     }
 
     /**
@@ -154,6 +420,166 @@ class Ctrl extends AbstractAnnotation
     /**
      * @return string|null
      */
+    public function getDelete(): ?string
+    {
+        return $this->delete;
+    }
+
+    /**
+     * @param string|null $delete
+     */
+    public function setDelete(?string $delete): void
+    {
+        $this->delete = $delete;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDescriptionColumn(): ?string
+    {
+        return $this->descriptionColumn;
+    }
+
+    /**
+     * @param string|null $descriptionColumn
+     */
+    public function setDescriptionColumn(?string $descriptionColumn): void
+    {
+        $this->descriptionColumn = $descriptionColumn;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getEXT(): ?array
+    {
+        return $this->EXT;
+    }
+
+    /**
+     * @param array|null $EXT
+     */
+    public function setEXT(?array $EXT): void
+    {
+        $this->EXT = $EXT;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEditlock(): ?string
+    {
+        return $this->editlock;
+    }
+
+    /**
+     * @param string|null $editlock
+     */
+    public function setEditlock(?string $editlock): void
+    {
+        $this->editlock = $editlock;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getEnablecolumns(): ?array
+    {
+        return $this->enablecolumns;
+    }
+
+    /**
+     * @param array|null $enablecolumns
+     */
+    public function setEnablecolumns(?array $enablecolumns): void
+    {
+        $this->enablecolumns = $enablecolumns;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getFormattedLabelUserFunc(): ?string
+    {
+        return $this->formattedLabel_userFunc;
+    }
+
+    /**
+     * @param string|null $formattedLabel_userFunc
+     */
+    public function setFormattedLabelUserFunc(?string $formattedLabel_userFunc): void
+    {
+        $this->formattedLabel_userFunc = $formattedLabel_userFunc;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getFormattedLabelUserFuncOptions(): ?array
+    {
+        return $this->formattedLabel_userFunc_options;
+    }
+
+    /**
+     * @param array|null $formattedLabel_userFunc_options
+     */
+    public function setFormattedLabelUserFuncOptions(?array $formattedLabel_userFunc_options): void
+    {
+        $this->formattedLabel_userFunc_options = $formattedLabel_userFunc_options;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getGroupName(): ?string
+    {
+        return $this->groupName;
+    }
+
+    /**
+     * @param string|null $groupName
+     */
+    public function setGroupName(?string $groupName): void
+    {
+        $this->groupName = $groupName;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getHideAtCopy(): ?bool
+    {
+        return $this->hideAtCopy;
+    }
+
+    /**
+     * @param bool|null $hideAtCopy
+     */
+    public function setHideAtCopy(?bool $hideAtCopy): void
+    {
+        $this->hideAtCopy = $hideAtCopy;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getHideTable(): ?bool
+    {
+        return $this->hideTable;
+    }
+
+    /**
+     * @param bool|null $hideTable
+     */
+    public function setHideTable(?bool $hideTable): void
+    {
+        $this->hideTable = $hideTable;
+    }
+
+    /**
+     * @return string|null
+     */
     public function getIconfile(): ?string
     {
         return $this->iconfile;
@@ -165,6 +591,22 @@ class Ctrl extends AbstractAnnotation
     public function setIconfile(?string $iconfile): void
     {
         $this->iconfile = $iconfile;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsStatic(): ?bool
+    {
+        return $this->is_static;
+    }
+
+    /**
+     * @param bool|null $is_static
+     */
+    public function setIsStatic(?bool $is_static): void
+    {
+        $this->is_static = $is_static;
     }
 
     /**
@@ -188,11 +630,11 @@ class Ctrl extends AbstractAnnotation
      */
     public function getLabelAlt(): ?string
     {
-        if (null === $this->labelAlt) {
+        if (null === $this->label_alt) {
             return null;
         }
 
-        $altLabels = GeneralUtility::trimExplode(',', $this->labelAlt);
+        $altLabels = GeneralUtility::trimExplode(',', $this->label_alt);
 
         array_walk($altLabels, function (&$item) {
             $item = $this->tcaService->convertPropertyNameToColumnName($item);
@@ -202,25 +644,121 @@ class Ctrl extends AbstractAnnotation
     }
 
     /**
-     * @param string|null $labelAlt
+     * @param string|null $label_alt
      */
-    public function setLabelAlt(?string $labelAlt): void
+    public function setLabelAlt(?string $label_alt): void
     {
-        $this->labelAlt = $labelAlt;
+        $this->label_alt = $label_alt;
     }
 
     /**
-     * @return int
+     * @return bool|null
      */
-    public function getRootLevel(): int
+    public function getLabelAltForce(): ?bool
+    {
+        return $this->label_alt_force;
+    }
+
+    /**
+     * @param bool|null $label_alt_force
+     */
+    public function setLabelAltForce(?bool $label_alt_force): void
+    {
+        $this->label_alt_force = $label_alt_force;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLabelUserFunc(): ?string
+    {
+        return $this->label_userFunc;
+    }
+
+    /**
+     * @param string|null $label_userFunc
+     */
+    public function setLabelUserFunc(?string $label_userFunc): void
+    {
+        $this->label_userFunc = $label_userFunc;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLanguageField(): ?string
+    {
+        return $this->languageField;
+    }
+
+    /**
+     * @param string|null $languageField
+     */
+    public function setLanguageField(?string $languageField): void
+    {
+        $this->languageField = $languageField;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOrigUid(): ?string
+    {
+        return $this->origUid;
+    }
+
+    /**
+     * @param string|null $origUid
+     */
+    public function setOrigUid(?string $origUid): void
+    {
+        $this->origUid = $origUid;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPrependAtCopy(): ?string
+    {
+        return $this->prependAtCopy;
+    }
+
+    /**
+     * @param string|null $prependAtCopy
+     */
+    public function setPrependAtCopy(?string $prependAtCopy): void
+    {
+        $this->prependAtCopy = $prependAtCopy;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getReadOnly(): ?bool
+    {
+        return $this->readOnly;
+    }
+
+    /**
+     * @param bool|null $readOnly
+     */
+    public function setReadOnly(?bool $readOnly): void
+    {
+        $this->readOnly = $readOnly;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getRootLevel(): ?int
     {
         return $this->rootLevel;
     }
 
     /**
-     * @param int $rootLevel
+     * @param int|null $rootLevel
      */
-    public function setRootLevel(int $rootLevel): void
+    public function setRootLevel(?int $rootLevel): void
     {
         $this->rootLevel = $rootLevel;
     }
@@ -242,6 +780,38 @@ class Ctrl extends AbstractAnnotation
     }
 
     /**
+     * @return array|null
+     */
+    public function getSecurity(): ?array
+    {
+        return $this->security;
+    }
+
+    /**
+     * @param array|null $security
+     */
+    public function setSecurity(?array $security): void
+    {
+        $this->security = $security;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSeliconField(): ?string
+    {
+        return $this->selicon_field;
+    }
+
+    /**
+     * @param string|null $selicon_field
+     */
+    public function setSeliconField(?string $selicon_field): void
+    {
+        $this->selicon_field = $selicon_field;
+    }
+
+    /**
      * @return string[]
      */
     public function getSetProperties(): array
@@ -252,9 +822,25 @@ class Ctrl extends AbstractAnnotation
     /**
      * @return string|null
      */
+    public function getShadowColumnsForNewPlaceholders(): ?string
+    {
+        return $this->shadowColumnsForNewPlaceholders;
+    }
+
+    /**
+     * @param string|null $shadowColumnsForNewPlaceholders
+     */
+    public function setShadowColumnsForNewPlaceholders(?string $shadowColumnsForNewPlaceholders): void
+    {
+        $this->shadowColumnsForNewPlaceholders = $shadowColumnsForNewPlaceholders;
+    }
+
+    /**
+     * @return string|null
+     */
     public function getSortBy(): ?string
     {
-        return $this->sortBy;
+        return $this->sortby;
     }
 
     /**
@@ -263,7 +849,7 @@ class Ctrl extends AbstractAnnotation
     public function setSortBy(?string $sortBy): void
     {
         $this->setDefaultSortBy(null);
-        $this->sortBy = $sortBy;
+        $this->sortby = $sortBy;
     }
 
     /**
@@ -283,50 +869,162 @@ class Ctrl extends AbstractAnnotation
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getType(): string
+    public function getTransOrigDiffSourceField(): ?string
+    {
+        return $this->transOrigDiffSourceField;
+    }
+
+    /**
+     * @param string|null $transOrigDiffSourceField
+     */
+    public function setTransOrigDiffSourceField(?string $transOrigDiffSourceField): void
+    {
+        $this->transOrigDiffSourceField = $transOrigDiffSourceField;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTransOrigPointerField(): ?string
+    {
+        return $this->transOrigPointerField;
+    }
+
+    /**
+     * @param string|null $transOrigPointerField
+     */
+    public function setTransOrigPointerField(?string $transOrigPointerField): void
+    {
+        $this->transOrigPointerField = $transOrigPointerField;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTranslationSource(): ?string
+    {
+        return $this->translationSource;
+    }
+
+    /**
+     * @param string|null $translationSource
+     */
+    public function setTranslationSource(?string $translationSource): void
+    {
+        $this->translationSource = $translationSource;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getTstamp(): ?string
+    {
+        return $this->tstamp;
+    }
+
+    /**
+     * @param string|null $tstamp
+     */
+    public function setTstamp(?string $tstamp): void
+    {
+        $this->tstamp = $tstamp;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getType(): ?string
     {
         return $this->type;
     }
 
     /**
-     * @param string $type
+     * @param string|null $type
      */
-    public function setType(string $type): void
+    public function setType(?string $type): void
     {
         $this->type = $type;
     }
 
     /**
-     * @return bool
+     * @return array|null
      */
-    public function isHideTable(): bool
+    public function getTypeiconClasses(): ?array
     {
-        return $this->hideTable;
+        return $this->typeicon_classes;
     }
 
     /**
-     * @param bool $hideTable
+     * @param array|null $typeicon_classes
      */
-    public function setHideTable(bool $hideTable): void
+    public function setTypeiconClasses(?array $typeicon_classes): void
     {
-        $this->hideTable = $hideTable;
+        $this->typeicon_classes = $typeicon_classes;
     }
 
     /**
-     * @return bool
+     * @return string|null
      */
-    public function isLabelAltForce(): bool
+    public function getTypeiconColumn(): ?string
     {
-        return $this->labelAltForce;
+        return $this->typeicon_column;
     }
 
     /**
-     * @param bool $labelAltForce
+     * @param string|null $typeicon_column
      */
-    public function setLabelAltForce(bool $labelAltForce): void
+    public function setTypeiconColumn(?string $typeicon_column): void
     {
-        $this->labelAltForce = $labelAltForce;
+        $this->typeicon_column = $typeicon_column;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUseColumnsForDefaultValues(): ?string
+    {
+        return $this->useColumnsForDefaultValues;
+    }
+
+    /**
+     * @param string|null $useColumnsForDefaultValues
+     */
+    public function setUseColumnsForDefaultValues(?string $useColumnsForDefaultValues): void
+    {
+        $this->useColumnsForDefaultValues = $useColumnsForDefaultValues;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getVersioningWS(): ?bool
+    {
+        return $this->versioningWS;
+    }
+
+    /**
+     * @param bool|null $versioningWS
+     */
+    public function setVersioningWS(?bool $versioningWS): void
+    {
+        $this->versioningWS = $versioningWS;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getVersioningWSAlwaysAllowLiveEdit(): ?bool
+    {
+        return $this->versioningWS_alwaysAllowLiveEdit;
+    }
+
+    /**
+     * @param bool|null $versioningWS_alwaysAllowLiveEdit
+     */
+    public function setVersioningWSAlwaysAllowLiveEdit(?bool $versioningWS_alwaysAllowLiveEdit): void
+    {
+        $this->versioningWS_alwaysAllowLiveEdit = $versioningWS_alwaysAllowLiveEdit;
     }
 }

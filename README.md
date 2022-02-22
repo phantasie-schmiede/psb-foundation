@@ -2,6 +2,7 @@
 ## Enhanced extension programming in Extbase
 
 - [What does it do?](#what-does-it-do)
+- [Why should you use it?](#why-should-you-use-it)
 - [Getting started](#getting-started)
 - [TCA generation](#tca-generation)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
@@ -28,7 +29,7 @@ This extension
 The goal of this extension is to
 - bring together different points of configuration to improve readability, maintainability and development time
 - allow code completion for TCA-settings
-- reduce duplicate code
+- reduce duplicated code
 - reduce number of hard-coded string identifiers and keys, and therefore the likelihood of errors due to typos
 
 The stronger use of convention over configuration simplifies the adaptation to breaking changes in those parts this extension handles.
