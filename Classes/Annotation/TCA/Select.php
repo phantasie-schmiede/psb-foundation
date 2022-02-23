@@ -63,11 +63,12 @@ class Select extends AbstractTcaFieldAnnotation
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/AutoSizeMax.html
      */
     protected int $autoSizeMax = 1;
 
     /**
-     * @var mixed
+     * @var int|string|null
      */
     protected $default;
 
@@ -281,7 +282,7 @@ class Select extends AbstractTcaFieldAnnotation
     }
 
     /**
-     * @return mixed
+     * @return int|string|null
      */
     public function getDefault()
     {
@@ -289,7 +290,7 @@ class Select extends AbstractTcaFieldAnnotation
     }
 
     /**
-     * @param mixed $default
+     * @param int|string|null $default
      */
     public function setDefault($default): void
     {

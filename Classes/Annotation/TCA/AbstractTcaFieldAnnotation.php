@@ -59,44 +59,60 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
     ];
 
     /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Description.html#example
+     */
+    protected ?string $description = null;
+
+    /**
      * @var array|string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
      */
     protected $displayCond;
 
     /**
-     * @var bool
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Exclude.html
      */
-    protected bool $exclude = false;
+    protected ?bool $exclude = null;
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nDisplay.html
      */
     protected ?string $l10nDisplay = null;
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nMode.html
      */
     protected ?string $l10nMode = null;
 
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Label.html
      */
     protected string $label = '';
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/OnChange.html
      */
     protected ?string $onChange = null;
 
     /**
+     * Usage: 'key:propertyName'
+     * You can use the keys 'after', 'before' and 'replace'.
+     *
      * @var string
      */
     protected string $position = '';
 
     /**
-     * @var bool
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/ReadOnly.html
      */
-    protected bool $readOnly = false;
+    protected ?bool $readOnly = null;
 
     /**
      * @var TcaService
@@ -120,6 +136,22 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
     }
 
     /**
+     * @param bool $exclude
+     */
+    public function setExclude(bool $exclude): void
+    {
+        $this->exclude = $exclude;
+    }
+
+    /**
+     * @param bool $readOnly
+     */
+    public function setReadOnly(bool $readOnly): void
+    {
+        $this->readOnly = $readOnly;
+    }
+
+    /**
      * @return array
      * @throws ReflectionException
      */
@@ -132,7 +164,15 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
         foreach ($properties as $key => $value) {
             $key = TcaUtility::convertKey($key);
 
-            if (in_array($key, ['displayCond', 'exclude', 'label', 'l10n_display', 'l10n_mode', 'onChange'], true)) {
+            if (in_array($key, [
+                'description',
+                'displayCond',
+                'exclude',
+                'l10n_display',
+                'l10n_mode',
+                'label',
+                'onChange',
+            ], true)) {
                 $fieldConfiguration[$key] = $value;
             } elseif ('position' !== $key) {
                 $fieldConfiguration['config'][$key] = $value;
@@ -227,7 +267,14 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
      */
     public function getPosition(): string
     {
-        return $this->position;
+        [$key, $location] = GeneralUtility::trimExplode(':', $this->position, false, 2);
+
+        // Check if $location is NOT a palette name.
+        if (false !== mb_strpos($location, '-')) {
+            $location = $this->tcaService->convertPropertyNameToColumnName($location);
+        }
+
+        return $key . ':' . $location;
     }
 
     /**
@@ -271,26 +318,10 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
     }
 
     /**
-     * @param bool $exclude
-     */
-    public function setExclude(bool $exclude): void
-    {
-        $this->exclude = $exclude;
-    }
-
-    /**
      * @return bool
      */
     public function isReadOnly(): bool
     {
         return $this->readOnly;
-    }
-
-    /**
-     * @param bool $readOnly
-     */
-    public function setReadOnly(bool $readOnly): void
-    {
-        $this->readOnly = $readOnly;
     }
 }

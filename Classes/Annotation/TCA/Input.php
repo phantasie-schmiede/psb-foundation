@@ -29,7 +29,7 @@ class Input extends AbstractTcaFieldAnnotation
     /**
      * @var int|string|null
      */
-    protected $default = null;
+    protected $default;
 
     /**
      * @var string
