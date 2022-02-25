@@ -161,7 +161,7 @@ class TypoScriptUtility
     /**
      * @param PageObjectConfiguration $pageTypeConfiguration
      */
-    public static function registerAjaxPageType(PageObjectConfiguration $pageTypeConfiguration): void
+    public static function registerPageType(PageObjectConfiguration $pageTypeConfiguration): void
     {
         if (true === $pageTypeConfiguration->isCacheable()) {
             $internalContentType = 'USER';

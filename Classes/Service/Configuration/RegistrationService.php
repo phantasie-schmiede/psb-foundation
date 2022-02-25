@@ -21,7 +21,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\IndexedReader;
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Annotation\AjaxPageType;
+use PSB\PsbFoundation\Annotation\PageType;
 use PSB\PsbFoundation\Annotation\ModuleAction;
 use PSB\PsbFoundation\Annotation\ModuleConfig;
 use PSB\PsbFoundation\Annotation\PluginAction;
@@ -559,19 +559,19 @@ class RegistrationService
                             $controllersAndUncachedActions[$controllerClassName][] = $actionName;
                         }
 
-                        if (isset($docComment[AjaxPageType::class])) {
+                        if (isset($docComment[PageType::class])) {
                             $extensionInformation = $extensionInformationService->extractExtensionInformationFromClassName($controllerClassName);
-                            /** @var AjaxPageType $ajaxPageType */
-                            $ajaxPageType = $docComment[AjaxPageType::class];
+                            /** @var PageType $pageType */
+                            $pageType = $docComment[PageType::class];
                             $pageObjectConfiguration = GeneralUtility::makeInstance(PageObjectConfiguration::class);
                             $pageObjectConfiguration->setAction($actionName);
-                            $pageObjectConfiguration->setCacheable($ajaxPageType->isCacheable());
-                            $pageObjectConfiguration->setContentType($ajaxPageType->getContentType());
+                            $pageObjectConfiguration->setCacheable($pageType->isCacheable());
+                            $pageObjectConfiguration->setContentType($pageType->getContentType());
                             $pageObjectConfiguration->setController($controllerClassName);
-                            $pageObjectConfiguration->setDisableAllHeaderCode($ajaxPageType->isDisableAllHeaderCode());
+                            $pageObjectConfiguration->setDisableAllHeaderCode($pageType->isDisableAllHeaderCode());
                             $pageObjectConfiguration->setExtensionName($extensionInformation['extensionName']);
                             $pageObjectConfiguration->setPluginName($pluginName);
-                            $pageObjectConfiguration->setTypeNum($ajaxPageType->getTypeNum());
+                            $pageObjectConfiguration->setTypeNum($pageType->getTypeNum());
                             $typoScriptObjectName = strtolower(implode('_', [
                                 'ajax',
                                 $extensionInformation['vendorName'],
@@ -581,7 +581,7 @@ class RegistrationService
                             ]));
                             $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);
                             $pageObjectConfiguration->setVendorName($extensionInformation['vendorName']);
-                            TypoScriptUtility::registerAjaxPageType($pageObjectConfiguration);
+                            TypoScriptUtility::registerPageType($pageObjectConfiguration);
                         }
                     }
                 }

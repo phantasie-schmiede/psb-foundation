@@ -5,7 +5,12 @@
 - [Why should you use it?](#why-should-you-use-it)
 - [Getting started](#getting-started)
 - [TCA generation](#tca-generation)
+  - [Extending domain models](#extending-domain-models)
+  - [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
+  - [FlexForms](#flexforms)
+  - [Content element wizard](#content-element-wizard)
+  - [custom page types for single actions](#custom-page-types-for-single-actions)
 - [Registering and configuring modules](#registering-and-configuring-modules)
 - [Registering custom page types](#registering-custom-page-types)
 - [Auto-registration of TypoScript-files](#auto-registration-of-typoscript-files)
@@ -124,12 +129,12 @@ class YourClass
 Properties without TCA\[...]-annotation will not be considered in TCA-generation. The available annotation properties
 also include onChange, label, position, etc.
 
-The relational types inline, mm and select have a special property named `linkedModel`. Instead of using foreignTable
-you can specify the class name of the related domain model and psb_foundation will insert the corresponding table name
-into the TCA.
+The relational types `inline`, `mm` and `select` have a special property named `linkedModel`.
+Instead of using `foreign_table` you can specify the class name of the related domain model and psb_foundation will
+insert the corresponding table name into the TCA.
 
-Additionally, the properties `foreignField` and `mmOppositeField` accept property names. These will be converted to
-column names.
+Additionally, the properties `foreign_field` and `mm_opposite_field` accept property names.
+These will be converted to column names.
 
 Extended example:
 
@@ -217,9 +222,9 @@ leave out the brackets. The default values of the annotation class will have no 
           ...
       ],
       'AnotherPluginWhichDoesNotUseAllActionsInController' => [
-          \Your\Extension\Controller\AnotherController::class,
-          \Your\Extension\Controller\ExtraController::class => [
-              'actionName1',
+          \Your\Extension\Controller\YourController::class,
+          \Your\Extension\Controller\AnotherController::class => [
+              'actionName1', // This is not necessarily the default action!
               'actionName2',
               ...
           ],
@@ -237,7 +242,7 @@ leave out the brackets. The default values of the annotation class will have no 
   /**
    * @PluginConfig(iconIdentifier="special-icon")
    */
-  class FirstController extends ActionController
+  class YourController extends ActionController
   {
       /**
        * @PluginAction()
@@ -265,8 +270,9 @@ leave out the brackets. The default values of the annotation class will have no 
 The `PluginConfig`-annotation is not mandatory. You only need to set it, when additional configuration is desired (e.g.
 setting a custom icon identifier).
 Actions without the `PluginAction`-annotation won't be registered though -
-even if mentioned in the optional action list in `ExtensionInformation.php`!
+even if mentioned in the optional action list in `ExtensionInformation.php`!<br>
 If no action list is provided, all actions annotated with `PluginAction` will be registered.
+Which action will be used as default action and which actions should not be cached is determined by the annotation values only.
 Check the default values and comments in `EXT:psb_foundation/Classes/Annotation/`.
 
 #### FlexForms
@@ -281,12 +287,30 @@ your wizard entry by setting the `group`-property of the `PluginConfig`-annotati
 taken into account automatically if defined:
 
 - `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:`
-    * \[group\].elements.\[pluginName\].description
-    * \[group\].elements.\[pluginName\].title
+    * `[group].elements.[pluginName].description`
+    * `[group].elements.[pluginName].title`
 
-[group] defaults to the vendor name (lowercase) if not set within `PluginConfig`-annotation. That also defines the tab
+`[group]` defaults to the vendor name (lowercase) if not set within `PluginConfig`-annotation. That also defines the tab
 of the content element wizard. If a new tab is created, its label will be fetched from
 here: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:[group].header`
+
+#### Custom page types for single actions
+```php
+use PSB\PsbFoundation\Annotation\PageType;
+use PSB\PsbFoundation\Annotation\PluginAction;
+
+...
+
+/**
+ * @PluginAction(uncached=true)
+ * @PageType(contentType=PageObjectConfiguration::CONTENT_TYPE_HTML, disableAllHeaderCode=false, typeNum=1589385441)
+ */
+public function specialPageTypeAction(): void
+{
+}
+```
+
+psb_foundation will create the necessary TypoScript so that this action can be called directly with the request parameter `type=1589385441`.
 
 ### Registering and configuring modules
 This process is very similar to the way plugins are registered.
@@ -353,6 +377,13 @@ class YourModuleController extends AbstractModuleController
     }
 }
 ```
+
+The following language labels can be used without further configuration:
+
+- `EXT:your_extension/Resources/Private/Language/Backend/Modules/[ModuleName].xlf:`
+    * `mlang_labels_tabdescr` used as module description in the about-module
+    * `mlang_labels_tablabel` used as short description when hovering over the module link
+    * `mlang_tabs_tab` used as module title
 
 ### Registering custom page types
 Classes/Data/ExtensionInformation.php

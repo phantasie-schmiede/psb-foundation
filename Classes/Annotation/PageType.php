@@ -20,12 +20,12 @@ use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 
 /**
- * Class AjaxPageType
+ * Class PageType
  *
  * @Annotation
  * @package PSB\PsbFoundation\Annotation
  */
-class AjaxPageType extends AbstractAnnotation
+class PageType extends AbstractAnnotation
 {
     /**
      * @var bool
