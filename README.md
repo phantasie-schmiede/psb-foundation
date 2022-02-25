@@ -9,6 +9,7 @@
 - [Registering and configuring modules](#registering-and-configuring-modules)
 - [Registering custom page types](#registering-custom-page-types)
 - [Auto-registration of TypoScript-files](#auto-registration-of-typoscript-files)
+- [Auto-registration of TSConfig-files](#auto-registration-of-tsconfig-files)
 - [Auto-registration of icons](#auto-registration-of-icons)
 - [Extension settings](#extension-settings)
 - [Helper classes](#helper-classes)
@@ -22,7 +23,7 @@ This extension
 - generates the TCA for your domain models by reading its PHPDoc-annotations
 - configures and registers modules and plugins based on PHPDoc-annotations in your controllers
 - registers custom page types
-- auto-registers existing FlexForms, TypoScript and icons
+- auto-registers existing FlexForms, TypoScript, TSConfig and icons
 - provides convenient ways to access often used core-functionalities
 
 ### Why should you use it?
@@ -210,9 +211,18 @@ leave out the brackets. The default values of the annotation class will have no 
       'PluginName' => [
           \Your\Extension\Controller\YourController::class,
       ],
-      'AnotherPlugin' => [
+      'AnotherPluginWithMultipleControllers' => [
           \Your\Extension\Controller\AnotherController::class,
           \Your\Extension\Controller\ExtraController::class,
+          ...
+      ],
+      'AnotherPluginWhichDoesNotUseAllActionsInController' => [
+          \Your\Extension\Controller\AnotherController::class,
+          \Your\Extension\Controller\ExtraController::class => [
+              'actionName1',
+              'actionName2',
+              ...
+          ],
           ...
       ],
       ...
@@ -253,8 +263,11 @@ leave out the brackets. The default values of the annotation class will have no 
   ```
 
 The `PluginConfig`-annotation is not mandatory. You only need to set it, when additional configuration is desired (e.g.
-setting an icon identifier). Actions without the `PluginAction`-annotation won't be registered though. Check the default
-values and comments in `EXT:psb_foundation/Classes/Annotation/`.
+setting a custom icon identifier).
+Actions without the `PluginAction`-annotation won't be registered though -
+even if mentioned in the optional action list in `ExtensionInformation.php`!
+If no action list is provided, all actions annotated with `PluginAction` will be registered.
+Check the default values and comments in `EXT:psb_foundation/Classes/Annotation/`.
 
 #### FlexForms
 If there is a file named `EXT:your_extension/Configuration/FlexForms/[PluginName].xml` it will be registered
@@ -376,6 +389,11 @@ If that key doesn't exist, `name` will be transformed from "yourPageTypeName" to
 If there are `.typoscript`-files located in `EXT:your_extension/Configuration/TypoScript]`, psb_foundation will execute `\PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::registerTypoScript()` for that directory.
 You can provide a custom title for the select item in the template module with `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/sys_template.xlf:template.title` -
 defaults to `'Main configuration'`.
+
+### Auto-registration of TSConfig-files
+If these files exist, they will be included automatically:
+- `EXT:your_extension/Configuration/TSConfig/Page.tsconfig`
+- `EXT:your_extension/Configuration/TSConfig/User.tsconfig`
 
 ### Auto-registration of icons
 All PNG- and SVG-files located in `EXT:your_extension/Resources/Public/Icons` will be registered automatically.

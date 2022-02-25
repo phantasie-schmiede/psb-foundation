@@ -267,6 +267,10 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
      */
     public function getPosition(): string
     {
+        if (empty($this->position)) {
+            return '';
+        }
+
         [$key, $location] = GeneralUtility::trimExplode(':', $this->position, false, 2);
 
         // Check if $location is NOT a palette name.
@@ -310,17 +314,17 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
-    public function isExclude(): bool
+    public function isExclude(): ?bool
     {
         return $this->exclude;
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
-    public function isReadOnly(): bool
+    public function isReadOnly(): ?bool
     {
         return $this->readOnly;
     }

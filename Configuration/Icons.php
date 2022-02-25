@@ -36,11 +36,6 @@ return call_user_func(
             }
         }
 
-        // @todo REMOVE BEFORE DEPLOYMENT!!!
-        echo('<pre>');
-        var_dump($icons);
-        echo('</pre>');
-
         return $icons;
     }
 );

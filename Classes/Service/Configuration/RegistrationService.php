@@ -148,36 +148,41 @@ class RegistrationService
      */
     public function configurePlugins(ExtensionInformationInterface $extensionInformation): void
     {
-        if (is_iterable($extensionInformation->getPlugins())) {
-            foreach ($extensionInformation->getPlugins() as $pluginName => $controllerClassNames) {
-                if (is_iterable($controllerClassNames)) {
-                    [
-                        $pluginConfiguration,
-                        $controllersAndCachedActions,
-                        $controllersAndUncachedActions,
-                    ] = $this->collectActionsAndConfiguration($controllerClassNames,
-                        self::COLLECT_MODES['CONFIGURE_PLUGINS'], $pluginName);
+        if (!is_iterable($extensionInformation->getPlugins())) {
+            return;
+        }
 
-                    ExtensionUtility::configurePlugin(
-                        $extensionInformation->getExtensionName(),
-                        $pluginName,
-                        $controllersAndCachedActions,
-                        $controllersAndUncachedActions
-                    );
-
-                    if (isset($pluginConfiguration[PluginConfig::class])) {
-                        /** @var PluginConfig $pluginConfig */
-                        $pluginConfig = $pluginConfiguration[PluginConfig::class];
-                        $group = $pluginConfig->getGroup();
-                        $iconIdentifier = $pluginConfig->getIconIdentifier();
-                    }
-
-                    $this->addPluginToElementWizard($extensionInformation->getExtensionKey(),
-                        $group ?? mb_strtolower($extensionInformation->getVendorName()),
-                        $pluginName,
-                        $iconIdentifier ?? null);
-                }
+        foreach ($extensionInformation->getPlugins() as $pluginName => $controllerCollection) {
+            if (!is_iterable($controllerCollection)) {
+                // @TODO: Add warning?
+                continue;
             }
+
+            [
+                $pluginConfiguration,
+                $controllersAndCachedActions,
+                $controllersAndUncachedActions,
+            ] = $this->collectActionsAndConfiguration($controllerCollection,
+                self::COLLECT_MODES['CONFIGURE_PLUGINS'], $pluginName);
+
+            ExtensionUtility::configurePlugin(
+                $extensionInformation->getExtensionName(),
+                $pluginName,
+                $controllersAndCachedActions,
+                $controllersAndUncachedActions
+            );
+
+            if (isset($pluginConfiguration[PluginConfig::class])) {
+                /** @var PluginConfig $pluginConfig */
+                $pluginConfig = $pluginConfiguration[PluginConfig::class];
+                $group = $pluginConfig->getGroup();
+                $iconIdentifier = $pluginConfig->getIconIdentifier();
+            }
+
+            $this->addPluginToElementWizard($extensionInformation->getExtensionKey(),
+                $group ?? mb_strtolower($extensionInformation->getVendorName()),
+                $pluginName,
+                $iconIdentifier ?? null);
         }
     }
 
@@ -292,49 +297,51 @@ class RegistrationService
 
         $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
-        foreach ($extensionInformation->getPlugins() as $pluginName => $controllerClassNames) {
-            if (is_iterable($controllerClassNames)) {
-                [$pluginConfiguration] = $this->collectActionsAndConfiguration($controllerClassNames,
-                    self::COLLECT_MODES['REGISTER_PLUGINS']);
+        foreach ($extensionInformation->getPlugins() as $pluginName => $controllerCollection) {
+            if (!is_iterable($controllerCollection)) {
+                continue;
+            }
 
-                $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $pluginName . '.xml';
+            [$pluginConfiguration] = $this->collectActionsAndConfiguration($controllerCollection,
+                self::COLLECT_MODES['REGISTER_PLUGINS']);
 
-                if (isset($pluginConfiguration[PluginConfig::class])) {
-                    /** @var PluginConfig $pluginConfig */
-                    $pluginConfig = $pluginConfiguration[PluginConfig::class];
-                    $title = $pluginConfig->getTitle();
+            $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $pluginName . '.xml';
 
-                    if ('' !== $pluginConfig->getFlexForm()) {
-                        $flexFormFilePath = $pluginConfig->getFlexForm();
+            if (isset($pluginConfiguration[PluginConfig::class])) {
+                /** @var PluginConfig $pluginConfig */
+                $pluginConfig = $pluginConfiguration[PluginConfig::class];
+                $title = $pluginConfig->getTitle();
 
-                        if (false === strpos($flexFormFilePath, 'EXT:')) {
-                            $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $flexFormFilePath;
-                        }
+                if ('' !== $pluginConfig->getFlexForm()) {
+                    $flexFormFilePath = $pluginConfig->getFlexForm();
+
+                    if (false === strpos($flexFormFilePath, 'EXT:')) {
+                        $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $flexFormFilePath;
                     }
                 }
-
-                $flexFormFilePath = GeneralUtility::getFileAbsFileName($flexFormFilePath);
-
-                if (file_exists($flexFormFilePath)) {
-                    $pluginSignature = strtolower($extensionInformation->getExtensionName()) . '_' . strtolower($pluginName);
-                    $this->flexFormService->register(file_get_contents($flexFormFilePath), $pluginSignature);
-                }
-
-                if (!isset($title)) {
-                    $title = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title';
-                    $localizationService->translationExists($title);
-                }
-
-                $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
-                        GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
-
-                ExtensionUtility::registerPlugin(
-                    $extensionInformation->getExtensionName(),
-                    $pluginName,
-                    $title,
-                    $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
-                );
             }
+
+            $flexFormFilePath = GeneralUtility::getFileAbsFileName($flexFormFilePath);
+
+            if (file_exists($flexFormFilePath)) {
+                $pluginSignature = strtolower($extensionInformation->getExtensionName()) . '_' . strtolower($pluginName);
+                $this->flexFormService->register(file_get_contents($flexFormFilePath), $pluginSignature);
+            }
+
+            if (!isset($title)) {
+                $title = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title';
+                $localizationService->translationExists($title);
+            }
+
+            $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
+                    GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
+
+            ExtensionUtility::registerPlugin(
+                $extensionInformation->getExtensionName(),
+                $pluginName,
+                $title,
+                $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
+            );
 
             unset ($title);
         }
@@ -473,14 +480,14 @@ class RegistrationService
     }
 
     /**
-     * @param array  $controllerClassNames
+     * @param array  $controllerCollection
      * @param string $collectMode
      * @param string $pluginName
      *
      * @return array
      */
     private function collectActionsAndConfiguration(
-        array $controllerClassNames,
+        array $controllerCollection,
         string $collectMode,
         string $pluginName = ''
     ): array {
@@ -490,7 +497,14 @@ class RegistrationService
         $annotationReader = new IndexedReader(new AnnotationReader());
         $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
 
-        foreach ($controllerClassNames as $controllerClassName) {
+        foreach ($controllerCollection as $key => $value) {
+            if (is_int($key)) {
+                $controllerClassName = $value;
+            } else {
+                $controllerClassName = $key;
+                $specifiedActions = $value;
+            }
+
             $controller = GeneralUtility::makeInstance(ReflectionClass::class, $controllerClassName);
             $controllersAndCachedActions[$controllerClassName] = [];
 
@@ -508,14 +522,18 @@ class RegistrationService
                         continue;
                     }
 
+                    $actionName = mb_substr($methodName, 0, -6);
+
+                    if (isset($specifiedActions) && !in_array($actionName, $specifiedActions, true)) {
+                        continue;
+                    }
+
                     /** @var ModuleAction|null $moduleAction */
                     $docComment = $annotationReader->getMethodAnnotations($method);
 
                     if (isset($docComment[ModuleAction::class])) {
                         /** @var ModuleAction $action */
                         $action = $docComment[ModuleAction::class];
-
-                        $actionName = mb_substr($methodName, 0, -6);
 
                         if (true === $action->isDefault()) {
                             array_unshift($controllersAndCachedActions[$controllerClassName],
@@ -528,8 +546,6 @@ class RegistrationService
                     if (isset($docComment[PluginAction::class])) {
                         /** @var PluginAction $action */
                         $action = $docComment[PluginAction::class];
-
-                        $actionName = mb_substr($methodName, 0, -6);
 
                         if (true === $action->isDefault()) {
                             array_unshift($controllersAndCachedActions[$controllerClassName],

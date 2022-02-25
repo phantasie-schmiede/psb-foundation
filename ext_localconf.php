@@ -17,11 +17,19 @@ defined('TYPO3_MODE') or die();
         $registrationService->configurePlugins($extensionInformation);
         \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPluginsAndModules($extensionInformation);
 
-        $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/UserTS.tsconfig';
+        $pageTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/Page.tsconfig';
+
+        if (\PSB\PsbFoundation\Utility\FileUtility::fileExists($pageTsConfigFilename)) {
+            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
+             @import \'' . $pageTsConfigFilename . '\'
+        ');
+        }
+
+        $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/User.tsconfig';
 
         if (\PSB\PsbFoundation\Utility\FileUtility::fileExists($userTsConfigFilename)) {
             \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('
-             <INCLUDE_TYPOSCRIPT: source="FILE:' . $userTsConfigFilename . '">
+             @import \'' . $userTsConfigFilename . '\'
         ');
         }
     }

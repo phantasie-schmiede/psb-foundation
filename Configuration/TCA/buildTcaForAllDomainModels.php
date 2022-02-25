@@ -1,12 +1,14 @@
 <?php
-/** @noinspection PhpFullyQualifiedNameUsageInspection */
 declare(strict_types = 1);
+
+use PSB\PsbFoundation\Service\Configuration\TcaService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 defined('TYPO3_MODE') or die();
 
 return call_user_func(
     static function () {
-        $tcaService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\TcaService::class);
+        $tcaService = GeneralUtility::makeInstance(TcaService::class);
         $tcaService->buildTca(false);
     }
 );
