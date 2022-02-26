@@ -82,15 +82,15 @@ You can provide configuration options via PHPDoc-annotations. Available annotati
 in `psb_foundation/Classes/Annotations/TCA`. There are more annotations than unique field types. This extension offers
 different presets, e.g.
 
-* type: input
-    * Date
-    * DateTime
-    * Input
-    * Integer
-    * Link
-* type: inline (FileReference)
-    * Document
-    * Image
+- type: input
+    - Date
+    - DateTime
+    - Input
+    - Integer
+    - Link
+- type: inline (FileReference)
+    - Document
+    - Image
 
 Simple example:
 
@@ -183,8 +183,10 @@ class YourModel
     protected ?AnotherModel $simpleSelectField = null;
 
     /**
+     * This field is only added to the types 'interview' and 'profile'.
+     *
      * @var FileReference|null
-     * @TCA\Image(allowedFileTypes="jpeg, jpg", maxItems=1, typeList="recordWithImage")
+     * @TCA\Image(allowedFileTypes="jpeg, jpg", maxItems=1, typeList="interview, profile")
      */
     protected ?FileReference $image = null;
 
@@ -198,14 +200,14 @@ When you are extending domain models (even from extensions that don't make use o
 leave out the brackets. The default values of the annotation class will have no effect in this case.
 
 #### Default language label paths and additional configuration options
-* If you don't provide a title in the Ctrl-annotation, this path will be
+- If you don't provide a title in the Ctrl-annotation, this path will be
   tried: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:ctrl.title`
-* If you don't provide a label for a property, this path will be
+- If you don't provide a label for a property, this path will be
   tried: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName]`
-* You can add new tabs (will be transformed to `--div--;...`) by setting position to `tab:[identifier]`. `[identifier]`
+- You can add new tabs (will be transformed to `--div--;...`) by setting position to `tab:[identifier]`. `[identifier]`
   may be a full `LLL:`-path. If following label exists, this will be
   used: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:tab.[identifier]`
-* When you use the items-property for a select field, you may provide a simple associative array. It will be transformed
+- When you use the items-property for a select field, you may provide a simple associative array. It will be transformed
   into the required multi-level format. The labels will be build this
   way: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName].[arrayKeyTransformedToLowerCamelCase]`
 
@@ -287,8 +289,8 @@ your wizard entry by setting the `group`-property of the `PluginConfig`-annotati
 taken into account automatically if defined:
 
 - `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:`
-    * `[group].elements.[pluginName].description`
-    * `[group].elements.[pluginName].title`
+    - `[group].elements.[pluginName].description`
+    - `[group].elements.[pluginName].title`
 
 `[group]` defaults to the vendor name (lowercase) if not set within `PluginConfig`-annotation. That also defines the tab
 of the content element wizard. If a new tab is created, its label will be fetched from
@@ -381,9 +383,9 @@ class YourModuleController extends AbstractModuleController
 The following language labels can be used without further configuration:
 
 - `EXT:your_extension/Resources/Private/Language/Backend/Modules/[ModuleName].xlf:`
-    * `mlang_labels_tabdescr` used as module description in the about-module
-    * `mlang_labels_tablabel` used as short description when hovering over the module link
-    * `mlang_tabs_tab` used as module title
+    - `mlang_labels_tabdescr` used as module description in the about-module
+    - `mlang_labels_tablabel` used as short description when hovering over the module link
+    - `mlang_tabs_tab` used as module title
 
 ### Registering custom page types
 Classes/Data/ExtensionInformation.php
@@ -436,10 +438,10 @@ Examples (filename => icon identifier):
 
 ### Extension settings
 #### Log missing language labels
-If activated, missing language labels will be stored in tx_psbfoundation_missing_language_labels. This is restricted
+If activated, missing language labels will be stored in `tx_psbfoundation_missing_language_labels`. This is restricted
 to `PSB\PsbFoundation\Service\LocalizationService` which extends the LocalizationService of the TYPO3 core. All missing
 default labels (e.g. plugin title or field label) will be listed this way if you didn't provide a custom label. Fixed
-entries get removed on next check (every time the cache is cleared).
+entries get removed on next check (every time the cache is cleared).<br>
 It's recommended to check this table during extension development.
 
 ### Helper classes
@@ -512,4 +514,4 @@ $this->typoScriptProviderService->get('displayOptions.showPreview', Configuratio
 The values returned by this service have been converted to the correct type already (using StringUtility::convertString()).
 If you set `displayOptions.showPreview = 1` the last example will return an integer.
 If you set `displayOptions.showPreview = true` it will return a boolean.
-Not set constants will be returned as null.
+Not set constants will be returned as `null` instead of `{$...}`.
