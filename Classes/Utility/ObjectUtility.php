@@ -73,10 +73,10 @@ class ObjectUtility
 
         foreach ($properties as $property) {
             $property->setAccessible(true);
-            $getterMethodName = 'get' . ucfirst($property->getName());
+            $getterMethodName = 'get' . GeneralUtility::underscoredToUpperCamelCase($property->getName());
 
             if (!$reflectionClass->hasMethod($getterMethodName)) {
-                $getterMethodName = 'is' . ucfirst($property->getName());
+                $getterMethodName = 'is' . GeneralUtility::underscoredToUpperCamelCase($property->getName());
             }
 
             if ($reflectionClass->hasMethod($getterMethodName)) {
