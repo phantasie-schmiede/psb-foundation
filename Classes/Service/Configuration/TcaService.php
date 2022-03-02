@@ -173,6 +173,34 @@ class TcaService
         return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
     }
 
+    /**
+     * @param array  $items
+     * @param string $labelPath
+     *
+     * @return array
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     */
+    public function processSelectItemsArray(array $items, string $labelPath): array
+    {
+        $selectItems = [];
+
+        foreach ($items as $key => $value) {
+            $identifier = GeneralUtility::underscoredToLowerCamelCase($key);
+            $label = $labelPath . $identifier;
+
+            if (!$this->localizationService->translationExists($label, false)) {
+                $label = ucfirst((string)$value);
+            }
+
+            $selectItems[] = [$label, $value];
+        }
+
+        return $selectItems;
+    }
+
     protected function buildClassesTableMapping(): void
     {
         self::$classTableMapping = [];
@@ -443,34 +471,6 @@ class TcaService
                 ],
             ],
         ];
-    }
-
-    /**
-     * @param array  $items
-     * @param string $labelPath
-     *
-     * @return array
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
-     * @throws JsonException
-     */
-    protected function processSelectItemsArray(array $items, string $labelPath): array
-    {
-        $selectItems = [];
-
-        foreach ($items as $key => $value) {
-            $identifier = GeneralUtility::underscoredToLowerCamelCase($key);
-            $label = $labelPath . $identifier;
-
-            if (!$this->localizationService->translationExists($label, false)) {
-                $label = ucfirst($identifier);
-            }
-
-            $selectItems[] = [$label, $value];
-        }
-
-        return $selectItems;
     }
 
     /**

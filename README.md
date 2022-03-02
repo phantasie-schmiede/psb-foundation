@@ -319,9 +319,21 @@ This process is very similar to the way plugins are registered.
 
 - Classes/Data/ExtensionInformation.php
   ```php
+  public const MAIN_MODULES = [
+      'mainModuleName',
+      'mainModuleWithCustomConfiguration' => [
+          'iconIdentifier' => '...', // optional
+          'labels'         => '...', // optional
+          'position'       => '...', // optional
+          'routeTarget'    => '...', // optional
+      ],
+      ...
+  ];
+
   public const MODULES = [
       'ModuleName' => [
           \Your\Extension\Controller\YourModuleController::class,
+          \Your\Extension\Controller\AnotherModuleController::class,
       ],
       ...
   ];
@@ -380,12 +392,20 @@ class YourModuleController extends AbstractModuleController
 }
 ```
 
-The following language labels can be used without further configuration:
+Modules need to provide three labels:
+- `mlang_labels_tabdescr` used as module description in the about-module
+- `mlang_labels_tablabel` used as short description when hovering over the module link
+- `mlang_tabs_tab` used as module title
 
-- `EXT:your_extension/Resources/Private/Language/Backend/Modules/[ModuleName].xlf:`
-    - `mlang_labels_tabdescr` used as module description in the about-module
-    - `mlang_labels_tablabel` used as short description when hovering over the module link
-    - `mlang_tabs_tab` used as module title
+The following fallbacks account for main modules and submodules, if no custom value is specified:
+- language file: `EXT:your_extension/Resources/Private/Language/Backend/Modules/[moduleName].xlf:` (file name starts with lower case!)
+- icon identifier: `extension-key-module-your-module-name`
+
+Fallbacks regarding submodules only:
+- access: `group, user`
+- main module: `web`
+
+Check the other configuration options and comments in `EXT:psb_foundation/Classes/Annotation/`.
 
 ### Registering custom page types
 Classes/Data/ExtensionInformation.php

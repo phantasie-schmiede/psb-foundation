@@ -21,9 +21,9 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\IndexedReader;
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Annotation\PageType;
 use PSB\PsbFoundation\Annotation\ModuleAction;
 use PSB\PsbFoundation\Annotation\ModuleConfig;
+use PSB\PsbFoundation\Annotation\PageType;
 use PSB\PsbFoundation\Annotation\PluginAction;
 use PSB\PsbFoundation\Annotation\PluginConfig;
 use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
@@ -204,6 +204,27 @@ class RegistrationService
 
         $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
+        foreach ($extensionInformation->getMainModules() as $key => $value) {
+            if (is_int($key)) {
+                $mainModuleKey = $value;
+            } else {
+                $mainModuleKey = $key;
+                $configuration = $value;
+            }
+
+            $labels = $configuration['labels'] ?? $this->getDefaultLabelPathForModule($extensionInformation,
+                    $mainModuleKey);
+            $this->checkLanguageLabelsForModule($labels, $localizationService);
+
+            ExtensionManagementUtility::addModule($mainModuleKey, '', $configuration['position'] ?? '', null, [
+                'labels'         => $labels,
+                'iconIdentifier' => $configuration['iconIdentifier'] ?? $this->getDefaultIconIdentifierForModule($extensionInformation,
+                        $mainModuleKey),
+                'name'           => $mainModuleKey,
+                'routeTarget'    => $configuration['routeTarget'] ?? null,
+            ]);
+        }
+
         foreach ($extensionInformation->getModules() as $submoduleKey => $controllerClassNames) {
             if (is_iterable($controllerClassNames)) {
                 [
@@ -212,40 +233,33 @@ class RegistrationService
                 ] = $this->collectActionsAndConfiguration($controllerClassNames,
                     self::COLLECT_MODES['REGISTER_MODULES']);
 
-                if (isset($moduleConfiguration[ModuleConfig::class])) {
-                    /** @var ModuleConfig $moduleConfig */
-                    $moduleConfig = $moduleConfiguration[ModuleConfig::class];
-                    $iconIdentifier = $moduleConfig->getIconIdentifier();
-                    $mainModuleName = $moduleConfig->getMainModuleName();
-                    $position = $moduleConfig->getPosition();
-                    $access = $moduleConfig->getAccess();
-                    $icon = $moduleConfig->getIcon();
-                    $labels = $moduleConfig->getLabels();
-                    $navigationComponentId = $moduleConfig->getNavigationComponentId();
+                if (!isset($moduleConfiguration[ModuleConfig::class])) {
+                    continue;
                 }
 
-                $iconIdentifier = $iconIdentifier ?? 'module-' . $submoduleKey;
-
-                if (!isset($labels)) {
-                    $labels = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . $submoduleKey . '.xlf';
-                }
-
-                $localizationService->translationExists($labels . ':mlang_labels_tabdescr');
-                $localizationService->translationExists($labels . ':mlang_labels_tablabel');
-                $localizationService->translationExists($labels . ':mlang_tabs_tab');
+                /** @var ModuleConfig $moduleConfig */
+                $moduleConfig = $moduleConfiguration[ModuleConfig::class];
+                $iconIdentifier = $moduleConfig->getIconIdentifier() ?? $this->getDefaultIconIdentifierForModule($extensionInformation,
+                        $submoduleKey);
+                $mainModuleName = $moduleConfig->getMainModuleName();
+                $position = $moduleConfig->getPosition();
+                $access = $moduleConfig->getAccess();
+                $labels = $moduleConfig->getLabels() ?? $this->getDefaultLabelPathForModule($extensionInformation,
+                        $submoduleKey);
+                $this->checkLanguageLabelsForModule($labels, $localizationService);
+                $navigationComponentId = $moduleConfig->getNavigationComponentId();
 
                 ExtensionUtility::registerModule(
                     $extensionInformation->getExtensionName(),
-                    $mainModuleName ?? 'web',
+                    $mainModuleName,
                     $submoduleKey,
-                    $position ?? '',
+                    $position,
                     $controllersAndActions,
                     [
-                        'access'                => $access ?? 'group, user',
-                        'icon'                  => $icon ?? null,
+                        'access'                => $access,
                         'iconIdentifier'        => $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
                         'labels'                => $labels,
-                        'navigationComponentId' => $navigationComponentId ?? null,
+                        'navigationComponentId' => $navigationComponentId,
                     ]
                 );
             }
@@ -480,6 +494,23 @@ class RegistrationService
     }
 
     /**
+     * @param string              $filePath
+     * @param LocalizationService $localizationService
+     *
+     * @return void
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     */
+    private function checkLanguageLabelsForModule(string $filePath, LocalizationService $localizationService): void
+    {
+        $localizationService->translationExists($filePath . ':mlang_labels_tabdescr');
+        $localizationService->translationExists($filePath . ':mlang_labels_tablabel');
+        $localizationService->translationExists($filePath . ':mlang_tabs_tab');
+    }
+
+    /**
      * @param array  $controllerCollection
      * @param string $collectMode
      * @param string $pluginName
@@ -614,5 +645,32 @@ class RegistrationService
                 throw new InvalidArgumentException(__CLASS__ . ': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "' . $collectMode . '"!',
                     1559627862);
         }
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $moduleKey
+     *
+     * @return string
+     */
+    private function getDefaultIconIdentifierForModule(
+        ExtensionInformationInterface $extensionInformation,
+        string $moduleKey
+    ): string {
+        return str_replace('_', '-', $extensionInformation->getExtensionKey()) . '-module-' . str_replace('_', '-',
+                GeneralUtility::camelCaseToLowerCaseUnderscored($moduleKey));
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $moduleKey
+     *
+     * @return string
+     */
+    private function getDefaultLabelPathForModule(
+        ExtensionInformationInterface $extensionInformation,
+        string $moduleKey
+    ): string {
+        return 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . lcfirst($moduleKey) . '.xlf';
     }
 }

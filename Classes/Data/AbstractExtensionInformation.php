@@ -33,8 +33,27 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
     /**
      * may be overridden in extending class
      */
+    public const MAIN_MODULES = [
+        /*
+        *  'mainModuleKey' => [
+        *      'iconIdentifier' => '...', // optional
+        *      'labels'         => '...', // optional
+        *      'position'       => '...', // optional
+        *      'routeTarget'    => '...', // optional
+        *  ],
+        */
+    ];
+
+    /**
+     * may be overridden in extending class
+     */
     public const MODULES = [
-        // 'submoduleKey' => [\Your\Module\Controller::class, \Your\Module\AnotherController::class],
+        /*
+         *  'submoduleKey' => [
+         *      \Your\Module\Controller::class,
+         *      \Your\Module\AnotherController::class
+         *  ],
+         */
     ];
 
     /**
@@ -55,11 +74,11 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
     public const PAGE_TYPES = [
         /*
          * doktype => [
-         *     'allowedTables'  => ['*'],
-         *     'iconIdentifier' => 'page-type-your-page-type-name'
-         *     'label'          => 'Your page type name'
-         *     'name'           => 'yourPageTypeName',
-         *     'type'           => 'web',
+         *     'allowedTables'  => ['*'],                          // optional
+         *     'iconIdentifier' => 'page-type-your-page-type-name' // optional
+         *     'label'          => 'Your page type name'           // optional
+         *     'name'           => 'yourPageTypeName',             // optional
+         *     'type'           => 'web',                          // optional
          * ],
          */
     ];
@@ -68,7 +87,12 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
      * may be overridden in extending class
      */
     public const PLUGINS = [
-        // 'pluginName' => [\Your\Plugin\Controller::class, \Your\Plugin\AnotherController::class],
+        /*
+        *  'pluginName' => [
+        *      \Your\Plugin\Controller::class,
+        *      \Your\Plugin\AnotherController::class
+        *  ],
+        */
     ];
 
     /**
@@ -106,6 +130,14 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
     public function getExtensionName(): string
     {
         return $this->extensionName;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMainModules(): array
+    {
+        return static::MAIN_MODULES;
     }
 
     /**

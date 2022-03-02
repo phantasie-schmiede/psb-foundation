@@ -32,14 +32,9 @@ class ModuleConfig extends AbstractAnnotation
     protected string $access = 'group, user';
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $icon = '';
-
-    /**
-     * @var string
-     */
-    protected string $iconIdentifier = '';
+    protected ?string $iconIdentifier = null;
 
     /**
      * @var string|null
@@ -49,12 +44,12 @@ class ModuleConfig extends AbstractAnnotation
     /**
      * @var string
      */
-    protected string $mainModuleName = '';
+    protected string $mainModuleName = 'web';
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $navigationComponentId = '';
+    protected ?string $navigationComponentId = null;
 
     /**
      * @var string
@@ -78,33 +73,17 @@ class ModuleConfig extends AbstractAnnotation
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getIcon(): string
-    {
-        return $this->icon;
-    }
-
-    /**
-     * @param string $icon
-     */
-    public function setIcon(string $icon): void
-    {
-        $this->icon = $icon;
-    }
-
-    /**
-     * @return string
-     */
-    public function getIconIdentifier(): string
+    public function getIconIdentifier(): ?string
     {
         return $this->iconIdentifier;
     }
 
     /**
-     * @param string $iconIdentifier
+     * @param string|null $iconIdentifier
      */
-    public function setIconIdentifier(string $iconIdentifier): void
+    public function setIconIdentifier(?string $iconIdentifier): void
     {
         $this->iconIdentifier = $iconIdentifier;
     }
@@ -142,17 +121,17 @@ class ModuleConfig extends AbstractAnnotation
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getNavigationComponentId(): string
+    public function getNavigationComponentId(): ?string
     {
         return $this->navigationComponentId;
     }
 
     /**
-     * @param string $navigationComponentId
+     * @param string|null $navigationComponentId
      */
-    public function setNavigationComponentId(string $navigationComponentId): void
+    public function setNavigationComponentId(?string $navigationComponentId): void
     {
         $this->navigationComponentId = $navigationComponentId;
     }

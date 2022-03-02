@@ -96,12 +96,8 @@ class ExtensionInformationService
      * @return void
      * @throws ImplementationException
      */
-    public function register(): void
+    private function register(): void
     {
-        if (!empty($this->extensionInformationInstances)) {
-            return;
-        }
-
         $activePackages = $this->packageManager->getActivePackages();
 
         foreach ($activePackages as $package) {
@@ -156,9 +152,14 @@ class ExtensionInformationService
 
     /**
      * @return ExtensionInformationInterface[]
+     * @throws ImplementationException
      */
     public function getExtensionInformation(): array
     {
+        if (empty($this->extensionInformationInstances)) {
+            $this->register();
+        }
+
         return $this->extensionInformationInstances;
     }
 
