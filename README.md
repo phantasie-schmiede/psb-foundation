@@ -367,9 +367,10 @@ This process is very similar to the way plugins are registered.
   }
   ```
 
-Instead of `ActionController` you can extend `PSB\PsbFoundation\Controller\Backend\AbstractModuleController`. This class
-provides the required `ModuleTemplateFactory`.
-At the end of your actions you can just call its render()-function and your corresponding fluid-template will be returned.
+Instead of `ActionController` you can extend `PSB\PsbFoundation\Controller\Backend\AbstractModuleController`.
+This class provides the required `ModuleTemplateFactory`.
+You can access the ModuleTemplate via `$this->moduleTemplate`, e.g. to add FlashMessages.
+At the end of your actions you can just call `$this->render()` and your corresponding fluid-template will be returned.
 
 ```php
 use PSB\PsbFoundation\Annotation\ModuleAction;
@@ -399,7 +400,7 @@ Modules need to provide three labels:
 
 The following fallbacks account for main modules and submodules, if no custom value is specified:
 - language file: `EXT:your_extension/Resources/Private/Language/Backend/Modules/[moduleName].xlf:` (file name starts with lower case!)
-- icon identifier: `extension-key-module-your-module-name`
+- icon identifier: `extension-key-module-your-module-name` (i.e. your filename would be `module-your-module-name`!)
 
 Fallbacks regarding submodules only:
 - access: `group, user`

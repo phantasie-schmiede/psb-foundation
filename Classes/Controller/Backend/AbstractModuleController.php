@@ -17,6 +17,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Controller\Backend;
 
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
@@ -30,6 +31,14 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
  */
 abstract class AbstractModuleController extends ActionController
 {
+    /**
+     * @param ModuleTemplate $moduleTemplate
+     */
+    protected ModuleTemplate $moduleTemplate;
+
+    /**
+     * @var ModuleTemplateFactory
+     */
     protected ModuleTemplateFactory $moduleTemplateFactory;
 
     /**
@@ -42,13 +51,20 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
+     * @return void
+     */
+    protected function initializeAction(): void
+    {
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+    }
+
+    /**
      * @return ResponseInterface
      */
     protected function render(): ResponseInterface
     {
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $moduleTemplate->setContent($this->view->render());
+        $this->moduleTemplate->setContent($this->view->render());
 
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        return $this->htmlResponse($this->moduleTemplate->renderContent());
     }
 }
