@@ -91,10 +91,10 @@ class RegistrationService
     /**
      * For use in ext_localconf.php files
      *
-     * @param string      $extensionKey
-     * @param string      $group
-     * @param string      $pluginName
-     * @param string|null $iconIdentifier
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $group
+     * @param string                        $pluginName
+     * @param string|null                   $iconIdentifier
      *
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -102,17 +102,17 @@ class RegistrationService
      * @throws JsonException
      */
     public function addPluginToElementWizard(
-        string $extensionKey,
+        ExtensionInformationInterface $extensionInformation,
         string $group,
         string $pluginName,
         string $iconIdentifier = null
     ): void {
-        $iconIdentifier = $iconIdentifier ?? $extensionKey . '-' . str_replace('_', '-',
+        $iconIdentifier = $iconIdentifier ?? $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
                 GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
-        $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
+        $ll = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
         $description = $ll . '.description';
         $title = $ll . '.title';
-        $listType = str_replace('_', '', $extensionKey) . '_' . mb_strtolower($pluginName);
+        $listType = str_replace('_', '', $extensionInformation->getExtensionKey()) . '_' . mb_strtolower($pluginName);
         $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
         if (false === $localizationService->translationExists($description)) {
@@ -120,7 +120,11 @@ class RegistrationService
         }
 
         if (false === $localizationService->translationExists($title)) {
-            $title = $pluginName;
+            $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $pluginName);
+
+            if (false === $localizationService->translationExists($title)) {
+                $title = $pluginName;
+            }
         }
 
         $configuration = [
@@ -133,7 +137,7 @@ class RegistrationService
             ],
         ];
 
-        $this->addElementWizardItem($configuration, $extensionKey, $group, $listType);
+        $this->addElementWizardItem($configuration, $extensionInformation->getExtensionKey(), $group, $listType);
     }
 
     /**
@@ -179,7 +183,7 @@ class RegistrationService
                 $iconIdentifier = $pluginConfig->getIconIdentifier();
             }
 
-            $this->addPluginToElementWizard($extensionInformation->getExtensionKey(),
+            $this->addPluginToElementWizard($extensionInformation,
                 $group ?? mb_strtolower($extensionInformation->getVendorName()),
                 $pluginName,
                 $iconIdentifier ?? null);
@@ -343,8 +347,11 @@ class RegistrationService
             }
 
             if (!isset($title)) {
-                $title = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . $pluginName . '.title';
-                $localizationService->translationExists($title);
+                $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $pluginName);
+
+                if (false === $localizationService->translationExists($title)) {
+                    $title = $pluginName;
+                }
             }
 
             $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
@@ -672,5 +679,18 @@ class RegistrationService
         string $moduleKey
     ): string {
         return 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . lcfirst($moduleKey) . '.xlf';
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $pluginName
+     *
+     * @return string
+     */
+    private function getDefaultLabelPathForPlugin(
+        ExtensionInformationInterface $extensionInformation,
+        string $pluginName
+    ): string {
+        return 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . lcfirst($pluginName) . '.title';
     }
 }

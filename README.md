@@ -292,6 +292,11 @@ taken into account automatically if defined:
     - `[group].elements.[pluginName].description`
     - `[group].elements.[pluginName].title`
 
+If the label for title does not exist, this label will be tried:
+`EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.[pluginName].title`<br>
+This label is also used for the select box item.
+If it doesn't exist either, the plugin name will be used as fallback.
+
 `[group]` defaults to the vendor name (lowercase) if not set within `PluginConfig`-annotation. That also defines the tab
 of the content element wizard. If a new tab is created, its label will be fetched from
 here: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:[group].header`
