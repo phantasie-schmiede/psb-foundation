@@ -76,7 +76,7 @@ class RegistrationService
     /**
      * This static variable is used to keep track of already registered wizard groups and is pre-filled with TYPO3's
      * default groups as defined in
-     * typo3\sysext\backend\Configuration\TSConfig\Page\Mod\Wizards\NewContentElement.tsconfig
+     * typo3\sysext\backend\Configuration\TSconfig\Page\Mod\Wizards\NewContentElement.tsconfig
      *
      * @var string[]
      */
@@ -109,7 +109,7 @@ class RegistrationService
     ): void {
         $iconIdentifier = $iconIdentifier ?? $extensionKey . '-' . str_replace('_', '-',
                 GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
-        $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
+        $ll = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $group . '.elements.' . lcfirst($pluginName);
         $description = $ll . '.description';
         $title = $ll . '.title';
         $listType = str_replace('_', '', $extensionKey) . '_' . mb_strtolower($pluginName);
@@ -372,7 +372,7 @@ class RegistrationService
      */
     private function addElementWizardGroup(string $extensionKey, string $key): void
     {
-        $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:' . $key . '.header';
+        $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:' . $key . '.header';
         GeneralUtility::makeInstance(LocalizationService::class)->translationExists($header);
         $pageTS['mod']['wizards']['newContentElement']['wizardItems'][$key] = [
             'header' => $header,

@@ -16,7 +16,7 @@ defined('TYPO3_MODE') or die();
         $registrationService->configurePlugins($extensionInformation);
         \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPluginsAndModules($extensionInformation);
 
-        $pageTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/Page.tsconfig';
+        $pageTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSconfig/Page.tsconfig';
 
         if (\PSB\PsbFoundation\Utility\FileUtility::fileExists($pageTsConfigFilename)) {
             \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
@@ -24,7 +24,7 @@ defined('TYPO3_MODE') or die();
         ');
         }
 
-        $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSConfig/User.tsconfig';
+        $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSconfig/User.tsconfig';
 
         if (\PSB\PsbFoundation\Utility\FileUtility::fileExists($userTsConfigFilename)) {
             \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('

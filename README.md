@@ -14,7 +14,7 @@
 - [Registering and configuring modules](#registering-and-configuring-modules)
 - [Registering custom page types](#registering-custom-page-types)
 - [Auto-registration of TypoScript-files](#auto-registration-of-typoscript-files)
-- [Auto-registration of TSConfig-files](#auto-registration-of-tsconfig-files)
+- [Auto-registration of TSconfig-files](#auto-registration-of-tsconfig-files)
 - [Auto-registration of icons](#auto-registration-of-icons)
 - [Extension settings](#extension-settings)
 - [Helper classes](#helper-classes)
@@ -28,7 +28,7 @@ This extension
 - generates the TCA for your domain models by reading its PHPDoc-annotations
 - configures and registers modules and plugins based on PHPDoc-annotations in your controllers
 - registers custom page types
-- auto-registers existing FlexForms, TypoScript, TSConfig and icons
+- auto-registers existing FlexForms, TypoScript, TSconfig and icons
 - provides convenient ways to access often used core-functionalities
 
 ### Why should you use it?
@@ -247,7 +247,7 @@ leave out the brackets. The default values of the annotation class will have no 
   class YourController extends ActionController
   {
       /**
-       * @PluginAction()
+       * @PluginAction
        */
       public function simpleAction(): void
       {
@@ -288,13 +288,13 @@ Plugins will be added to the wizard automatically. There will be a tab for each 
 your wizard entry by setting the `group`-property of the `PluginConfig`-annotation. The following language labels are
 taken into account automatically if defined:
 
-- `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:`
+- `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:`
     - `[group].elements.[pluginName].description`
     - `[group].elements.[pluginName].title`
 
 `[group]` defaults to the vendor name (lowercase) if not set within `PluginConfig`-annotation. That also defines the tab
 of the content element wizard. If a new tab is created, its label will be fetched from
-here: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSConfig/Page/wizard.xlf:[group].header`
+here: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSconfig/Page/wizard.xlf:[group].header`
 
 #### Custom page types for single actions
 ```php
@@ -444,10 +444,10 @@ If there are `.typoscript`-files located in `EXT:your_extension/Configuration/Ty
 You can provide a custom title for the select item in the template module with `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/sys_template.xlf:template.title` -
 defaults to `'Main configuration'`.
 
-### Auto-registration of TSConfig-files
+### Auto-registration of TSconfig-files
 If these files exist, they will be included automatically:
-- `EXT:your_extension/Configuration/TSConfig/Page.tsconfig`
-- `EXT:your_extension/Configuration/TSConfig/User.tsconfig`
+- `EXT:your_extension/Configuration/TSconfig/Page.tsconfig`
+- `EXT:your_extension/Configuration/TSconfig/User.tsconfig`
 
 ### Auto-registration of icons
 All PNG- and SVG-files located in `EXT:your_extension/Resources/Public/Icons` will be registered automatically.
