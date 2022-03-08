@@ -187,6 +187,8 @@ class RegistrationService
                 $group ?? mb_strtolower($extensionInformation->getVendorName()),
                 $pluginName,
                 $iconIdentifier ?? null);
+
+            unset($group, $iconIdentifier, $pluginConfig);
         }
     }
 
@@ -227,6 +229,8 @@ class RegistrationService
                 'name'           => $mainModuleKey,
                 'routeTarget'    => $configuration['routeTarget'] ?? null,
             ]);
+
+            unset($configuration);
         }
 
         foreach ($extensionInformation->getModules() as $submoduleKey => $controllerClassNames) {
