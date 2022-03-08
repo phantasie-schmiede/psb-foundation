@@ -24,7 +24,7 @@ use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Inline extends AbstractTcaFieldAnnotation
+class Inline extends AbstractFieldAnnotation
 {
     use ExtensionInformationServiceTrait;
 
@@ -32,6 +32,7 @@ class Inline extends AbstractTcaFieldAnnotation
 
     /**
      * @var array
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/Appearance.html
      */
     protected array $appearance = [
         'collapseAll'                     => true,
@@ -50,16 +51,19 @@ class Inline extends AbstractTcaFieldAnnotation
      * You can use the property name. It will be converted to the column name automatically.
      *
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/ForeignField.html
      */
     protected string $foreignField = '';
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/ForeignSortby.html#confval-foreign_sortby
      */
     protected ?string $foreignSortBy = null;
 
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/ForeignTable.html
      */
     protected string $foreignTable = '';
 
@@ -72,6 +76,7 @@ class Inline extends AbstractTcaFieldAnnotation
 
     /**
      * @var int|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Maxitems.html
      */
     protected ?int $maxItems = null;
 
@@ -79,6 +84,7 @@ class Inline extends AbstractTcaFieldAnnotation
      * name of the mm-table
      *
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/Mm.html
      */
     protected ?string $mm = null;
 
@@ -89,6 +95,7 @@ class Inline extends AbstractTcaFieldAnnotation
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/Mm.html#confval-MM_opposite_field
      */
     protected ?string $mmOppositeField = null;
 

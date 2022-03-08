@@ -19,8 +19,8 @@ namespace PSB\PsbFoundation\Service\Configuration;
 use Doctrine\Common\Annotations\AnnotationReader;
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Annotation\TCA\AbstractTcaFalFieldAnnotation;
-use PSB\PsbFoundation\Annotation\TCA\AbstractTcaFieldAnnotation;
+use PSB\PsbFoundation\Annotation\TCA\AbstractFalFieldAnnotation;
+use PSB\PsbFoundation\Annotation\TCA\AbstractFieldAnnotation;
 use PSB\PsbFoundation\Annotation\TCA\Checkbox;
 use PSB\PsbFoundation\Annotation\TCA\Ctrl;
 use PSB\PsbFoundation\Annotation\TCA\Select;
@@ -29,6 +29,7 @@ use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
+use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -321,7 +322,7 @@ class TcaService
         }
 
         if (!$overrideMode) {
-            $GLOBALS['TCA'][$tableName] = $this->getDummyConfiguration($tableName);
+            $GLOBALS['TCA'][$tableName] = $this->getDummyConfiguration($ctrl, $tableName);
 
             // default title may be overwritten by Ctrl-annotation in next block
             $title = $defaultLabelPath . 'ctrl.title';
@@ -348,7 +349,7 @@ class TcaService
         }
 
         foreach ($columnConfigurations as $columnName => $annotation) {
-            if ($annotation instanceof AbstractTcaFalFieldAnnotation) {
+            if ($annotation instanceof AbstractFalFieldAnnotation) {
                 $columnConfiguration = $annotation->toArray($columnName);
             } else {
                 $columnConfiguration = $annotation->toArray();
@@ -356,7 +357,7 @@ class TcaService
 
             ExtensionManagementUtility::addTCAcolumns($tableName, [$columnName => $columnConfiguration]);
 
-            if (AbstractTcaFieldAnnotation::TYPE_LIST_NONE === $annotation->getTypeList()) {
+            if (AbstractFieldAnnotation::TYPE_LIST_NONE === $annotation->getTypeList()) {
                 // Do not add this field to any type. It will not be visible in the backend.
                 continue;
             }
@@ -386,91 +387,54 @@ class TcaService
     }
 
     /**
+     * @param Ctrl   $ctrl
      * @param string $tableName
      *
      * @return array
      */
-    protected function getDummyConfiguration(string $tableName): array
+    private function getDummyConfiguration(Ctrl $ctrl, string $tableName): array
     {
-        return [
+        $configuration = [
             'types'    => [
                 0 => ['showitem' => ''],
             ],
             'palettes' => [],
-            'columns'  => [
-                'endtime'          => [
-                    'config'  => [
-                        'behaviour'  => [
-                            'allowLanguageSynchronization' => true,
-                        ],
-                        'default'    => 0,
-                        'eval'       => 'datetime, int',
-                        'range'      => [
-                            'upper' => mktime(0, 0, 0, 1, 1, 2038),
-                        ],
-                        'renderType' => 'inputDateTime',
-                        'type'       => 'input',
-                    ],
-                    'exclude' => true,
-                    'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
-                ],
-                'hidden'           => [
-                    'config'  => [
-                        'items'      => [
-                            [
-                                0                    => '',
-                                1                    => '',
-                                'invertStateDisplay' => true,
-                            ],
-                        ],
-                        'renderType' => 'checkboxToggle',
-                        'type'       => 'check',
-                    ],
-                    'exclude' => true,
-                    'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.enabled',
-                ],
-                'l10n_diffsource'  => [
-                    'config' => [
-                        'default' => '',
-                        'type'    => 'passthrough',
-                    ],
-                ],
-                'l10n_parent'      => [
-                    'config'      => [
-                        'default'             => 0,
-                        'foreign_table'       => $tableName,
-                        'foreign_table_where' => 'AND ' . $tableName . '.pid=###CURRENT_PID### AND ' . $tableName . '.sys_language_uid IN (-1,0)',
-                        'items'               => [
-                            ['', 0],
-                        ],
-                        'renderType'          => 'selectSingle',
-                        'type'                => 'select',
-                    ],
-                    'displayCond' => 'FIELD:sys_language_uid:>:0',
-                    'label'       => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
-                ],
-                'starttime'        => [
-                    'config'  => [
-                        'behaviour'  => [
-                            'allowLanguageSynchronization' => true,
-                        ],
-                        'default'    => 0,
-                        'eval'       => 'datetime, int',
-                        'renderType' => 'inputDateTime',
-                        'type'       => 'input',
-                    ],
-                    'exclude' => true,
-                    'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
-                ],
-                'sys_language_uid' => [
-                    'config'  => [
-                        'type' => 'language',
-                    ],
-                    'exclude' => true,
-                    'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
-                ],
-            ],
+            'columns'  => []
         ];
+
+        $enableColumns = $ctrl->getEnablecolumns();
+
+        if (is_array($enableColumns)) {
+            if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']])) {
+                $configuration['columns'][$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']]] = TcaUtility::getDefaultConfigurationForDisabledField();
+            }
+
+            if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']])) {
+                $configuration['columns'][$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']]] = TcaUtility::getDefaultConfigurationForEndTimeField();
+            }
+
+            if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']])) {
+                $configuration['columns'][$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']]] = TcaUtility::getDefaultConfigurationForStartTimeField();
+            }
+        }
+
+        if (!empty($ctrl->getLanguageField())) {
+            $configuration['columns'][$ctrl->getLanguageField()] = TcaUtility::getDefaultConfigurationForLanguageField();
+        }
+
+        if (!empty($ctrl->getTransOrigDiffSourceField())) {
+            $configuration['columns'][$ctrl->getTransOrigDiffSourceField()] = TcaUtility::getDefaultConfigurationForTransOrigDiffSourceField();
+        }
+
+        if (!empty($ctrl->getTransOrigPointerField())) {
+            $configuration['columns'][$ctrl->getTransOrigPointerField()] = TcaUtility::getDefaultConfigurationForTransOrigPointerField($tableName);
+        }
+
+        if (!empty($ctrl->getTranslationSource())) {
+            $configuration['columns'][$ctrl->getTranslationSource()] = TcaUtility::getDefaultConfigurationForTranslationSourceField();
+        }
+
+        return $configuration;
     }
 
     /**

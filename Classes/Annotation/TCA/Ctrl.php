@@ -30,6 +30,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class Ctrl extends AbstractAnnotation
 {
+    public const ENABLE_COLUMN_IDENTIFIERS = [
+        'DISABLED'  => 'disabled',
+        'ENDTIME'   => 'endtime',
+        'STARTTIME' => 'starttime',
+    ];
+
     /**
      * @var array|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Ext.html
@@ -103,9 +109,9 @@ class Ctrl extends AbstractAnnotation
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Enablecolumns.html
      */
     protected ?array $enablecolumns = [
-        'disabled'  => 'hidden',
-        'endtime'   => 'endtime',
-        'starttime' => 'starttime',
+        self::ENABLE_COLUMN_IDENTIFIERS['DISABLED']  => 'hidden',
+        self::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']   => 'endtime',
+        self::ENABLE_COLUMN_IDENTIFIERS['STARTTIME'] => 'starttime',
     ];
 
     /**

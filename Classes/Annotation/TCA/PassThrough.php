@@ -22,7 +22,7 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class PassThrough extends AbstractTcaFieldAnnotation
+class PassThrough extends AbstractFieldAnnotation
 {
     public const TYPE = self::TYPES['PASSTHROUGH'];
 }

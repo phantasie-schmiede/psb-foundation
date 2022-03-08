@@ -21,11 +21,11 @@ use ReflectionException;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 
 /**
- * Class AbstractTcaFalFieldAnnotation
+ * Class AbstractFalFieldAnnotation
  *
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
+class AbstractFalFieldAnnotation extends AbstractFieldAnnotation
 {
     /**
      * @var string
@@ -52,13 +52,17 @@ class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
      */
     public function toArray(string $columnName = ''): array
     {
+        if ($this instanceof Image && Image::USE_CONFIGURATION_FILE_TYPES === $this->allowedFileTypes) {
+            $this->allowedFileTypes = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
+        }
+
         $properties = parent::toArray();
         $fieldConfiguration = [];
         $fieldConfiguration['config'] = ExtensionManagementUtility::getFileFieldTCAConfig($columnName,
             [
                 'appearance' => $this->getAppearance(),
                 'maxitems'   => $this->getMaxItems(),
-            ], $this->getAllowedFileTypes());
+            ], $this->allowedFileTypes);
 
         foreach ($properties as $key => $value) {
             $key = TcaUtility::convertKey($key);
@@ -69,14 +73,6 @@ class AbstractTcaFalFieldAnnotation extends AbstractTcaFieldAnnotation
         }
 
         return $fieldConfiguration;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAllowedFileTypes(): string
-    {
-        return $this->allowedFileTypes;
     }
 
     /**

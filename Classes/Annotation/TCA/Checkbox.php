@@ -22,7 +22,7 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Checkbox extends AbstractTcaFieldAnnotation
+class Checkbox extends AbstractFieldAnnotation
 {
     public const RENDER_TYPES = [
         'CHECKBOX_LABELED_TOGGLE' => 'checkboxLabeledToggle',
@@ -34,16 +34,19 @@ class Checkbox extends AbstractTcaFieldAnnotation
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Default.html
      */
-    protected int $default = 0;
+    protected $default = 0;
 
     /**
      * @var array
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Items.html
      */
     protected array $items = [];
 
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/RenderType.html
      */
     protected string $renderType = self::RENDER_TYPES['CHECKBOX_TOGGLE'];
 
@@ -61,14 +64,6 @@ class Checkbox extends AbstractTcaFieldAnnotation
     public function setItems(array $items): void
     {
         $this->items = $items;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDefault(): int
-    {
-        return $this->default;
     }
 
     /**

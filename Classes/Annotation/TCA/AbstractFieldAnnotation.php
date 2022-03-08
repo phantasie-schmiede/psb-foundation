@@ -24,39 +24,49 @@ use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
- * Class AbstractTcaFieldAnnotation
+ * Class AbstractFieldAnnotation
  *
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements TcaAnnotationInterface
+abstract class AbstractFieldAnnotation extends AbstractAnnotation implements TcaAnnotationInterface
 {
     // Override this constant in extending classes!
     public const  TYPE = '';
 
-    // If you don't want a field to be shown in backend at all, set this value for typeList.
-    public const TYPE_LIST_NONE = 'none';
-
     public const TYPES = [
         'CHECKBOX'    => 'check',
-        'DATE'        => 'input',
-        'DATETIME'    => 'input',
         'DOCUMENT'    => 'document',
         'FILE'        => 'file',
-        'FLOAT'       => 'input',
         'GROUP'       => 'group',
         'IMAGE'       => 'image',
         'INLINE'      => 'inline',
         'INPUT'       => 'input',
-        'INTEGER'     => 'input',
-        'LINK'        => 'input',
-        'MM'          => 'select',
         'PASSTHROUGH' => 'passthrough',
         'SELECT'      => 'select',
         'SLUG'        => 'slug',
         'TEXT'        => 'text',
-        'TIME'        => 'input',
         'USER'        => 'user',
     ];
+
+    // If you don't want a field to be shown in backend at all, set this value for typeList.
+    public const TYPE_LIST_NONE = 'none';
+
+    /**
+     * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/BehaviourAllowLanguageSynchronization.html
+     */
+    protected ?bool $allowLanguageSynchronization = null;
+
+    /**
+     * @var array|null
+     */
+    protected ?array $behaviour = null;
+
+    /**
+     * @var mixed
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Default.html
+     */
+    protected $default;
 
     /**
      * @var string|null
@@ -136,6 +146,14 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
     }
 
     /**
+     * @param bool|null $allowLanguageSynchronization
+     */
+    public function setAllowLanguageSynchronization(?bool $allowLanguageSynchronization): void
+    {
+        $this->behaviour['allowLanguageSynchronization'] = $allowLanguageSynchronization;
+    }
+
+    /**
      * @param bool $exclude
      */
     public function setExclude(bool $exclude): void
@@ -180,6 +198,54 @@ abstract class AbstractTcaFieldAnnotation extends AbstractAnnotation implements 
         }
 
         return $fieldConfiguration;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getBehaviour(): ?array
+    {
+        return $this->behaviour;
+    }
+
+    /**
+     * @param array|null $behaviour
+     */
+    public function setBehaviour(?array $behaviour): void
+    {
+        $this->behaviour = $behaviour;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    /**
+     * @param mixed $default
+     */
+    public function setDefault($default): void
+    {
+        $this->default = $default;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @param string|null $description
+     */
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
     }
 
     /**

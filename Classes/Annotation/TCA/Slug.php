@@ -22,27 +22,30 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Slug extends AbstractTcaFieldAnnotation
+class Slug extends AbstractFieldAnnotation
 {
     public const TYPE = self::TYPES['SLUG'];
 
     /**
      * @var string
      */
-    protected string $default = '';
+    protected $default = '';
 
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Slug/Properties/Eval.html
      */
     protected string $eval = 'uniqueInSite';
 
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Slug/Properties/FallbackCharacter.html
      */
     protected string $fallbackCharacter = '-';
 
     /**
      * @var array
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Slug/Properties/GeneratorOptions.html
      */
     protected array $generatorOptions = [
         'fields'               => ['title', 'nav_title'],
@@ -52,22 +55,6 @@ class Slug extends AbstractTcaFieldAnnotation
             '/' => '',
         ],
     ];
-
-    /**
-     * @return string
-     */
-    public function getDefault(): string
-    {
-        return $this->default;
-    }
-
-    /**
-     * @param string $default
-     */
-    public function setDefault(string $default): void
-    {
-        $this->default = $default;
-    }
 
     /**
      * @return string

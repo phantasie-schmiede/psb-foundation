@@ -24,52 +24,105 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  */
 class Integer extends Input
 {
-    public const TYPE = self::TYPES['INTEGER'];
-
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Eval.html
      */
     protected string $eval = 'int';
 
     /**
      * @var int|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
      */
-    protected ?int $max = null;
+    protected ?int $rangeLower = null;
 
     /**
      * @var int|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
      */
-    protected ?int $min = null;
+    protected ?int $rangeUpper = null;
 
     /**
-     * @return int|null
+     * @var int|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
      */
-    public function getMax(): ?int
+    protected ?int $sliderStep = null;
+
+    /**
+     * @var int|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
+     */
+    protected ?int $sliderWidth = null;
+
+    /**
+     * @param int $rangeLower
+     *
+     * @return void
+     */
+    public function setRangeLower(int $rangeLower): void
     {
-        return $this->max;
+        $this->rangeLower = $rangeLower;
     }
 
     /**
-     * @param int|null $max
+     * @param int $rangeUpper
+     *
+     * @return void
      */
-    public function setMax(?int $max): void
+    public function setRangeUpper(int $rangeUpper): void
     {
-        $this->max = $max;
+        $this->rangeUpper = $rangeUpper;
     }
 
     /**
-     * @return int|null
+     * @param int|null $sliderStep
      */
-    public function getMin(): ?int
+    public function setSliderStep(?int $sliderStep): void
     {
-        return $this->min;
+        $this->sliderStep = $sliderStep;
     }
 
     /**
-     * @param int|null $min
+     * @param int|null $sliderWidth
      */
-    public function setMin(?int $min): void
+    public function setSliderWidth(?int $sliderWidth): void
     {
-        $this->min = $min;
+        $this->sliderWidth = $sliderWidth;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getRange(): ?array
+    {
+        $range = null;
+
+        if (null !== $this->rangeLower) {
+            $range['lower'] = $this->rangeLower;
+        }
+
+        if (null !== $this->rangeUpper) {
+            $range['upper'] = $this->rangeUpper;
+        }
+
+        return $range;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getSlider(): ?array
+    {
+        $sliderConfiguration = null;
+
+        if (null !== $this->sliderStep) {
+            $sliderConfiguration['step'] = $this->sliderStep;
+        }
+
+        if (null !== $this->sliderWidth) {
+            $sliderConfiguration['width'] = $this->sliderWidth;
+        }
+
+        return $sliderConfiguration;
     }
 }

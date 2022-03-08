@@ -22,7 +22,7 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Document extends AbstractTcaFalFieldAnnotation
+class Document extends AbstractFalFieldAnnotation
 {
     /**
      * @var string

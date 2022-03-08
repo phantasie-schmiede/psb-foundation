@@ -22,10 +22,12 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Image extends AbstractTcaFalFieldAnnotation
+class Image extends AbstractFalFieldAnnotation
 {
-    public function getAllowedFileTypes(): string
-    {
-        return $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
-    }
+    public const USE_CONFIGURATION_FILE_TYPES = 'USE_CONFIGURATION_FILE_TYPES';
+
+    /**
+     * @var string
+     */
+    protected string $allowedFileTypes = self::USE_CONFIGURATION_FILE_TYPES;
 }

@@ -20,9 +20,10 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * Class User
  *
  * @Annotation
+ * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/User/Index.html#properties-rendertype-default
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class User extends AbstractTcaFieldAnnotation
+class User extends AbstractFieldAnnotation
 {
     public const TYPE = self::TYPES['USER'];
 

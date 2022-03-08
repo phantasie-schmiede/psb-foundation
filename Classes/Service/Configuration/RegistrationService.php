@@ -119,7 +119,7 @@ class RegistrationService
             $description = '';
         }
 
-        if (false === $localizationService->translationExists($title)) {
+        if (false === $localizationService->translationExists($title, false)) {
             $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $pluginName);
 
             if (false === $localizationService->translationExists($title)) {

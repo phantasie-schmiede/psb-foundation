@@ -24,15 +24,15 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  */
 class Date extends DateTime
 {
-    public const TYPE = self::TYPES['DATE'];
-
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/DateTime/Properties/DbType.html
      */
     protected ?string $dbType = 'date';
 
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Eval.html
      */
     protected string $eval = 'date, null';
 }

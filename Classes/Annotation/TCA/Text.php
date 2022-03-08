@@ -22,32 +22,36 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Text extends AbstractTcaFieldAnnotation
+class Text extends AbstractFieldAnnotation
 {
     public const TYPE = self::TYPES['TEXT'];
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Text/Properties/Cols.html
      */
     protected int $cols = 32;
 
     /**
      * @var string|null
      */
-    protected ?string $default = null;
+    protected $default;
 
     /**
      * @var bool
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Text/Properties/EnableRichtext.html
      */
-    protected bool $enableRichtext = false;
+    protected bool $enableRichText = false;
 
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Text/Properties/Eval.html
      */
     protected string $eval = 'trim';
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Text/Properties/Rows.html
      */
     protected int $rows = 5;
 
@@ -65,22 +69,6 @@ class Text extends AbstractTcaFieldAnnotation
     public function setCols(int $cols): void
     {
         $this->cols = $cols;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDefault(): ?string
-    {
-        return $this->default;
-    }
-
-    /**
-     * @param string|null $default
-     */
-    public function setDefault(?string $default): void
-    {
-        $this->default = $default;
     }
 
     /**
@@ -118,16 +106,16 @@ class Text extends AbstractTcaFieldAnnotation
     /**
      * @return bool
      */
-    public function isEnableRichtext(): bool
+    public function isEnableRichText(): bool
     {
-        return $this->enableRichtext;
+        return $this->enableRichText;
     }
 
     /**
-     * @param bool $enableRichtext
+     * @param bool $enableRichText
      */
-    public function setEnableRichtext(bool $enableRichtext): void
+    public function setEnableRichText(bool $enableRichText): void
     {
-        $this->enableRichtext = $enableRichtext;
+        $this->enableRichText = $enableRichText;
     }
 }

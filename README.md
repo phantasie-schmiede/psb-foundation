@@ -78,19 +78,24 @@ annotation of type `PSB\PsbFoundation\Annotation\TCA\Ctrl` in their PHPDoc-comme
 relates to an existing table in the database and detects if it extends another model from a different extension and
 manipulates the TCA accordingly.
 
-You can provide configuration options via PHPDoc-annotations. Available annotations with default values can be found
-in `psb_foundation/Classes/Annotations/TCA`. There are more annotations than unique field types. This extension offers
-different presets, e.g.
+You can provide configuration options via PHPDoc-annotations.
+Available annotations with default values can be found in `psb_foundation/Classes/Annotations/TCA`.
+The available annotation properties also include onChange, label, position, etc.
+There are more annotations than unique field types.
+This extension offers different presets, e.g.
 
 - type: input
-    - Date
-    - DateTime
-    - Input
-    - Integer
-    - Link
+  - Date
+  - DateTime
+  - Input
+  - Integer
+  - Link
 - type: inline (FileReference)
-    - Document
-    - Image
+  - Document
+  - Image
+- type: select
+  - Inline
+  - MM
 
 Simple example:
 
@@ -126,8 +131,18 @@ class YourClass
 }
 ```
 
-Properties without TCA\[...]-annotation will not be considered in TCA-generation. The available annotation properties
-also include onChange, label, position, etc.
+Properties without TCA\[...]-annotation will not be considered in TCA-generation.
+Some configurations will be added automatically if specific fields are defined in the ctrl-section:
+
+| Property                  | Default value    |
+|---------------------------|------------------|
+| enableColumns > disabled  | hidden           |
+| enableColumns > endtime   | endtime          |
+| enableColumns > starttime | starttime        |
+| languageField             | sys_language_uid |
+| transOrigDiffSourceField  | l10n_diffsource  |
+| transOrigPointerField     | l10n_parent      |
+| translationSource         | l10n_source      |
 
 The relational types `inline`, `mm` and `select` have a special property named `linkedModel`.
 Instead of using `foreign_table` you can specify the class name of the related domain model and psb_foundation will
@@ -399,9 +414,12 @@ class YourModuleController extends AbstractModuleController
 ```
 
 Modules need to provide three labels:
-- `mlang_labels_tabdescr` used as module description in the about-module
-- `mlang_labels_tablabel` used as short description when hovering over the module link
-- `mlang_tabs_tab` used as module title
+
+| Label                 | Description                                                  |
+|-----------------------|--------------------------------------------------------------|
+| mlang_labels_tabdescr | used as module description in the about-module               |
+| mlang_labels_tablabel | used as short description when hovering over the module link |
+| mlang_tabs_tab        | used as module title                                         |
 
 The following fallbacks account for main modules and submodules, if no custom value is specified:
 - language file: `EXT:your_extension/Resources/Private/Language/Backend/Modules/[moduleName].xlf:` (file name starts with lower case!)
@@ -506,15 +524,19 @@ GlobalVariableService::get(RequestParameterProvider::class . '.formData.hiddenIn
 
 #### StringUtility
 `PSB\PsbFoundation\Utility\StringUtility` contains some string manipulation functions, e.g.:
-- convertString: performs a type cast or other operations based on the string's content, e.g.
-  - `''`: empty string will be returned as empty string or null (depends on second argument)
-  - `0`, `123`: returns integer
-  - `0.1`, `0,1`: returns float
-  - `0001423`: returns unchanged string
-  - `TS:config.headerComment`: returns value from TypoScript (if path is valid) which is also processed by this function.
-  - `\Full\Qualified\ClassName::CONSTANT['arrayKey']`: returns value of constant which is also processed by this function.
-  - `{...}`: returns array if valid JSON
-  - `false`, `true`: returns boolean
+- convertString: performs a type cast or other operations based on the string's content, e.g.<br>
+
+  | input value                                       | return type                                                                                |
+  |---------------------------------------------------|--------------------------------------------------------------------------------------------|
+  | (empty string)                                    | empty string will be returned as empty string or null (depends on second argument)         |
+  | `0`, `123`                                        | returns integer                                                                            |
+  | `0.1`, `0,1`                                      | returns float                                                                              |
+  | `0001423`                                         | returns unchanged string                                                                   |
+  | `TS:config.headerComment`                         | returns value from TypoScript (if path is valid) which is also processed by this function. |
+  | `\Full\Qualified\ClassName::CONSTANT['arrayKey']` | returns value of constant which is also processed by this function.                        |
+  | `{...}`                                           | returns array if valid JSON                                                                |
+  | `false`, `true`                                   | returns boolean                                                                            |
+
   - returns the string if no other format could be identified
 - explodeByLineBreaks: can be used to get the lines of a file or text field as array
 - getNumberFormatter: returns a NumberFormatter based on the current locale

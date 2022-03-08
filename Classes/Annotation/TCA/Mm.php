@@ -24,8 +24,6 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  */
 class Mm extends Select
 {
-    public const TYPE = self::TYPES['MM'];
-
     /**
      * @var int
      */
@@ -42,18 +40,33 @@ class Mm extends Select
      * name of the mm-table
      *
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Mm.html
      */
     protected string $mm = '';
 
     /**
      * @var bool|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Mm.html#confval-MM_hasUidField
      */
     protected ?bool $mmHasUidField = null;
+
+    /**
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Mm.html#confval-MM_insert_fields
+     */
+    protected ?array $mmInsertFields = null;
+
+    /**
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Mm.html#confval-MM_match_fields
+     */
+    protected ?array $mmMatchFields = null;
 
     /**
      * You can use the property name. It will be converted to the column name automatically.
      *
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Mm.html#confval-MM_opposite_field
      */
     protected ?string $mmOppositeField = null;
 
@@ -76,14 +89,6 @@ class Mm extends Select
     }
 
     /**
-     * @param string $mm
-     */
-    public function setMm(string $mm): void
-    {
-        $this->mm = $mm;
-    }
-
-    /**
      * @return bool|null
      */
     public function getMmHasUidField(): ?bool
@@ -92,11 +97,19 @@ class Mm extends Select
     }
 
     /**
-     * @param bool|null $mmHasUidField
+     * @return array|null
      */
-    public function setMmHasUidField(?bool $mmHasUidField): void
+    public function getMmInsertFields(): ?array
     {
-        $this->mmHasUidField = $mmHasUidField;
+        return $this->mmInsertFields;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getMmMatchFields(): ?array
+    {
+        return $this->mmMatchFields;
     }
 
     /**
@@ -109,6 +122,38 @@ class Mm extends Select
         }
 
         return $this->tcaService->convertPropertyNameToColumnName($this->mmOppositeField);
+    }
+
+    /**
+     * @param string $mm
+     */
+    public function setMm(string $mm): void
+    {
+        $this->mm = $mm;
+    }
+
+    /**
+     * @param bool|null $mmHasUidField
+     */
+    public function setMmHasUidField(?bool $mmHasUidField): void
+    {
+        $this->mmHasUidField = $mmHasUidField;
+    }
+
+    /**
+     * @param array|null $mmInsertFields
+     */
+    public function setMmInsertFields(?array $mmInsertFields): void
+    {
+        $this->mmInsertFields = $mmInsertFields;
+    }
+
+    /**
+     * @param array|null $mmMatchFields
+     */
+    public function setMmMatchFields(?array $mmMatchFields): void
+    {
+        $this->mmMatchFields = $mmMatchFields;
     }
 
     /**

@@ -22,12 +22,13 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Group extends AbstractTcaFieldAnnotation
+class Group extends AbstractFieldAnnotation
 {
     public const TYPE = self::TYPES['GROUP'];
 
     /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/Allowed.html
      */
     protected string $allowed = '*';
 
@@ -38,16 +39,19 @@ class Group extends AbstractTcaFieldAnnotation
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Maxitems.html#tca-property-maxitems
      */
     protected int $maxItems = 1;
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Minitems.html#tca-property-minitems
      */
     protected int $minItems = 0;
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Size.html#tca-property-size
      */
     protected int $size = 3;
 

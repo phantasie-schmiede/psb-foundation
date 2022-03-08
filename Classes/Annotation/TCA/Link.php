@@ -24,8 +24,6 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  */
 class Link extends Input
 {
-    public const TYPE = self::TYPES['LINK'];
-
     /**
      * @var string|null
      */

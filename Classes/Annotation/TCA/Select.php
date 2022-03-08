@@ -25,7 +25,7 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Select extends AbstractTcaFieldAnnotation
+class Select extends AbstractFieldAnnotation
 {
     use ExtensionInformationServiceTrait;
 
@@ -58,6 +58,7 @@ class Select extends AbstractTcaFieldAnnotation
 
     /**
      * @var bool
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/AllowNonIdValues.html
      */
     protected bool $allowNonIdValues = false;
 
@@ -69,6 +70,7 @@ class Select extends AbstractTcaFieldAnnotation
 
     /**
      * @var int|string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Default.html
      */
     protected $default;
 
@@ -79,6 +81,7 @@ class Select extends AbstractTcaFieldAnnotation
 
     /**
      * @var array
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/FieldControl.html#tca-property-fieldcontrol
      */
     protected array $fieldControl = [
         'addRecord'  => [
@@ -94,16 +97,19 @@ class Select extends AbstractTcaFieldAnnotation
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/ForeignTable.html
      */
     protected ?string $foreignTable = null;
 
     /**
      * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/ForeignTableWhere.html
      */
     protected ?string $foreignTableWhere = null;
 
     /**
      * @var array
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Items.html
      */
     protected array $items = [];
 
@@ -121,11 +127,13 @@ class Select extends AbstractTcaFieldAnnotation
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Minitems.html#tca-property-minitems
      */
     protected int $minItems = 0;
 
     /**
      * @var bool
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Multiple.html#tca-property-multiple
      */
     protected bool $multiple = false;
 
@@ -141,11 +149,13 @@ class Select extends AbstractTcaFieldAnnotation
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Size.html#tca-property-size
      */
     protected int $size = 1;
 
     /**
      * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/SelectTreeConfig.html
      */
     protected ?array $treeConfig = null;
 

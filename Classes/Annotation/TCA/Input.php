@@ -22,22 +22,19 @@ namespace PSB\PsbFoundation\Annotation\TCA;
  * @Annotation
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Input extends AbstractTcaFieldAnnotation
+class Input extends AbstractFieldAnnotation
 {
     public const TYPE = self::TYPES['INPUT'];
 
     /**
-     * @var int|string|null
-     */
-    protected $default;
-
-    /**
      * @var string
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Eval.html
      */
     protected string $eval = 'trim';
 
     /**
      * @var int|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Max.html
      */
     protected ?int $max = null;
 
@@ -48,24 +45,9 @@ class Input extends AbstractTcaFieldAnnotation
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Size.html
      */
     protected int $size = 20;
-
-    /**
-     * @return int|string|null
-     */
-    public function getDefault()
-    {
-        return $this->default;
-    }
-
-    /**
-     * @param int|string|null $default
-     */
-    public function setDefault($default): void
-    {
-        $this->default = $default;
-    }
 
     /**
      * @return string
