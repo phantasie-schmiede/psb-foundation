@@ -25,10 +25,10 @@ use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use function count;
 
 /**
  * Class TranslateViewHelper
@@ -55,7 +55,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         array $arguments,
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ) {
+    ): ?string {
         [
             'arguments'     => $translateArguments,
             'default'       => $default,
@@ -73,12 +73,10 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
             throw new Exception('An argument "key" or "id" has to be provided', 1351584844);
         }
 
-        /** @var ControllerContext $controllerContext */
-        $controllerContext = $renderingContext->getControllerContext();
-        $request = $controllerContext->getRequest();
+        $request = $renderingContext->getRequest();
         $extensionName = $extensionName ?? $request->getControllerExtensionName();
 
-        if (!StringUtility::beginsWith($id, 'LLL:')) {
+        if (null === $extensionName && !StringUtility::beginsWith($id, 'LLL:')) {
             $id = self::buildId($id, $renderingContext, $request);
         }
 
