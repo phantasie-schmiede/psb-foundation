@@ -14,39 +14,39 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
- * Class Integer
+ * Class FloatingPoint
  *
  * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class Integer extends Input
+class FloatingPoint extends Input
 {
     /**
      * @var string
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Eval.html
      */
-    protected string $eval = 'int';
+    protected string $eval = 'double2';
 
     /**
-     * @var int|null
+     * @var float|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
      */
-    protected ?int $rangeLower = null;
+    protected ?float $rangeLower = null;
 
     /**
-     * @var int|null
+     * @var float|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
      */
-    protected ?int $rangeUpper = null;
+    protected ?float $rangeUpper = null;
 
     /**
-     * @var int|null
+     * @var float|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
      */
-    protected ?int $sliderStep = null;
+    protected ?float $sliderStep = null;
 
     /**
      * @var int|null
@@ -55,29 +55,29 @@ class Integer extends Input
     protected ?int $sliderWidth = null;
 
     /**
-     * @param int $rangeLower
+     * @param float $rangeLower
      *
      * @return void
      */
-    public function setRangeLower(int $rangeLower): void
+    public function setRangeLower(float $rangeLower): void
     {
         $this->rangeLower = $rangeLower;
     }
 
     /**
-     * @param int $rangeUpper
+     * @param float $rangeUpper
      *
      * @return void
      */
-    public function setRangeUpper(int $rangeUpper): void
+    public function setRangeUpper(float $rangeUpper): void
     {
         $this->rangeUpper = $rangeUpper;
     }
 
     /**
-     * @param int|null $sliderStep
+     * @param float|null $sliderStep
      */
-    public function setSliderStep(?int $sliderStep): void
+    public function setSliderStep(?float $sliderStep): void
     {
         $this->sliderStep = $sliderStep;
     }

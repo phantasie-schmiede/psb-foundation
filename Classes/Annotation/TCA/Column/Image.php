@@ -14,15 +14,20 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
- * Class PassThrough
+ * Class Image
  *
  * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class PassThrough extends AbstractFieldAnnotation
+class Image extends AbstractFalColumnAnnotation
 {
-    public const TYPE = self::TYPES['PASSTHROUGH'];
+    public const USE_CONFIGURATION_FILE_TYPES = 'USE_CONFIGURATION_FILE_TYPES';
+
+    /**
+     * @var string
+     */
+    protected string $allowedFileTypes = self::USE_CONFIGURATION_FILE_TYPES;
 }

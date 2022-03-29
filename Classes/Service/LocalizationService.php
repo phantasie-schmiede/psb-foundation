@@ -18,6 +18,7 @@ namespace PSB\PsbFoundation\Service;
 
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
+use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\Xml\XmlUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
@@ -200,5 +201,27 @@ class LocalizationService
         }
 
         return false;
+    }
+
+    /**
+     * @param string $label
+     *
+     * @return bool
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     */
+    public function validateLabel(string $label): bool
+    {
+        if ('' === $label) {
+            return false;
+        }
+
+        if (!StringUtility::beginsWith($label, 'LLL:')) {
+            return true;
+        }
+
+        return $this->translationExists($label);
     }
 }

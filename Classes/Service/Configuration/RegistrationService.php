@@ -350,7 +350,7 @@ class RegistrationService
                 $this->flexFormService->register(file_get_contents($flexFormFilePath), $pluginSignature);
             }
 
-            if (!isset($title)) {
+            if (empty($title)) {
                 $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $pluginName);
 
                 if (false === $localizationService->translationExists($title)) {

@@ -14,15 +14,15 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
  * Class Input
  *
  * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class Input extends AbstractFieldAnnotation
+class Input extends AbstractColumnAnnotation
 {
     public const TYPE = self::TYPES['INPUT'];
 

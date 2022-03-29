@@ -14,16 +14,16 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
  * Class User
  *
  * @Annotation
  * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/User/Index.html#properties-rendertype-default
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class User extends AbstractFieldAnnotation
+class User extends AbstractColumnAnnotation
 {
     public const TYPE = self::TYPES['USER'];
 

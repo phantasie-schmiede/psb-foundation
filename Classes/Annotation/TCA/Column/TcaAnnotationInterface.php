@@ -14,12 +14,12 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
  * Interface TcaAnnotationInterface
  *
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
 interface TcaAnnotationInterface
 {
@@ -42,4 +42,9 @@ interface TcaAnnotationInterface
      * @return string
      */
     public function getType(): string;
+
+    /**
+     * @return string
+     */
+    public function getTypeList(): string;
 }

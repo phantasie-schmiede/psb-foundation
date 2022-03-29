@@ -14,25 +14,18 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
- * Class Date
+ * Class File
  *
  * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class Date extends DateTime
+class File extends AbstractFalColumnAnnotation
 {
     /**
-     * @var string|null
-     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/DateTime/Properties/DbType.html
-     */
-    protected ?string $dbType = 'date';
-
-    /**
      * @var string
-     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Eval.html
      */
-    protected string $eval = 'date, null';
+    protected string $allowedFileTypes = '*';
 }

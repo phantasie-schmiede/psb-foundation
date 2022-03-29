@@ -14,18 +14,19 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use function in_array;
 
 /**
- * Class AbstractFalFieldAnnotation
+ * Class AbstractFalColumnAnnotation
  *
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class AbstractFalFieldAnnotation extends AbstractFieldAnnotation
+class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
 {
     /**
      * @var string
@@ -67,8 +68,10 @@ class AbstractFalFieldAnnotation extends AbstractFieldAnnotation
         foreach ($properties as $key => $value) {
             $key = TcaUtility::convertKey($key);
 
-            if (in_array($key, ['displayCond', 'exclude', 'label'], true)) {
+            if (in_array($key, self::FIRST_LEVEL_CONFIGURATION_KEYS, true)) {
                 $fieldConfiguration[$key] = $value;
+            } elseif (!in_array($key, self::EXCLUDED_FIELDS, true)) {
+                $fieldConfiguration['config'][$key] = $value;
             }
         }
 

@@ -14,15 +14,15 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
  * Class Slug
  *
  * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class Slug extends AbstractFieldAnnotation
+class Slug extends AbstractColumnAnnotation
 {
     public const TYPE = self::TYPES['SLUG'];
 

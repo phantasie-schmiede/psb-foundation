@@ -14,15 +14,15 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
  * Class Checkbox
  *
  * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class Checkbox extends AbstractFieldAnnotation
+class Checkbox extends AbstractColumnAnnotation
 {
     public const RENDER_TYPES = [
         'CHECKBOX_LABELED_TOGGLE' => 'checkboxLabeledToggle',

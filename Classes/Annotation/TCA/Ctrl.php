@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Annotation\TCA;
 
 use Exception;
-use PSB\PsbFoundation\Annotation\AbstractAnnotation;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -28,7 +27,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @link    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Index.html
  * @package PSB\PsbFoundation\Annotation\TCA
  */
-class Ctrl extends AbstractAnnotation
+class Ctrl extends AbstractTcaAnnotation
 {
     public const ENABLE_COLUMN_IDENTIFIERS = [
         'DISABLED'  => 'disabled',

@@ -18,7 +18,7 @@ namespace PSB\PsbFoundation\Service;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
-use PSB\PsbFoundation\Annotation\TCA\Mm;
+use PSB\PsbFoundation\Annotation\TCA\Column\Mm;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use ReflectionClass;
 use RuntimeException;

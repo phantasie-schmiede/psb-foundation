@@ -14,7 +14,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Utility\ValidationUtility;
@@ -23,9 +23,9 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
  * Class Select
  *
  * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class Select extends AbstractFieldAnnotation
+class Select extends AbstractColumnAnnotation
 {
     use ExtensionInformationServiceTrait;
 
@@ -388,14 +388,6 @@ class Select extends AbstractFieldAnnotation
     public function setItems(array $items): void
     {
         $this->items = $items;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getLinkedModel(): ?string
-    {
-        return $this->linkedModel;
     }
 
     /**

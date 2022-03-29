@@ -17,8 +17,10 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility\Configuration;
 
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Utility\FileUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use function in_array;
 
 /**
  * Class TcaUtility
@@ -27,6 +29,11 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
  */
 class TcaUtility
 {
+    public const CORE_TAB_LABELS = [
+        'ACCESS'   => 'LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access',
+        'LANGUAGE' => 'LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language',
+    ];
+
     /*
      * This array constant compensates inconsistencies in TCA key naming. All keys that are not listed here will be
      * transformed to lower_case_underscored.
@@ -199,10 +206,18 @@ class TcaUtility
             return StringUtility::beginsWith($key, $identifier);
         });
 
-        foreach ($newTables as $table) {
-            ExtensionManagementUtility::allowTableOnStandardPages($table);
-            ExtensionManagementUtility::addLLrefForTCAdescr($table,
-                'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $table . '.xlf');
+        foreach ($newTables as $tableName) {
+            /*
+             * New records may only be added to SysFolders by default.
+             * @TODO: Add configuration option to execute this line?
+             * ExtensionManagementUtility::allowTableOnStandardPages($tableName);
+             */
+
+            $cshFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $tableName . '.xlf';
+
+            if (FileUtility::fileExists($cshFilePath)) {
+                ExtensionManagementUtility::addLLrefForTCAdescr($tableName, $cshFilePath);
+            }
         }
     }
 }

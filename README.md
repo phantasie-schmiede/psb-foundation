@@ -5,6 +5,7 @@
 - [Why should you use it?](#why-should-you-use-it)
 - [Getting started](#getting-started)
 - [TCA generation](#tca-generation)
+  - [Tabs and palettes](#tabs-and-palettes)
   - [Extending domain models](#extending-domain-models)
   - [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
@@ -101,6 +102,7 @@ Simple example:
 
 ```php
 use PSB\PsbFoundation\Annotation\TCA;
+use PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
  * @TCA\Ctrl(label="name", searchFields="description, name")
@@ -108,22 +110,19 @@ use PSB\PsbFoundation\Annotation\TCA;
 class YourClass
 {
     /**
-     * @var string
-     * @TCA\Input(eval="trim, required")
+     * @Column\Input(eval="trim, required")
      */
     protected string $name = '';
 
     /**
      * You can leave out the brackets if you are fine with the default values.
      *
-     * @var string
-     * @TCA\Input
+     * @Column\Input
      */
     protected string $inputUsingTheDefaultValues = '';
 
     /**
-     * @var bool
-     * @TCA\Checkbox(exclude=1)
+     * @Column\Checkbox(exclude=1)
      */
     protected bool $adminOnly = true;
 
@@ -144,6 +143,8 @@ Some configurations will be added automatically if specific fields are defined i
 | transOrigPointerField     | l10n_parent      |
 | translationSource         | l10n_source      |
 
+Most of these properties will be added in additional tabs at the end of `showitems` for all types.
+
 The relational types `inline`, `mm` and `select` have a special property named `linkedModel`.
 Instead of using `foreign_table` you can specify the class name of the related domain model and psb_foundation will
 insert the corresponding table name into the TCA.
@@ -155,6 +156,7 @@ Extended example:
 
 ```php
 use PSB\PsbFoundation\Annotation\TCA;
+use PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
  * @TCA\Ctrl(hideTable=true, label="richText", labelAlt="someProperty, anotherProperty",
@@ -174,40 +176,96 @@ class YourModel
     ];
 
     /**
-     * @var string
-     * @TCA\Select(items=self::TYPES)
+     * @Column\Select(items=self::TYPES)
      */
     protected string $myType = self::TYPES['DEFAULT'];
 
     /**
-     * @var string
-     * @TCA\Text(cols=40, enableRichtext=true, rows=10)
+     * @Column\Text(cols=40, enableRichtext=true, rows=10)
      */
     protected string $richText = '';
 
     /**
      * @var ObjectStorage<AnotherModel>
-     * @TCA\Inline(linkedModel=AnotherModel::class, foreignField="yourModel")
+     * @Column\Inline(linkedModel=AnotherModel::class, foreignField="yourModel")
      */
     protected ObjectStorage $inlineRelation;
 
     /**
-     * @var AnotherModel|null
-     * @TCA\Select(linkedModel=AnotherModel::class, position="before:propertyName2")
+     * @Column\Select(linkedModel=AnotherModel::class, position="before:propertyName2")
      */
     protected ?AnotherModel $simpleSelectField = null;
 
     /**
      * This field is only added to the types 'interview' and 'profile'.
      *
-     * @var FileReference|null
-     * @TCA\Image(allowedFileTypes="jpeg, jpg", maxItems=1, typeList="interview, profile")
+     * @Column\Image(allowedFileTypes="jpeg, jpg", maxItems=1, typeList="interview, profile")
      */
     protected ?FileReference $image = null;
 
     ...
 }
 ```
+#### Tabs and palettes
+The argument position allows you to assign a field to a specific tab or palette.
+
+Example:
+```php
+/**
+ * @Column\Input(position="palette:myPalette")
+ */
+protected string $description = '';
+
+/**
+ * @Column\Input(position="tab:myTab")
+ */
+protected string $note = '';
+```
+Without further configuration, tab and palette will be registered with the given identifier and added to the
+end of the showitems-list. But you can add additional information for tabs and palettes:
+
+```php
+use PSB\PsbFoundation\Annotation\TCA;
+use PSB\PsbFoundation\Annotation\TCA\Column;
+
+/**
+ * @TCA\Ctrl()
+ * @TCA\Palette(description="LLL:EXT:[...]", identifier="myPalette", position="before:someProperty")
+ * @TCA\Tab(identifier="myTab", label="Custom label", position="after:someProperty")
+ */
+class YourModel
+{
+    /**
+     * @Column\Input(position="palette:myPalette")
+     */
+    protected string $description = '';
+
+    /**
+     * @Column\Input(position="tab:myTab")
+     */
+    protected string $note = '';
+
+    ...
+}
+```
+It's possible to use the `tab:`-prefix for a palette's position, too.<br>
+If a property references a field inside a palette there are two more special prefixes that can be used:
+- newLineAfter
+- newLineBefore
+
+These will insert an additional `--linebreak--` between those fields.
+
+The label of tabs and palettes is determined in the following way:
+1. Use the annotation attribute if given. (can be a LLL-reference)
+2. Use the default language label if existent.
+   (see [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options))
+3. Use the identifier.
+
+The behaviour for the description of palettes is similar:
+1. Use the annotation attribute if given. (can be a LLL-reference)
+2. Use the default language label if existent.
+   (see [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options))
+3. Leave empty.
 
 #### Extending domain models
 When you are extending domain models (even from extensions that don't make use of psb_foundation) you have to add the
@@ -215,16 +273,20 @@ When you are extending domain models (even from extensions that don't make use o
 leave out the brackets. The default values of the annotation class will have no effect in this case.
 
 #### Default language label paths and additional configuration options
-- If you don't provide a title in the Ctrl-annotation, this path will be
-  tried: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:ctrl.title`
-- If you don't provide a label for a property, this path will be
-  tried: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName]`
-- You can add new tabs (will be transformed to `--div--;...`) by setting position to `tab:[identifier]`. `[identifier]`
-  may be a full `LLL:`-path. If following label exists, this will be
-  used: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:tab.[identifier]`
-- When you use the items-property for a select field, you may provide a simple associative array. It will be transformed
-  into the required multi-level format. The labels will be build this
-  way: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf:[propertyName].[arrayKeyTransformedToLowerCamelCase]`
+These language labels will be tried if you don't provide a custom value for them.
+The path always is `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf`.
+
+| Configuration value | Default language label           |
+|---------------------|----------------------------------|
+| ctrl-title          | ctrl.title                       |
+| property-label      | [propertyName]                   |
+| palette-description | palette.[identifier].description |
+| palette-label       | palette.[identifier].label       |
+| tab-label           | tab.[identifier].label           |
+
+When you use the items-property for a select field, you may provide a simple associative array. It will be transformed
+into the required multi-level format. The labels will be build this way:<br>
+`[propertyName].[arrayKeyTransformedToLowerCamelCase]`
 
 ### Registering and configuring plugins
 - Classes/Data/ExtensionInformation.php

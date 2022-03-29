@@ -14,24 +14,47 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
-use Exception;
-use PSB\PsbFoundation\Annotation\AbstractAnnotation;
-use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Annotation\Tca\AbstractTcaAnnotation;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function in_array;
 
 /**
- * Class AbstractFieldAnnotation
+ * Class AbstractColumnAnnotation
  *
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-abstract class AbstractFieldAnnotation extends AbstractAnnotation implements TcaAnnotationInterface
+abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements TcaAnnotationInterface
 {
+    public const EXCLUDED_FIELDS = [
+        'palette',
+        'position',
+        'typeList',
+    ];
+
+    public const FIRST_LEVEL_CONFIGURATION_KEYS = [
+        'description',
+        'displayCond',
+        'exclude',
+        'l10n_display',
+        'l10n_mode',
+        'label',
+        'onChange',
+    ];
+
+    public const POSITIONS = [
+        'AFTER'   => 'after',
+        'BEFORE'  => 'before',
+        'PALETTE' => 'palette',
+        'REPLACE' => 'replace',
+        'TAB'     => 'tab',
+    ];
+
     // Override this constant in extending classes!
-    public const  TYPE = '';
+    public const TYPE = '';
 
     public const TYPES = [
         'CHECKBOX'    => 'check',
@@ -112,7 +135,9 @@ abstract class AbstractFieldAnnotation extends AbstractAnnotation implements Tca
 
     /**
      * Usage: 'key:propertyName'
-     * You can use the keys 'after', 'before' and 'replace'.
+     * You can use the keys 'after', 'before', 'palette', 'replace' and 'tab'.
+     * If the referenced field belongs to a palette, there are also the options 'newLineAfter' and 'newLineBefore',
+     * which will create a line break between this field and the referenced one.
      *
      * @var string
      */
@@ -125,25 +150,9 @@ abstract class AbstractFieldAnnotation extends AbstractAnnotation implements Tca
     protected ?bool $readOnly = null;
 
     /**
-     * @var TcaService
+     * @var string
      */
-    protected TcaService $tcaService;
-
-    /**
-     * @var string|null
-     */
-    protected ?string $typeList = null;
-
-    /**
-     * @param array $data
-     *
-     * @throws Exception
-     */
-    public function __construct(array $data = [])
-    {
-        $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
-        parent::__construct($data);
-    }
+    protected string $typeList = '';
 
     /**
      * @param bool|null $allowLanguageSynchronization
@@ -182,17 +191,9 @@ abstract class AbstractFieldAnnotation extends AbstractAnnotation implements Tca
         foreach ($properties as $key => $value) {
             $key = TcaUtility::convertKey($key);
 
-            if (in_array($key, [
-                'description',
-                'displayCond',
-                'exclude',
-                'l10n_display',
-                'l10n_mode',
-                'label',
-                'onChange',
-            ], true)) {
+            if (in_array($key, self::FIRST_LEVEL_CONFIGURATION_KEYS, true)) {
                 $fieldConfiguration[$key] = $value;
-            } elseif ('position' !== $key) {
+            } elseif (!in_array($key, self::EXCLUDED_FIELDS, true)) {
                 $fieldConfiguration['config'][$key] = $value;
             }
         }
@@ -340,7 +341,7 @@ abstract class AbstractFieldAnnotation extends AbstractAnnotation implements Tca
         [$key, $location] = GeneralUtility::trimExplode(':', $this->position, false, 2);
 
         // Check if $location is NOT a palette name.
-        if (false !== mb_strpos($location, '-')) {
+        if (false === mb_strpos($location, '-')) {
             $location = $this->tcaService->convertPropertyNameToColumnName($location);
         }
 
@@ -364,17 +365,17 @@ abstract class AbstractFieldAnnotation extends AbstractAnnotation implements Tca
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getTypeList(): ?string
+    public function getTypeList(): string
     {
         return $this->typeList;
     }
 
     /**
-     * @param string|null $typeList
+     * @param string $typeList
      */
-    public function setTypeList(?string $typeList): void
+    public function setTypeList(string $typeList): void
     {
         $this->typeList = $typeList;
     }

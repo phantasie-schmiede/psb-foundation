@@ -14,7 +14,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\TCA;
+namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 
@@ -22,9 +22,9 @@ use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
  * Class Inline
  *
  * @Annotation
- * @package PSB\PsbFoundation\Annotation\TCA
+ * @package PSB\PsbFoundation\Annotation\TCA\Column
  */
-class Inline extends AbstractFieldAnnotation
+class Inline extends AbstractColumnAnnotation
 {
     use ExtensionInformationServiceTrait;
 
@@ -161,14 +161,6 @@ class Inline extends AbstractFieldAnnotation
     public function setForeignTable(string $foreignTable): void
     {
         $this->foreignTable = $foreignTable;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getLinkedModel(): ?string
-    {
-        return $this->linkedModel;
     }
 
     /**
