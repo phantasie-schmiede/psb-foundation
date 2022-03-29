@@ -74,9 +74,9 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         }
 
         $request = $renderingContext->getRequest();
-        $extensionName = $extensionName ?? $request->getControllerExtensionName();
 
         if (null === $extensionName && !StringUtility::beginsWith($id, 'LLL:')) {
+            $extensionName = $request->getControllerExtensionName();
             $id = self::buildId($id, $renderingContext, $request);
         }
 
