@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
-use PSB\PsbFoundation\Annotation\Tca\AbstractTcaAnnotation;
+use PSB\PsbFoundation\Annotation\TCA\AbstractTcaAnnotation;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;

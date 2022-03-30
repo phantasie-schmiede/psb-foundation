@@ -14,7 +14,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace PSB\PsbFoundation\Annotation\Tca;
+namespace PSB\PsbFoundation\Annotation\TCA;
 
 use Exception;
 use PSB\PsbFoundation\Annotation\AbstractAnnotation;
@@ -24,7 +24,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class AbstractTcaAnnotation
  *
- * @package PSB\PsbFoundation\Annotation\Tca
+ * @package PSB\PsbFoundation\Annotation\TCA
  */
 abstract class AbstractTcaAnnotation extends AbstractAnnotation
 {
