@@ -32,6 +32,12 @@ This extension
 - auto-registers existing FlexForms, TypoScript, TSconfig and icons
 - provides convenient ways to access often used core-functionalities
 
+#### IMPORTANT
+psb_foundation is designed to simplify common recurrent settings. Although it offers a versatile set of configurations
+and tools, you may not be able to map certain complex scenarios with it.
+But you can still make use of this extension.
+For example, you can use the auto-generation of the TCA and add special settings via files in `TCA/Overrides/` as usual.
+
 ### Why should you use it?
 The goal of this extension is to
 - bring together different points of configuration to improve readability, maintainability and development time

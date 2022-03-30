@@ -17,6 +17,9 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility;
 
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3ArrayUtility;
+use function array_slice;
+use function is_array;
+use function is_string;
 
 /**
  * Class ArrayUtility

@@ -608,9 +608,9 @@ class TcaService
     private function addFieldIfAlreadyPossible(TcaAnnotationInterface $annotation, string $columnName): bool
     {
         $fieldCanBeAdded = false;
-        $paletteIdentifier = null;
+        $newPaletteIdentifier = null;
+        $newTabIdentifier = null;
         $position = $annotation->getPosition();
-        $tabIdentifier = null;
         $types = $GLOBALS['TCA'][$this->tableName]['types'];
 
         if ('' !== $annotation->getTypeList()) {
@@ -627,7 +627,7 @@ class TcaService
 
             switch ($keyword) {
                 case AbstractColumnAnnotation::POSITIONS['PALETTE']:
-                    $paletteIdentifier = $referenceField;
+                    $newPaletteIdentifier = $referenceField;
 
                     if (!isset($this->palettes[$referenceField]) || '' === $this->palettes[$referenceField]->getPosition()) {
                         // Palette has no specified position: field and palette can be added without problems.
@@ -643,7 +643,7 @@ class TcaService
                         $this->palettes[$referenceField]->getPosition());
 
                     if (AbstractColumnAnnotation::POSITIONS['TAB'] === $paletteKeyword) {
-                        $tabIdentifier = $referenceField;
+                        $newTabIdentifier = $referenceField;
 
                         if (!isset($this->tabs[$referenceField]) || '' === $this->tabs[$referenceField]->getPosition()) {
                             // Tab has no specified position: palette and tab can be added without problems.
@@ -657,7 +657,7 @@ class TcaService
 
                     break;
                 case AbstractColumnAnnotation::POSITIONS['TAB']:
-                    $tabIdentifier = $referenceField;
+                    $newTabIdentifier = $referenceField;
 
                     if (!isset($this->tabs[$referenceField]) || '' === $this->tabs[$referenceField]->getPosition()) {
                         // Tab has no specified position: field and tab can be added without problems.
@@ -678,25 +678,48 @@ class TcaService
             }
 
             if (false === $fieldCanBeAdded) {
+                // Check if $referenceField is located inside a palette
+                $containingPalettes = [];
+
+                foreach ($GLOBALS['TCA'][$this->tableName]['palettes'] as $paletteIdentifier => $paletteConfiguration) {
+                    $fieldList = GeneralUtility::trimExplode(',', $paletteConfiguration['showitem']);
+                    array_walk($fieldList, static function (&$item) {
+                        $item = explode(';', $item)[0];
+                    });
+
+                    if (in_array($referenceField, $fieldList)) {
+                        // @TODO: Palettes may define a label between ;;. Consider this case, too!
+                        $containingPalettes[] = '--palette--;;' . $paletteIdentifier;
+                    }
+                }
+
                 foreach ($types as $typeConfiguration) {
-                    if (in_array($referenceField,
-                        GeneralUtility::trimExplode(',', $typeConfiguration['showitem'] ?? ''))) {
+                    $fieldList = GeneralUtility::trimExplode(',', $typeConfiguration['showitem'] ?? '');
+
+                    if (in_array($referenceField, $fieldList, true)) {
                         $fieldCanBeAdded = true;
                         break;
+                    }
+
+                    foreach ($containingPalettes as $palette) {
+                        if (in_array($palette, $fieldList, true)) {
+                            $fieldCanBeAdded = true;
+                            break 2;
+                        }
                     }
                 }
             }
         }
 
         if (true === $fieldCanBeAdded) {
-            if (null !== $tabIdentifier) {
-                $tabDefinition = $this->addTabToShowItems($tabIdentifier, $annotation->getTypeList());
+            if (null !== $newTabIdentifier) {
+                $tabDefinition = $this->addTabToShowItems($newTabIdentifier, $annotation->getTypeList());
                 $position = AbstractColumnAnnotation::POSITIONS['AFTER'] . ':' . $tabDefinition;
             }
 
-            if (null !== $paletteIdentifier) {
-                $this->addToPalette($paletteIdentifier, [$columnName]);
-                $this->addPaletteToShowItems($paletteIdentifier, $annotation->getTypeList());
+            if (null !== $newPaletteIdentifier) {
+                $this->addToPalette($newPaletteIdentifier, [$columnName]);
+                $this->addPaletteToShowItems($newPaletteIdentifier, $annotation->getTypeList());
             } else {
                 ExtensionManagementUtility::addToAllTCAtypes(
                     $this->tableName,
