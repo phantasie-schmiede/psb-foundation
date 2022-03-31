@@ -36,12 +36,12 @@
 		"extension",
 		"typo3"
 	],
-	"license": "GPL-2.0-or-later",
+	"license": "GPL-3.0-or-later",
 	"name": "psb/psb-foundation",
 	"require": {
 		"ext-simplexml": "*",
 		"php": "^7.4",
-		"typo3/cms-core": "^11.5"
+		"typo3/cms-core": "^11.5.5"
 	},
 	"require-dev": {
 		"roave/security-advisories": "dev-latest",
