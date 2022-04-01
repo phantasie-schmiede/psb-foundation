@@ -51,22 +51,16 @@ class Select extends AbstractColumnAnnotation
     public const TYPE = self::TYPES['SELECT'];
 
     /**
-     * @var bool
+     * @var bool|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/AllowNonIdValues.html
      */
-    protected bool $allowNonIdValues = false;
+    protected ?bool $allowNonIdValues = null;
 
     /**
-     * @var int
+     * @var int|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/AutoSizeMax.html
      */
-    protected int $autoSizeMax = 1;
-
-    /**
-     * @var int|string|null
-     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Default.html
-     */
-    protected $default;
+    protected ?int $autoSizeMax = 1;
 
     /**
      * @var string|null
@@ -74,20 +68,25 @@ class Select extends AbstractColumnAnnotation
     protected ?string $eval = null;
 
     /**
-     * @var array
+     * @var array|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/FieldControl.html#tca-property-fieldcontrol
      */
-    protected array $fieldControl = [
-        'addRecord'  => [
-            'disabled' => false,
-        ],
-        'editPopup'  => [
-            'disabled' => false,
-        ],
-        'listModule' => [
-            'disabled' => false,
-        ],
-    ];
+    protected ?array $fieldControl = null;
+
+    /**
+     * @var bool|null
+     */
+    protected ?bool $fieldControlDisableAddRecord = null;
+
+    /**
+     * @var bool|null
+     */
+    protected ?bool $fieldControlDisableEditPopup = null;
+
+    /**
+     * @var bool|null
+     */
+    protected ?bool $fieldControlDisableListModule = null;
 
     /**
      * @var string|null
@@ -102,10 +101,10 @@ class Select extends AbstractColumnAnnotation
     protected ?string $foreignTableWhere = null;
 
     /**
-     * @var array
+     * @var array|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Items.html
      */
-    protected array $items = [];
+    protected ?array $items = null;
 
     /**
      * Instead of directly specifying a foreign table, it is possible to specify a domain model class.
@@ -120,21 +119,21 @@ class Select extends AbstractColumnAnnotation
     protected int $maxItems = 1;
 
     /**
-     * @var int
+     * @var int|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Minitems.html#tca-property-minitems
      */
-    protected int $minItems = 0;
+    protected ?int $minItems = null;
 
     /**
-     * @var bool
+     * @var bool|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Multiple.html#tca-property-multiple
      */
-    protected bool $multiple = false;
+    protected ?bool $multiple = null;
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected array $prependItem = [];
+    protected ?array $prependItem = null;
 
     /**
      * @var string
@@ -142,10 +141,10 @@ class Select extends AbstractColumnAnnotation
     protected string $renderType = self::RENDER_TYPES['SELECT_SINGLE'];
 
     /**
-     * @var int
+     * @var int|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Size.html#tca-property-size
      */
-    protected int $size = 1;
+    protected ?int $size = 1;
 
     /**
      * @var array|null
@@ -156,14 +155,14 @@ class Select extends AbstractColumnAnnotation
     /**
      * You can use the property name. It will be converted to the column name automatically.
      *
-     * @var string
+     * @var string|null
      */
-    protected string $treeConfigChildrenField = '';
+    protected ?string $treeConfigChildrenField = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $treeConfigDataProvider = '';
+    protected ?string $treeConfigDataProvider = null;
 
     /**
      * @var bool|null
@@ -171,21 +170,21 @@ class Select extends AbstractColumnAnnotation
     protected ?bool $treeConfigExpandAll = null;
 
     /**
-     * @var int
+     * @var int|null
      */
-    protected int $treeConfigMaxLevels = 0;
+    protected ?int $treeConfigMaxLevels = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $treeConfigNonSelectableLevels = '0';
+    protected ?string $treeConfigNonSelectableLevels = null;
 
     /**
      * You can use the property name. It will be converted to the column name automatically.
      *
-     * @var string
+     * @var string|null
      */
-    protected string $treeConfigParentField = '';
+    protected ?string $treeConfigParentField = null;
 
     /**
      * @var bool|null
@@ -193,9 +192,9 @@ class Select extends AbstractColumnAnnotation
     protected ?bool $treeConfigShowHeader = null;
 
     /**
-     * @var string
+     * @var string|null
      */
-    protected string $treeConfigStartingPoints = '';
+    protected ?string $treeConfigStartingPoints = null;
 
     /**
      * @param array $prependItem
@@ -270,9 +269,9 @@ class Select extends AbstractColumnAnnotation
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getAutoSizeMax(): int
+    public function getAutoSizeMax(): ?int
     {
         return $this->autoSizeMax;
     }
@@ -283,22 +282,6 @@ class Select extends AbstractColumnAnnotation
     public function setAutoSizeMax(int $autoSizeMax): void
     {
         $this->autoSizeMax = $autoSizeMax;
-    }
-
-    /**
-     * @return int|string|null
-     */
-    public function getDefault()
-    {
-        return $this->default;
-    }
-
-    /**
-     * @param int|string|null $default
-     */
-    public function setDefault($default): void
-    {
-        $this->default = $default;
     }
 
     /**
@@ -318,11 +301,25 @@ class Select extends AbstractColumnAnnotation
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getFieldControl(): array
+    public function getFieldControl(): ?array
     {
-        return $this->fieldControl;
+        $fieldControl = $this->fieldControl;
+
+        if (true === $this->fieldControlDisableAddRecord) {
+            $fieldControl['addRecord']['disabled'] = true;
+        }
+
+        if (true === $this->fieldControlDisableEditPopup) {
+            $fieldControl['editPopup']['disabled'] = true;
+        }
+
+        if (true === $this->fieldControlDisableListModule) {
+            $fieldControl['listModule']['disabled'] = true;
+        }
+
+        return $fieldControl;
     }
 
     /**
@@ -366,11 +363,15 @@ class Select extends AbstractColumnAnnotation
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getItems(): array
+    public function getItems(): ?array
     {
-        $this->items = array_merge($this->prependItem, $this->items);
+        if (null === $this->items && null === $this->prependItem) {
+            return null;
+        }
+
+        $this->items = array_merge($this->prependItem ?? [], $this->items ?? []);
         $this->prependItem = [];
 
         return $this->items;
@@ -413,9 +414,9 @@ class Select extends AbstractColumnAnnotation
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getMinItems(): int
+    public function getMinItems(): ?int
     {
         return $this->minItems;
     }
@@ -442,13 +443,19 @@ class Select extends AbstractColumnAnnotation
     public function setRenderType(string $renderType): void
     {
         ValidationUtility::checkValueAgainstConstant(self::RENDER_TYPES, $renderType);
+
+        if (self::RENDER_TYPES['SELECT_TREE'] === $renderType) {
+            $this->autoSizeMax = null;
+            $this->size = null;
+        }
+
         $this->renderType = $renderType;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getSize(): int
+    public function getSize(): ?int
     {
         return $this->size;
     }
@@ -471,8 +478,8 @@ class Select extends AbstractColumnAnnotation
         }
 
         $configuration = [
-            'childrenField' => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigChildrenField),
-            'parentField'   => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigParentField),
+            'childrenField' => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigChildrenField ?? ''),
+            'parentField'   => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigParentField ?? ''),
         ];
 
         if (null !== $this->treeConfigExpandAll) {
@@ -483,7 +490,7 @@ class Select extends AbstractColumnAnnotation
             $configuration['appearance']['maxLevels'] = $this->treeConfigMaxLevels;
         }
 
-        if ('0' !== $this->treeConfigNonSelectableLevels) {
+        if (null !== $this->treeConfigNonSelectableLevels) {
             $configuration['appearance']['nonSelectableLevels'] = $this->treeConfigNonSelectableLevels;
         }
 
@@ -491,11 +498,11 @@ class Select extends AbstractColumnAnnotation
             $configuration['appearance']['showHeader'] = $this->treeConfigShowHeader;
         }
 
-        if ('' !== $this->treeConfigDataProvider) {
+        if (null !== $this->treeConfigDataProvider) {
             $configuration['dataProvider'] = $this->treeConfigDataProvider;
         }
 
-        if ('' !== $this->treeConfigStartingPoints) {
+        if (null !== $this->treeConfigStartingPoints) {
             $configuration['startingPoints'] = $this->treeConfigStartingPoints;
         }
 
@@ -503,9 +510,9 @@ class Select extends AbstractColumnAnnotation
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
-    public function isAllowNonIdValues(): bool
+    public function isAllowNonIdValues(): ?bool
     {
         return $this->allowNonIdValues;
     }
@@ -519,9 +526,9 @@ class Select extends AbstractColumnAnnotation
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
-    public function isMultiple(): bool
+    public function isMultiple(): ?bool
     {
         return $this->multiple;
     }

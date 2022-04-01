@@ -19,9 +19,9 @@ namespace PSB\PsbFoundation\Annotation\TCA\Column;
 class Mm extends Select
 {
     /**
-     * @var int
+     * @var int|null
      */
-    protected int $autoSizeMax = 30;
+    protected ?int $autoSizeMax = 30;
 
     /**
      * 0 means no limit theoretically (max items allowed by core currently are 99999)
@@ -70,9 +70,9 @@ class Mm extends Select
     protected string $renderType = 'selectMultipleSideBySide';
 
     /**
-     * @var int
+     * @var int|null
      */
-    protected int $size = 10;
+    protected ?int $size = 10;
 
     /**
      * @return string

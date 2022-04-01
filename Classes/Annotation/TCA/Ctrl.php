@@ -29,6 +29,12 @@ class Ctrl extends AbstractTcaAnnotation
         'STARTTIME' => 'starttime',
     ];
 
+    public const ENABLE_COLUMNS = [
+        self::ENABLE_COLUMN_IDENTIFIERS['DISABLED']  => 'hidden',
+        self::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']   => 'endtime',
+        self::ENABLE_COLUMN_IDENTIFIERS['STARTTIME'] => 'starttime',
+    ];
+
     /**
      * @var array|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Ext.html
@@ -47,7 +53,7 @@ class Ctrl extends AbstractTcaAnnotation
      * @var bool|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/AdminOnly.html
      */
-    protected ?bool $adminOnly = false;
+    protected ?bool $adminOnly = null;
 
     /**
      * @var array|null
@@ -101,11 +107,7 @@ class Ctrl extends AbstractTcaAnnotation
      * @var array|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Enablecolumns.html
      */
-    protected ?array $enablecolumns = [
-        self::ENABLE_COLUMN_IDENTIFIERS['DISABLED']  => 'hidden',
-        self::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']   => 'endtime',
-        self::ENABLE_COLUMN_IDENTIFIERS['STARTTIME'] => 'starttime',
-    ];
+    protected ?array $enablecolumns = self::ENABLE_COLUMNS;
 
     /**
      * @var string|null
@@ -129,13 +131,13 @@ class Ctrl extends AbstractTcaAnnotation
      * @var bool|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideAtCopy.html
      */
-    protected ?bool $hideAtCopy = false;
+    protected ?bool $hideAtCopy = null;
 
     /**
      * @var bool|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideTable.html
      */
-    protected ?bool $hideTable = false;
+    protected ?bool $hideTable = null;
 
     /**
      * @var string|null
@@ -147,7 +149,7 @@ class Ctrl extends AbstractTcaAnnotation
      * @var bool|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/IsStatic.html
      */
-    protected ?bool $is_static = false;
+    protected ?bool $is_static = null;
 
     /**
      * You can use the property name. It will be converted to the column name automatically.
@@ -199,13 +201,13 @@ class Ctrl extends AbstractTcaAnnotation
      * @var bool|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ReadOnly.html
      */
-    protected ?bool $readOnly = false;
+    protected ?bool $readOnly = null;
 
     /**
      * @var int|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/RootLevel.html
      */
-    protected ?int $rootLevel = 0;
+    protected ?int $rootLevel = null;
 
     /**
      * @var string|null
@@ -236,11 +238,6 @@ class Ctrl extends AbstractTcaAnnotation
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Sortby.html
      */
     protected ?string $sortby = null;
-
-    /**
-     * @var TcaService
-     */
-    protected TcaService $tcaService;
 
     /**
      * @var string|null
@@ -811,9 +808,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
+     * Function name doesn't follow convention to exclude it from array conversion (see toArray())!
+     *
      * @return string[]
      */
-    public function getSetProperties(): array
+    public function getExplicitlySetProperties(): array
     {
         return $this->_setProperties;
     }

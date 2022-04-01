@@ -435,11 +435,10 @@ class TcaService
         $this->defaultLabelPath = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/';
 
         if (isset($GLOBALS['TCA'][$this->tableName])) {
-            $this->defaultLabelPath .= 'Overrides/' . $this->tableName . '.xlf:';
-        } else {
-            $this->defaultLabelPath .= $this->tableName . '.xlf:';
+            $this->defaultLabelPath .= 'Overrides/';
         }
 
+        $this->defaultLabelPath .= lcfirst($reflection->getShortName()) . '.xlf:';
         $this->palettes = [];
 
         foreach ($annotationReader->getClassAnnotations($reflection) as $annotation) {
@@ -478,7 +477,7 @@ class TcaService
                     }
 
                     if (($annotation instanceof Checkbox || $annotation instanceof Select)
-                        && [] !== $annotation->getItems()
+                        && null !== $annotation->getItems()
                         && ArrayUtility::isAssociative($annotation->getItems()
                         )) {
                         $annotation->setItems($this->processSelectItemsArray($annotation->getItems(),
@@ -509,7 +508,7 @@ class TcaService
 
             if ($overrideMode) {
                 $ctrlProperties = array_filter($ctrlProperties, static function ($key) use ($ctrl) {
-                    return in_array($key, $ctrl->getSetProperties(), true);
+                    return in_array($key, $ctrl->getExplicitlySetProperties(), true);
                 }, ARRAY_FILTER_USE_KEY);
             }
 
