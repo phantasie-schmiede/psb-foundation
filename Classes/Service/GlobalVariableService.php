@@ -16,6 +16,7 @@ use PSB\PsbFoundation\Utility\VariableUtility;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function in_array;
 
 /**
  * Class GlobalVariableService

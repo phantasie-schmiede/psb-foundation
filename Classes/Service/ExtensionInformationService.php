@@ -21,6 +21,9 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExis
 use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function count;
+use function in_array;
+use function is_array;
 
 /**
  * Class ExtensionInformationService
@@ -29,7 +32,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class ExtensionInformationService
 {
-    use ExtensionConfigurationTrait, PackageManagerTrait;
+    use ExtensionConfigurationTrait;
+    use PackageManagerTrait;
 
     /**
      * @var ExtensionInformationInterface[]

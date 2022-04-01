@@ -23,7 +23,8 @@ use ReflectionException;
  */
 class AbstractXmlElement implements XmlElementInterface
 {
-    use AutoFillPropertiesTrait, ObjectServiceTrait;
+    use AutoFillPropertiesTrait;
+    use ObjectServiceTrait;
 
     /**
      * @var array

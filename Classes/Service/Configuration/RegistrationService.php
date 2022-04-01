@@ -48,7 +48,8 @@ use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
  */
 class RegistrationService
 {
-    use FlexFormServiceTrait, IconRegistryTrait;
+    use FlexFormServiceTrait;
+    use IconRegistryTrait;
 
     public const ICON_SUFFIXES = [
         'CONTENT_FROM_PID' => '-contentFromPid',

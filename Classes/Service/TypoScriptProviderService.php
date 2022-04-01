@@ -30,7 +30,8 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
  */
 class TypoScriptProviderService
 {
-    use ConfigurationManagerTrait, TypoScriptServiceTrait;
+    use ConfigurationManagerTrait;
+    use TypoScriptServiceTrait;
 
     /**
      * @throws ContainerExceptionInterface
