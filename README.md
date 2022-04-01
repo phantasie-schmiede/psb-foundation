@@ -280,7 +280,7 @@ leave out the brackets. The default values of the annotation class will have no 
 
 #### Default language label paths and additional configuration options
 These language labels will be tried if you don't provide a custom value for them.
-The path always is `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[table_name].xlf`.
+The path always is `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[modelName].xlf`.
 
 | Configuration value | Default language label           |
 |---------------------|----------------------------------|
