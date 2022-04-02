@@ -26,6 +26,8 @@ trait ResponseFactoryTrait
 
     /**
      * @param ResponseFactoryInterface $responseFactory
+     *
+     * @return void
      */
     public function injectResponseFactory(ResponseFactoryInterface $responseFactory): void
     {

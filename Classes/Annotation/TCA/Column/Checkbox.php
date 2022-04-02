@@ -54,6 +54,8 @@ class Checkbox extends AbstractColumnAnnotation
 
     /**
      * @param array $items
+     *
+     * @return void
      */
     public function setItems(array $items): void
     {
@@ -62,6 +64,8 @@ class Checkbox extends AbstractColumnAnnotation
 
     /**
      * @param bool|int $default
+     *
+     * @return void
      */
     public function setDefault($default): void
     {
@@ -78,6 +82,8 @@ class Checkbox extends AbstractColumnAnnotation
 
     /**
      * @param string $renderType
+     *
+     * @return void
      */
     public function setRenderType(string $renderType): void
     {

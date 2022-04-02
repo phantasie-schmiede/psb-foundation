@@ -20,6 +20,9 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  */
 abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
 {
+    /**
+     * @return void
+     */
     public function initializeArguments(): void
     {
         parent::initializeArguments();

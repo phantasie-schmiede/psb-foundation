@@ -137,6 +137,8 @@ class XmlUtility
      * @param array  $array
      * @param string $path
      * @param bool   $strict
+     *
+     * @return void
      */
     public static function removeNode(array &$array, string $path, bool $strict = false): void
     {

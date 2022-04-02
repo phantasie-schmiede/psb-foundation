@@ -26,6 +26,8 @@ trait TcaServiceTrait
 
     /**
      * @param TcaService $tcaService
+     *
+     * @return void
      */
     public function injectTcaService(TcaService $tcaService): void
     {

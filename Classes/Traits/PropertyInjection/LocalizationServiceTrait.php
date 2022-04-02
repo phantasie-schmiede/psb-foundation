@@ -26,6 +26,8 @@ trait LocalizationServiceTrait
 
     /**
      * @param LocalizationService $localizationService
+     *
+     * @return void
      */
     public function injectLocalizationService(LocalizationService $localizationService): void
     {

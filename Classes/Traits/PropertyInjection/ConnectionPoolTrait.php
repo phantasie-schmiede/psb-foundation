@@ -26,6 +26,8 @@ trait ConnectionPoolTrait
 
     /**
      * @param ConnectionPool $connectionPool
+     *
+     * @return void
      */
     public function injectConnectionPool(ConnectionPool $connectionPool): void
     {

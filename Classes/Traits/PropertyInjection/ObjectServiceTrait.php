@@ -26,6 +26,8 @@ trait ObjectServiceTrait
 
     /**
      * @param ObjectService $objectService
+     *
+     * @return void
      */
     public function injectObjectService(ObjectService $objectService): void
     {

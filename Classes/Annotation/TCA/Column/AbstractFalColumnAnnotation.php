@@ -74,6 +74,8 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
 
     /**
      * @param string $allowedFileTypes
+     *
+     * @return void
      */
     public function setAllowedFileTypes(string $allowedFileTypes): void
     {
@@ -90,6 +92,8 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
 
     /**
      * @param array $appearance
+     *
+     * @return void
      */
     public function setAppearance(array $appearance): void
     {
@@ -106,6 +110,8 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
 
     /**
      * @param int $maxItems
+     *
+     * @return void
      */
     public function setMaxItems(int $maxItems): void
     {

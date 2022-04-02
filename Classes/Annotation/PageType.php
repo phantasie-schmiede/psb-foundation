@@ -53,6 +53,8 @@ class PageType extends AbstractAnnotation
 
     /**
      * @param string $contentType
+     *
+     * @return void
      */
     public function setContentType(string $contentType): void
     {
@@ -70,6 +72,8 @@ class PageType extends AbstractAnnotation
 
     /**
      * @param int $typeNum
+     *
+     * @return void
      */
     public function setTypeNum(int $typeNum): void
     {
@@ -86,6 +90,8 @@ class PageType extends AbstractAnnotation
 
     /**
      * @param bool $cacheable
+     *
+     * @return void
      */
     public function setCacheable(bool $cacheable): void
     {
@@ -102,6 +108,8 @@ class PageType extends AbstractAnnotation
 
     /**
      * @param bool $disableAllHeaderCode
+     *
+     * @return void
      */
     public function setDisableAllHeaderCode(bool $disableAllHeaderCode): void
     {

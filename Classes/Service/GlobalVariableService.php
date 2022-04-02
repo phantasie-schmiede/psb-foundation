@@ -93,6 +93,8 @@ class GlobalVariableService
      * For use in ext_localconf.php
      *
      * @param string $className
+     *
+     * @return void
      */
     public static function registerGlobalVariableProvider(string $className): void
     {

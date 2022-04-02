@@ -40,6 +40,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+use function in_array;
 
 /**
  * Class RegistrationService
@@ -91,6 +92,7 @@ class RegistrationService
      * @param string                        $pluginName
      * @param string|null                   $iconIdentifier
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
@@ -140,6 +142,7 @@ class RegistrationService
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
@@ -192,6 +195,7 @@ class RegistrationService
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
@@ -273,6 +277,7 @@ class RegistrationService
      * @param ExtensionInformationInterface $extensionInformation
      * @param string                        $mode
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
@@ -301,6 +306,7 @@ class RegistrationService
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
@@ -371,6 +377,7 @@ class RegistrationService
      * @param string $extensionKey
      * @param string $key
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
@@ -395,6 +402,7 @@ class RegistrationService
      * @param string $group
      * @param string $key
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
@@ -439,6 +447,7 @@ class RegistrationService
      * @param int    $doktype
      * @param string $extensionKey
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException

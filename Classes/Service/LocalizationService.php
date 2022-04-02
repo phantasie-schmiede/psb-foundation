@@ -36,6 +36,7 @@ class LocalizationService
      * @param string $key
      * @param bool   $keyExists
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */

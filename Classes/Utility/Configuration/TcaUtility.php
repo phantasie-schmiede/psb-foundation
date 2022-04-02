@@ -192,6 +192,8 @@ class TcaUtility
      * For usage in ext_tables.php
      *
      * @param ExtensionInformationInterface $extensionInformation
+     *
+     * @return void
      */
     public static function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
     {

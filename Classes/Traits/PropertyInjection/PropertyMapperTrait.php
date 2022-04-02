@@ -26,6 +26,8 @@ trait PropertyMapperTrait
 
     /**
      * @param PropertyMapper $propertyMapper
+     *
+     * @return void
      */
     public function injectPropertyMapper(PropertyMapper $propertyMapper): void
     {

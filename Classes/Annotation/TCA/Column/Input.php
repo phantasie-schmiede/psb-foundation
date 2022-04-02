@@ -53,6 +53,8 @@ class Input extends AbstractColumnAnnotation
 
     /**
      * @param string $eval
+     *
+     * @return void
      */
     public function setEval(string $eval): void
     {
@@ -69,6 +71,8 @@ class Input extends AbstractColumnAnnotation
 
     /**
      * @param int|null $max
+     *
+     * @return void
      */
     public function setMax(?int $max): void
     {
@@ -85,6 +89,8 @@ class Input extends AbstractColumnAnnotation
 
     /**
      * @param string|null $renderType
+     *
+     * @return void
      */
     public function setRenderType(?string $renderType): void
     {
@@ -101,6 +107,8 @@ class Input extends AbstractColumnAnnotation
 
     /**
      * @param int $size
+     *
+     * @return void
      */
     public function setSize(int $size): void
     {

@@ -43,6 +43,8 @@ class PluginAction extends AbstractAnnotation
 
     /**
      * @param bool $default
+     *
+     * @return void
      */
     public function setDefault(bool $default): void
     {
@@ -59,6 +61,8 @@ class PluginAction extends AbstractAnnotation
 
     /**
      * @param bool $uncached
+     *
+     * @return void
      */
     public function setUncached(bool $uncached): void
     {

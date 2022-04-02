@@ -37,6 +37,8 @@ class ModuleAction extends AbstractAnnotation
 
     /**
      * @param bool $default
+     *
+     * @return void
      */
     public function setDefault(bool $default): void
     {

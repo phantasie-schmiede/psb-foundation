@@ -60,6 +60,8 @@ class ModuleConfig extends AbstractAnnotation
 
     /**
      * @param string $access
+     *
+     * @return void
      */
     public function setAccess(string $access): void
     {
@@ -76,6 +78,8 @@ class ModuleConfig extends AbstractAnnotation
 
     /**
      * @param string|null $iconIdentifier
+     *
+     * @return void
      */
     public function setIconIdentifier(?string $iconIdentifier): void
     {
@@ -92,6 +96,8 @@ class ModuleConfig extends AbstractAnnotation
 
     /**
      * @param string|null $labels
+     *
+     * @return void
      */
     public function setLabels(?string $labels): void
     {
@@ -108,6 +114,8 @@ class ModuleConfig extends AbstractAnnotation
 
     /**
      * @param string $mainModuleName
+     *
+     * @return void
      */
     public function setMainModuleName(string $mainModuleName): void
     {
@@ -124,6 +132,8 @@ class ModuleConfig extends AbstractAnnotation
 
     /**
      * @param string|null $navigationComponentId
+     *
+     * @return void
      */
     public function setNavigationComponentId(?string $navigationComponentId): void
     {
@@ -140,6 +150,8 @@ class ModuleConfig extends AbstractAnnotation
 
     /**
      * @param string $position
+     *
+     * @return void
      */
     public function setPosition(string $position): void
     {

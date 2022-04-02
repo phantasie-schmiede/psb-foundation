@@ -327,6 +327,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param bool|null $adminOnly
+     *
+     * @return void
      */
     public function setAdminOnly(?bool $adminOnly): void
     {
@@ -343,6 +345,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param array|null $container
+     *
+     * @return void
      */
     public function setContainer(?array $container): void
     {
@@ -359,6 +363,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $copyAfterDuplFields
+     *
+     * @return void
      */
     public function setCopyAfterDuplFields(?string $copyAfterDuplFields): void
     {
@@ -375,6 +381,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $crdate
+     *
+     * @return void
      */
     public function setCrdate(?string $crdate): void
     {
@@ -391,6 +399,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string $cruser_id
+     *
+     * @return void
      */
     public function setCruserId(string $cruser_id): void
     {
@@ -407,6 +417,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $defaultSortBy
+     *
+     * @return void
      */
     public function setDefaultSortBy(?string $defaultSortBy): void
     {
@@ -423,6 +435,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $delete
+     *
+     * @return void
      */
     public function setDelete(?string $delete): void
     {
@@ -439,6 +453,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $descriptionColumn
+     *
+     * @return void
      */
     public function setDescriptionColumn(?string $descriptionColumn): void
     {
@@ -455,6 +471,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param array|null $EXT
+     *
+     * @return void
      */
     public function setEXT(?array $EXT): void
     {
@@ -471,6 +489,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $editlock
+     *
+     * @return void
      */
     public function setEditlock(?string $editlock): void
     {
@@ -487,6 +507,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param array|null $enablecolumns
+     *
+     * @return void
      */
     public function setEnablecolumns(?array $enablecolumns): void
     {
@@ -503,6 +525,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $formattedLabel_userFunc
+     *
+     * @return void
      */
     public function setFormattedLabelUserFunc(?string $formattedLabel_userFunc): void
     {
@@ -519,6 +543,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param array|null $formattedLabel_userFunc_options
+     *
+     * @return void
      */
     public function setFormattedLabelUserFuncOptions(?array $formattedLabel_userFunc_options): void
     {
@@ -535,6 +561,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $groupName
+     *
+     * @return void
      */
     public function setGroupName(?string $groupName): void
     {
@@ -551,6 +579,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param bool|null $hideAtCopy
+     *
+     * @return void
      */
     public function setHideAtCopy(?bool $hideAtCopy): void
     {
@@ -567,6 +597,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param bool|null $hideTable
+     *
+     * @return void
      */
     public function setHideTable(?bool $hideTable): void
     {
@@ -583,6 +615,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $iconfile
+     *
+     * @return void
      */
     public function setIconfile(?string $iconfile): void
     {
@@ -599,6 +633,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param bool|null $is_static
+     *
+     * @return void
      */
     public function setIsStatic(?bool $is_static): void
     {
@@ -615,6 +651,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string $label
+     *
+     * @return void
      */
     public function setLabel(string $label): void
     {
@@ -641,6 +679,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $label_alt
+     *
+     * @return void
      */
     public function setLabelAlt(?string $label_alt): void
     {
@@ -657,6 +697,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param bool|null $label_alt_force
+     *
+     * @return void
      */
     public function setLabelAltForce(?bool $label_alt_force): void
     {
@@ -673,6 +715,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $label_userFunc
+     *
+     * @return void
      */
     public function setLabelUserFunc(?string $label_userFunc): void
     {
@@ -689,6 +733,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $languageField
+     *
+     * @return void
      */
     public function setLanguageField(?string $languageField): void
     {
@@ -705,6 +751,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $origUid
+     *
+     * @return void
      */
     public function setOrigUid(?string $origUid): void
     {
@@ -721,6 +769,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $prependAtCopy
+     *
+     * @return void
      */
     public function setPrependAtCopy(?string $prependAtCopy): void
     {
@@ -737,6 +787,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param bool|null $readOnly
+     *
+     * @return void
      */
     public function setReadOnly(?bool $readOnly): void
     {
@@ -753,6 +805,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param int|null $rootLevel
+     *
+     * @return void
      */
     public function setRootLevel(?int $rootLevel): void
     {
@@ -769,6 +823,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $searchFields
+     *
+     * @return void
      */
     public function setSearchFields(?string $searchFields): void
     {
@@ -785,6 +841,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param array|null $security
+     *
+     * @return void
      */
     public function setSecurity(?array $security): void
     {
@@ -801,6 +859,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $selicon_field
+     *
+     * @return void
      */
     public function setSeliconField(?string $selicon_field): void
     {
@@ -812,7 +872,7 @@ class Ctrl extends AbstractTcaAnnotation
      *
      * @return string[]
      */
-    public function getExplicitlySetProperties(): array
+    public function _getSetProperties(): array
     {
         return $this->_setProperties;
     }
@@ -827,6 +887,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $shadowColumnsForNewPlaceholders
+     *
+     * @return void
      */
     public function setShadowColumnsForNewPlaceholders(?string $shadowColumnsForNewPlaceholders): void
     {
@@ -843,6 +905,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $sortBy
+     *
+     * @return void
      */
     public function setSortBy(?string $sortBy): void
     {
@@ -860,6 +924,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $title
+     *
+     * @return void
      */
     public function setTitle(?string $title): void
     {
@@ -876,6 +942,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $transOrigDiffSourceField
+     *
+     * @return void
      */
     public function setTransOrigDiffSourceField(?string $transOrigDiffSourceField): void
     {
@@ -892,6 +960,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $transOrigPointerField
+     *
+     * @return void
      */
     public function setTransOrigPointerField(?string $transOrigPointerField): void
     {
@@ -908,6 +978,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $translationSource
+     *
+     * @return void
      */
     public function setTranslationSource(?string $translationSource): void
     {
@@ -924,6 +996,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $tstamp
+     *
+     * @return void
      */
     public function setTstamp(?string $tstamp): void
     {
@@ -940,6 +1014,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $type
+     *
+     * @return void
      */
     public function setType(?string $type): void
     {
@@ -956,6 +1032,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param array|null $typeicon_classes
+     *
+     * @return void
      */
     public function setTypeiconClasses(?array $typeicon_classes): void
     {
@@ -972,6 +1050,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $typeicon_column
+     *
+     * @return void
      */
     public function setTypeiconColumn(?string $typeicon_column): void
     {
@@ -988,6 +1068,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param string|null $useColumnsForDefaultValues
+     *
+     * @return void
      */
     public function setUseColumnsForDefaultValues(?string $useColumnsForDefaultValues): void
     {
@@ -1004,6 +1086,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param bool|null $versioningWS
+     *
+     * @return void
      */
     public function setVersioningWS(?bool $versioningWS): void
     {
@@ -1020,6 +1104,8 @@ class Ctrl extends AbstractTcaAnnotation
 
     /**
      * @param bool|null $versioningWS_alwaysAllowLiveEdit
+     *
+     * @return void
      */
     public function setVersioningWSAlwaysAllowLiveEdit(?bool $versioningWS_alwaysAllowLiveEdit): void
     {

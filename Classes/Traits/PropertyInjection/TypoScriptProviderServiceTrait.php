@@ -26,6 +26,8 @@ trait TypoScriptProviderServiceTrait
 
     /**
      * @param TypoScriptProviderService $typoScriptProviderService
+     *
+     * @return void
      */
     public function injectTypoScriptProviderService(TypoScriptProviderService $typoScriptProviderService): void
     {

@@ -113,6 +113,8 @@ class ArrayUtility
      *
      * @param array $array
      * @param bool  $recursive
+     *
+     * @return void
      */
     public static function shuffle(array &$array, bool $recursive = false): void
     {

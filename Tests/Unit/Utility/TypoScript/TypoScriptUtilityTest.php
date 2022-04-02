@@ -26,6 +26,8 @@ class TypoScriptUtilityTest extends UnitTestCase
      *
      * @param array  $array
      * @param string $expectedResult
+     *
+     * @return void
      */
     public function convertArrayToTypoScript(array $array, string $expectedResult): void
     {

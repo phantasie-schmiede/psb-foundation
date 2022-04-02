@@ -395,7 +395,7 @@ use PSB\PsbFoundation\Annotation\PluginAction;
  * @PluginAction(uncached=true)
  * @PageType(contentType=PageObjectConfiguration::CONTENT_TYPE_HTML, disableAllHeaderCode=false, typeNum=1589385441)
  */
-public function specialPageTypeAction(): void
+public function specialPageTypeAction()
 {
 }
 ```

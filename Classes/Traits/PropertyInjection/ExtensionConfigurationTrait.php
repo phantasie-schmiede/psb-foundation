@@ -26,6 +26,8 @@ trait ExtensionConfigurationTrait
 
     /**
      * @param ExtensionConfiguration $extensionConfiguration
+     *
+     * @return void
      */
     public function injectExtensionConfiguration(ExtensionConfiguration $extensionConfiguration): void
     {

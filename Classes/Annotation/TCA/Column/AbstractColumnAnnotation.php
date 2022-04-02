@@ -150,6 +150,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param bool|null $allowLanguageSynchronization
+     *
+     * @return void
      */
     public function setAllowLanguageSynchronization(?bool $allowLanguageSynchronization): void
     {
@@ -158,6 +160,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param bool $exclude
+     *
+     * @return void
      */
     public function setExclude(bool $exclude): void
     {
@@ -166,6 +170,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param bool $readOnly
+     *
+     * @return void
      */
     public function setReadOnly(bool $readOnly): void
     {
@@ -205,6 +211,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param array|null $behaviour
+     *
+     * @return void
      */
     public function setBehaviour(?array $behaviour): void
     {
@@ -220,7 +228,9 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
     }
 
     /**
-     * @param mixed $default
+     * @param $default
+     *
+     * @return void
      */
     public function setDefault($default): void
     {
@@ -237,6 +247,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param string|null $description
+     *
+     * @return void
      */
     public function setDescription(?string $description): void
     {
@@ -253,6 +265,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param array|string|null $displayCond
+     *
+     * @return void
      */
     public function setDisplayCond($displayCond): void
     {
@@ -269,6 +283,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param string|null $l10nDisplay
+     *
+     * @return void
      */
     public function setL10nDisplay(?string $l10nDisplay): void
     {
@@ -285,6 +301,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param string|null $l10nMode
+     *
+     * @return void
      */
     public function setL10nMode(?string $l10nMode): void
     {
@@ -301,6 +319,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param string $label
+     *
+     * @return void
      */
     public function setLabel(string $label): void
     {
@@ -317,6 +337,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param string|null $onChange
+     *
+     * @return void
      */
     public function setOnChange(?string $onChange): void
     {
@@ -344,6 +366,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param string $position
+     *
+     * @return void
      */
     public function setPosition(string $position): void
     {
@@ -368,6 +392,8 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
 
     /**
      * @param string $typeList
+     *
+     * @return void
      */
     public function setTypeList(string $typeList): void
     {

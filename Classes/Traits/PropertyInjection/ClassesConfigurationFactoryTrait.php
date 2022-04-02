@@ -26,6 +26,8 @@ trait ClassesConfigurationFactoryTrait
 
     /**
      * @param ClassesConfigurationFactory $classesConfigurationFactory
+     *
+     * @return void
      */
     public function injectClassesConfigurationFactory(ClassesConfigurationFactory $classesConfigurationFactory): void
     {

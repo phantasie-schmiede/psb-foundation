@@ -14,6 +14,7 @@ use InvalidArgumentException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use function in_array;
 
 /**
  * Class ValidationUtility
@@ -25,6 +26,8 @@ class ValidationUtility
     /**
      * @param array $constant
      * @param array $keys
+     *
+     * @return void
      */
     public static function checkArrayAgainstConstantKeys(array $constant, array $keys): void
     {
@@ -36,6 +39,8 @@ class ValidationUtility
     /**
      * @param array $constant
      * @param array $values
+     *
+     * @return void
      */
     public static function checkArrayAgainstConstantValues(array $constant, array $values): void
     {
@@ -47,6 +52,8 @@ class ValidationUtility
     /**
      * @param array  $constant
      * @param string $key
+     *
+     * @return void
      */
     public static function checkKeyAgainstConstant(array $constant, string $key): void
     {
@@ -59,6 +66,8 @@ class ValidationUtility
     /**
      * @param array $constant
      * @param       $value
+     *
+     * @return void
      */
     public static function checkValueAgainstConstant(array $constant, $value): void
     {
@@ -68,6 +77,9 @@ class ValidationUtility
         }
     }
 
+    /**
+     * @return void
+     */
     public static function requiresBackendContext(): void
     {
         if (!ContextUtility::isBackend()) {
@@ -75,6 +87,9 @@ class ValidationUtility
         }
     }
 
+    /**
+     * @return void
+     */
     public static function requiresFrontendContext(): void
     {
         if (!ContextUtility::isFrontend()) {

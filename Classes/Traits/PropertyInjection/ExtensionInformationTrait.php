@@ -26,6 +26,8 @@ trait ExtensionInformationTrait
 
     /**
      * @param ExtensionInformation $extensionInformation
+     *
+     * @return void
      */
     public function injectExtensionInformation(ExtensionInformation $extensionInformation): void
     {

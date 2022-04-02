@@ -26,6 +26,8 @@ trait ContextTrait
 
     /**
      * @param Context $context
+     *
+     * @return void
      */
     public function injectContext(Context $context): void
     {

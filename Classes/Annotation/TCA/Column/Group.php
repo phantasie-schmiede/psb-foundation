@@ -59,6 +59,8 @@ class Group extends AbstractColumnAnnotation
 
     /**
      * @param string $allowed
+     *
+     * @return void
      */
     public function setAllowed(string $allowed): void
     {
@@ -75,6 +77,8 @@ class Group extends AbstractColumnAnnotation
 
     /**
      * @param string $internalType
+     *
+     * @return void
      */
     public function setInternalType(string $internalType): void
     {
@@ -91,6 +95,8 @@ class Group extends AbstractColumnAnnotation
 
     /**
      * @param int $maxItems
+     *
+     * @return void
      */
     public function setMaxItems(int $maxItems): void
     {
@@ -107,6 +113,8 @@ class Group extends AbstractColumnAnnotation
 
     /**
      * @param int $minItems
+     *
+     * @return void
      */
     public function setMinItems(int $minItems): void
     {
@@ -123,6 +131,8 @@ class Group extends AbstractColumnAnnotation
 
     /**
      * @param int $size
+     *
+     * @return void
      */
     public function setSize(int $size): void
     {

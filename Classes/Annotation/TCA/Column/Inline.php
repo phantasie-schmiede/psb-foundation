@@ -103,6 +103,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param array $appearance
+     *
+     * @return void
      */
     public function setAppearance(array $appearance): void
     {
@@ -119,6 +121,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param string $foreignField
+     *
+     * @return void
      */
     public function setForeignField(string $foreignField): void
     {
@@ -135,6 +139,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param string|null $foreignSortBy
+     *
+     * @return void
      */
     public function setForeignSortBy(?string $foreignSortBy): void
     {
@@ -151,6 +157,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param string $foreignTable
+     *
+     * @return void
      */
     public function setForeignTable(string $foreignTable): void
     {
@@ -159,6 +167,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param string $linkedModel
+     *
+     * @return void
      */
     public function setLinkedModel(string $linkedModel): void
     {
@@ -179,6 +189,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param int|null $maxItems
+     *
+     * @return void
      */
     public function setMaxItems(?int $maxItems): void
     {
@@ -195,6 +207,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param string|null $mm
+     *
+     * @return void
      */
     public function setMm(?string $mm): void
     {
@@ -211,6 +225,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param array|null $mmMatchFields
+     *
+     * @return void
      */
     public function setMmMatchFields(?array $mmMatchFields): void
     {
@@ -227,6 +243,8 @@ class Inline extends AbstractColumnAnnotation
 
     /**
      * @param string|null $mmOppositeField
+     *
+     * @return void
      */
     public function setMmOppositeField(?string $mmOppositeField): void
     {

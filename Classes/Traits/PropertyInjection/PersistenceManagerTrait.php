@@ -26,6 +26,8 @@ trait PersistenceManagerTrait
 
     /**
      * @param PersistenceManagerInterface $persistenceManager
+     *
+     * @return void
      */
     public function injectPersistenceManager(PersistenceManagerInterface $persistenceManager): void
     {

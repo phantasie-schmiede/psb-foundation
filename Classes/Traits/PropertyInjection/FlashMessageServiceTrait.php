@@ -26,6 +26,8 @@ trait FlashMessageServiceTrait
 
     /**
      * @param FlashMessageService $flashMessageService
+     *
+     * @return void
      */
     public function injectFlashMessageService(FlashMessageService $flashMessageService): void
     {

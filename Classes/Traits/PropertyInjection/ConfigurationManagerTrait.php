@@ -26,6 +26,8 @@ trait ConfigurationManagerTrait
 
     /**
      * @param ConfigurationManagerInterface $configurationManager
+     *
+     * @return void
      */
     public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager): void
     {

@@ -60,6 +60,8 @@ class Slug extends AbstractColumnAnnotation
 
     /**
      * @param string $eval
+     *
+     * @return void
      */
     public function setEval(string $eval): void
     {
@@ -76,6 +78,8 @@ class Slug extends AbstractColumnAnnotation
 
     /**
      * @param string $fallbackCharacter
+     *
+     * @return void
      */
     public function setFallbackCharacter(string $fallbackCharacter): void
     {
@@ -92,6 +96,8 @@ class Slug extends AbstractColumnAnnotation
 
     /**
      * @param array $generatorOptions
+     *
+     * @return void
      */
     public function setGeneratorOptions(array $generatorOptions): void
     {

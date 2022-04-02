@@ -26,6 +26,8 @@ trait PackageManagerTrait
 
     /**
      * @param PackageManager $packageManager
+     *
+     * @return void
      */
     public function injectPackageManager(PackageManager $packageManager): void
     {

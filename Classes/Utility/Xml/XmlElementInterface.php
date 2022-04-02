@@ -39,16 +39,22 @@ interface XmlElementInterface
 
     /**
      * @param array $attributes
+     *
+     * @return void
      */
     public function _setAttributes(array $attributes): void;
 
     /**
-     * @param mixed $nodeValue
+     * @param $nodeValue
+     *
+     * @return void
      */
     public function _setNodeValue($nodeValue): void;
 
     /**
      * @param int $position
+     *
+     * @return void
      */
     public function _setPosition(int $position): void;
 

@@ -120,6 +120,8 @@ class Mm extends Select
 
     /**
      * @param string $mm
+     *
+     * @return void
      */
     public function setMm(string $mm): void
     {
@@ -128,6 +130,8 @@ class Mm extends Select
 
     /**
      * @param bool|null $mmHasUidField
+     *
+     * @return void
      */
     public function setMmHasUidField(?bool $mmHasUidField): void
     {
@@ -136,6 +140,8 @@ class Mm extends Select
 
     /**
      * @param array|null $mmInsertFields
+     *
+     * @return void
      */
     public function setMmInsertFields(?array $mmInsertFields): void
     {
@@ -144,6 +150,8 @@ class Mm extends Select
 
     /**
      * @param array|null $mmMatchFields
+     *
+     * @return void
      */
     public function setMmMatchFields(?array $mmMatchFields): void
     {
@@ -152,6 +160,8 @@ class Mm extends Select
 
     /**
      * @param string|null $mmOppositeField
+     *
+     * @return void
      */
     public function setMmOppositeField(?string $mmOppositeField): void
     {

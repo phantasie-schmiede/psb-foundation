@@ -26,6 +26,8 @@ trait IconRegistryTrait
 
     /**
      * @param IconRegistry $iconRegistry
+     *
+     * @return void
      */
     public function injectIconRegistry(IconRegistry $iconRegistry): void
     {

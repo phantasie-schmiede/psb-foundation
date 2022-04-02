@@ -27,15 +27,10 @@ class Text extends AbstractColumnAnnotation
     protected int $cols = 32;
 
     /**
-     * @var string|null
-     */
-    protected $default;
-
-    /**
-     * @var bool
+     * @var bool|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Text/Properties/EnableRichtext.html
      */
-    protected bool $enableRichText = false;
+    protected ?bool $enableRichText = null;
 
     /**
      * @var string
@@ -59,6 +54,8 @@ class Text extends AbstractColumnAnnotation
 
     /**
      * @param int $cols
+     *
+     * @return void
      */
     public function setCols(int $cols): void
     {
@@ -75,6 +72,8 @@ class Text extends AbstractColumnAnnotation
 
     /**
      * @param string $eval
+     *
+     * @return void
      */
     public function setEval(string $eval): void
     {
@@ -91,6 +90,8 @@ class Text extends AbstractColumnAnnotation
 
     /**
      * @param int $rows
+     *
+     * @return void
      */
     public function setRows(int $rows): void
     {
@@ -98,15 +99,17 @@ class Text extends AbstractColumnAnnotation
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
-    public function isEnableRichText(): bool
+    public function isEnableRichText(): ?bool
     {
         return $this->enableRichText;
     }
 
     /**
      * @param bool $enableRichText
+     *
+     * @return void
      */
     public function setEnableRichText(bool $enableRichText): void
     {

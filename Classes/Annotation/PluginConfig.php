@@ -50,6 +50,8 @@ class PluginConfig extends AbstractAnnotation
 
     /**
      * @param string $flexForm
+     *
+     * @return void
      */
     public function setFlexForm(string $flexForm): void
     {
@@ -66,6 +68,8 @@ class PluginConfig extends AbstractAnnotation
 
     /**
      * @param string $group
+     *
+     * @return void
      */
     public function setGroup(string $group): void
     {
@@ -82,6 +86,8 @@ class PluginConfig extends AbstractAnnotation
 
     /**
      * @param string $iconIdentifier
+     *
+     * @return void
      */
     public function setIconIdentifier(string $iconIdentifier): void
     {
@@ -98,6 +104,8 @@ class PluginConfig extends AbstractAnnotation
 
     /**
      * @param string $title
+     *
+     * @return void
      */
     public function setTitle(string $title): void
     {

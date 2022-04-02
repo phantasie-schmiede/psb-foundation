@@ -26,6 +26,7 @@ trait AutoFillPropertiesTrait
     /**
      * @param array $properties
      *
+     * @return void
      * @throws ReflectionException
      */
     public function fillProperties(array $properties): void

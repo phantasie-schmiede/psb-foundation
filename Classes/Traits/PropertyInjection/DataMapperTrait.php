@@ -26,6 +26,8 @@ trait DataMapperTrait
 
     /**
      * @param DataMapper $dataMapper
+     *
+     * @return void
      */
     public function injectDataMapper(DataMapper $dataMapper): void
     {

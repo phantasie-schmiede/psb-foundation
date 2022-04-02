@@ -26,6 +26,8 @@ trait SiteFinderTrait
 
     /**
      * @param SiteFinder $siteFinder
+     *
+     * @return void
      */
     public function injectSiteFinder(SiteFinder $siteFinder): void
     {

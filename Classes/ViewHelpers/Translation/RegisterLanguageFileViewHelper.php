@@ -34,6 +34,9 @@ class RegisterLanguageFileViewHelper extends AbstractViewHelper
     public const REGISTRY_KEY  = 'languageFileRegistry';
     public const VARIABLE_NAME = 'psbFoundation';
 
+    /**
+     * @return void
+     */
     public function initializeArguments(): void
     {
         parent::initializeArguments();
@@ -43,6 +46,9 @@ class RegisterLanguageFileViewHelper extends AbstractViewHelper
             false);
     }
 
+    /**
+     * @return void
+     */
     public function render(): void
     {
         ['file' => $file, 'name' => $name] = $this->arguments;

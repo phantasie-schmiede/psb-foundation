@@ -198,6 +198,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param array $prependItem
+     *
+     * @return void
      */
     public function setPrependItem(array $prependItem): void
     {
@@ -205,7 +207,19 @@ class Select extends AbstractColumnAnnotation
     }
 
     /**
+     * @param array|null $treeConfig
+     *
+     * @return void
+     */
+    public function setTreeConfig(?array $treeConfig): void
+    {
+        $this->treeConfig = $treeConfig;
+    }
+
+    /**
      * @param string $treeConfigChildrenField
+     *
+     * @return void
      */
     public function setTreeConfigChildrenField(string $treeConfigChildrenField): void
     {
@@ -214,6 +228,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string $treeConfigDataProvider
+     *
+     * @return void
      */
     public function setTreeConfigDataProvider(string $treeConfigDataProvider): void
     {
@@ -222,6 +238,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param bool|null $treeConfigExpandAll
+     *
+     * @return void
      */
     public function setTreeConfigExpandAll(?bool $treeConfigExpandAll): void
     {
@@ -230,6 +248,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param int $treeConfigMaxLevels
+     *
+     * @return void
      */
     public function setTreeConfigMaxLevels(int $treeConfigMaxLevels): void
     {
@@ -238,6 +258,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string $treeConfigNonSelectableLevels
+     *
+     * @return void
      */
     public function setTreeConfigNonSelectableLevels(string $treeConfigNonSelectableLevels): void
     {
@@ -246,6 +268,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string $treeConfigParentField
+     *
+     * @return void
      */
     public function setTreeConfigParentField(string $treeConfigParentField): void
     {
@@ -254,6 +278,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param bool|null $treeConfigShowHeader
+     *
+     * @return void
      */
     public function setTreeConfigShowHeader(?bool $treeConfigShowHeader): void
     {
@@ -262,6 +288,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string $treeConfigStartingPoints
+     *
+     * @return void
      */
     public function setTreeConfigStartingPoints(string $treeConfigStartingPoints): void
     {
@@ -278,6 +306,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param int $autoSizeMax
+     *
+     * @return void
      */
     public function setAutoSizeMax(int $autoSizeMax): void
     {
@@ -294,6 +324,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string|null $eval
+     *
+     * @return void
      */
     public function setEval(?string $eval): void
     {
@@ -324,10 +356,42 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param array $fieldControl
+     *
+     * @return void
      */
     public function setFieldControl(array $fieldControl): void
     {
         $this->fieldControl = $fieldControl;
+    }
+
+    /**
+     * @param bool|null $fieldControlDisableAddRecord
+     *
+     * @return void
+     */
+    public function setFieldControlDisableAddRecord(?bool $fieldControlDisableAddRecord): void
+    {
+        $this->fieldControlDisableAddRecord = $fieldControlDisableAddRecord;
+    }
+
+    /**
+     * @param bool|null $fieldControlDisableEditPopup
+     *
+     * @return void
+     */
+    public function setFieldControlDisableEditPopup(?bool $fieldControlDisableEditPopup): void
+    {
+        $this->fieldControlDisableEditPopup = $fieldControlDisableEditPopup;
+    }
+
+    /**
+     * @param bool|null $fieldControlDisableListModule
+     *
+     * @return void
+     */
+    public function setFieldControlDisableListModule(?bool $fieldControlDisableListModule): void
+    {
+        $this->fieldControlDisableListModule = $fieldControlDisableListModule;
     }
 
     /**
@@ -340,6 +404,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string|null $foreignTable
+     *
+     * @return void
      */
     public function setForeignTable(?string $foreignTable): void
     {
@@ -356,6 +422,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string|null $foreignTableWhere
+     *
+     * @return void
      */
     public function setForeignTableWhere(?string $foreignTableWhere): void
     {
@@ -379,6 +447,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param array $items
+     *
+     * @return void
      */
     public function setItems(array $items): void
     {
@@ -387,6 +457,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string $linkedModel
+     *
+     * @return void
      */
     public function setLinkedModel(string $linkedModel): void
     {
@@ -407,6 +479,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param int $maxItems
+     *
+     * @return void
      */
     public function setMaxItems(int $maxItems): void
     {
@@ -423,6 +497,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param int $minItems
+     *
+     * @return void
      */
     public function setMinItems(int $minItems): void
     {
@@ -439,6 +515,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param string $renderType
+     *
+     * @return void
      */
     public function setRenderType(string $renderType): void
     {
@@ -462,6 +540,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param int $size
+     *
+     * @return void
      */
     public function setSize(int $size): void
     {
@@ -519,6 +599,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param bool $allowNonIdValues
+     *
+     * @return void
      */
     public function setAllowNonIdValues(bool $allowNonIdValues): void
     {
@@ -535,6 +617,8 @@ class Select extends AbstractColumnAnnotation
 
     /**
      * @param bool $multiple
+     *
+     * @return void
      */
     public function setMultiple(bool $multiple): void
     {

@@ -65,6 +65,8 @@ class TypoScriptUtility
      * For use in ext_localconf.php
      *
      * @param ExtensionInformationInterface $extensionInformation
+     *
+     * @return void
      */
     public static function addDefaultTypoScriptForPluginsAndModules(ExtensionInformationInterface $extensionInformation
     ): void {
@@ -154,6 +156,8 @@ class TypoScriptUtility
 
     /**
      * @param PageObjectConfiguration $pageTypeConfiguration
+     *
+     * @return void
      */
     public static function registerPageType(PageObjectConfiguration $pageTypeConfiguration): void
     {
@@ -220,6 +224,8 @@ class TypoScriptUtility
      * @param ExtensionInformationInterface $extensionInformation
      * @param string                        $path
      * @param string                        $title
+     *
+     * @return void
      */
     public static function registerTypoScript(
         ExtensionInformationInterface $extensionInformation,
@@ -413,12 +419,18 @@ class TypoScriptUtility
         return $typoScript;
     }
 
+    /**
+     * @return void
+     */
     private static function resetLineBreaks(): void
     {
         self::$lineBreakAfterCurlyBracketClose = '';
         self::$lineBreakBeforeCurlyBracketOpen = '';
     }
 
+    /**
+     * @return void
+     */
     private static function resetObjectPath(): void
     {
         self::$objectPath = '';

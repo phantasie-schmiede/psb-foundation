@@ -103,6 +103,8 @@ class Palette extends AbstractTcaAnnotation
 
     /**
      * @param string|null $description
+     *
+     * @return void
      */
     public function setDescription(?string $description): void
     {
@@ -111,6 +113,8 @@ class Palette extends AbstractTcaAnnotation
 
     /**
      * @param string $identifier
+     *
+     * @return void
      */
     public function setIdentifier(string $identifier): void
     {
@@ -119,6 +123,8 @@ class Palette extends AbstractTcaAnnotation
 
     /**
      * @param string|null $label
+     *
+     * @return void
      */
     public function setLabel(?string $label): void
     {
@@ -127,6 +133,8 @@ class Palette extends AbstractTcaAnnotation
 
     /**
      * @param string $position
+     *
+     * @return void
      */
     public function setPosition(string $position): void
     {

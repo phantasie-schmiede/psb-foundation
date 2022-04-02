@@ -75,6 +75,8 @@ class Tab extends AbstractTcaAnnotation
 
     /**
      * @param string $identifier
+     *
+     * @return void
      */
     public function setIdentifier(string $identifier): void
     {
@@ -93,6 +95,8 @@ class Tab extends AbstractTcaAnnotation
 
     /**
      * @param string $position
+     *
+     * @return void
      */
     public function setPosition(string $position): void
     {

@@ -22,9 +22,9 @@ class User extends AbstractColumnAnnotation
     public const TYPE = self::TYPES['USER'];
 
     /**
-     * @var array
+     * @var array|null
      */
-    protected array $parameters = [];
+    protected ?array $parameters = null;
 
     /**
      * @var string
@@ -32,15 +32,17 @@ class User extends AbstractColumnAnnotation
     protected string $renderType = '';
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getParameters(): array
+    public function getParameters(): ?array
     {
         return $this->parameters;
     }
 
     /**
      * @param array $parameters
+     *
+     * @return void
      */
     public function setParameters(array $parameters): void
     {
@@ -57,6 +59,8 @@ class User extends AbstractColumnAnnotation
 
     /**
      * @param string $renderType
+     *
+     * @return void
      */
     public function setRenderType(string $renderType): void
     {

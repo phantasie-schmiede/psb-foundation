@@ -26,6 +26,8 @@ trait CacheManagerTrait
 
     /**
      * @param CacheManager $cacheManager
+     *
+     * @return void
      */
     public function injectCacheManager(CacheManager $cacheManager): void
     {

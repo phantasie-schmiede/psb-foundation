@@ -85,6 +85,8 @@ class DateTime extends Input
 
     /**
      * @param string|null $dbType
+     *
+     * @return void
      */
     public function setDbType(?string $dbType): void
     {

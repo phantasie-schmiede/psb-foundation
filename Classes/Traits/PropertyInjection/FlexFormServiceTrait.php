@@ -26,6 +26,8 @@ trait FlexFormServiceTrait
 
     /**
      * @param FlexFormService $flexFormService
+     *
+     * @return void
      */
     public function injectFlexFormService(FlexFormService $flexFormService): void
     {

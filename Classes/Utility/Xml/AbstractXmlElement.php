@@ -99,6 +99,8 @@ class AbstractXmlElement implements XmlElementInterface
 
     /**
      * @param array $attributes
+     *
+     * @return void
      */
     public function _setAttributes(array $attributes): void
     {
@@ -114,7 +116,9 @@ class AbstractXmlElement implements XmlElementInterface
     }
 
     /**
-     * @param mixed $nodeValue
+     * @param $nodeValue
+     *
+     * @return void
      */
     public function _setNodeValue($nodeValue): void
     {
@@ -131,6 +135,8 @@ class AbstractXmlElement implements XmlElementInterface
 
     /**
      * @param int $position
+     *
+     * @return void
      */
     public function _setPosition(int $position): void
     {

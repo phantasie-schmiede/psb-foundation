@@ -70,6 +70,8 @@ class Integer extends Input
 
     /**
      * @param int|null $sliderStep
+     *
+     * @return void
      */
     public function setSliderStep(?int $sliderStep): void
     {
@@ -78,6 +80,8 @@ class Integer extends Input
 
     /**
      * @param int|null $sliderWidth
+     *
+     * @return void
      */
     public function setSliderWidth(?int $sliderWidth): void
     {

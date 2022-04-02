@@ -26,6 +26,8 @@ trait ExtensionInformationServiceTrait
 
     /**
      * @param ExtensionInformationService $extensionInformationService
+     *
+     * @return void
      */
     public function injectExtensionInformationService(ExtensionInformationService $extensionInformationService): void
     {

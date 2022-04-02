@@ -26,6 +26,8 @@ trait UriBuilderTrait
 
     /**
      * @param UriBuilder $uriBuilder
+     *
+     * @return void
      */
     public function injectUriBuilder(UriBuilder $uriBuilder): void
     {

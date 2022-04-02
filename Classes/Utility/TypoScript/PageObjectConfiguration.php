@@ -283,6 +283,8 @@ class PageObjectConfiguration
 
     /**
      * @param string $userFunc
+     *
+     * @return void
      */
     public function setUserFunc(string $userFunc): void
     {
@@ -299,6 +301,8 @@ class PageObjectConfiguration
 
     /**
      * @param array $userFuncParameters
+     *
+     * @return void
      */
     public function setUserFuncParameters(array $userFuncParameters): void
     {
@@ -335,6 +339,8 @@ class PageObjectConfiguration
 
     /**
      * @param bool $cacheable
+     *
+     * @return void
      */
     public function setCacheable(bool $cacheable): void
     {
@@ -351,6 +357,8 @@ class PageObjectConfiguration
 
     /**
      * @param bool $disableAllHeaderCode
+     *
+     * @return void
      */
     public function setDisableAllHeaderCode(bool $disableAllHeaderCode): void
     {

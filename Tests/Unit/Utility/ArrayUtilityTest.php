@@ -26,6 +26,8 @@ class ArrayUtilityTest extends UnitTestCase
      *
      * @param array $array
      * @param int   $expectedResult
+     *
+     * @return void
      */
     public function countRecursive(array $array, int $expectedResult): void
     {

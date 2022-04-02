@@ -34,6 +34,8 @@ abstract class AbstractProvider implements GlobalVariableProviderInterface
 
     /**
      * @param bool $cacheable
+     *
+     * @return void
      */
     public function setCacheable(bool $cacheable): void
     {

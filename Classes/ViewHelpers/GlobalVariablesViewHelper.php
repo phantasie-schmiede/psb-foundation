@@ -37,12 +37,18 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
         return GlobalVariableService::get($arguments['path']);
     }
 
+    /**
+     * @return void
+     */
     public function initializeArguments(): void
     {
         parent::initializeArguments();
         $this->registerArgument('path', 'string', 'path segments must be separated by dots', true);
     }
 
+    /**
+     * @return void
+     */
     public function render(): void
     {
         static::renderStatic($this->arguments, $this->buildRenderChildrenClosure(), $this->renderingContext);

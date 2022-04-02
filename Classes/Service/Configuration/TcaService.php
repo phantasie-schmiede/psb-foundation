@@ -181,6 +181,7 @@ class TcaService
      *                           domain models) is added to the TCA.
      *                           If set to true, the configuration of all extending domain models is added to the TCA.
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws ImplementationException
@@ -411,6 +412,7 @@ class TcaService
      * @param string $className
      * @param bool   $overrideMode
      *
+     * @return void
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
@@ -508,7 +510,7 @@ class TcaService
 
             if ($overrideMode) {
                 $ctrlProperties = array_filter($ctrlProperties, static function ($key) use ($ctrl) {
-                    return in_array($key, $ctrl->getExplicitlySetProperties(), true);
+                    return in_array($key, $ctrl->_getSetProperties(), true);
                 }, ARRAY_FILTER_USE_KEY);
             }
 
@@ -873,6 +875,7 @@ class TcaService
     /**
      * @param string $tableName
      *
+     * @return void
      * @throws MisconfiguredTcaException
      */
     private function validateConfiguration(string $tableName): void

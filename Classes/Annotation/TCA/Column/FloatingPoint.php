@@ -70,6 +70,8 @@ class FloatingPoint extends Input
 
     /**
      * @param float|null $sliderStep
+     *
+     * @return void
      */
     public function setSliderStep(?float $sliderStep): void
     {
@@ -78,6 +80,8 @@ class FloatingPoint extends Input
 
     /**
      * @param int|null $sliderWidth
+     *
+     * @return void
      */
     public function setSliderWidth(?int $sliderWidth): void
     {
