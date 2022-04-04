@@ -36,8 +36,15 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
 
     /**
      * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/Maxitems.html
      */
     protected int $maxItems = 0;
+
+    /**
+     * @var int
+     * @link https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/Minitems.html
+     */
+    protected int $minItems = 0;
 
     /**
      * @param string $columnName
@@ -57,6 +64,7 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
             [
                 'appearance' => $this->getAppearance(),
                 'maxitems'   => $this->getMaxItems(),
+                'minitems'   => $this->getMinItems(),
             ], $this->allowedFileTypes);
 
         foreach ($properties as $key => $value) {
@@ -116,5 +124,21 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
     public function setMaxItems(int $maxItems): void
     {
         $this->maxItems = $maxItems;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinItems(): int
+    {
+        return $this->minItems;
+    }
+
+    /**
+     * @param int $minItems
+     */
+    public function setMinItems(int $minItems): void
+    {
+        $this->minItems = $minItems;
     }
 }

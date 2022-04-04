@@ -674,7 +674,7 @@ class Ctrl extends AbstractTcaAnnotation
             $item = $this->tcaService->convertPropertyNameToColumnName($item);
         });
 
-        return implode(',', $altLabels);
+        return implode(', ', $altLabels);
     }
 
     /**

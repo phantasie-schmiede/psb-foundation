@@ -433,7 +433,7 @@ class RegistrationService
         // Add new page type:
         $GLOBALS['PAGES_TYPES'][$doktype] = [
             'type'          => $configuration['type'] ?? 'web',
-            'allowedTables' => $configuration['allowedTables'] ? implode(',', $configuration['allowedTables']) : '*',
+            'allowedTables' => $configuration['allowedTables'] ? implode(', ', $configuration['allowedTables']) : '*',
         ];
 
         // Allow backend users to drag and drop the new page type:

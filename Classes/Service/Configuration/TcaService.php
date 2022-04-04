@@ -165,7 +165,7 @@ class TcaService
         ExtensionManagementUtility::addFieldsToPalette(
             $this->tableName,
             $identifier,
-            implode(',', $fieldNames),
+            implode(', ', $fieldNames),
             $position
         );
     }
