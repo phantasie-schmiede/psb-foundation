@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
+use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use Symfony\Component\Yaml\Yaml;
@@ -17,6 +18,7 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function count;
 
 /**
  * Class EarlyAccessConstantsProvider
@@ -47,6 +49,7 @@ class EarlyAccessConstantsProvider extends AbstractProvider
 
     /**
      * @return array
+     * @throws ImplementationException
      */
     public function getGlobalVariables(): array
     {
@@ -55,6 +58,7 @@ class EarlyAccessConstantsProvider extends AbstractProvider
         $allExtensionInformation = $extensionInformationService->getExtensionInformation();
 
         // This builds the path for a context-specific file with a lowercase filename.
+        /** @var array $contextParts */
         $contextParts = explode('/', Environment::getContext()->__toString());
         $lastIndex = count($contextParts) - 1;
         $contextParts[$lastIndex] = lcfirst($contextParts[$lastIndex]);
