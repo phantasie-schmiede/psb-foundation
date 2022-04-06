@@ -83,7 +83,7 @@ class Ctrl extends AbstractTcaAnnotation
      * @var string|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DefaultSortby.html
      */
-    protected ?string $defaultSortBy = 'uid DESC';
+    protected ?string $default_sortby = 'uid DESC';
 
     /**
      * @var string|null
@@ -412,7 +412,7 @@ class Ctrl extends AbstractTcaAnnotation
      */
     public function getDefaultSortBy(): ?string
     {
-        return $this->defaultSortBy;
+        return $this->default_sortby;
     }
 
     /**
@@ -422,7 +422,7 @@ class Ctrl extends AbstractTcaAnnotation
      */
     public function setDefaultSortBy(?string $defaultSortBy): void
     {
-        $this->defaultSortBy = $defaultSortBy;
+        $this->default_sortby = $defaultSortBy;
     }
 
     /**
@@ -818,7 +818,17 @@ class Ctrl extends AbstractTcaAnnotation
      */
     public function getSearchFields(): ?string
     {
-        return $this->searchFields;
+        if (null === $this->searchFields) {
+            return null;
+        }
+
+        $searchFields = GeneralUtility::trimExplode(',', $this->searchFields);
+
+        array_walk($searchFields, function (&$item) {
+            $item = $this->tcaService->convertPropertyNameToColumnName($item);
+        });
+
+        return implode(', ', $searchFields);
     }
 
     /**
@@ -1045,7 +1055,11 @@ class Ctrl extends AbstractTcaAnnotation
      */
     public function getTypeiconColumn(): ?string
     {
-        return $this->typeicon_column;
+        if (null === $this->typeicon_column) {
+            return null;
+        }
+
+        return $this->tcaService->convertPropertyNameToColumnName($this->typeicon_column);
     }
 
     /**

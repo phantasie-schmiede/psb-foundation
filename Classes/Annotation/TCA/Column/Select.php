@@ -107,6 +107,12 @@ class Select extends AbstractColumnAnnotation
     protected ?array $items = null;
 
     /**
+     * @var string|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/ItemsProcFunc.html
+     */
+    protected ?string $itemsProcFunc = null;
+
+    /**
      * Instead of directly specifying a foreign table, it is possible to specify a domain model class.
      *
      * @var string|null
@@ -453,6 +459,22 @@ class Select extends AbstractColumnAnnotation
     public function setItems(array $items): void
     {
         $this->items = $items;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getItemsProcFunc(): ?string
+    {
+        return $this->itemsProcFunc;
+    }
+
+    /**
+     * @param string|null $itemsProcFunc
+     */
+    public function setItemsProcFunc(?string $itemsProcFunc): void
+    {
+        $this->itemsProcFunc = $itemsProcFunc;
     }
 
     /**

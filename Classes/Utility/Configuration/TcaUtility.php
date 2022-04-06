@@ -14,7 +14,6 @@ use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Utility\FileUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use function in_array;
 
 /**
  * Class TcaUtility
@@ -30,7 +29,7 @@ class TcaUtility
 
     /*
      * This array constant compensates inconsistencies in TCA key naming. All keys that are not listed here will be
-     * transformed to lower_case_underscored.
+     * kept unchanged.
      */
     private const PROPERTY_KEY_MAPPING = [
         'defaultSortBy'     => 'default_sortby',
@@ -39,6 +38,9 @@ class TcaUtility
         'foreignSortBy'     => 'foreign_sortby',
         'foreignTable'      => 'foreign_table',
         'foreignTableWhere' => 'foreign_table_where',
+        'internalType'      => 'internal_type',
+        'l10nDisplay'       => 'l10n_display',
+        'l10nMode'          => 'l10n_mode',
         'maxItems'          => 'maxitems',
         'minItems'          => 'minitems',
         'mm'                => 'MM',

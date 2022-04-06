@@ -10,10 +10,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Annotation\TCA\Column;
 
-use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use function in_array;
 
 /**
  * Class AbstractFalColumnAnnotation
@@ -22,6 +20,8 @@ use function in_array;
  */
 class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
 {
+    public const TYPE = self::TYPES['INLINE'];
+
     /**
      * @var string
      */
@@ -35,16 +35,16 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
     ];
 
     /**
-     * @var int
+     * @var int|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/Maxitems.html
      */
-    protected int $maxItems = 0;
+    protected ?int $maxItems = null;
 
     /**
-     * @var int
+     * @var int|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/Minitems.html
      */
-    protected int $minItems = 0;
+    protected ?int $minItems = null;
 
     /**
      * @param string $columnName
@@ -58,24 +58,9 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
             $this->allowedFileTypes = $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'];
         }
 
-        $properties = parent::toArray();
-        $fieldConfiguration = [];
+        $fieldConfiguration = parent::toArray();
         $fieldConfiguration['config'] = ExtensionManagementUtility::getFileFieldTCAConfig($columnName,
-            [
-                'appearance' => $this->getAppearance(),
-                'maxitems'   => $this->getMaxItems(),
-                'minitems'   => $this->getMinItems(),
-            ], $this->allowedFileTypes);
-
-        foreach ($properties as $key => $value) {
-            $key = TcaUtility::convertKey($key);
-
-            if (in_array($key, self::FIRST_LEVEL_CONFIGURATION_KEYS, true)) {
-                $fieldConfiguration[$key] = $value;
-            } elseif (!in_array($key, self::EXCLUDED_FIELDS, true)) {
-                $fieldConfiguration['config'][$key] = $value;
-            }
-        }
+            $fieldConfiguration['config'] ?? [], $this->allowedFileTypes);
 
         return $fieldConfiguration;
     }
@@ -109,35 +94,37 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getMaxItems(): int
+    public function getMaxItems(): ?int
     {
         return $this->maxItems;
     }
 
     /**
-     * @param int $maxItems
+     * @param int|null $maxItems
      *
      * @return void
      */
-    public function setMaxItems(int $maxItems): void
+    public function setMaxItems(?int $maxItems): void
     {
         $this->maxItems = $maxItems;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getMinItems(): int
+    public function getMinItems(): ?int
     {
         return $this->minItems;
     }
 
     /**
-     * @param int $minItems
+     * @param int|null $minItems
+     *
+     * @return void
      */
-    public function setMinItems(int $minItems): void
+    public function setMinItems(?int $minItems): void
     {
         $this->minItems = $minItems;
     }

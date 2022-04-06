@@ -51,6 +51,7 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
     public const TYPE = '';
 
     public const TYPES = [
+        'CATEGORY'    => 'category',
         'CHECKBOX'    => 'check',
         'DOCUMENT'    => 'document',
         'FILE'        => 'file',

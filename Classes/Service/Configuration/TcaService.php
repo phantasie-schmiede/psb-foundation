@@ -760,18 +760,18 @@ class TcaService
      */
     private function addTabToShowItems(string $identifier, string $typeList = ''): string
     {
-        $label = $identifier;
-
         if (isset($this->tabs[$identifier])) {
-            $label = $this->tabs[$identifier]->getLabel() ?? $this->tabs[$identifier]->getIdentifier();
+            $label = $this->tabs[$identifier]->getLabel();
             $tabPosition = $this->tabs[$identifier]->getPosition();
         }
 
-        if ('' !== $label && false === $this->localizationService->validateLabel($label)) {
+        if (false === $this->localizationService->validateLabel($label ?? '')) {
             $defaultLabel = $this->defaultLabelPath . 'tab.' . $identifier . '.label';
 
             if ($this->localizationService->translationExists($defaultLabel)) {
                 $label = $defaultLabel;
+            } else {
+                $label = $identifier;
             }
         }
 

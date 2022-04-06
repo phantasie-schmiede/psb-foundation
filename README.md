@@ -27,6 +27,7 @@
 ### What does it do?
 This extension
 - generates the TCA for your domain models by reading its PHPDoc-annotations
+- autocompletion for TCA by annotation classes
 - configures and registers modules and plugins based on PHPDoc-annotations in your controllers
 - registers custom page types
 - auto-registers existing FlexForms, TypoScript, TSconfig and icons
@@ -218,17 +219,18 @@ The argument position allows you to assign a field to a specific tab or palette.
 Example:
 ```php
 /**
- * @Column\Input(position="palette:myPalette")
+ * @Column\Input(position="palette:my_palette")
  */
 protected string $description = '';
 
 /**
- * @Column\Input(position="tab:myTab")
+ * @Column\Input(position="tab:my_tab")
  */
 protected string $note = '';
 ```
 Without further configuration, tab and palette will be registered with the given identifier and added to the
-end of the showitems-list. But you can add additional information for tabs and palettes:
+end of the showitems-list. But you can add additional information for tabs and palettes.
+For now, the identifiers of palettes and tabs have to be in written in snake_case!
 
 ```php
 use PSB\PsbFoundation\Annotation\TCA;
@@ -236,18 +238,18 @@ use PSB\PsbFoundation\Annotation\TCA\Column;
 
 /**
  * @TCA\Ctrl()
- * @TCA\Palette(description="LLL:EXT:[...]", identifier="myPalette", position="before:someProperty")
- * @TCA\Tab(identifier="myTab", label="Custom label", position="after:someProperty")
+ * @TCA\Palette(description="LLL:EXT:[...]", identifier="my_palette", position="before:someProperty")
+ * @TCA\Tab(identifier="my_tab", label="Custom label", position="after:someProperty")
  */
 class YourModel
 {
     /**
-     * @Column\Input(position="palette:myPalette")
+     * @Column\Input(position="palette:my_palette")
      */
     protected string $description = '';
 
     /**
-     * @Column\Input(position="tab:myTab")
+     * @Column\Input(position="tab:my_tab")
      */
     protected string $note = '';
 
