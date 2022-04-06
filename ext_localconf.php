@@ -14,8 +14,6 @@ defined('TYPO3_MODE') or die();
 
     foreach ($allExtensionInformation as $extensionInformation) {
         $registrationService->configurePlugins($extensionInformation);
-        \PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility::addDefaultTypoScriptForPluginsAndModules($extensionInformation);
-
         $pageTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TSconfig/Page.tsconfig';
 
         if (\PSB\PsbFoundation\Utility\FileUtility::fileExists($pageTsConfigFilename)) {

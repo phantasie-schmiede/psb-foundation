@@ -13,8 +13,9 @@ namespace PSB\PsbFoundation\Utility\TypoScript;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use UnexpectedValueException;
+use function count;
+use function is_array;
 
 /**
  * Class TypoScriptUtility
@@ -23,14 +24,10 @@ use UnexpectedValueException;
  */
 class TypoScriptUtility
 {
-    public const AJAX_PAGE_TEMPLATE = 'lib.abstract_ajax_page';
-
     public const COMPONENTS = [
         'MODULE' => 'module',
         'PLUGIN' => 'plugin',
     ];
-
-    public const FILE_ENDING = '.typoscript';
 
     public const FILE_NAMES = [
         'CONSTANTS' => 'constants',
@@ -62,63 +59,6 @@ class TypoScriptUtility
     private static string $objectPath = '';
 
     /**
-     * For use in ext_localconf.php
-     *
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return void
-     */
-    public static function addDefaultTypoScriptForPluginsAndModules(ExtensionInformationInterface $extensionInformation
-    ): void {
-        if (!empty($extensionInformation->getPlugins())) {
-            $constantsArray = self::getDefaultConstants($extensionInformation, self::COMPONENTS['PLUGIN']);
-            $constantsTypoScript = self::convertArrayToTypoScript($constantsArray);
-            $setupArray = self::getDefaultSetup($extensionInformation, self::COMPONENTS['PLUGIN']);
-            $setupTypoScript = self::convertArrayToTypoScript($setupArray);
-        }
-
-        if (!empty($extensionInformation->getModules())) {
-            if (!empty($extensionInformation->getPlugins())) {
-                $key = 'tx_' . mb_strtolower($extensionInformation->getExtensionName());
-                $setupArray = [
-                    self::COMPONENTS['MODULE'] => [
-                        $key => [
-                            self::TYPO_SCRIPT_KEYS['IMPORT'] => self::COMPONENTS['PLUGIN'] . '.' . $key,
-                        ],
-                    ],
-                ];
-                /** @noinspection PhpUndefinedVariableInspection */
-                $setupTypoScript .= LF . self::convertArrayToTypoScript($setupArray);
-            } else {
-                $constantsArray = self::getDefaultConstants($extensionInformation, self::COMPONENTS['MODULE']);
-                $constantsTypoScript = self::convertArrayToTypoScript($constantsArray);
-                $setupArray = self::getDefaultSetup($extensionInformation, self::COMPONENTS['MODULE']);
-                $setupTypoScript = self::convertArrayToTypoScript($setupArray);
-            }
-        }
-
-        $typoScriptDirectory = Environment::getExtensionsPath() . '/' . $extensionInformation->getExtensionKey() . '/Configuration/TypoScript/';
-
-        if (isset($constantsTypoScript) && !file_exists($typoScriptDirectory . self::FILE_NAMES['CONSTANTS'] . self::FILE_ENDING)) {
-            if (!is_dir($typoScriptDirectory)) {
-                GeneralUtility::mkdir_deep($typoScriptDirectory);
-            }
-
-            GeneralUtility::writeFile($typoScriptDirectory . self::FILE_NAMES['CONSTANTS'] . self::FILE_ENDING,
-                $constantsTypoScript, true);
-        }
-
-        if (isset($setupTypoScript) && !file_exists($typoScriptDirectory . self::FILE_NAMES['SETUP'] . self::FILE_ENDING)) {
-            if (!is_dir($typoScriptDirectory)) {
-                GeneralUtility::mkdir_deep($typoScriptDirectory);
-            }
-
-            GeneralUtility::writeFile($typoScriptDirectory . self::FILE_NAMES['SETUP'] . self::FILE_ENDING,
-                $setupTypoScript, true);
-        }
-    }
-
-    /**
      * @param array $array
      *
      * @return string
@@ -142,16 +82,6 @@ class TypoScriptUtility
         self::resetObjectPath();
 
         return ($debugOutput ?? '') . $generatedTypoScript;
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return string
-     */
-    public static function getPreparedTypoScriptConstant(string $key): string
-    {
-        return '{$' . $key . '}';
     }
 
     /**
@@ -320,80 +250,6 @@ class TypoScriptUtility
     private static function createIndentation(int $indentationLevel): string
     {
         return str_repeat(self::INDENTATION, $indentationLevel);
-    }
-
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $component
-     *
-     * @return array
-     */
-    private static function getDefaultConstants(
-        ExtensionInformationInterface $extensionInformation,
-        string $component
-    ): array {
-        $key = 'tx_' . mb_strtolower($extensionInformation->getExtensionName());
-
-        return [
-            $component => [
-                $key => [
-                    'persistence' => [
-                        'storagePid' => [
-                            self::TYPO_SCRIPT_KEYS['COMMENT'] => ['cat=plugin.' . $key . '//a; type=int+; label=Default storage PID'],
-                            '',
-                        ],
-                    ],
-                    'view'        => [
-                        'layoutRootPath'   => [
-                            self::TYPO_SCRIPT_KEYS['COMMENT'] => 'cat=plugin.' . $key . '/file; type=string; label=Path to template layouts (FE)',
-                            'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Layouts/',
-                        ],
-                        'partialRootPath'  => [
-                            self::TYPO_SCRIPT_KEYS['COMMENT'] => 'cat=plugin.' . $key . '/file; type=string; label=Path to template partials (FE)',
-                            'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Partials/',
-                        ],
-                        'templateRootPath' => [
-                            self::TYPO_SCRIPT_KEYS['COMMENT'] => 'cat=plugin.' . $key . '/file; type=string; label=Path to template root (FE)',
-                            'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Templates/',
-                        ],
-                    ],
-                ],
-            ],
-        ];
-    }
-
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $component
-     *
-     * @return array
-     */
-    private static function getDefaultSetup(
-        ExtensionInformationInterface $extensionInformation,
-        string $component
-    ): array {
-        $key = 'tx_' . mb_strtolower($extensionInformation->getExtensionName());
-
-        return [
-            $component => [
-                $key => [
-                    'persistence' => [
-                        'storagePid' => self::getPreparedTypoScriptConstant('plugin.' . $key . '.persistence.storagePid'),
-                    ],
-                    'view'        => [
-                        'layoutRootPaths'   => [
-                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.layoutRootPath'),
-                        ],
-                        'partialRootPaths'  => [
-                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.partialRootPath'),
-                        ],
-                        'templateRootPaths' => [
-                            self::getPreparedTypoScriptConstant('plugin.' . $key . '.view.templateRootPath'),
-                        ],
-                    ],
-                ],
-            ],
-        ];
     }
 
     /**
