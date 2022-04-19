@@ -1,7 +1,6 @@
 <?php
-declare(strict_types=1);
 
-$EM_CONF['psb_foundation'] = [
+$EM_CONF[$_EXTKEY] = [
     'author'           => 'Daniel Ablass',
     'author_email'     => 'dn@phantasie-schmiede.de',
     'category'         => 'misc',

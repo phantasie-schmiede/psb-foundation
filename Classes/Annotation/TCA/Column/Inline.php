@@ -44,10 +44,10 @@ class Inline extends AbstractColumnAnnotation
     /**
      * You can use the property name. It will be converted to the column name automatically.
      *
-     * @var string
+     * @var string|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/ForeignField.html
      */
-    protected string $foreignField = '';
+    protected ?string $foreignField = null;
 
     /**
      * @var string|null
@@ -112,19 +112,21 @@ class Inline extends AbstractColumnAnnotation
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getForeignField(): string
+    public function getForeignField(): ?string
     {
+        if (null === $this->foreignField) {
+            return null;
+        }
+
         return $this->tcaService->convertPropertyNameToColumnName($this->foreignField);
     }
 
     /**
-     * @param string $foreignField
-     *
-     * @return void
+     * @param string|null $foreignField
      */
-    public function setForeignField(string $foreignField): void
+    public function setForeignField(?string $foreignField): void
     {
         $this->foreignField = $foreignField;
     }

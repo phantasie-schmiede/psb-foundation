@@ -26,7 +26,7 @@
 
 ### What does it do?
 This extension
-- generates the TCA for your domain models by reading its PHPDoc-annotations
+- generates the TCA for your domain models by reading their PHPDoc-annotations
 - autocompletion for TCA by annotation classes
 - configures and registers modules and plugins based on PHPDoc-annotations in your controllers
 - registers custom page types
@@ -108,11 +108,11 @@ This extension offers different presets, e.g.
 Simple example:
 
 ```php
-use PSB\PsbFoundation\Annotation\TCA;
 use PSB\PsbFoundation\Annotation\TCA\Column;
+use PSB\PsbFoundation\Annotation\TCA\Ctrl;
 
 /**
- * @TCA\Ctrl(label="name", searchFields="description, name")
+ * @Ctrl(label="name", searchFields="description, name")
  */
 class YourClass
 {
@@ -162,12 +162,12 @@ These will be converted to column names.
 Extended example:
 
 ```php
-use PSB\PsbFoundation\Annotation\TCA;
 use PSB\PsbFoundation\Annotation\TCA\Column;
+use PSB\PsbFoundation\Annotation\TCA\Ctrl;
 
 /**
- * @TCA\Ctrl(hideTable=true, label="richText", labelAlt="someProperty, anotherProperty",
- *           labelAltForce=true, sortBy="customSortField", type="myType")
+ * @Ctrl(hideTable=true, label="richText", labelAlt="someProperty, anotherProperty",
+ *       labelAltForce=true, sortBy="customSortField", type="myType")
  */
 class YourModel
 {
