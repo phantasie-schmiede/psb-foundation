@@ -22,6 +22,7 @@ use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use function is_string;
 
 /**
  * Class TypoScriptProviderService
@@ -43,25 +44,6 @@ class TypoScriptProviderService
     }
 
     /**
-     * @param array       $typoScript
-     * @param string|null $path
-     *
-     * @return mixed
-     */
-    private function getDemandedTypoScript(array $typoScript, string $path = null)
-    {
-        if (null !== $path) {
-            try {
-                return ArrayUtility::getValueByPath($typoScript, $path, '.');
-            } catch (Exception $e) {
-                throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562225431);
-            }
-        }
-
-        return $typoScript;
-    }
-
-    /**
      * Wrapper function for the ConfigurationManager.
      *
      * This function returns the requested part of the TypoScript with converted value types. Unset constants are
@@ -74,8 +56,10 @@ class TypoScriptProviderService
      * @param string|null $pluginName
      *
      * @return mixed
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public function get(
         string $path = null,
@@ -121,5 +105,24 @@ class TypoScriptProviderService
         } catch (Exception $exception) {
             return false;
         }
+    }
+
+    /**
+     * @param array       $typoScript
+     * @param string|null $path
+     *
+     * @return mixed
+     */
+    private function getDemandedTypoScript(array $typoScript, string $path = null)
+    {
+        if (null !== $path) {
+            try {
+                return ArrayUtility::getValueByPath($typoScript, $path, '.');
+            } catch (Exception $exception) {
+                throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562225431);
+            }
+        }
+
+        return $typoScript;
     }
 }

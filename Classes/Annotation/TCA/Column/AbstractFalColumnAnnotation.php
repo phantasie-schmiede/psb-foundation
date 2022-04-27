@@ -47,6 +47,70 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
     protected ?int $minItems = null;
 
     /**
+     * @return array
+     */
+    public function getAppearance(): array
+    {
+        return $this->appearance;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxItems(): ?int
+    {
+        return $this->maxItems;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMinItems(): ?int
+    {
+        return $this->minItems;
+    }
+
+    /**
+     * @param string $allowedFileTypes
+     *
+     * @return void
+     */
+    public function setAllowedFileTypes(string $allowedFileTypes): void
+    {
+        $this->allowedFileTypes = $allowedFileTypes;
+    }
+
+    /**
+     * @param array $appearance
+     *
+     * @return void
+     */
+    public function setAppearance(array $appearance): void
+    {
+        $this->appearance = $appearance;
+    }
+
+    /**
+     * @param int|null $maxItems
+     *
+     * @return void
+     */
+    public function setMaxItems(?int $maxItems): void
+    {
+        $this->maxItems = $maxItems;
+    }
+
+    /**
+     * @param int|null $minItems
+     *
+     * @return void
+     */
+    public function setMinItems(?int $minItems): void
+    {
+        $this->minItems = $minItems;
+    }
+
+    /**
      * @param string $columnName
      *
      * @return array
@@ -63,69 +127,5 @@ class AbstractFalColumnAnnotation extends AbstractColumnAnnotation
             $fieldConfiguration['config'] ?? [], $this->allowedFileTypes);
 
         return $fieldConfiguration;
-    }
-
-    /**
-     * @param string $allowedFileTypes
-     *
-     * @return void
-     */
-    public function setAllowedFileTypes(string $allowedFileTypes): void
-    {
-        $this->allowedFileTypes = $allowedFileTypes;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAppearance(): array
-    {
-        return $this->appearance;
-    }
-
-    /**
-     * @param array $appearance
-     *
-     * @return void
-     */
-    public function setAppearance(array $appearance): void
-    {
-        $this->appearance = $appearance;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getMaxItems(): ?int
-    {
-        return $this->maxItems;
-    }
-
-    /**
-     * @param int|null $maxItems
-     *
-     * @return void
-     */
-    public function setMaxItems(?int $maxItems): void
-    {
-        $this->maxItems = $maxItems;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getMinItems(): ?int
-    {
-        return $this->minItems;
-    }
-
-    /**
-     * @param int|null $minItems
-     *
-     * @return void
-     */
-    public function setMinItems(?int $minItems): void
-    {
-        $this->minItems = $minItems;
     }
 }

@@ -22,6 +22,14 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
  */
 class TcaUtility
 {
+    public const CORE_FIELD_LABELS = [
+        'ENABLED'     => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.enabled',
+        'END_TIME'    => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
+        'L18N_PARENT' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
+        'LANGUAGE'    => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
+        'START_TIME'  => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
+    ];
+
     public const CORE_TAB_LABELS = [
         'ACCESS'   => 'LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access',
         'LANGUAGE' => 'LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:language',
@@ -32,23 +40,24 @@ class TcaUtility
      * kept unchanged.
      */
     private const PROPERTY_KEY_MAPPING = [
-        'defaultSortBy'     => 'default_sortby',
-        'enableRichText'    => 'enableRichtext',
-        'foreignField'      => 'foreign_field',
-        'foreignSortBy'     => 'foreign_sortby',
-        'foreignTable'      => 'foreign_table',
-        'foreignTableWhere' => 'foreign_table_where',
-        'internalType'      => 'internal_type',
-        'l10nDisplay'       => 'l10n_display',
-        'l10nMode'          => 'l10n_mode',
-        'maxItems'          => 'maxitems',
-        'minItems'          => 'minitems',
-        'mm'                => 'MM',
-        'mmHasUidField'     => 'MM_hasUidField',
-        'mmInsertFields'    => 'MM_insert_fields',
-        'mmMatchFields'     => 'MM_match_fields',
-        'mmOppositeField'   => 'MM_opposite_field',
-        'sortBy'            => 'sortby',
+        'defaultSortBy'      => 'default_sortby',
+        'enableRichText'     => 'enableRichtext',
+        'foreignField'       => 'foreign_field',
+        'foreignMatchFields' => 'foreign_match_fields',
+        'foreignSortBy'      => 'foreign_sortby',
+        'foreignTable'       => 'foreign_table',
+        'foreignTableWhere'  => 'foreign_table_where',
+        'internalType'       => 'internal_type',
+        'l10nDisplay'        => 'l10n_display',
+        'l10nMode'           => 'l10n_mode',
+        'maxItems'           => 'maxitems',
+        'minItems'           => 'minitems',
+        'mm'                 => 'MM',
+        'mmHasUidField'      => 'MM_hasUidField',
+        'mmInsertFields'     => 'MM_insert_fields',
+        'mmMatchFields'      => 'MM_match_fields',
+        'mmOppositeField'    => 'MM_opposite_field',
+        'sortBy'             => 'sortby',
     ];
 
     /**
@@ -78,7 +87,7 @@ class TcaUtility
                 'type'       => 'check',
             ],
             'exclude' => true,
-            'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.enabled',
+            'label'   => self::CORE_FIELD_LABELS['ENABLED'],
         ];
     }
 
@@ -101,7 +110,7 @@ class TcaUtility
                 'type'       => 'input',
             ],
             'exclude' => true,
-            'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
+            'label'   => self::CORE_FIELD_LABELS['END_TIME'],
         ];
     }
 
@@ -115,7 +124,7 @@ class TcaUtility
                 'type' => 'language',
             ],
             'exclude' => true,
-            'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
+            'label'   => self::CORE_FIELD_LABELS['LANGUAGE'],
         ];
     }
 
@@ -135,7 +144,7 @@ class TcaUtility
                 'type'       => 'input',
             ],
             'exclude' => true,
-            'label'   => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
+            'label'   => self::CORE_FIELD_LABELS['START_TIME'],
         ];
     }
 
@@ -174,7 +183,7 @@ class TcaUtility
                 'type'                => 'select',
             ],
             'displayCond' => 'FIELD:sys_language_uid:>:0',
-            'label'       => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
+            'label'       => self::CORE_FIELD_LABELS['L18N_PARENT'],
         ];
     }
 

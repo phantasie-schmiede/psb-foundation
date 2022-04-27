@@ -52,6 +52,30 @@ class Input extends AbstractColumnAnnotation
     }
 
     /**
+     * @return int|null
+     */
+    public function getMax(): ?int
+    {
+        return $this->max;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRenderType(): ?string
+    {
+        return $this->renderType;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
+    /**
      * @param string $eval
      *
      * @return void
@@ -59,14 +83,6 @@ class Input extends AbstractColumnAnnotation
     public function setEval(string $eval): void
     {
         $this->eval = $eval;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getMax(): ?int
-    {
-        return $this->max;
     }
 
     /**
@@ -80,14 +96,6 @@ class Input extends AbstractColumnAnnotation
     }
 
     /**
-     * @return string|null
-     */
-    public function getRenderType(): ?string
-    {
-        return $this->renderType;
-    }
-
-    /**
      * @param string|null $renderType
      *
      * @return void
@@ -95,14 +103,6 @@ class Input extends AbstractColumnAnnotation
     public function setRenderType(?string $renderType): void
     {
         $this->renderType = $renderType;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSize(): int
-    {
-        return $this->size;
     }
 
     /**

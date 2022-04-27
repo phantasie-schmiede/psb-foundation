@@ -150,6 +150,121 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
     protected string $typeList = '';
 
     /**
+     * @return array|null
+     */
+    public function getBehaviour(): ?array
+    {
+        return $this->behaviour;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @return array|string|null
+     */
+    public function getDisplayCond()
+    {
+        return $this->displayCond;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getL10nDisplay(): ?string
+    {
+        return $this->l10nDisplay;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getL10nMode(): ?string
+    {
+        return $this->l10nMode;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOnChange(): ?string
+    {
+        return $this->onChange;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPosition(): string
+    {
+        if (empty($this->position)) {
+            return '';
+        }
+
+        [$key, $location] = GeneralUtility::trimExplode(':', $this->position, false, 2);
+
+        // Check if $location is NOT a palette name.
+        if (false === mb_strpos($location, '-')) {
+            $location = $this->tcaService->convertPropertyNameToColumnName($location);
+        }
+
+        return $key . ':' . $location;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getType(): string
+    {
+        return static::TYPE;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeList(): string
+    {
+        return $this->typeList;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isExclude(): ?bool
+    {
+        return $this->exclude;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isReadOnly(): ?bool
+    {
+        return $this->readOnly;
+    }
+
+    /**
      * @param bool|null $allowLanguageSynchronization
      *
      * @return void
@@ -157,6 +272,46 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
     public function setAllowLanguageSynchronization(?bool $allowLanguageSynchronization): void
     {
         $this->behaviour['allowLanguageSynchronization'] = $allowLanguageSynchronization;
+    }
+
+    /**
+     * @param array|null $behaviour
+     *
+     * @return void
+     */
+    public function setBehaviour(?array $behaviour): void
+    {
+        $this->behaviour = $behaviour;
+    }
+
+    /**
+     * @param $default
+     *
+     * @return void
+     */
+    public function setDefault($default): void
+    {
+        $this->default = $default;
+    }
+
+    /**
+     * @param string|null $description
+     *
+     * @return void
+     */
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @param array|string|null $displayCond
+     *
+     * @return void
+     */
+    public function setDisplayCond($displayCond): void
+    {
+        $this->displayCond = $displayCond;
     }
 
     /**
@@ -170,6 +325,56 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
     }
 
     /**
+     * @param string|null $l10nDisplay
+     *
+     * @return void
+     */
+    public function setL10nDisplay(?string $l10nDisplay): void
+    {
+        $this->l10nDisplay = $l10nDisplay;
+    }
+
+    /**
+     * @param string|null $l10nMode
+     *
+     * @return void
+     */
+    public function setL10nMode(?string $l10nMode): void
+    {
+        $this->l10nMode = $l10nMode;
+    }
+
+    /**
+     * @param string $label
+     *
+     * @return void
+     */
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * @param string|null $onChange
+     *
+     * @return void
+     */
+    public function setOnChange(?string $onChange): void
+    {
+        $this->onChange = $onChange;
+    }
+
+    /**
+     * @param string $position
+     *
+     * @return void
+     */
+    public function setPosition(string $position): void
+    {
+        $this->position = $position;
+    }
+
+    /**
      * @param bool $readOnly
      *
      * @return void
@@ -177,6 +382,16 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
     public function setReadOnly(bool $readOnly): void
     {
         $this->readOnly = $readOnly;
+    }
+
+    /**
+     * @param string $typeList
+     *
+     * @return void
+     */
+    public function setTypeList(string $typeList): void
+    {
+        $this->typeList = $typeList;
     }
 
     /**
@@ -200,220 +415,5 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
         }
 
         return $fieldConfiguration;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getBehaviour(): ?array
-    {
-        return $this->behaviour;
-    }
-
-    /**
-     * @param array|null $behaviour
-     *
-     * @return void
-     */
-    public function setBehaviour(?array $behaviour): void
-    {
-        $this->behaviour = $behaviour;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDefault()
-    {
-        return $this->default;
-    }
-
-    /**
-     * @param $default
-     *
-     * @return void
-     */
-    public function setDefault($default): void
-    {
-        $this->default = $default;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    /**
-     * @param string|null $description
-     *
-     * @return void
-     */
-    public function setDescription(?string $description): void
-    {
-        $this->description = $description;
-    }
-
-    /**
-     * @return array|string|null
-     */
-    public function getDisplayCond()
-    {
-        return $this->displayCond;
-    }
-
-    /**
-     * @param array|string|null $displayCond
-     *
-     * @return void
-     */
-    public function setDisplayCond($displayCond): void
-    {
-        $this->displayCond = $displayCond;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getL10nDisplay(): ?string
-    {
-        return $this->l10nDisplay;
-    }
-
-    /**
-     * @param string|null $l10nDisplay
-     *
-     * @return void
-     */
-    public function setL10nDisplay(?string $l10nDisplay): void
-    {
-        $this->l10nDisplay = $l10nDisplay;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getL10nMode(): ?string
-    {
-        return $this->l10nMode;
-    }
-
-    /**
-     * @param string|null $l10nMode
-     *
-     * @return void
-     */
-    public function setL10nMode(?string $l10nMode): void
-    {
-        $this->l10nMode = $l10nMode;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLabel(): string
-    {
-        return $this->label;
-    }
-
-    /**
-     * @param string $label
-     *
-     * @return void
-     */
-    public function setLabel(string $label): void
-    {
-        $this->label = $label;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getOnChange(): ?string
-    {
-        return $this->onChange;
-    }
-
-    /**
-     * @param string|null $onChange
-     *
-     * @return void
-     */
-    public function setOnChange(?string $onChange): void
-    {
-        $this->onChange = $onChange;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPosition(): string
-    {
-        if (empty($this->position)) {
-            return '';
-        }
-
-        [$key, $location] = GeneralUtility::trimExplode(':', $this->position, false, 2);
-
-        // Check if $location is NOT a palette name.
-        if (false === mb_strpos($location, '-')) {
-            $location = $this->tcaService->convertPropertyNameToColumnName($location);
-        }
-
-        return $key . ':' . $location;
-    }
-
-    /**
-     * @param string $position
-     *
-     * @return void
-     */
-    public function setPosition(string $position): void
-    {
-        $this->position = $position;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getType(): string
-    {
-        return static::TYPE;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTypeList(): string
-    {
-        return $this->typeList;
-    }
-
-    /**
-     * @param string $typeList
-     *
-     * @return void
-     */
-    public function setTypeList(string $typeList): void
-    {
-        $this->typeList = $typeList;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function isExclude(): ?bool
-    {
-        return $this->exclude;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function isReadOnly(): ?bool
-    {
-        return $this->readOnly;
     }
 }

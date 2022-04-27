@@ -50,6 +50,12 @@ class Inline extends AbstractColumnAnnotation
     protected ?string $foreignField = null;
 
     /**
+     * @var array|null
+     * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/ForeignMatchFields.html
+     */
+    protected ?array $foreignMatchFields = null;
+
+    /**
      * @var string|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/ForeignSortby.html#confval-foreign_sortby
      */
@@ -102,16 +108,6 @@ class Inline extends AbstractColumnAnnotation
     }
 
     /**
-     * @param array $appearance
-     *
-     * @return void
-     */
-    public function setAppearance(array $appearance): void
-    {
-        $this->appearance = $appearance;
-    }
-
-    /**
      * @return string|null
      */
     public function getForeignField(): ?string
@@ -124,11 +120,11 @@ class Inline extends AbstractColumnAnnotation
     }
 
     /**
-     * @param string|null $foreignField
+     * @return array|null
      */
-    public function setForeignField(?string $foreignField): void
+    public function getForeignMatchFields(): ?array
     {
-        $this->foreignField = $foreignField;
+        return $this->foreignMatchFields;
     }
 
     /**
@@ -140,6 +136,72 @@ class Inline extends AbstractColumnAnnotation
     }
 
     /**
+     * @return string
+     */
+    public function getForeignTable(): string
+    {
+        return $this->foreignTable;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxItems(): ?int
+    {
+        return $this->maxItems;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMm(): ?string
+    {
+        return $this->mm;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getMmMatchFields(): ?array
+    {
+        return $this->mmMatchFields;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getMmOppositeField(): ?string
+    {
+        return $this->mmOppositeField;
+    }
+
+    /**
+     * @param array $appearance
+     *
+     * @return void
+     */
+    public function setAppearance(array $appearance): void
+    {
+        $this->appearance = $appearance;
+    }
+
+    /**
+     * @param string|null $foreignField
+     */
+    public function setForeignField(?string $foreignField): void
+    {
+        $this->foreignField = $foreignField;
+    }
+
+    /**
+     * @param array|null $foreignMatchFields
+     */
+    public function setForeignMatchFields(?array $foreignMatchFields): void
+    {
+        $this->foreignMatchFields = $foreignMatchFields;
+    }
+
+    /**
      * @param string|null $foreignSortBy
      *
      * @return void
@@ -147,14 +209,6 @@ class Inline extends AbstractColumnAnnotation
     public function setForeignSortBy(?string $foreignSortBy): void
     {
         $this->foreignSortBy = $foreignSortBy;
-    }
-
-    /**
-     * @return string
-     */
-    public function getForeignTable(): string
-    {
-        return $this->foreignTable;
     }
 
     /**
@@ -182,14 +236,6 @@ class Inline extends AbstractColumnAnnotation
     }
 
     /**
-     * @return int|null
-     */
-    public function getMaxItems(): ?int
-    {
-        return $this->maxItems;
-    }
-
-    /**
      * @param int|null $maxItems
      *
      * @return void
@@ -197,14 +243,6 @@ class Inline extends AbstractColumnAnnotation
     public function setMaxItems(?int $maxItems): void
     {
         $this->maxItems = $maxItems;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getMm(): ?string
-    {
-        return $this->mm;
     }
 
     /**
@@ -218,14 +256,6 @@ class Inline extends AbstractColumnAnnotation
     }
 
     /**
-     * @return array|null
-     */
-    public function getMmMatchFields(): ?array
-    {
-        return $this->mmMatchFields;
-    }
-
-    /**
      * @param array|null $mmMatchFields
      *
      * @return void
@@ -233,14 +263,6 @@ class Inline extends AbstractColumnAnnotation
     public function setMmMatchFields(?array $mmMatchFields): void
     {
         $this->mmMatchFields = $mmMatchFields;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getMmOppositeField(): ?string
-    {
-        return $this->mmOppositeField;
     }
 
     /**

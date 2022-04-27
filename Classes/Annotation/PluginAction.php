@@ -22,6 +22,7 @@ class PluginAction extends AbstractAnnotation
 {
     /**
      * Marks the default action of the controller (executed, when no specific action is given in a request).
+     *
      * @var bool
      */
     protected bool $default = false;
@@ -42,6 +43,14 @@ class PluginAction extends AbstractAnnotation
     }
 
     /**
+     * @return bool
+     */
+    public function isUncached(): bool
+    {
+        return $this->uncached;
+    }
+
+    /**
      * @param bool $default
      *
      * @return void
@@ -49,14 +58,6 @@ class PluginAction extends AbstractAnnotation
     public function setDefault(bool $default): void
     {
         $this->default = $default;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isUncached(): bool
-    {
-        return $this->uncached;
     }
 
     /**

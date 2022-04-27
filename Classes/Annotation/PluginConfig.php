@@ -49,6 +49,30 @@ class PluginConfig extends AbstractAnnotation
     }
 
     /**
+     * @return string
+     */
+    public function getGroup(): string
+    {
+        return $this->group;
+    }
+
+    /**
+     * @return string
+     */
+    public function getIconIdentifier(): string
+    {
+        return $this->iconIdentifier;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+
+    /**
      * @param string $flexForm
      *
      * @return void
@@ -56,14 +80,6 @@ class PluginConfig extends AbstractAnnotation
     public function setFlexForm(string $flexForm): void
     {
         $this->flexForm = $flexForm;
-    }
-
-    /**
-     * @return string
-     */
-    public function getGroup(): string
-    {
-        return $this->group;
     }
 
     /**
@@ -77,14 +93,6 @@ class PluginConfig extends AbstractAnnotation
     }
 
     /**
-     * @return string
-     */
-    public function getIconIdentifier(): string
-    {
-        return $this->iconIdentifier;
-    }
-
-    /**
      * @param string $iconIdentifier
      *
      * @return void
@@ -92,14 +100,6 @@ class PluginConfig extends AbstractAnnotation
     public function setIconIdentifier(string $iconIdentifier): void
     {
         $this->iconIdentifier = $iconIdentifier;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTitle(): string
-    {
-        return $this->title;
     }
 
     /**

@@ -54,6 +54,42 @@ class DateTime extends Input
     protected int $size = 12;
 
     /**
+     * @return string|null
+     */
+    public function getDbType(): ?string
+    {
+        return $this->dbType;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getRange(): ?array
+    {
+        $range = null;
+
+        if (null !== $this->rangeLower) {
+            $range['lower'] = $this->rangeLower;
+        }
+
+        if (null !== $this->rangeUpper) {
+            $range['upper'] = $this->rangeUpper;
+        }
+
+        return $range;
+    }
+
+    /**
+     * @param string|null $dbType
+     *
+     * @return void
+     */
+    public function setDbType(?string $dbType): void
+    {
+        $this->dbType = $dbType;
+    }
+
+    /**
      * @param string $rangeLower
      *
      * @return void
@@ -73,41 +109,5 @@ class DateTime extends Input
     {
         $timestamp = strtotime($rangeUpper);
         $this->rangeUpper = (new \DateTime())->setTimestamp($timestamp);
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDbType(): ?string
-    {
-        return $this->dbType;
-    }
-
-    /**
-     * @param string|null $dbType
-     *
-     * @return void
-     */
-    public function setDbType(?string $dbType): void
-    {
-        $this->dbType = $dbType;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getRange(): ?array
-    {
-        $range = null;
-
-        if (null !== $this->rangeLower) {
-            $range['lower'] = $this->rangeLower;
-        }
-
-        if (null !== $this->rangeUpper) {
-            $range['upper'] = $this->rangeUpper;
-        }
-
-        return $range;
     }
 }

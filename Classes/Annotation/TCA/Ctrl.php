@@ -23,18 +23,17 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class Ctrl extends AbstractTcaAnnotation
 {
-    public const ENABLE_COLUMN_IDENTIFIERS = [
-        'DISABLED'  => 'disabled',
-        'ENDTIME'   => 'endtime',
-        'STARTTIME' => 'starttime',
-    ];
-
     public const ENABLE_COLUMNS = [
         self::ENABLE_COLUMN_IDENTIFIERS['DISABLED']  => 'hidden',
         self::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']   => 'endtime',
         self::ENABLE_COLUMN_IDENTIFIERS['STARTTIME'] => 'starttime',
     ];
 
+    public const ENABLE_COLUMN_IDENTIFIERS = [
+        'DISABLED'  => 'disabled',
+        'ENDTIME'   => 'endtime',
+        'STARTTIME' => 'starttime',
+    ];
     /**
      * @var array|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Ext.html
@@ -318,21 +317,21 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
+     * Function name doesn't follow convention to exclude it from array conversion (see toArray())!
+     *
+     * @return string[]
+     */
+    public function _getSetProperties(): array
+    {
+        return $this->_setProperties;
+    }
+
+    /**
      * @return bool|null
      */
     public function getAdminOnly(): ?bool
     {
         return $this->adminOnly;
-    }
-
-    /**
-     * @param bool|null $adminOnly
-     *
-     * @return void
-     */
-    public function setAdminOnly(?bool $adminOnly): void
-    {
-        $this->adminOnly = $adminOnly;
     }
 
     /**
@@ -344,31 +343,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param array|null $container
-     *
-     * @return void
-     */
-    public function setContainer(?array $container): void
-    {
-        $this->container = $container;
-    }
-
-    /**
      * @return string|null
      */
     public function getCopyAfterDuplFields(): ?string
     {
         return $this->copyAfterDuplFields;
-    }
-
-    /**
-     * @param string|null $copyAfterDuplFields
-     *
-     * @return void
-     */
-    public function setCopyAfterDuplFields(?string $copyAfterDuplFields): void
-    {
-        $this->copyAfterDuplFields = $copyAfterDuplFields;
     }
 
     /**
@@ -380,31 +359,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $crdate
-     *
-     * @return void
-     */
-    public function setCrdate(?string $crdate): void
-    {
-        $this->crdate = $crdate;
-    }
-
-    /**
      * @return string
      */
     public function getCruserId(): string
     {
         return $this->cruser_id;
-    }
-
-    /**
-     * @param string $cruser_id
-     *
-     * @return void
-     */
-    public function setCruserId(string $cruser_id): void
-    {
-        $this->cruser_id = $cruser_id;
     }
 
     /**
@@ -416,31 +375,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $defaultSortBy
-     *
-     * @return void
-     */
-    public function setDefaultSortBy(?string $defaultSortBy): void
-    {
-        $this->default_sortby = $defaultSortBy;
-    }
-
-    /**
      * @return string|null
      */
     public function getDelete(): ?string
     {
         return $this->delete;
-    }
-
-    /**
-     * @param string|null $delete
-     *
-     * @return void
-     */
-    public function setDelete(?string $delete): void
-    {
-        $this->delete = $delete;
     }
 
     /**
@@ -452,31 +391,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $descriptionColumn
-     *
-     * @return void
-     */
-    public function setDescriptionColumn(?string $descriptionColumn): void
-    {
-        $this->descriptionColumn = $descriptionColumn;
-    }
-
-    /**
      * @return array|null
      */
     public function getEXT(): ?array
     {
         return $this->EXT;
-    }
-
-    /**
-     * @param array|null $EXT
-     *
-     * @return void
-     */
-    public function setEXT(?array $EXT): void
-    {
-        $this->EXT = $EXT;
     }
 
     /**
@@ -488,31 +407,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $editlock
-     *
-     * @return void
-     */
-    public function setEditlock(?string $editlock): void
-    {
-        $this->editlock = $editlock;
-    }
-
-    /**
      * @return array|null
      */
     public function getEnablecolumns(): ?array
     {
         return $this->enablecolumns;
-    }
-
-    /**
-     * @param array|null $enablecolumns
-     *
-     * @return void
-     */
-    public function setEnablecolumns(?array $enablecolumns): void
-    {
-        $this->enablecolumns = $enablecolumns;
     }
 
     /**
@@ -524,31 +423,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $formattedLabel_userFunc
-     *
-     * @return void
-     */
-    public function setFormattedLabelUserFunc(?string $formattedLabel_userFunc): void
-    {
-        $this->formattedLabel_userFunc = $formattedLabel_userFunc;
-    }
-
-    /**
      * @return array|null
      */
     public function getFormattedLabelUserFuncOptions(): ?array
     {
         return $this->formattedLabel_userFunc_options;
-    }
-
-    /**
-     * @param array|null $formattedLabel_userFunc_options
-     *
-     * @return void
-     */
-    public function setFormattedLabelUserFuncOptions(?array $formattedLabel_userFunc_options): void
-    {
-        $this->formattedLabel_userFunc_options = $formattedLabel_userFunc_options;
     }
 
     /**
@@ -560,31 +439,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $groupName
-     *
-     * @return void
-     */
-    public function setGroupName(?string $groupName): void
-    {
-        $this->groupName = $groupName;
-    }
-
-    /**
      * @return bool|null
      */
     public function getHideAtCopy(): ?bool
     {
         return $this->hideAtCopy;
-    }
-
-    /**
-     * @param bool|null $hideAtCopy
-     *
-     * @return void
-     */
-    public function setHideAtCopy(?bool $hideAtCopy): void
-    {
-        $this->hideAtCopy = $hideAtCopy;
     }
 
     /**
@@ -596,31 +455,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param bool|null $hideTable
-     *
-     * @return void
-     */
-    public function setHideTable(?bool $hideTable): void
-    {
-        $this->hideTable = $hideTable;
-    }
-
-    /**
      * @return string|null
      */
     public function getIconfile(): ?string
     {
         return $this->iconfile;
-    }
-
-    /**
-     * @param string|null $iconfile
-     *
-     * @return void
-     */
-    public function setIconfile(?string $iconfile): void
-    {
-        $this->iconfile = $iconfile;
     }
 
     /**
@@ -632,31 +471,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param bool|null $is_static
-     *
-     * @return void
-     */
-    public function setIsStatic(?bool $is_static): void
-    {
-        $this->is_static = $is_static;
-    }
-
-    /**
      * @return string
      */
     public function getLabel(): string
     {
         return $this->tcaService->convertPropertyNameToColumnName($this->label);
-    }
-
-    /**
-     * @param string $label
-     *
-     * @return void
-     */
-    public function setLabel(string $label): void
-    {
-        $this->label = $label;
     }
 
     /**
@@ -678,31 +497,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $label_alt
-     *
-     * @return void
-     */
-    public function setLabelAlt(?string $label_alt): void
-    {
-        $this->label_alt = $label_alt;
-    }
-
-    /**
      * @return bool|null
      */
     public function getLabelAltForce(): ?bool
     {
         return $this->label_alt_force;
-    }
-
-    /**
-     * @param bool|null $label_alt_force
-     *
-     * @return void
-     */
-    public function setLabelAltForce(?bool $label_alt_force): void
-    {
-        $this->label_alt_force = $label_alt_force;
     }
 
     /**
@@ -714,31 +513,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $label_userFunc
-     *
-     * @return void
-     */
-    public function setLabelUserFunc(?string $label_userFunc): void
-    {
-        $this->label_userFunc = $label_userFunc;
-    }
-
-    /**
      * @return string|null
      */
     public function getLanguageField(): ?string
     {
         return $this->languageField;
-    }
-
-    /**
-     * @param string|null $languageField
-     *
-     * @return void
-     */
-    public function setLanguageField(?string $languageField): void
-    {
-        $this->languageField = $languageField;
     }
 
     /**
@@ -750,31 +529,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $origUid
-     *
-     * @return void
-     */
-    public function setOrigUid(?string $origUid): void
-    {
-        $this->origUid = $origUid;
-    }
-
-    /**
      * @return string|null
      */
     public function getPrependAtCopy(): ?string
     {
         return $this->prependAtCopy;
-    }
-
-    /**
-     * @param string|null $prependAtCopy
-     *
-     * @return void
-     */
-    public function setPrependAtCopy(?string $prependAtCopy): void
-    {
-        $this->prependAtCopy = $prependAtCopy;
     }
 
     /**
@@ -786,31 +545,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param bool|null $readOnly
-     *
-     * @return void
-     */
-    public function setReadOnly(?bool $readOnly): void
-    {
-        $this->readOnly = $readOnly;
-    }
-
-    /**
      * @return int|null
      */
     public function getRootLevel(): ?int
     {
         return $this->rootLevel;
-    }
-
-    /**
-     * @param int|null $rootLevel
-     *
-     * @return void
-     */
-    public function setRootLevel(?int $rootLevel): void
-    {
-        $this->rootLevel = $rootLevel;
     }
 
     /**
@@ -832,31 +571,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $searchFields
-     *
-     * @return void
-     */
-    public function setSearchFields(?string $searchFields): void
-    {
-        $this->searchFields = $searchFields;
-    }
-
-    /**
      * @return array|null
      */
     public function getSecurity(): ?array
     {
         return $this->security;
-    }
-
-    /**
-     * @param array|null $security
-     *
-     * @return void
-     */
-    public function setSecurity(?array $security): void
-    {
-        $this->security = $security;
     }
 
     /**
@@ -868,41 +587,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $selicon_field
-     *
-     * @return void
-     */
-    public function setSeliconField(?string $selicon_field): void
-    {
-        $this->selicon_field = $selicon_field;
-    }
-
-    /**
-     * Function name doesn't follow convention to exclude it from array conversion (see toArray())!
-     *
-     * @return string[]
-     */
-    public function _getSetProperties(): array
-    {
-        return $this->_setProperties;
-    }
-
-    /**
      * @return string|null
      */
     public function getShadowColumnsForNewPlaceholders(): ?string
     {
         return $this->shadowColumnsForNewPlaceholders;
-    }
-
-    /**
-     * @param string|null $shadowColumnsForNewPlaceholders
-     *
-     * @return void
-     */
-    public function setShadowColumnsForNewPlaceholders(?string $shadowColumnsForNewPlaceholders): void
-    {
-        $this->shadowColumnsForNewPlaceholders = $shadowColumnsForNewPlaceholders;
     }
 
     /**
@@ -914,32 +603,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $sortBy
-     *
-     * @return void
-     */
-    public function setSortBy(?string $sortBy): void
-    {
-        $this->setDefaultSortBy(null);
-        $this->sortby = $sortBy;
-    }
-
-    /**
      * @return string|null
      */
     public function getTitle(): ?string
     {
         return $this->title;
-    }
-
-    /**
-     * @param string|null $title
-     *
-     * @return void
-     */
-    public function setTitle(?string $title): void
-    {
-        $this->title = $title;
     }
 
     /**
@@ -951,31 +619,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $transOrigDiffSourceField
-     *
-     * @return void
-     */
-    public function setTransOrigDiffSourceField(?string $transOrigDiffSourceField): void
-    {
-        $this->transOrigDiffSourceField = $transOrigDiffSourceField;
-    }
-
-    /**
      * @return string|null
      */
     public function getTransOrigPointerField(): ?string
     {
         return $this->transOrigPointerField;
-    }
-
-    /**
-     * @param string|null $transOrigPointerField
-     *
-     * @return void
-     */
-    public function setTransOrigPointerField(?string $transOrigPointerField): void
-    {
-        $this->transOrigPointerField = $transOrigPointerField;
     }
 
     /**
@@ -987,31 +635,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $translationSource
-     *
-     * @return void
-     */
-    public function setTranslationSource(?string $translationSource): void
-    {
-        $this->translationSource = $translationSource;
-    }
-
-    /**
      * @return string|null
      */
     public function getTstamp(): ?string
     {
         return $this->tstamp;
-    }
-
-    /**
-     * @param string|null $tstamp
-     *
-     * @return void
-     */
-    public function setTstamp(?string $tstamp): void
-    {
-        $this->tstamp = $tstamp;
     }
 
     /**
@@ -1023,31 +651,11 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @param string|null $type
-     *
-     * @return void
-     */
-    public function setType(?string $type): void
-    {
-        $this->type = $type;
-    }
-
-    /**
      * @return array|null
      */
     public function getTypeiconClasses(): ?array
     {
         return $this->typeicon_classes;
-    }
-
-    /**
-     * @param array|null $typeicon_classes
-     *
-     * @return void
-     */
-    public function setTypeiconClasses(?array $typeicon_classes): void
-    {
-        $this->typeicon_classes = $typeicon_classes;
     }
 
     /**
@@ -1063,6 +671,421 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
+     * @return string|null
+     */
+    public function getUseColumnsForDefaultValues(): ?string
+    {
+        return $this->useColumnsForDefaultValues;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getVersioningWS(): ?bool
+    {
+        return $this->versioningWS;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getVersioningWSAlwaysAllowLiveEdit(): ?bool
+    {
+        return $this->versioningWS_alwaysAllowLiveEdit;
+    }
+
+    /**
+     * @param bool|null $adminOnly
+     *
+     * @return void
+     */
+    public function setAdminOnly(?bool $adminOnly): void
+    {
+        $this->adminOnly = $adminOnly;
+    }
+
+    /**
+     * @param array|null $container
+     *
+     * @return void
+     */
+    public function setContainer(?array $container): void
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * @param string|null $copyAfterDuplFields
+     *
+     * @return void
+     */
+    public function setCopyAfterDuplFields(?string $copyAfterDuplFields): void
+    {
+        $this->copyAfterDuplFields = $copyAfterDuplFields;
+    }
+
+    /**
+     * @param string|null $crdate
+     *
+     * @return void
+     */
+    public function setCrdate(?string $crdate): void
+    {
+        $this->crdate = $crdate;
+    }
+
+    /**
+     * @param string $cruser_id
+     *
+     * @return void
+     */
+    public function setCruserId(string $cruser_id): void
+    {
+        $this->cruser_id = $cruser_id;
+    }
+
+    /**
+     * @param string|null $defaultSortBy
+     *
+     * @return void
+     */
+    public function setDefaultSortBy(?string $defaultSortBy): void
+    {
+        $this->default_sortby = $defaultSortBy;
+    }
+
+    /**
+     * @param string|null $delete
+     *
+     * @return void
+     */
+    public function setDelete(?string $delete): void
+    {
+        $this->delete = $delete;
+    }
+
+    /**
+     * @param string|null $descriptionColumn
+     *
+     * @return void
+     */
+    public function setDescriptionColumn(?string $descriptionColumn): void
+    {
+        $this->descriptionColumn = $descriptionColumn;
+    }
+
+    /**
+     * @param array|null $EXT
+     *
+     * @return void
+     */
+    public function setEXT(?array $EXT): void
+    {
+        $this->EXT = $EXT;
+    }
+
+    /**
+     * @param string|null $editlock
+     *
+     * @return void
+     */
+    public function setEditlock(?string $editlock): void
+    {
+        $this->editlock = $editlock;
+    }
+
+    /**
+     * @param array|null $enablecolumns
+     *
+     * @return void
+     */
+    public function setEnablecolumns(?array $enablecolumns): void
+    {
+        $this->enablecolumns = $enablecolumns;
+    }
+
+    /**
+     * @param string|null $formattedLabel_userFunc
+     *
+     * @return void
+     */
+    public function setFormattedLabelUserFunc(?string $formattedLabel_userFunc): void
+    {
+        $this->formattedLabel_userFunc = $formattedLabel_userFunc;
+    }
+
+    /**
+     * @param array|null $formattedLabel_userFunc_options
+     *
+     * @return void
+     */
+    public function setFormattedLabelUserFuncOptions(?array $formattedLabel_userFunc_options): void
+    {
+        $this->formattedLabel_userFunc_options = $formattedLabel_userFunc_options;
+    }
+
+    /**
+     * @param string|null $groupName
+     *
+     * @return void
+     */
+    public function setGroupName(?string $groupName): void
+    {
+        $this->groupName = $groupName;
+    }
+
+    /**
+     * @param bool|null $hideAtCopy
+     *
+     * @return void
+     */
+    public function setHideAtCopy(?bool $hideAtCopy): void
+    {
+        $this->hideAtCopy = $hideAtCopy;
+    }
+
+    /**
+     * @param bool|null $hideTable
+     *
+     * @return void
+     */
+    public function setHideTable(?bool $hideTable): void
+    {
+        $this->hideTable = $hideTable;
+    }
+
+    /**
+     * @param string|null $iconfile
+     *
+     * @return void
+     */
+    public function setIconfile(?string $iconfile): void
+    {
+        $this->iconfile = $iconfile;
+    }
+
+    /**
+     * @param bool|null $is_static
+     *
+     * @return void
+     */
+    public function setIsStatic(?bool $is_static): void
+    {
+        $this->is_static = $is_static;
+    }
+
+    /**
+     * @param string $label
+     *
+     * @return void
+     */
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * @param string|null $label_alt
+     *
+     * @return void
+     */
+    public function setLabelAlt(?string $label_alt): void
+    {
+        $this->label_alt = $label_alt;
+    }
+
+    /**
+     * @param bool|null $label_alt_force
+     *
+     * @return void
+     */
+    public function setLabelAltForce(?bool $label_alt_force): void
+    {
+        $this->label_alt_force = $label_alt_force;
+    }
+
+    /**
+     * @param string|null $label_userFunc
+     *
+     * @return void
+     */
+    public function setLabelUserFunc(?string $label_userFunc): void
+    {
+        $this->label_userFunc = $label_userFunc;
+    }
+
+    /**
+     * @param string|null $languageField
+     *
+     * @return void
+     */
+    public function setLanguageField(?string $languageField): void
+    {
+        $this->languageField = $languageField;
+    }
+
+    /**
+     * @param string|null $origUid
+     *
+     * @return void
+     */
+    public function setOrigUid(?string $origUid): void
+    {
+        $this->origUid = $origUid;
+    }
+
+    /**
+     * @param string|null $prependAtCopy
+     *
+     * @return void
+     */
+    public function setPrependAtCopy(?string $prependAtCopy): void
+    {
+        $this->prependAtCopy = $prependAtCopy;
+    }
+
+    /**
+     * @param bool|null $readOnly
+     *
+     * @return void
+     */
+    public function setReadOnly(?bool $readOnly): void
+    {
+        $this->readOnly = $readOnly;
+    }
+
+    /**
+     * @param int|null $rootLevel
+     *
+     * @return void
+     */
+    public function setRootLevel(?int $rootLevel): void
+    {
+        $this->rootLevel = $rootLevel;
+    }
+
+    /**
+     * @param string|null $searchFields
+     *
+     * @return void
+     */
+    public function setSearchFields(?string $searchFields): void
+    {
+        $this->searchFields = $searchFields;
+    }
+
+    /**
+     * @param array|null $security
+     *
+     * @return void
+     */
+    public function setSecurity(?array $security): void
+    {
+        $this->security = $security;
+    }
+
+    /**
+     * @param string|null $selicon_field
+     *
+     * @return void
+     */
+    public function setSeliconField(?string $selicon_field): void
+    {
+        $this->selicon_field = $selicon_field;
+    }
+
+    /**
+     * @param string|null $shadowColumnsForNewPlaceholders
+     *
+     * @return void
+     */
+    public function setShadowColumnsForNewPlaceholders(?string $shadowColumnsForNewPlaceholders): void
+    {
+        $this->shadowColumnsForNewPlaceholders = $shadowColumnsForNewPlaceholders;
+    }
+
+    /**
+     * @param string|null $sortBy
+     *
+     * @return void
+     */
+    public function setSortBy(?string $sortBy): void
+    {
+        $this->setDefaultSortBy(null);
+        $this->sortby = $sortBy;
+    }
+
+    /**
+     * @param string|null $title
+     *
+     * @return void
+     */
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * @param string|null $transOrigDiffSourceField
+     *
+     * @return void
+     */
+    public function setTransOrigDiffSourceField(?string $transOrigDiffSourceField): void
+    {
+        $this->transOrigDiffSourceField = $transOrigDiffSourceField;
+    }
+
+    /**
+     * @param string|null $transOrigPointerField
+     *
+     * @return void
+     */
+    public function setTransOrigPointerField(?string $transOrigPointerField): void
+    {
+        $this->transOrigPointerField = $transOrigPointerField;
+    }
+
+    /**
+     * @param string|null $translationSource
+     *
+     * @return void
+     */
+    public function setTranslationSource(?string $translationSource): void
+    {
+        $this->translationSource = $translationSource;
+    }
+
+    /**
+     * @param string|null $tstamp
+     *
+     * @return void
+     */
+    public function setTstamp(?string $tstamp): void
+    {
+        $this->tstamp = $tstamp;
+    }
+
+    /**
+     * @param string|null $type
+     *
+     * @return void
+     */
+    public function setType(?string $type): void
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @param array|null $typeicon_classes
+     *
+     * @return void
+     */
+    public function setTypeiconClasses(?array $typeicon_classes): void
+    {
+        $this->typeicon_classes = $typeicon_classes;
+    }
+
+    /**
      * @param string|null $typeicon_column
      *
      * @return void
@@ -1070,14 +1093,6 @@ class Ctrl extends AbstractTcaAnnotation
     public function setTypeiconColumn(?string $typeicon_column): void
     {
         $this->typeicon_column = $typeicon_column;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getUseColumnsForDefaultValues(): ?string
-    {
-        return $this->useColumnsForDefaultValues;
     }
 
     /**
@@ -1091,14 +1106,6 @@ class Ctrl extends AbstractTcaAnnotation
     }
 
     /**
-     * @return bool|null
-     */
-    public function getVersioningWS(): ?bool
-    {
-        return $this->versioningWS;
-    }
-
-    /**
      * @param bool|null $versioningWS
      *
      * @return void
@@ -1106,14 +1113,6 @@ class Ctrl extends AbstractTcaAnnotation
     public function setVersioningWS(?bool $versioningWS): void
     {
         $this->versioningWS = $versioningWS;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function getVersioningWSAlwaysAllowLiveEdit(): ?bool
-    {
-        return $this->versioningWS_alwaysAllowLiveEdit;
     }
 
     /**

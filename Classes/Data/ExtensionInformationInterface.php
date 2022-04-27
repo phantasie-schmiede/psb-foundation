@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Data;
 
 /**
  * Interface ExtensionInformationInterface
+ *
  * @package PSB\PsbFoundation\Data
  */
 interface ExtensionInformationInterface

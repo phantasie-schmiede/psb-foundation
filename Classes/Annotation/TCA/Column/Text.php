@@ -53,6 +53,30 @@ class Text extends AbstractColumnAnnotation
     }
 
     /**
+     * @return string
+     */
+    public function getEval(): string
+    {
+        return $this->eval;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRows(): int
+    {
+        return $this->rows;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isEnableRichText(): ?bool
+    {
+        return $this->enableRichText;
+    }
+
+    /**
      * @param int $cols
      *
      * @return void
@@ -63,11 +87,13 @@ class Text extends AbstractColumnAnnotation
     }
 
     /**
-     * @return string
+     * @param bool $enableRichText
+     *
+     * @return void
      */
-    public function getEval(): string
+    public function setEnableRichText(bool $enableRichText): void
     {
-        return $this->eval;
+        $this->enableRichText = $enableRichText;
     }
 
     /**
@@ -81,14 +107,6 @@ class Text extends AbstractColumnAnnotation
     }
 
     /**
-     * @return int
-     */
-    public function getRows(): int
-    {
-        return $this->rows;
-    }
-
-    /**
      * @param int $rows
      *
      * @return void
@@ -96,23 +114,5 @@ class Text extends AbstractColumnAnnotation
     public function setRows(int $rows): void
     {
         $this->rows = $rows;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function isEnableRichText(): ?bool
-    {
-        return $this->enableRichText;
-    }
-
-    /**
-     * @param bool $enableRichText
-     *
-     * @return void
-     */
-    public function setEnableRichText(bool $enableRichText): void
-    {
-        $this->enableRichText = $enableRichText;
     }
 }

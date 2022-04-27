@@ -58,6 +58,38 @@ class Group extends AbstractColumnAnnotation
     }
 
     /**
+     * @return string
+     */
+    public function getInternalType(): string
+    {
+        return $this->internalType;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxItems(): int
+    {
+        return $this->maxItems;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinItems(): int
+    {
+        return $this->minItems;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize(): int
+    {
+        return $this->size;
+    }
+
+    /**
      * @param string $allowed
      *
      * @return void
@@ -65,14 +97,6 @@ class Group extends AbstractColumnAnnotation
     public function setAllowed(string $allowed): void
     {
         $this->allowed = $allowed;
-    }
-
-    /**
-     * @return string
-     */
-    public function getInternalType(): string
-    {
-        return $this->internalType;
     }
 
     /**
@@ -86,14 +110,6 @@ class Group extends AbstractColumnAnnotation
     }
 
     /**
-     * @return int
-     */
-    public function getMaxItems(): int
-    {
-        return $this->maxItems;
-    }
-
-    /**
      * @param int $maxItems
      *
      * @return void
@@ -104,14 +120,6 @@ class Group extends AbstractColumnAnnotation
     }
 
     /**
-     * @return int
-     */
-    public function getMinItems(): int
-    {
-        return $this->minItems;
-    }
-
-    /**
      * @param int $minItems
      *
      * @return void
@@ -119,14 +127,6 @@ class Group extends AbstractColumnAnnotation
     public function setMinItems(int $minItems): void
     {
         $this->minItems = $minItems;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSize(): int
-    {
-        return $this->size;
     }
 
     /**

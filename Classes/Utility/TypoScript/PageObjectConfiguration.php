@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class PageObjectConfiguration
 {
-    public const CONTENT_TYPES = [
+    public const CONTENT_TYPES     = [
         'HTML' => self::CONTENT_TYPE_HTML,
         'JSON' => self::CONTENT_TYPE_JSON,
         'XML'  => self::CONTENT_TYPE_XML,
@@ -104,6 +104,102 @@ class PageObjectConfiguration
     }
 
     /**
+     * @return string
+     */
+    public function getContentType(): string
+    {
+        return $this->contentType;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getController(): ?string
+    {
+        return $this->controller;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getExtensionName(): ?string
+    {
+        return $this->extensionName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPluginName(): ?string
+    {
+        return $this->pluginName;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSettings(): array
+    {
+        return $this->settings;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTypeNum(): int
+    {
+        return $this->typeNum;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypoScriptObjectName(): string
+    {
+        return $this->typoScriptObjectName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUserFunc(): ?string
+    {
+        return $this->userFunc;
+    }
+
+    /**
+     * @return array
+     */
+    public function getUserFuncParameters(): array
+    {
+        return $this->userFuncParameters ?? [];
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getVendorName(): ?string
+    {
+        return $this->vendorName;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isCacheable(): ?bool
+    {
+        return $this->cacheable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableAllHeaderCode(): bool
+    {
+        return $this->disableAllHeaderCode;
+    }
+
+    /**
      * @param string $action
      *
      * @return $this
@@ -116,11 +212,13 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return string
+     * @param bool $cacheable
+     *
+     * @return void
      */
-    public function getContentType(): string
+    public function setCacheable(bool $cacheable): void
     {
-        return $this->contentType;
+        $this->cacheable = $cacheable;
     }
 
     /**
@@ -134,14 +232,6 @@ class PageObjectConfiguration
         $this->contentType = $contentType;
 
         return $this;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getController(): ?string
-    {
-        return $this->controller;
     }
 
     /**
@@ -174,11 +264,13 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return string|null
+     * @param bool $disableAllHeaderCode
+     *
+     * @return void
      */
-    public function getExtensionName(): ?string
+    public function setDisableAllHeaderCode(bool $disableAllHeaderCode): void
     {
-        return $this->extensionName;
+        $this->disableAllHeaderCode = $disableAllHeaderCode;
     }
 
     /**
@@ -194,14 +286,6 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return string|null
-     */
-    public function getPluginName(): ?string
-    {
-        return $this->pluginName;
-    }
-
-    /**
      * @param string $pluginName
      *
      * @return $this
@@ -211,14 +295,6 @@ class PageObjectConfiguration
         $this->pluginName = $pluginName;
 
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getSettings(): array
-    {
-        return $this->settings;
     }
 
     /**
@@ -234,14 +310,6 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return int
-     */
-    public function getTypeNum(): int
-    {
-        return $this->typeNum;
-    }
-
-    /**
      * @param int $typeNum
      *
      * @return $this
@@ -251,14 +319,6 @@ class PageObjectConfiguration
         $this->typeNum = $typeNum;
 
         return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTypoScriptObjectName(): string
-    {
-        return $this->typoScriptObjectName;
     }
 
     /**
@@ -274,14 +334,6 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return string|null
-     */
-    public function getUserFunc(): ?string
-    {
-        return $this->userFunc;
-    }
-
-    /**
      * @param string $userFunc
      *
      * @return void
@@ -289,14 +341,6 @@ class PageObjectConfiguration
     public function setUserFunc(string $userFunc): void
     {
         $this->userFunc = $userFunc;
-    }
-
-    /**
-     * @return array
-     */
-    public function getUserFuncParameters(): array
-    {
-        return $this->userFuncParameters ?? [];
     }
 
     /**
@@ -310,14 +354,6 @@ class PageObjectConfiguration
     }
 
     /**
-     * @return string|null
-     */
-    public function getVendorName(): ?string
-    {
-        return $this->vendorName;
-    }
-
-    /**
      * @param string $vendorName
      *
      * @return $this
@@ -327,41 +363,5 @@ class PageObjectConfiguration
         $this->vendorName = $vendorName;
 
         return $this;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function isCacheable(): ?bool
-    {
-        return $this->cacheable;
-    }
-
-    /**
-     * @param bool $cacheable
-     *
-     * @return void
-     */
-    public function setCacheable(bool $cacheable): void
-    {
-        $this->cacheable = $cacheable;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isDisableAllHeaderCode(): bool
-    {
-        return $this->disableAllHeaderCode;
-    }
-
-    /**
-     * @param bool $disableAllHeaderCode
-     *
-     * @return void
-     */
-    public function setDisableAllHeaderCode(bool $disableAllHeaderCode): void
-    {
-        $this->disableAllHeaderCode = $disableAllHeaderCode;
     }
 }

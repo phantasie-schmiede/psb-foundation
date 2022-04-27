@@ -18,11 +18,6 @@ namespace PSB\PsbFoundation\Annotation\TCA\Column;
 interface TcaAnnotationInterface
 {
     /**
-     * @param string $label
-     */
-    public function setLabel(string $label);
-
-    /**
      * @return string
      */
     public function getLabel(): string;
@@ -41,4 +36,9 @@ interface TcaAnnotationInterface
      * @return string
      */
     public function getTypeList(): string;
+
+    /**
+     * @param string $label
+     */
+    public function setLabel(string $label);
 }

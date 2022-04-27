@@ -40,8 +40,8 @@ class RegisterLanguageFileViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerArgument('file', 'string', 'File path (supports EXT:) of the language file that should be used.', true,
-            true);
+        $this->registerArgument('file', 'string', 'File path (supports EXT:) of the language file that should be used.',
+            true, true);
         $this->registerArgument('name', 'string', 'Name to reference this file. If empty, the filename will be used.',
             false);
     }

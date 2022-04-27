@@ -52,17 +52,6 @@ class PageType extends AbstractAnnotation
     }
 
     /**
-     * @param string $contentType
-     *
-     * @return void
-     */
-    public function setContentType(string $contentType): void
-    {
-        ValidationUtility::checkValueAgainstConstant(PageObjectConfiguration::CONTENT_TYPES, $contentType);
-        $this->contentType = $contentType;
-    }
-
-    /**
      * @return int
      */
     public function getTypeNum(): int
@@ -71,21 +60,19 @@ class PageType extends AbstractAnnotation
     }
 
     /**
-     * @param int $typeNum
-     *
-     * @return void
-     */
-    public function setTypeNum(int $typeNum): void
-    {
-        $this->typeNum = $typeNum;
-    }
-
-    /**
      * @return bool
      */
     public function isCacheable(): bool
     {
         return $this->cacheable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDisableAllHeaderCode(): bool
+    {
+        return $this->disableAllHeaderCode;
     }
 
     /**
@@ -99,11 +86,14 @@ class PageType extends AbstractAnnotation
     }
 
     /**
-     * @return bool
+     * @param string $contentType
+     *
+     * @return void
      */
-    public function isDisableAllHeaderCode(): bool
+    public function setContentType(string $contentType): void
     {
-        return $this->disableAllHeaderCode;
+        ValidationUtility::checkValueAgainstConstant(PageObjectConfiguration::CONTENT_TYPES, $contentType);
+        $this->contentType = $contentType;
     }
 
     /**
@@ -114,5 +104,15 @@ class PageType extends AbstractAnnotation
     public function setDisableAllHeaderCode(bool $disableAllHeaderCode): void
     {
         $this->disableAllHeaderCode = $disableAllHeaderCode;
+    }
+
+    /**
+     * @param int $typeNum
+     *
+     * @return void
+     */
+    public function setTypeNum(int $typeNum): void
+    {
+        $this->typeNum = $typeNum;
     }
 }

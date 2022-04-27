@@ -98,7 +98,8 @@ class ContextUtility
      */
     public static function isFrontend(): bool
     {
-        return isset($GLOBALS['TYPO3_REQUEST']) && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isFrontend();
+        return isset($GLOBALS['TYPO3_REQUEST']) && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])
+                ->isFrontend();
     }
 
     /**

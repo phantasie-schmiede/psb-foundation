@@ -98,6 +98,22 @@ class AbstractXmlElement implements XmlElementInterface
     }
 
     /**
+     * @return mixed|null
+     */
+    public function _getNodeValue()
+    {
+        return $this->_nodeValue[0] ?? null;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function _getPosition(): ?int
+    {
+        return $this->_position;
+    }
+
+    /**
      * @param array $attributes
      *
      * @return void
@@ -108,14 +124,6 @@ class AbstractXmlElement implements XmlElementInterface
     }
 
     /**
-     * @return mixed|null
-     */
-    public function _getNodeValue()
-    {
-        return $this->_nodeValue[0] ?? null;
-    }
-
-    /**
      * @param $nodeValue
      *
      * @return void
@@ -123,14 +131,6 @@ class AbstractXmlElement implements XmlElementInterface
     public function _setNodeValue($nodeValue): void
     {
         $this->_nodeValue = [$nodeValue];
-    }
-
-    /**
-     * @return int|null
-     */
-    public function _getPosition(): ?int
-    {
-        return $this->_position;
     }
 
     /**

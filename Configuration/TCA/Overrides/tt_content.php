@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 use PSB\PsbFoundation\Service\Configuration\RegistrationService;
 use PSB\PsbFoundation\Service\ExtensionInformationService;

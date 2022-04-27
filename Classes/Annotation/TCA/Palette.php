@@ -11,8 +11,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Annotation\TCA;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use function is_array;
-use function is_string;
 
 /**
  * Class Palette

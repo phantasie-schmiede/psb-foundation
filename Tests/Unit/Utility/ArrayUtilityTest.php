@@ -65,7 +65,7 @@ class ArrayUtilityTest extends UnitTestCase
                 'test',
                 [
                     'bar' => 3,
-                    'value'
+                    'value',
                 ],
             ],
             5,

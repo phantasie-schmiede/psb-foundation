@@ -59,6 +59,22 @@ class Slug extends AbstractColumnAnnotation
     }
 
     /**
+     * @return string
+     */
+    public function getFallbackCharacter(): string
+    {
+        return $this->fallbackCharacter;
+    }
+
+    /**
+     * @return array
+     */
+    public function getGeneratorOptions(): array
+    {
+        return $this->generatorOptions;
+    }
+
+    /**
      * @param string $eval
      *
      * @return void
@@ -69,14 +85,6 @@ class Slug extends AbstractColumnAnnotation
     }
 
     /**
-     * @return string
-     */
-    public function getFallbackCharacter(): string
-    {
-        return $this->fallbackCharacter;
-    }
-
-    /**
      * @param string $fallbackCharacter
      *
      * @return void
@@ -84,14 +92,6 @@ class Slug extends AbstractColumnAnnotation
     public function setFallbackCharacter(string $fallbackCharacter): void
     {
         $this->fallbackCharacter = $fallbackCharacter;
-    }
-
-    /**
-     * @return array
-     */
-    public function getGeneratorOptions(): array
-    {
-        return $this->generatorOptions;
     }
 
     /**

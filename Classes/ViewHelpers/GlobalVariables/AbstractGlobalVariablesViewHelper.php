@@ -21,6 +21,21 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
 {
     /**
+     * @param string $baseKey
+     * @param array  $arguments
+     *
+     * @return mixed
+     */
+    protected static function getVariable(string $baseKey, array $arguments)
+    {
+        if (!empty($arguments['path'])) {
+            $baseKey .= '.' . $arguments['path'];
+        }
+
+        return GlobalVariableService::get($baseKey);
+    }
+
+    /**
      * @return void
      */
     public function initializeArguments(): void
@@ -35,20 +50,5 @@ abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
     public function render()
     {
         return static::renderStatic($this->arguments, $this->buildRenderChildrenClosure(), $this->renderingContext);
-    }
-
-    /**
-     * @param string $baseKey
-     * @param array  $arguments
-     *
-     * @return mixed
-     */
-    protected static function getVariable(string $baseKey, array $arguments)
-    {
-        if (!empty($arguments['path'])) {
-            $baseKey .= '.' . $arguments['path'];
-        }
-
-        return GlobalVariableService::get($baseKey);
     }
 }

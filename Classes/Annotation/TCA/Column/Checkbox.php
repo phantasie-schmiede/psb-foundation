@@ -53,13 +53,11 @@ class Checkbox extends AbstractColumnAnnotation
     }
 
     /**
-     * @param array $items
-     *
-     * @return void
+     * @return string
      */
-    public function setItems(array $items): void
+    public function getRenderType(): string
     {
-        $this->items = $items;
+        return $this->renderType;
     }
 
     /**
@@ -73,11 +71,13 @@ class Checkbox extends AbstractColumnAnnotation
     }
 
     /**
-     * @return string
+     * @param array $items
+     *
+     * @return void
      */
-    public function getRenderType(): string
+    public function setItems(array $items): void
     {
-        return $this->renderType;
+        $this->items = $items;
     }
 
     /**

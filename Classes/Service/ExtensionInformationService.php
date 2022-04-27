@@ -86,43 +86,6 @@ class ExtensionInformationService
     }
 
     /**
-     * This function is called once and very early in ext_localconf.php. It scans all active packages and checks if
-     * there is an ExtensionInformation-class. If so, an instance is created and stored for upcoming usages. The order
-     * of the stored instances respects their dependencies as resolved by the PackageManager. This register is used for
-     * a series of automated tasks like TCA-generation, icon registration and plugin configuration.
-     *
-     * @return void
-     * @throws ImplementationException
-     */
-    private function register(): void
-    {
-        $activePackages = $this->packageManager->getActivePackages();
-
-        foreach ($activePackages as $package) {
-            $extensionKey = $package->getPackageKey();
-            $fileName = $package->getPackagePath() . 'Classes/Data/ExtensionInformation.php';
-            $vendorName = $this->extractVendorNameFromFile($fileName);
-
-            if (null !== $vendorName) {
-                $className = implode('\\', [
-                    $vendorName,
-                    GeneralUtility::underscoredToUpperCamelCase($extensionKey),
-                    'Data\ExtensionInformation',
-                ]);
-
-                if (class_exists($className)) {
-                    if (!in_array(ExtensionInformationInterface::class, class_implements($className), true)) {
-                        throw new ImplementationException(__CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
-                            1568738348);
-                    }
-
-                    $this->extensionInformationInstances[$extensionKey] = GeneralUtility::makeInstance($className);
-                }
-            }
-        }
-    }
-
-    /**
      * Additional wrapper function to access specific settings defined in ext_conf_template.txt of an extension more
      * easily.
      *
@@ -184,5 +147,42 @@ class ExtensionInformationService
 
         return $this->packageManager->getPackage($extensionInformation->getExtensionKey())
                 ->getPackagePath() . $subDirectoryPath;
+    }
+
+    /**
+     * This function is called once and very early in ext_localconf.php. It scans all active packages and checks if
+     * there is an ExtensionInformation-class. If so, an instance is created and stored for upcoming usages. The order
+     * of the stored instances respects their dependencies as resolved by the PackageManager. This register is used for
+     * a series of automated tasks like TCA-generation, icon registration and plugin configuration.
+     *
+     * @return void
+     * @throws ImplementationException
+     */
+    private function register(): void
+    {
+        $activePackages = $this->packageManager->getActivePackages();
+
+        foreach ($activePackages as $package) {
+            $extensionKey = $package->getPackageKey();
+            $fileName = $package->getPackagePath() . 'Classes/Data/ExtensionInformation.php';
+            $vendorName = $this->extractVendorNameFromFile($fileName);
+
+            if (null !== $vendorName) {
+                $className = implode('\\', [
+                    $vendorName,
+                    GeneralUtility::underscoredToUpperCamelCase($extensionKey),
+                    'Data\ExtensionInformation',
+                ]);
+
+                if (class_exists($className)) {
+                    if (!in_array(ExtensionInformationInterface::class, class_implements($className), true)) {
+                        throw new ImplementationException(__CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
+                            1568738348);
+                    }
+
+                    $this->extensionInformationInstances[$extensionKey] = GeneralUtility::makeInstance($className);
+                }
+            }
+        }
     }
 }

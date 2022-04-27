@@ -52,7 +52,7 @@ class TypoScriptUtilityTest extends UnitTestCase
         yield 'register typeNum' => [
             [
                 TypoScriptUtility::TYPO_SCRIPT_KEYS['CONDITION'] => 'request.getQueryParams()[\'type\'] == ' . 1589385441,
-                'ajax_psb_foundation_typoscriptutility_test'  => [
+                'ajax_psb_foundation_typoscriptutility_test'     => [
                     TypoScriptUtility::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'PAGE',
                     10                                                 => [
                         '_objectType'                 => 'USER_INT',

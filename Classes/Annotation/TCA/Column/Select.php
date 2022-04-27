@@ -203,6 +203,324 @@ class Select extends AbstractColumnAnnotation
     protected ?string $treeConfigStartingPoints = null;
 
     /**
+     * @return int|null
+     */
+    public function getAutoSizeMax(): ?int
+    {
+        return $this->autoSizeMax;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEval(): ?string
+    {
+        return $this->eval;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getFieldControl(): ?array
+    {
+        $fieldControl = $this->fieldControl;
+
+        if (true === $this->fieldControlDisableAddRecord) {
+            $fieldControl['addRecord']['disabled'] = true;
+        }
+
+        if (true === $this->fieldControlDisableEditPopup) {
+            $fieldControl['editPopup']['disabled'] = true;
+        }
+
+        if (true === $this->fieldControlDisableListModule) {
+            $fieldControl['listModule']['disabled'] = true;
+        }
+
+        return $fieldControl;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getForeignTable(): ?string
+    {
+        return $this->foreignTable;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getForeignTableWhere(): ?string
+    {
+        return $this->foreignTableWhere;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getItems(): ?array
+    {
+        if (null === $this->items && null === $this->prependItem) {
+            return null;
+        }
+
+        $this->items = array_merge($this->prependItem ?? [], $this->items ?? []);
+        $this->prependItem = [];
+
+        return $this->items;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getItemsProcFunc(): ?string
+    {
+        return $this->itemsProcFunc;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMaxItems(): int
+    {
+        return $this->maxItems;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMinItems(): ?int
+    {
+        return $this->minItems;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRenderType(): string
+    {
+        return $this->renderType;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getTreeConfig(): ?array
+    {
+        if (self::RENDER_TYPES['SELECT_TREE'] !== $this->renderType) {
+            return null;
+        }
+
+        $configuration = [
+            'childrenField' => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigChildrenField ?? ''),
+            'parentField'   => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigParentField ?? ''),
+        ];
+
+        if (null !== $this->treeConfigExpandAll) {
+            $configuration['appearance']['expandAll'] = $this->treeConfigExpandAll;
+        }
+
+        if (0 < $this->treeConfigMaxLevels) {
+            $configuration['appearance']['maxLevels'] = $this->treeConfigMaxLevels;
+        }
+
+        if (null !== $this->treeConfigNonSelectableLevels) {
+            $configuration['appearance']['nonSelectableLevels'] = $this->treeConfigNonSelectableLevels;
+        }
+
+        if (null !== $this->treeConfigShowHeader) {
+            $configuration['appearance']['showHeader'] = $this->treeConfigShowHeader;
+        }
+
+        if (null !== $this->treeConfigDataProvider) {
+            $configuration['dataProvider'] = $this->treeConfigDataProvider;
+        }
+
+        if (null !== $this->treeConfigStartingPoints) {
+            $configuration['startingPoints'] = $this->treeConfigStartingPoints;
+        }
+
+        return $configuration;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isAllowNonIdValues(): ?bool
+    {
+        return $this->allowNonIdValues;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function isMultiple(): ?bool
+    {
+        return $this->multiple;
+    }
+
+    /**
+     * @param bool $allowNonIdValues
+     *
+     * @return void
+     */
+    public function setAllowNonIdValues(bool $allowNonIdValues): void
+    {
+        $this->allowNonIdValues = $allowNonIdValues;
+    }
+
+    /**
+     * @param int $autoSizeMax
+     *
+     * @return void
+     */
+    public function setAutoSizeMax(int $autoSizeMax): void
+    {
+        $this->autoSizeMax = $autoSizeMax;
+    }
+
+    /**
+     * @param string|null $eval
+     *
+     * @return void
+     */
+    public function setEval(?string $eval): void
+    {
+        $this->eval = $eval;
+    }
+
+    /**
+     * @param array $fieldControl
+     *
+     * @return void
+     */
+    public function setFieldControl(array $fieldControl): void
+    {
+        $this->fieldControl = $fieldControl;
+    }
+
+    /**
+     * @param bool|null $fieldControlDisableAddRecord
+     *
+     * @return void
+     */
+    public function setFieldControlDisableAddRecord(?bool $fieldControlDisableAddRecord): void
+    {
+        $this->fieldControlDisableAddRecord = $fieldControlDisableAddRecord;
+    }
+
+    /**
+     * @param bool|null $fieldControlDisableEditPopup
+     *
+     * @return void
+     */
+    public function setFieldControlDisableEditPopup(?bool $fieldControlDisableEditPopup): void
+    {
+        $this->fieldControlDisableEditPopup = $fieldControlDisableEditPopup;
+    }
+
+    /**
+     * @param bool|null $fieldControlDisableListModule
+     *
+     * @return void
+     */
+    public function setFieldControlDisableListModule(?bool $fieldControlDisableListModule): void
+    {
+        $this->fieldControlDisableListModule = $fieldControlDisableListModule;
+    }
+
+    /**
+     * @param string|null $foreignTable
+     *
+     * @return void
+     */
+    public function setForeignTable(?string $foreignTable): void
+    {
+        $this->foreignTable = $foreignTable;
+    }
+
+    /**
+     * @param string|null $foreignTableWhere
+     *
+     * @return void
+     */
+    public function setForeignTableWhere(?string $foreignTableWhere): void
+    {
+        $this->foreignTableWhere = $foreignTableWhere;
+    }
+
+    /**
+     * @param array $items
+     *
+     * @return void
+     */
+    public function setItems(array $items): void
+    {
+        $this->items = $items;
+    }
+
+    /**
+     * @param string|null $itemsProcFunc
+     */
+    public function setItemsProcFunc(?string $itemsProcFunc): void
+    {
+        $this->itemsProcFunc = $itemsProcFunc;
+    }
+
+    /**
+     * @param string $linkedModel
+     *
+     * @return void
+     */
+    public function setLinkedModel(string $linkedModel): void
+    {
+        $this->linkedModel = $linkedModel;
+
+        if (class_exists($linkedModel)) {
+            $this->setForeignTable($this->tcaService->convertClassNameToTableName($linkedModel));
+        }
+    }
+
+    /**
+     * @param int $maxItems
+     *
+     * @return void
+     */
+    public function setMaxItems(int $maxItems): void
+    {
+        $this->maxItems = $maxItems;
+    }
+
+    /**
+     * @param int $minItems
+     *
+     * @return void
+     */
+    public function setMinItems(int $minItems): void
+    {
+        $this->minItems = $minItems;
+    }
+
+    /**
+     * @param bool $multiple
+     *
+     * @return void
+     */
+    public function setMultiple(bool $multiple): void
+    {
+        $this->multiple = $multiple;
+    }
+
+    /**
      * @param array $prependItem
      *
      * @return void
@@ -210,6 +528,33 @@ class Select extends AbstractColumnAnnotation
     public function setPrependItem(array $prependItem): void
     {
         $this->prependItem = $prependItem;
+    }
+
+    /**
+     * @param string $renderType
+     *
+     * @return void
+     */
+    public function setRenderType(string $renderType): void
+    {
+        ValidationUtility::checkValueAgainstConstant(self::RENDER_TYPES, $renderType);
+
+        if (self::RENDER_TYPES['SELECT_TREE'] === $renderType) {
+            $this->autoSizeMax = null;
+            $this->size = null;
+        }
+
+        $this->renderType = $renderType;
+    }
+
+    /**
+     * @param int $size
+     *
+     * @return void
+     */
+    public function setSize(int $size): void
+    {
+        $this->size = $size;
     }
 
     /**
@@ -300,350 +645,5 @@ class Select extends AbstractColumnAnnotation
     public function setTreeConfigStartingPoints(string $treeConfigStartingPoints): void
     {
         $this->treeConfigStartingPoints = $treeConfigStartingPoints;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getAutoSizeMax(): ?int
-    {
-        return $this->autoSizeMax;
-    }
-
-    /**
-     * @param int $autoSizeMax
-     *
-     * @return void
-     */
-    public function setAutoSizeMax(int $autoSizeMax): void
-    {
-        $this->autoSizeMax = $autoSizeMax;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getEval(): ?string
-    {
-        return $this->eval;
-    }
-
-    /**
-     * @param string|null $eval
-     *
-     * @return void
-     */
-    public function setEval(?string $eval): void
-    {
-        $this->eval = $eval;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getFieldControl(): ?array
-    {
-        $fieldControl = $this->fieldControl;
-
-        if (true === $this->fieldControlDisableAddRecord) {
-            $fieldControl['addRecord']['disabled'] = true;
-        }
-
-        if (true === $this->fieldControlDisableEditPopup) {
-            $fieldControl['editPopup']['disabled'] = true;
-        }
-
-        if (true === $this->fieldControlDisableListModule) {
-            $fieldControl['listModule']['disabled'] = true;
-        }
-
-        return $fieldControl;
-    }
-
-    /**
-     * @param array $fieldControl
-     *
-     * @return void
-     */
-    public function setFieldControl(array $fieldControl): void
-    {
-        $this->fieldControl = $fieldControl;
-    }
-
-    /**
-     * @param bool|null $fieldControlDisableAddRecord
-     *
-     * @return void
-     */
-    public function setFieldControlDisableAddRecord(?bool $fieldControlDisableAddRecord): void
-    {
-        $this->fieldControlDisableAddRecord = $fieldControlDisableAddRecord;
-    }
-
-    /**
-     * @param bool|null $fieldControlDisableEditPopup
-     *
-     * @return void
-     */
-    public function setFieldControlDisableEditPopup(?bool $fieldControlDisableEditPopup): void
-    {
-        $this->fieldControlDisableEditPopup = $fieldControlDisableEditPopup;
-    }
-
-    /**
-     * @param bool|null $fieldControlDisableListModule
-     *
-     * @return void
-     */
-    public function setFieldControlDisableListModule(?bool $fieldControlDisableListModule): void
-    {
-        $this->fieldControlDisableListModule = $fieldControlDisableListModule;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getForeignTable(): ?string
-    {
-        return $this->foreignTable;
-    }
-
-    /**
-     * @param string|null $foreignTable
-     *
-     * @return void
-     */
-    public function setForeignTable(?string $foreignTable): void
-    {
-        $this->foreignTable = $foreignTable;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getForeignTableWhere(): ?string
-    {
-        return $this->foreignTableWhere;
-    }
-
-    /**
-     * @param string|null $foreignTableWhere
-     *
-     * @return void
-     */
-    public function setForeignTableWhere(?string $foreignTableWhere): void
-    {
-        $this->foreignTableWhere = $foreignTableWhere;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getItems(): ?array
-    {
-        if (null === $this->items && null === $this->prependItem) {
-            return null;
-        }
-
-        $this->items = array_merge($this->prependItem ?? [], $this->items ?? []);
-        $this->prependItem = [];
-
-        return $this->items;
-    }
-
-    /**
-     * @param array $items
-     *
-     * @return void
-     */
-    public function setItems(array $items): void
-    {
-        $this->items = $items;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getItemsProcFunc(): ?string
-    {
-        return $this->itemsProcFunc;
-    }
-
-    /**
-     * @param string|null $itemsProcFunc
-     */
-    public function setItemsProcFunc(?string $itemsProcFunc): void
-    {
-        $this->itemsProcFunc = $itemsProcFunc;
-    }
-
-    /**
-     * @param string $linkedModel
-     *
-     * @return void
-     */
-    public function setLinkedModel(string $linkedModel): void
-    {
-        $this->linkedModel = $linkedModel;
-
-        if (class_exists($linkedModel)) {
-            $this->setForeignTable($this->tcaService->convertClassNameToTableName($linkedModel));
-        }
-    }
-
-    /**
-     * @return int
-     */
-    public function getMaxItems(): int
-    {
-        return $this->maxItems;
-    }
-
-    /**
-     * @param int $maxItems
-     *
-     * @return void
-     */
-    public function setMaxItems(int $maxItems): void
-    {
-        $this->maxItems = $maxItems;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getMinItems(): ?int
-    {
-        return $this->minItems;
-    }
-
-    /**
-     * @param int $minItems
-     *
-     * @return void
-     */
-    public function setMinItems(int $minItems): void
-    {
-        $this->minItems = $minItems;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRenderType(): string
-    {
-        return $this->renderType;
-    }
-
-    /**
-     * @param string $renderType
-     *
-     * @return void
-     */
-    public function setRenderType(string $renderType): void
-    {
-        ValidationUtility::checkValueAgainstConstant(self::RENDER_TYPES, $renderType);
-
-        if (self::RENDER_TYPES['SELECT_TREE'] === $renderType) {
-            $this->autoSizeMax = null;
-            $this->size = null;
-        }
-
-        $this->renderType = $renderType;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getSize(): ?int
-    {
-        return $this->size;
-    }
-
-    /**
-     * @param int $size
-     *
-     * @return void
-     */
-    public function setSize(int $size): void
-    {
-        $this->size = $size;
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getTreeConfig(): ?array
-    {
-        if (self::RENDER_TYPES['SELECT_TREE'] !== $this->renderType) {
-            return null;
-        }
-
-        $configuration = [
-            'childrenField' => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigChildrenField ?? ''),
-            'parentField'   => $this->tcaService->convertPropertyNameToColumnName($this->treeConfigParentField ?? ''),
-        ];
-
-        if (null !== $this->treeConfigExpandAll) {
-            $configuration['appearance']['expandAll'] = $this->treeConfigExpandAll;
-        }
-
-        if (0 < $this->treeConfigMaxLevels) {
-            $configuration['appearance']['maxLevels'] = $this->treeConfigMaxLevels;
-        }
-
-        if (null !== $this->treeConfigNonSelectableLevels) {
-            $configuration['appearance']['nonSelectableLevels'] = $this->treeConfigNonSelectableLevels;
-        }
-
-        if (null !== $this->treeConfigShowHeader) {
-            $configuration['appearance']['showHeader'] = $this->treeConfigShowHeader;
-        }
-
-        if (null !== $this->treeConfigDataProvider) {
-            $configuration['dataProvider'] = $this->treeConfigDataProvider;
-        }
-
-        if (null !== $this->treeConfigStartingPoints) {
-            $configuration['startingPoints'] = $this->treeConfigStartingPoints;
-        }
-
-        return $configuration;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function isAllowNonIdValues(): ?bool
-    {
-        return $this->allowNonIdValues;
-    }
-
-    /**
-     * @param bool $allowNonIdValues
-     *
-     * @return void
-     */
-    public function setAllowNonIdValues(bool $allowNonIdValues): void
-    {
-        $this->allowNonIdValues = $allowNonIdValues;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function isMultiple(): ?bool
-    {
-        return $this->multiple;
-    }
-
-    /**
-     * @param bool $multiple
-     *
-     * @return void
-     */
-    public function setMultiple(bool $multiple): void
-    {
-        $this->multiple = $multiple;
     }
 }

@@ -59,6 +59,46 @@ class ModuleConfig extends AbstractAnnotation
     }
 
     /**
+     * @return string|null
+     */
+    public function getIconIdentifier(): ?string
+    {
+        return $this->iconIdentifier;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLabels(): ?string
+    {
+        return $this->labels;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMainModuleName(): string
+    {
+        return $this->mainModuleName;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getNavigationComponentId(): ?string
+    {
+        return $this->navigationComponentId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPosition(): string
+    {
+        return $this->position;
+    }
+
+    /**
      * @param string $access
      *
      * @return void
@@ -66,14 +106,6 @@ class ModuleConfig extends AbstractAnnotation
     public function setAccess(string $access): void
     {
         $this->access = $access;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getIconIdentifier(): ?string
-    {
-        return $this->iconIdentifier;
     }
 
     /**
@@ -87,14 +119,6 @@ class ModuleConfig extends AbstractAnnotation
     }
 
     /**
-     * @return string|null
-     */
-    public function getLabels(): ?string
-    {
-        return $this->labels;
-    }
-
-    /**
      * @param string|null $labels
      *
      * @return void
@@ -102,14 +126,6 @@ class ModuleConfig extends AbstractAnnotation
     public function setLabels(?string $labels): void
     {
         $this->labels = $labels;
-    }
-
-    /**
-     * @return string
-     */
-    public function getMainModuleName(): string
-    {
-        return $this->mainModuleName;
     }
 
     /**
@@ -123,14 +139,6 @@ class ModuleConfig extends AbstractAnnotation
     }
 
     /**
-     * @return string|null
-     */
-    public function getNavigationComponentId(): ?string
-    {
-        return $this->navigationComponentId;
-    }
-
-    /**
      * @param string|null $navigationComponentId
      *
      * @return void
@@ -138,14 +146,6 @@ class ModuleConfig extends AbstractAnnotation
     public function setNavigationComponentId(?string $navigationComponentId): void
     {
         $this->navigationComponentId = $navigationComponentId;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPosition(): string
-    {
-        return $this->position;
     }
 
     /**
