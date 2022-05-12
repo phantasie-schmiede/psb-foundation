@@ -230,7 +230,7 @@ protected string $note = '';
 ```
 Without further configuration, tab and palette will be registered with the given identifier and added to the
 end of the showitems-list. But you can add additional information for tabs and palettes.
-For now, the identifiers of palettes and tabs have to be in written in snake_case!
+For now, the identifiers of palettes and tabs have to be written in snake_case!
 
 ```php
 use PSB\PsbFoundation\Annotation\TCA;
