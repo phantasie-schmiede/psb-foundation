@@ -47,5 +47,15 @@
 		"roave/security-advisories": "dev-latest",
 		"typo3/testing-framework": "^6.8"
 	},
+	"scripts": {
+		"prepare-release": [
+			"rm -rf .Build",
+			"rm -rf .github",
+			"rm -rf Tests",
+			"rm .editorconfig",
+			"rm .gitattributes",
+			"rm .gitignore"
+		]
+	},
 	"type": "typo3-cms-extension"
 }
