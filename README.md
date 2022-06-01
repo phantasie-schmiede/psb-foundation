@@ -174,8 +174,8 @@ class YourModel
     /**
      * This constant is used as value for TCA-property "items". The keys will be used as label identifiers - converted
      * to lowerCamelCase:
-     * [...]/table_of_your_model.xlf:myType.default
-     * [...]/table_of_your_model.xlf:myType.recordWithImage
+     * EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[modelName].xlf:myType.default
+     * EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[modelName].xlf:myType.recordWithImage
      */
     public const TYPES = [
         'DEFAULT'           => 'default',
