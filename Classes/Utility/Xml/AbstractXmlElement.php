@@ -15,6 +15,7 @@ use PSB\PsbFoundation\Traits\PropertyInjection\ObjectServiceTrait;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use ReflectionClass;
 use ReflectionException;
+use function is_array;
 
 /**
  * Class AbstractXmlElement
