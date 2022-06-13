@@ -13,7 +13,10 @@ namespace PSB\PsbFoundation\Utility\Configuration;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Utility\FileUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Install\Service\LoadTcaService;
 
 /**
  * Class TcaUtility
@@ -208,6 +211,15 @@ class TcaUtility
      */
     public static function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
     {
+        /*
+         * The "Check for Broken Extensions" function in the upgrade module doesn't load the TCA. This breaks the
+         * following code and would raise an exception if we didn't exit here in this case.
+         * @see TYPO3\CMS\Install\Controller\UpgradeController::extensionCompatTesterLoadExtTablesAction()
+         */
+        if (null === $GLOBALS['TCA']) {
+            return;
+        }
+
         $identifier = 'tx_' . mb_strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
         $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
             return StringUtility::beginsWith($key, $identifier);
