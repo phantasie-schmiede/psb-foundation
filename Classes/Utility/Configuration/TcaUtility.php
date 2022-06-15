@@ -13,10 +13,8 @@ namespace PSB\PsbFoundation\Utility\Configuration;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Utility\FileUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Install\Service\LoadTcaService;
+use function in_array;
 
 /**
  * Class TcaUtility
@@ -226,15 +224,15 @@ class TcaUtility
         });
 
         foreach ($newTables as $tableName) {
-            /*
-             * New records may only be added to SysFolders by default.
-             * @TODO: Add configuration option to execute this line?
-             * ExtensionManagementUtility::allowTableOnStandardPages($tableName);
-             */
+            if (true === $GLOBALS['TCA'][$tableName]['ctrl']['allowTableOnStandardPages']) {
+                ExtensionManagementUtility::allowTableOnStandardPages($tableName);
+            }
 
             $cshFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $tableName . '.xlf';
 
-            if (FileUtility::fileExists($cshFilePath)) {
+            if (!in_array($cshFilePath, $GLOBALS['TCA_DESCR'][$tableName]['refs'] ?? [], true)
+                && FileUtility::fileExists($cshFilePath)
+            ) {
                 ExtensionManagementUtility::addLLrefForTCAdescr($tableName, $cshFilePath);
             }
         }

@@ -12,6 +12,8 @@ namespace PSB\PsbFoundation\Annotation\TCA;
 
 use Exception;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -53,6 +55,17 @@ class Ctrl extends AbstractTcaAnnotation
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/AdminOnly.html
      */
     protected ?bool $adminOnly = null;
+
+    /**
+     * This property is not part of the official ctrl options. It can be set to true, if you want to insert records of
+     * a table on standard content pages (instead of SysFolders only). This would call
+     * ExtensionManagementUtility::allowTableOnStandardPages.
+     *
+     * @see ExtensionManagementUtility
+     * @see TcaUtility
+     * @var bool|null
+     */
+    protected ?bool $allowTableOnStandardPages = null;
 
     /**
      * @var array|null
@@ -332,6 +345,14 @@ class Ctrl extends AbstractTcaAnnotation
     public function getAdminOnly(): ?bool
     {
         return $this->adminOnly;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getAllowTableOnStandardPages(): ?bool
+    {
+        return $this->allowTableOnStandardPages;
     }
 
     /**
@@ -702,6 +723,16 @@ class Ctrl extends AbstractTcaAnnotation
     public function setAdminOnly(?bool $adminOnly): void
     {
         $this->adminOnly = $adminOnly;
+    }
+
+    /**
+     * @param bool|null $allowTableOnStandardPages
+     *
+     * @return void
+     */
+    public function setAllowTableOnStandardPages(?bool $allowTableOnStandardPages): void
+    {
+        $this->allowTableOnStandardPages = $allowTableOnStandardPages;
     }
 
     /**

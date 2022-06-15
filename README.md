@@ -7,7 +7,8 @@
 - [TCA generation](#tca-generation)
   - [Tabs and palettes](#tabs-and-palettes)
   - [Extending domain models](#extending-domain-models)
-  - [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options)
+  - [Default language label paths](#default-language-label-paths)
+  - [Additional configuration options](#additional-configuration-options)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
   - [FlexForms](#flexforms)
   - [Content element wizard](#content-element-wizard)
@@ -30,7 +31,7 @@ This extension
 - autocompletion for TCA by annotation classes
 - configures and registers modules and plugins based on PHPDoc-annotations in your controllers
 - registers custom page types
-- auto-registers existing FlexForms, TypoScript, TSconfig and icons
+- auto-registers existing FlexForms, TypoScript, TSconfig, CSH language files and icons
 - provides convenient ways to access often used core-functionalities
 
 #### IMPORTANT
@@ -280,21 +281,32 @@ When you are extending domain models (even from extensions that don't make use o
 @TCA\Ctrl-annotation. You have the possibility to override ctrl-settings. If you don't want to override anything: just
 leave out the brackets. The default values of the annotation class will have no effect in this case.
 
-#### Default language label paths and additional configuration options
+#### Default language label paths
 These language labels will be tried if you don't provide a custom value for them.
 The path always is `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[modelName].xlf`.
 
-| Configuration value | Default language label           |
-|---------------------|----------------------------------|
-| ctrl-title          | ctrl.title                       |
-| property-label      | [propertyName]                   |
-| palette-description | palette.[identifier].description |
-| palette-label       | palette.[identifier].label       |
-| tab-label           | tab.[identifier].label           |
+| Configuration value  | Default language label           |
+|----------------------|----------------------------------|
+| ctrl->title          | ctrl.title                       |
+| property->label      | [propertyName]                   |
+| palette->description | palette.[identifier].description |
+| palette->label       | palette.[identifier].label       |
+| tab->label           | tab.[identifier].label           |
 
-When you use the items-property for a select field, you may provide a simple associative array. It will be transformed
-into the required multi-level format. The labels will be build this way:<br>
+When you use the items-property for a select field, you may provide a simple associative array.
+It will be transformed into the required multi-level format.
+The labels will be build this way:<br>
 `[propertyName].[arrayKeyTransformedToLowerCamelCase]`
+
+If you provide the file `EXT:your_extension_name/Resources/Private/Language/Backend/CSH/[tabelName].xlf`
+it will be registered automatically.
+
+#### Additional configuration options
+A special property has been added to the Ctrl annotation:
+
+| Property                  | Description                                                                                               |
+|---------------------------|-----------------------------------------------------------------------------------------------------------|
+| allowTableOnStandardPages | If set to true, you can insert records of a table on standard content pages (instead of SysFolders only). |
 
 ### Registering and configuring plugins
 - Classes/Data/ExtensionInformation.php
@@ -596,16 +608,16 @@ GlobalVariableService::get(RequestParameterProvider::class . '.formData.hiddenIn
 `PSB\PsbFoundation\Utility\StringUtility` contains some string manipulation functions, e.g.:
 - convertString: performs a type cast or other operations based on the string's content, e.g.<br>
 
-  | input value                                       | return type                                                                                |
-  |---------------------------------------------------|--------------------------------------------------------------------------------------------|
-  | (empty string)                                    | empty string will be returned as empty string or null (depends on second argument)         |
-  | `0`, `123`                                        | returns integer                                                                            |
-  | `0.1`, `0,1`                                      | returns float                                                                              |
-  | `0001423`                                         | returns unchanged string                                                                   |
-  | `TS:config.headerComment`                         | returns value from TypoScript (if path is valid) which is also processed by this function. |
-  | `\Full\Qualified\ClassName::CONSTANT['arrayKey']` | returns value of constant which is also processed by this function.                        |
-  | `{...}`                                           | returns array if valid JSON                                                                |
-  | `false`, `true`                                   | returns boolean                                                                            |
+  | input value                                       | return type                                                                                 |
+  |---------------------------------------------------|---------------------------------------------------------------------------------------------|
+  | (empty string)                                    | empty string will be returned as empty string or null (depends on second argument)          |
+  | `0`, `123`                                        | returns integer                                                                             |
+  | `0.1`, `0,1`                                      | returns float                                                                               |
+  | `0001423`                                         | returns unchanged string                                                                    |
+  | `TS:config.headerComment`                         | returns value from TypoScript (if path is valid) which is also processed by this function.  |
+  | `\Full\Qualified\ClassName::CONSTANT['arrayKey']` | returns value of constant which is also processed by this function.                         |
+  | `{...}`, `[...]`                                  | returns array if valid JSON                                                                 |
+  | `false`, `true`                                   | returns boolean                                                                             |
 
   - returns the string if no other format could be identified
 - explodeByLineBreaks: can be used to get the lines of a file or text field as array
