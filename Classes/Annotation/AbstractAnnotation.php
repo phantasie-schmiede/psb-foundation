@@ -41,14 +41,16 @@ abstract class AbstractAnnotation
                 $setterMethodName = 'set' . GeneralUtility::underscoredToUpperCamelCase($propertyName);
 
                 if ($reflectionClass->hasMethod($setterMethodName)) {
-                    /*
-                     * Remove comment artifacts if string value stretches across multiple lines.
-                     * Pattern: - linebreak
-                     *          - followed by any number of whitespaces
-                     *          - followed by *
-                     *          - followed by any number of whitespaces
-                     */
-                    $propertyValue = preg_replace('/(\r\n|\r|\n)\s*\*\s*/', ' ', $propertyValue);
+                    if (is_string($propertyValue)) {
+                        /*
+                         * Remove comment artifacts if string value stretches across multiple lines.
+                         * Pattern: - linebreak
+                         *          - followed by any number of whitespaces
+                         *          - followed by *
+                         *          - followed by any number of whitespaces
+                         */
+                        $propertyValue = preg_replace('/(\r\n|\r|\n)\s*\*\s*/', ' ', $propertyValue);
+                    }
 
                     $reflectionMethod = GeneralUtility::makeInstance(ReflectionMethod::class, $this, $setterMethodName);
                     $reflectionMethod->invoke($this, $propertyValue);
