@@ -622,7 +622,7 @@ class RegistrationService
                                 'ajax',
                                 $extensionInformation['vendorName'],
                                 $extensionInformation['extensionName'],
-                                $pageObjectConfiguration->getController(),
+                                str_replace('\\', '', $pageObjectConfiguration->getController()),
                                 $actionName,
                             ]));
                             $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);
