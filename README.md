@@ -541,7 +541,7 @@ Example (`'name' => 'custom'`):
 You don't have to provide all these icons. The icons for regular pages will be used as fallback.
 Your SVG-files should to be located in this directory: `EXT:your_extension/Resources/Public/Icons/`
 All icons in that directory will be registered by their name automatically.
-Unless `label` is defined, `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.yourPageTypeName` will be used.
+Unless `label` is defined, `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.yourPageTypeName` will be used.
 If that key doesn't exist, `name` will be transformed from "yourPageTypeName" to "Your page type name".
 
 ### Auto-registration of TypoScript-files

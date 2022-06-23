@@ -459,7 +459,7 @@ class RegistrationService
         string $extensionKey
     ): void {
         $table = 'pages';
-        $label = $configuration['label'] ?? 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.' . $configuration['name'];
+        $label = $configuration['label'] ?? 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.' . $configuration['name'];
 
         if (false === GeneralUtility::makeInstance(LocalizationService::class)->translationExists($label)) {
             $label = ucfirst(str_replace('_', ' ',

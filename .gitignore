@@ -1,4 +1,4 @@
-.Build/
-.idea/
-Build/testing-docker/.env
-composer.lock
+/*.idea/
+/.Build/
+/.phpunit.result.cache
+/composer.lock
