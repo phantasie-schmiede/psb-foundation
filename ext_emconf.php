@@ -9,7 +9,7 @@ $EM_CONF[$_EXTKEY] = [
         'conflicts' => [
         ],
         'depends'   => [
-            'php'   => '7.4',
+            'php'   => '8.1',
             'typo3' => '11.5.5-11.5.99',
         ],
         'suggests'  => [
@@ -18,5 +18,5 @@ $EM_CONF[$_EXTKEY] = [
     'description'      => 'Configuration framework for TYPO3 extension development',
     'state'            => 'stable',
     'title'            => 'PSbits | Foundation',
-    'version'          => '1.2.0',
+    'version'          => '2.0.0',
 ];
