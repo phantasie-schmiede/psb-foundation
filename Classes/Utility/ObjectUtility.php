@@ -30,7 +30,7 @@ class ObjectUtility
      *
      * @return bool|string
      */
-    public static function getFullQualifiedClassName(string $className, array $namespaces)
+    public static function getFullQualifiedClassName(string $className, array $namespaces): bool|string
     {
         if (class_exists($className)) {
             return $className;

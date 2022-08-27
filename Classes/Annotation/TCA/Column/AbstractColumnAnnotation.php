@@ -84,7 +84,7 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
      * @var mixed
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Default.html
      */
-    protected $default;
+    protected mixed $default = null;
 
     /**
      * @var string|null
@@ -96,7 +96,7 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
      * @var array|string|null
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
      */
-    protected $displayCond;
+    protected string|array|null $displayCond = null;
 
     /**
      * @var bool|null
@@ -160,7 +160,7 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
     /**
      * @return mixed
      */
-    public function getDefault()
+    public function getDefault(): mixed
     {
         return $this->default;
     }
@@ -176,7 +176,7 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
     /**
      * @return array|string|null
      */
-    public function getDisplayCond()
+    public function getDisplayCond(): array|string|null
     {
         return $this->displayCond;
     }
@@ -309,7 +309,7 @@ abstract class AbstractColumnAnnotation extends AbstractTcaAnnotation implements
      *
      * @return void
      */
-    public function setDisplayCond($displayCond): void
+    public function setDisplayCond(array|string|null $displayCond): void
     {
         $this->displayCond = $displayCond;
     }

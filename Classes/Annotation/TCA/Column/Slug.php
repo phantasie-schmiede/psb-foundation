@@ -23,7 +23,7 @@ class Slug extends AbstractColumnAnnotation
     /**
      * @var string
      */
-    protected $default = '';
+    protected mixed $default = '';
 
     /**
      * @var string

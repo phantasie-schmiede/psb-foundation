@@ -12,11 +12,16 @@ namespace PSB\PsbFoundation\Utility\Xml;
 
 use JsonException;
 use PSB\PsbFoundation\Utility\StringUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use SimpleXMLElement;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use function count;
+use function is_array;
+use function is_string;
 
 /**
  * Class XmlUtility
@@ -38,11 +43,13 @@ class XmlUtility
      * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
      * @param array                   $mapping
      *
-     * @return array|object
+     * @return object|array|string
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
-    public static function convertFromXml($xml, bool $sortAlphabetically = false, array $mapping = [])
+    public static function convertFromXml(SimpleXMLElement|string $xml, bool $sortAlphabetically = false, array $mapping = []): object|array|string
     {
         if (is_string($xml)) {
             $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
@@ -63,7 +70,7 @@ class XmlUtility
      * @return string
      */
     public static function convertToXml(
-        $data,
+        array|XmlElementInterface $data,
         bool $wellFormatted = true,
         int $indentationLevel = 0
     ): string {
@@ -71,7 +78,7 @@ class XmlUtility
         $siblings = [];
 
         if ($data instanceof XmlElementInterface) {
-            $data = [$data->getTagName() => $data->toArray()];
+            $data = [$data::getTagName() => $data->toArray()];
         }
 
         foreach ($data as $key => $value) {
@@ -122,7 +129,7 @@ class XmlUtility
      *
      * @return mixed
      */
-    public static function getNodeValue(array $array, string $path, bool $strict = true)
+    public static function getNodeValue(array $array, string $path, bool $strict = true): mixed
     {
         $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
 
@@ -164,7 +171,7 @@ class XmlUtility
      * @param string $path
      * @param mixed  $value
      */
-    public static function setNodeValue(array &$array, string $path, $value): void
+    public static function setNodeValue(array &$array, string $path, mixed $value): void
     {
         $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
         $array = ArrayUtility::setValueByPath($array, $path, $value, '.');
@@ -177,10 +184,12 @@ class XmlUtility
      * @param bool                    $rootLevel This is an internal parameter only to be set from within this function.
      *
      * @return array|object|string
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
-    private static function buildFromXml(bool $sortAlphabetically, $xml, array $mapping, bool $rootLevel = true)
+    private static function buildFromXml(bool $sortAlphabetically, SimpleXMLElement|string $xml, array $mapping, bool $rootLevel = true): object|array|string
     {
         if (is_string($xml)) {
             return $xml;
@@ -196,7 +205,7 @@ class XmlUtility
             $array[self::SPECIAL_KEYS['ATTRIBUTES']][$attributeName] = $value;
         }
 
-        $namespaces = $xml->getDocNamespaces();
+        $namespaces = $xml->getDocNamespaces() ?: [];
         $namespaces[] = '';
 
         foreach ($namespaces as $prefix => $namespace) {
@@ -323,8 +332,10 @@ class XmlUtility
      * @param SimpleXMLElement $node
      *
      * @return array
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     private static function parseTextNode(SimpleXMLElement $node): array
     {

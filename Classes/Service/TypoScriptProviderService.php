@@ -66,7 +66,7 @@ class TypoScriptProviderService
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
         string $extensionName = null,
         string $pluginName = null
-    ) {
+    ): mixed {
         $typoScript = $this->configurationManager->getConfiguration($configurationType, $extensionName, $pluginName);
         $typoScript = $this->typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
 
@@ -91,6 +91,8 @@ class TypoScriptProviderService
      * @param string|null $pluginName
      *
      * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function has(
         string $path,
@@ -102,7 +104,7 @@ class TypoScriptProviderService
             $this->get($path, $configurationType, $extensionName, $pluginName);
 
             return true;
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -113,12 +115,12 @@ class TypoScriptProviderService
      *
      * @return mixed
      */
-    private function getDemandedTypoScript(array $typoScript, string $path = null)
+    private function getDemandedTypoScript(array $typoScript, string $path = null): mixed
     {
         if (null !== $path) {
             try {
                 return ArrayUtility::getValueByPath($typoScript, $path, '.');
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562225431);
             }
         }

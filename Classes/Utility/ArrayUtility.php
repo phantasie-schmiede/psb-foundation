@@ -62,16 +62,16 @@ class ArrayUtility
      * @param bool  $returnIndex
      * @param bool  $searchForSubstring
      *
-     * @return bool|int
+     * @return bool|int|string
      */
     public static function inArrayRecursive(
         array $haystack,
-        $needle,
+        mixed $needle,
         bool $returnIndex = false,
         bool $searchForSubstring = false
-    ) {
+    ): bool|int|string {
         foreach ($haystack as $key => $value) {
-            if ($value === $needle || (true === $searchForSubstring && is_string($value) && false !== strpos($value,
+            if ($value === $needle || (true === $searchForSubstring && is_string($value) && str_contains($value,
                         $needle))) {
                 return $returnIndex ? $key : true;
             }

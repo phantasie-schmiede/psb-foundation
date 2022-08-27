@@ -99,7 +99,7 @@ class ExtensionInformationService
     public function getConfiguration(
         ExtensionInformationInterface $extensionInformation,
         string $path = ''
-    ) {
+    ): mixed {
         $path = str_replace('.', '/', $path);
         $extensionConfiguration = $this->extensionConfiguration->get($extensionInformation->getExtensionKey(), $path);
 

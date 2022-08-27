@@ -77,7 +77,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         try {
             $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey'],
                 $arguments['alternativeLanguageKeys']);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $value = null;
         }
 

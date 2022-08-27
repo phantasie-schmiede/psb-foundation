@@ -30,7 +30,7 @@ class Checkbox extends AbstractColumnAnnotation
      * @var int
      * @link https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Default.html
      */
-    protected $default = 0;
+    protected mixed $default = 0;
 
     /**
      * @var array

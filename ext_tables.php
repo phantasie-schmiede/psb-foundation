@@ -11,7 +11,7 @@ defined('TYPO3_MODE') or die();
     foreach ($allExtensionInformation as $extensionInformation) {
         $registrationService->registerModules($extensionInformation);
         $registrationService->registerPageTypes($extensionInformation,
-            $registrationService::PAGE_TYPE_REGISTRATION_MODES['EXT_TABLES']);
+            \PSB\PsbFoundation\Service\Configuration\RegistrationService::PAGE_TYPE_REGISTRATION_MODES['EXT_TABLES']);
         \PSB\PsbFoundation\Utility\Configuration\TcaUtility::registerNewTablesInGlobalTca($extensionInformation);
     }
 })();

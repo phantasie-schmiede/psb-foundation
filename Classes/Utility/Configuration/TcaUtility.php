@@ -214,7 +214,7 @@ class TcaUtility
          * following code and would raise an exception if we didn't exit here in this case.
          * @see TYPO3\CMS\Install\Controller\UpgradeController::extensionCompatTesterLoadExtTablesAction()
          */
-        if (null === $GLOBALS['TCA']) {
+        if (!isset($GLOBALS['TCA'])) {
             return;
         }
 
@@ -224,7 +224,7 @@ class TcaUtility
         });
 
         foreach ($newTables as $tableName) {
-            if (true === $GLOBALS['TCA'][$tableName]['ctrl']['allowTableOnStandardPages']) {
+            if (true === ($GLOBALS['TCA'][$tableName]['ctrl']['allowTableOnStandardPages'] ?? false)) {
                 ExtensionManagementUtility::allowTableOnStandardPages($tableName);
             }
 

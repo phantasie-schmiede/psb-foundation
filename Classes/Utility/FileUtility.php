@@ -14,6 +14,8 @@ use NumberFormatter;
 use RuntimeException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function is_int;
+use function is_string;
 
 /**
  * Class FileUtility
@@ -61,7 +63,7 @@ class FileUtility
      * @throws AspectNotFoundException
      */
     public static function formatFileSize(
-        $input,
+        int|string $input,
         int $unit = null,
         int $decimals = 2
     ): string {

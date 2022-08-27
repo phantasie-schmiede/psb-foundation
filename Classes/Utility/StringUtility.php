@@ -74,12 +74,12 @@ class StringUtility
         ?string $variable,
         bool $convertEmptyStringToNull = false,
         array $namespaces = []
-    ) {
+    ): mixed {
         if (null === $variable || ($convertEmptyStringToNull && '' === $variable)) {
             return null;
         }
 
-        if ('' === $variable || false !== mb_strpos($variable, '{#')) {
+        if ('' === $variable || str_contains($variable, '{#')) {
             // string is either empty or contains quoted query parameter
             return $variable;
         }
@@ -135,7 +135,7 @@ class StringUtility
                     try {
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
-                    } catch (Exception $exception) {
+                    } catch (Exception) {
                         throw new RuntimeException('Path "[' . implode('][',
                                 $pathSegments) . ']" does not exist in array!',
                             1548170593);
@@ -143,7 +143,7 @@ class StringUtility
                 }
 
                 // check for dot-notation of array path
-                if (false !== mb_strpos($constantName, '.')) {
+                if (str_contains($constantName, '.')) {
                     $pathSegments = explode('.', $constantName);
                     $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
                         return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
@@ -157,7 +157,7 @@ class StringUtility
                     try {
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
-                    } catch (Exception $exception) {
+                    } catch (Exception) {
                         throw new RuntimeException('Path "' . implode('.',
                                 $pathSegments) . '" does not exist in array!',
                             1589385393);
@@ -176,19 +176,16 @@ class StringUtility
                 if (null !== $decodedString) {
                     return $decodedString;
                 }
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 // The string is not valid JSON. Just continue.
             }
         }
 
-        switch ($variable) {
-            case 'true':
-                return true;
-            case 'false':
-                return false;
-            default:
-                return $variable;
-        }
+        return match ($variable) {
+            'true' => true,
+            'false' => false,
+            default => $variable,
+        };
     }
 
     /**
@@ -307,11 +304,11 @@ class StringUtility
     /**
      * @param string $string
      *
-     * @return array[]|false|string[]
+     * @return array
      */
-    public static function explodeByLineBreaks(string $string)
+    public static function explodeByLineBreaks(string $string): array
     {
-        return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string);
+        return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string) ?: [];
     }
 
     /**

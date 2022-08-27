@@ -259,7 +259,7 @@ class TypoScriptUtility
      *
      * @return string
      */
-    private static function processRemainingArray(int $indentationLevel, $key, array $value): string
+    private static function processRemainingArray(int $indentationLevel, int|string $key, array $value): string
     {
         $typoScript = '';
 

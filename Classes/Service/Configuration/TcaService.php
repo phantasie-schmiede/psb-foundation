@@ -368,7 +368,7 @@ class TcaService
                     ->files()
                     ->in(ExtensionManagementUtility::extPath($extensionInformation->getExtensionKey()) . 'Classes/Domain/Model')
                     ->name('*.php');
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
                 // No such directory in this extension
                 continue;
             }

@@ -338,7 +338,7 @@ class RegistrationService
                 if ('' !== $pluginConfig->getFlexForm()) {
                     $flexFormFilePath = $pluginConfig->getFlexForm();
 
-                    if (false === strpos($flexFormFilePath, 'EXT:')) {
+                    if (!str_contains($flexFormFilePath, 'EXT:')) {
                         $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $flexFormFilePath;
                     }
                 }
@@ -650,17 +650,17 @@ class RegistrationService
             }
         }
 
-        switch ($collectMode) {
-            case self::COLLECT_MODES['CONFIGURE_PLUGINS']:
-                return [$configuration, $controllersAndCachedActions, $controllersAndUncachedActions];
-            case self::COLLECT_MODES['REGISTER_MODULES']:
-                return [$configuration, $controllersAndCachedActions];
-            case self::COLLECT_MODES['REGISTER_PLUGINS']:
-                return [$configuration];
-            default:
-                throw new InvalidArgumentException(__CLASS__ . ': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "' . $collectMode . '"!',
-                    1559627862);
-        }
+        return match ($collectMode) {
+            self::COLLECT_MODES['CONFIGURE_PLUGINS'] => [
+                $configuration,
+                $controllersAndCachedActions,
+                $controllersAndUncachedActions
+            ],
+            self::COLLECT_MODES['REGISTER_MODULES'] => [$configuration, $controllersAndCachedActions],
+            self::COLLECT_MODES['REGISTER_PLUGINS'] => [$configuration],
+            default => throw new InvalidArgumentException(__CLASS__ . ': $collectMode has to be a value defined in the constant COLLECT_MODES, but was "' . $collectMode . '"!',
+                1559627862),
+        };
     }
 
     /**

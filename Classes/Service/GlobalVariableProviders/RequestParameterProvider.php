@@ -36,7 +36,7 @@ class RequestParameterProvider extends AbstractProvider
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    public static function getRequestParameter(string $key, bool $strict = false)
+    public static function getRequestParameter(string $key, bool $strict = false): mixed
     {
         return VariableUtility::getValueByPath(self::getRequestParameters(), $key, $strict);
     }

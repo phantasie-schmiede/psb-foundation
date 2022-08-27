@@ -40,13 +40,13 @@ class GlobalVariableService
      *
      * @return mixed
      */
-    public static function get(string $path)
+    public static function get(string $path): mixed
     {
         $globalVariables = self::$cachedVariables;
 
         try {
             return VariableUtility::getValueByPath($globalVariables, $path);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Do nothing.
         }
 
@@ -84,7 +84,7 @@ class GlobalVariableService
             self::get($path);
 
             return true;
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
     }

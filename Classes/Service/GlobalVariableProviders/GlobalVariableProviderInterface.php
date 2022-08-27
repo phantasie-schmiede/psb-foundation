@@ -20,7 +20,7 @@ interface GlobalVariableProviderInterface
     /**
      * @return mixed
      */
-    public function getGlobalVariables();
+    public function getGlobalVariables(): mixed;
 
     /**
      * When returned data may change during the request, set function's return value to false. This function is

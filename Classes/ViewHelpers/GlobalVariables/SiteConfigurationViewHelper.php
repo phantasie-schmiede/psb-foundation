@@ -32,7 +32,7 @@ class SiteConfigurationViewHelper extends AbstractGlobalVariablesViewHelper
         array $arguments,
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ) {
+    ): mixed {
         return parent::getVariable(SiteConfigurationProvider::class, $arguments);
     }
 }

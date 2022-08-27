@@ -30,7 +30,7 @@ interface XmlElementInterface
     /**
      * @return mixed
      */
-    public function _getNodeValue();
+    public function _getNodeValue(): mixed;
 
     /**
      * @return int|null

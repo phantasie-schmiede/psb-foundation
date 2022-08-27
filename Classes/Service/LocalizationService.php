@@ -79,7 +79,7 @@ class LocalizationService
      * @see \TYPO3\CMS\Extbase\Utility\LocalizationUtility
      */
     public function translate(
-        $key,
+        string $key,
         string $extensionName = null,
         array $arguments = null,
         string $languageKey = null,

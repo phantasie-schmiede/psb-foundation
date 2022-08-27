@@ -12,6 +12,9 @@ namespace PSB\PsbFoundation\Utility;
 
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function array_key_exists;
+use function is_array;
+use function is_object;
 
 /**
  * Class VariableUtility
@@ -21,14 +24,14 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class VariableUtility
 {
     /**
-     * @param array|object $variable
+     * @param object|array $variable
      * @param string       $path
      * @param bool         $strict If set to false this function will return null if path does not exist.
      * @param string       $delimiter
      *
      * @return mixed
      */
-    public static function getValueByPath($variable, string $path, bool $strict = true, string $delimiter = '.')
+    public static function getValueByPath(object|array $variable, string $path, bool $strict = true, string $delimiter = '.'): mixed
     {
         $pathSegments = GeneralUtility::trimExplode($delimiter, $path);
         $value = $variable;

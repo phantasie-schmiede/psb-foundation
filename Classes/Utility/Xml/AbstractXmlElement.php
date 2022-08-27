@@ -101,7 +101,7 @@ class AbstractXmlElement implements XmlElementInterface
     /**
      * @return mixed|null
      */
-    public function _getNodeValue()
+    public function _getNodeValue(): mixed
     {
         return $this->_nodeValue[0] ?? null;
     }
