@@ -39,9 +39,11 @@ use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 use function array_slice;
+use function get_class;
 use function in_array;
 use function is_array;
 
@@ -309,6 +311,21 @@ class TcaService
         }
 
         $GLOBALS['TCA'][$this->tableName]['palettes'][$identifier] = $paletteConfiguration;
+    }
+
+    /**
+     * @param AbstractEntity $domainModel
+     * @param string         $property
+     *
+     * @return array
+     */
+    public function getConfigurationForPropertyOfDomainModel(AbstractEntity $domainModel, string $property): array
+    {
+        $tablename = $this->convertClassNameToTableName(get_class($domainModel));
+        $property = $this->convertPropertyNameToColumnName($property);
+
+        return $GLOBALS['TCA'][$tablename]['columns'][$property] ?? throw new RuntimeException(__CLASS__ . ': "' . $property . '" is not defined for table "' . $tablename . '"!',
+            1660914340);
     }
 
     /**

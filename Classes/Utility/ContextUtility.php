@@ -20,6 +20,7 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Request;
 
 /**
  * Class ContextUtility
@@ -30,6 +31,9 @@ class ContextUtility
 {
     public const DEFAULT_LANGUAGE_KEY = 'en';
 
+    /**
+     * @return string
+     */
     public static function getCurrentBackendLanguage(): string
     {
         ValidationUtility::requiresBackendContext();
@@ -73,6 +77,16 @@ class ContextUtility
         }
 
         return self::DEFAULT_LANGUAGE_KEY;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return string
+     */
+    public static function getPluginSignatureFromRequest(Request $request): string
+    {
+        return strtolower('tx_' . $request->getControllerExtensionName() . '_' . $request->getPluginName());
     }
 
     /**
