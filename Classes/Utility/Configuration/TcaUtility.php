@@ -224,7 +224,7 @@ class TcaUtility
         });
 
         foreach ($newTables as $tableName) {
-            if (true === $GLOBALS['TCA'][$tableName]['ctrl']['allowTableOnStandardPages']) {
+            if (true === ($GLOBALS['TCA'][$tableName]['ctrl']['allowTableOnStandardPages'] ?? null)) {
                 ExtensionManagementUtility::allowTableOnStandardPages($tableName);
             }
 
