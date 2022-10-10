@@ -10,14 +10,15 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
-use PSB\PsbFoundation\Annotation\TCA\Column\Mm;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Mm;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
+use PSB\PsbFoundation\Utility\ReflectionUtility;
 use ReflectionClass;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
+use function get_class;
 
 /**
  * Class ObjectService
@@ -44,10 +45,8 @@ class ObjectService
         $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $object);
         $reflectionProperty = $reflectionClass->getProperty($property);
 
-        $annotationReader = new AnnotationReader();
-
         /** @var Mm|null $mm */
-        $mm = $annotationReader->getPropertyAnnotation($reflectionProperty, Mm::class);
+        $mm = ReflectionUtility::getAttributeInstance(Mm::class, $reflectionProperty);
 
         if (null === $mm) {
             throw new RuntimeException(__CLASS__ . ': The property "' . $property . '" of object "' . get_class($object) . '" is not of TCA type mm!',
@@ -65,13 +64,10 @@ class ObjectService
 
         // Get all mm-relation entries.
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($mm->getMm());
-        $statement = $queryBuilder
-            ->select('uid_foreign')
+        $statement = $queryBuilder->select('uid_foreign')
             ->from($mm->getMm())
-            ->where(
-                $queryBuilder->expr()
-                    ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid()))
-            )
+            ->where($queryBuilder->expr()
+                ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid())))
             ->orderBy('sorting')
             ->execute();
 

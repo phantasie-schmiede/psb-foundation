@@ -11,21 +11,20 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\Configuration;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\IndexedReader;
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Annotation\ModuleAction;
-use PSB\PsbFoundation\Annotation\ModuleConfig;
-use PSB\PsbFoundation\Annotation\PageType;
-use PSB\PsbFoundation\Annotation\PluginAction;
-use PSB\PsbFoundation\Annotation\PluginConfig;
+use PSB\PsbFoundation\Attribute\ModuleAction;
+use PSB\PsbFoundation\Attribute\ModuleConfig;
+use PSB\PsbFoundation\Attribute\PageType;
+use PSB\PsbFoundation\Attribute\PluginAction;
+use PSB\PsbFoundation\Attribute\PluginConfig;
 use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Traits\PropertyInjection\FlexFormServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\IconRegistryTrait;
+use PSB\PsbFoundation\Utility\ReflectionUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
@@ -41,6 +40,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 use function in_array;
+use function is_int;
 
 /**
  * Class RegistrationService
@@ -540,7 +540,6 @@ class RegistrationService
         $configuration = [];
         $controllersAndCachedActions = [];
         $controllersAndUncachedActions = [];
-        $annotationReader = new IndexedReader(new AnnotationReader());
         $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
 
         foreach ($controllerCollection as $key => $value) {
@@ -574,13 +573,8 @@ class RegistrationService
                         continue;
                     }
 
-                    /** @var ModuleAction|null $moduleAction */
-                    $docComment = $annotationReader->getMethodAnnotations($method);
-
-                    if (isset($docComment[ModuleAction::class])) {
+                    if ($action = ReflectionUtility::getAttributeInstance(ModuleAction::class, $method)) {
                         /** @var ModuleAction $action */
-                        $action = $docComment[ModuleAction::class];
-
                         if (true === $action->isDefault()) {
                             array_unshift($controllersAndCachedActions[$controllerClassName],
                                 $actionName);
@@ -589,10 +583,8 @@ class RegistrationService
                         }
                     }
 
-                    if (isset($docComment[PluginAction::class])) {
+                    if ($action = ReflectionUtility::getAttributeInstance(PluginAction::class, $method)) {
                         /** @var PluginAction $action */
-                        $action = $docComment[PluginAction::class];
-
                         if (true === $action->isDefault()) {
                             array_unshift($controllersAndCachedActions[$controllerClassName],
                                 $actionName);
@@ -605,10 +597,9 @@ class RegistrationService
                             $controllersAndUncachedActions[$controllerClassName][] = $actionName;
                         }
 
-                        if (isset($docComment[PageType::class])) {
-                            $extensionInformation = $extensionInformationService->extractExtensionInformationFromClassName($controllerClassName);
+                        if ($pageType = ReflectionUtility::getAttributeInstance(PageType::class, $method)) {
                             /** @var PageType $pageType */
-                            $pageType = $docComment[PageType::class];
+                            $extensionInformation = $extensionInformationService->extractExtensionInformationFromClassName($controllerClassName);
                             $pageObjectConfiguration = GeneralUtility::makeInstance(PageObjectConfiguration::class);
                             $pageObjectConfiguration->setAction($actionName);
                             $pageObjectConfiguration->setCacheable($pageType->isCacheable());
@@ -634,7 +625,7 @@ class RegistrationService
             }
 
             Typo3CoreArrayUtility::mergeRecursiveWithOverrule($configuration,
-                $annotationReader->getClassAnnotations($controller));
+                ReflectionUtility::getAttributeInstance(PluginConfig::class, $controller)?->toArray());
             unset($specifiedActions);
         }
 

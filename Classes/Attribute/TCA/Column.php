@@ -8,9 +8,9 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
+namespace PSB\PsbFoundation\Attribute\TCA;
 
-use PSB\PsbFoundation\Attribute\TCA\AbstractTcaAttribute;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeInterface;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -130,7 +130,6 @@ abstract class Column extends AbstractTcaAttribute
         return $this->label;
     }
 
-
     /**
      * @return string|null
      */
@@ -188,6 +187,14 @@ abstract class Column extends AbstractTcaAttribute
     public function isReadOnly(): ?bool
     {
         return $this->readOnly;
+    }
+
+    /**
+     * @param string $label
+     */
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
     }
 
     /**

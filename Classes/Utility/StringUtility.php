@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility;
 
+use DateTime;
 use Exception;
 use JsonException;
 use NumberFormatter;
@@ -73,7 +74,7 @@ class StringUtility
     public static function convertString(
         ?string $variable,
         bool $convertEmptyStringToNull = false,
-        array $namespaces = []
+        array $namespaces = [],
     ): mixed {
         if (null === $variable || ($convertEmptyStringToNull && '' === $variable)) {
             return null;
@@ -136,7 +137,7 @@ class StringUtility
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
                     } catch (Exception) {
-                        throw new RuntimeException('Path "[' . implode('][',
+                        throw new RuntimeException(__CLASS__ . ': Path "[' . implode('][',
                                 $pathSegments) . ']" does not exist in array!',
                             1548170593);
                     }
@@ -189,6 +190,22 @@ class StringUtility
     }
 
     /**
+     * @param string $dateTimeString
+     *
+     * @return DateTime
+     */
+    public static function convertToDateTime(string $dateTimeString): DateTime
+    {
+        $timestamp = strtotime($dateTimeString);
+
+        if (false === $timestamp) {
+            throw new RuntimeException(__CLASS__ . ': String cannot be converted to DateTime!', 1664888951);
+        }
+
+        return (new DateTime())->setTimestamp($timestamp);
+    }
+
+    /**
      * @param string $variable
      *
      * @return float
@@ -212,7 +229,7 @@ class StringUtility
         int $length,
         string $appendix = '…',
         bool $respectWordBoundaries = true,
-        bool $respectHtml = true
+        bool $respectHtml = true,
     ): string {
         if (mb_strlen($string) <= $length) {
             return $string;
@@ -308,7 +325,7 @@ class StringUtility
      */
     public static function explodeByLineBreaks(string $string): array
     {
-        return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string) ?: [];
+        return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string) ? : [];
     }
 
     /**

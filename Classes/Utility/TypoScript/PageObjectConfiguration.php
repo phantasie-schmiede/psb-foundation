@@ -14,6 +14,8 @@ use InvalidArgumentException;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function array_slice;
+use function count;
 
 /**
  * Class PageObjectConfiguration
@@ -23,13 +25,11 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class PageObjectConfiguration
 {
     public const CONTENT_TYPES     = [
-        'HTML' => self::CONTENT_TYPE_HTML,
-        'JSON' => self::CONTENT_TYPE_JSON,
-        'XML'  => self::CONTENT_TYPE_XML,
+        'HTML' => 'text/html',
+        'JSON' => 'application/json',
+        'XML'  => 'text/xml',
     ];
-    public const CONTENT_TYPE_HTML = 'text/html';
-    public const CONTENT_TYPE_JSON = 'application/json';
-    public const CONTENT_TYPE_XML  = 'text/xml';
+
     /**
      * @var string
      */

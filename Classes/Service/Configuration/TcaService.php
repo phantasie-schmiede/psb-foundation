@@ -10,23 +10,21 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\Configuration;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Annotation\TCA\Column\AbstractColumnAnnotation;
-use PSB\PsbFoundation\Annotation\TCA\Column\AbstractFalColumnAnnotation;
-use PSB\PsbFoundation\Annotation\TCA\Column\Checkbox;
-use PSB\PsbFoundation\Annotation\TCA\Column\Select;
-use PSB\PsbFoundation\Annotation\TCA\Column\TcaAnnotationInterface;
-use PSB\PsbFoundation\Annotation\TCA\Ctrl;
-use PSB\PsbFoundation\Annotation\TCA\Palette;
-use PSB\PsbFoundation\Annotation\TCA\Tab;
+use PSB\PsbFoundation\Attribute\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Checkbox;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
+use PSB\PsbFoundation\Attribute\TCA\Ctrl;
+use PSB\PsbFoundation\Attribute\TCA\Palette;
+use PSB\PsbFoundation\Attribute\TCA\Tab;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
+use PSB\PsbFoundation\Utility\ReflectionUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -149,27 +147,23 @@ class TcaService
     {
         $this->checkIfTableNameIsSet();
 
-        if ('' !== $position && false !== mb_strpos($position, ':')) {
+        if ('' !== $position && str_contains($position, ':')) {
             [$keyword, $referenceField] = GeneralUtility::trimExplode(':', $position);
 
             switch ($keyword) {
                 case Palette::SPECIAL_POSITIONS['NEW_LINE_AFTER']:
-                    $position = AbstractColumnAnnotation::POSITIONS['AFTER'] . ':' . $referenceField;
+                    $position = Column::POSITIONS['AFTER'] . ':' . $referenceField;
                     array_unshift($fieldNames, Palette::SPECIAL_FIELDS['LINE_BREAK']);
                     break;
                 case Palette::SPECIAL_POSITIONS['NEW_LINE_BEFORE']:
-                    $position = AbstractColumnAnnotation::POSITIONS['BEFORE'] . ':' . $referenceField;
+                    $position = Column::POSITIONS['BEFORE'] . ':' . $referenceField;
                     $fieldNames[] = Palette::SPECIAL_FIELDS['LINE_BREAK'];
                     break;
             }
         }
 
-        ExtensionManagementUtility::addFieldsToPalette(
-            $this->tableName,
-            $identifier,
-            implode(', ', $fieldNames),
-            $position
-        );
+        ExtensionManagementUtility::addFieldsToPalette($this->tableName, $identifier, implode(', ', $fieldNames),
+            $position);
     }
 
     /**
@@ -363,7 +357,7 @@ class TcaService
      */
     public function setTableName(string $classOrTableName): void
     {
-        if (false !== mb_strpos($classOrTableName, '\\')) {
+        if (str_contains($classOrTableName, '\\')) {
             $classOrTableName = $this->convertClassNameToTableName($classOrTableName);
         }
 
@@ -392,14 +386,11 @@ class TcaService
 
             /** @var SplFileInfo $fileInfo */
             foreach ($finder as $fileInfo) {
-                $classNameComponents = array_merge(
-                    [
-                        $extensionInformation->getVendorName(),
-                        $extensionInformation->getExtensionName(),
-                        'Domain\Model',
-                    ],
-                    explode('/', substr($fileInfo->getRelativePathname(), 0, -4))
-                );
+                $classNameComponents = array_merge([
+                    $extensionInformation->getVendorName(),
+                    $extensionInformation->getExtensionName(),
+                    'Domain\Model',
+                ], explode('/', substr($fileInfo->getRelativePathname(), 0, -4)));
 
                 $fullQualifiedClassName = implode('\\', $classNameComponents);
 
@@ -439,11 +430,10 @@ class TcaService
      */
     protected function buildFromDocComment(string $className, bool $overrideMode): void
     {
-        $annotationReader = new AnnotationReader();
         $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
 
         /** @var Ctrl|null $ctrl */
-        $ctrl = $annotationReader->getClassAnnotation($reflection, Ctrl::class);
+        $ctrl = ReflectionUtility::getAttributeInstance(Ctrl::class, $reflection);
 
         if (!$overrideMode && null === $ctrl) {
             // @TODO: emit warning?
@@ -460,10 +450,10 @@ class TcaService
         $this->defaultLabelPath .= lcfirst($reflection->getShortName()) . '.xlf:';
         $this->palettes = [];
 
-        foreach ($annotationReader->getClassAnnotations($reflection) as $annotation) {
-            if ($annotation instanceof Palette) {
-                $this->palettes[$annotation->getIdentifier()] = $annotation;
-            }
+        foreach ($reflection->getAttributes(Palette::class) as $attribute) {
+            /** @var Palette $paletteConfiguration */
+            $paletteConfiguration = $attribute->newInstance();
+            $this->palettes[$paletteConfiguration->getIdentifier()] = $paletteConfiguration;
         }
 
         /** @var Palette $palette */
@@ -473,39 +463,33 @@ class TcaService
 
         $this->tabs = [];
 
-        foreach ($annotationReader->getClassAnnotations($reflection) as $annotation) {
-            if ($annotation instanceof Tab) {
-                $this->tabs[$annotation->getIdentifier()] = $annotation;
-            }
+        foreach ($reflection->getAttributes(Tab::class) as $attribute) {
+            $tabConfiguration = $attribute->newInstance();
+            $this->tabs[$tabConfiguration->getIdentifier()] = $tabConfiguration;
         }
 
         $properties = $reflection->getProperties();
         $columnConfigurations = [];
 
         foreach ($properties as $property) {
-            $docComment = $annotationReader->getPropertyAnnotations($property);
+            /** @var Column $attribute */
+            $attribute = ReflectionUtility::getAttributeInstance(Column::class, $property);
+            $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
-            foreach ($docComment as $annotation) {
-                if ($annotation instanceof TcaAnnotationInterface) {
-                    $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
-
-                    if ('' === $annotation->getLabel()) {
-                        $label = $this->defaultLabelPath . $property->getName();
-                        $this->localizationService->translationExists($label);
-                        $annotation->setLabel($label);
-                    }
-
-                    if (($annotation instanceof Checkbox || $annotation instanceof Select)
-                        && null !== $annotation->getItems()
-                        && ArrayUtility::isAssociative($annotation->getItems()
-                        )) {
-                        $annotation->setItems($this->processSelectItemsArray($annotation->getItems(),
-                            $this->defaultLabelPath . $property->getName() . '.'));
-                    }
-
-                    $columnConfigurations[$columnName] = $annotation;
-                }
+            if ('' === $attribute->getLabel()) {
+                $label = $this->defaultLabelPath . $property->getName();
+                $this->localizationService->translationExists($label);
+                $attribute->setLabel($label);
             }
+
+            $configuration = $attribute->getConfiguration();
+
+            if (($configuration instanceof Checkbox || $configuration instanceof Select) && null !== $configuration->getItems() && ArrayUtility::isAssociative($configuration->getItems())) {
+                $configuration->setItems($this->processSelectItemsArray($configuration->getItems(),
+                    $this->defaultLabelPath . $property->getName() . '.'));
+            }
+
+            $columnConfigurations[$columnName] = $attribute;
         }
 
         if ([] === $columnConfigurations) {
@@ -516,7 +500,7 @@ class TcaService
         if (!$overrideMode) {
             $this->initializeDummyConfiguration($ctrl, $this->tableName);
 
-            // default title may be overwritten by Ctrl-annotation in next block
+            // default title may be overwritten by Ctrl-attribute in next block
             $title = $this->defaultLabelPath . 'ctrl.title';
             $this->localizationService->translationExists($title);
             $GLOBALS['TCA'][$this->tableName]['ctrl']['title'] = $title;
@@ -526,8 +510,10 @@ class TcaService
             $ctrlProperties = $ctrl->toArray();
 
             if ($overrideMode) {
-                $ctrlProperties = array_filter($ctrlProperties, static function ($key) use ($ctrl) {
-                    return in_array($key, $ctrl->_getSetProperties(), true);
+                $ctrlProperties = array_filter($ctrlProperties, static function ($key) use ($reflection) {
+                    $setArguments = $reflection->getAttributes(Ctrl::class)[0]->getArguments();
+
+                    return in_array($key, $setArguments, true);
                 }, ARRAY_FILTER_USE_KEY);
             }
 
@@ -543,22 +529,15 @@ class TcaService
         while (!empty($columnConfigurations)) {
             $newColumnAddedToTypes = false;
 
-            foreach ($columnConfigurations as $columnName => $annotation) {
-                $columnHasBeenAdded = $this->addFieldIfAlreadyPossible($annotation, $columnName);
+            foreach ($columnConfigurations as $columnName => $attribute) {
+                $columnHasBeenAdded = $this->addFieldIfAlreadyPossible($attribute, $columnName);
 
                 if (true === $columnHasBeenAdded) {
                     $newColumnAddedToTypes = true;
                 }
 
-                if (true === $columnHasBeenAdded
-                    || AbstractColumnAnnotation::TYPE_LIST_NONE === $annotation->getTypeList()
-                ) {
-                    if ($annotation instanceof AbstractFalColumnAnnotation) {
-                        $columnConfiguration = $annotation->toArray($columnName);
-                    } else {
-                        $columnConfiguration = $annotation->toArray();
-                    }
-
+                if (true === $columnHasBeenAdded || Column::TYPE_LIST_NONE === $attribute->getTypeList()) {
+                    $columnConfiguration = $attribute->toArray();
                     ExtensionManagementUtility::addTCAcolumns($this->tableName, [$columnName => $columnConfiguration]);
                     unset($columnConfigurations[$columnName]);
                 }
@@ -566,8 +545,7 @@ class TcaService
 
             if (false === $newColumnAddedToTypes) {
                 throw new RuntimeException(__CLASS__ . ': Position relations create a loop! Please remove unnecessary specifications. The combination fieldA:position="before:fieldB" and fieldB:position="after:fieldA" would cause this error. The unresolved fields are: ' . implode(', ',
-                        array_keys($columnConfigurations)),
-                    1646995607);
+                        array_keys($columnConfigurations)), 1646995607);
             }
         }
 
@@ -584,17 +562,12 @@ class TcaService
             $disabledColumn = $ctrl->getEnablecolumns()[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']];
         }
 
-        if (isset($disabledColumn)
-            || true === $this->paletteExists(self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'])
-        ) {
+        if (isset($disabledColumn) || true === $this->paletteExists(self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'])) {
             $this->addTabToShowItems(TcaUtility::CORE_TAB_LABELS['ACCESS']);
         }
 
         if (isset($disabledColumn)) {
-            ExtensionManagementUtility::addToAllTCAtypes(
-                $this->tableName,
-                $disabledColumn
-            );
+            ExtensionManagementUtility::addToAllTCAtypes($this->tableName, $disabledColumn);
         }
 
         if (true === $this->paletteExists(self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'])) {
@@ -608,8 +581,8 @@ class TcaService
      * This method resolves position-dependencies and only adds the field (and palette or tab) if all requirements are
      * met.
      *
-     * @param TcaAnnotationInterface $annotation
-     * @param string                 $columnName
+     * @param Column $attribute
+     * @param string $columnName
      *
      * @return bool returns true if the field could be added to TCA
      * @throws ExtensionConfigurationExtensionNotConfiguredException
@@ -617,16 +590,16 @@ class TcaService
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
-    private function addFieldIfAlreadyPossible(TcaAnnotationInterface $annotation, string $columnName): bool
+    private function addFieldIfAlreadyPossible(Column $attribute, string $columnName): bool
     {
         $fieldCanBeAdded = false;
         $newPaletteIdentifier = null;
         $newTabIdentifier = null;
-        $position = $annotation->getPosition();
+        $position = $attribute->getPosition();
         $types = $GLOBALS['TCA'][$this->tableName]['types'];
 
-        if ('' !== $annotation->getTypeList()) {
-            $typeList = GeneralUtility::trimExplode(',', $annotation->getTypeList());
+        if ('' !== $attribute->getTypeList()) {
+            $typeList = GeneralUtility::trimExplode(',', $attribute->getTypeList());
             $types = array_filter($types, static function ($typeIdentifier) use ($typeList) {
                 return in_array($typeIdentifier, $typeList, true);
             }, ARRAY_FILTER_USE_KEY);
@@ -635,10 +608,10 @@ class TcaService
         if ('' === $position) {
             $fieldCanBeAdded = true;
         } else {
-            [$keyword, $referenceField] = GeneralUtility::trimExplode(':', $annotation->getPosition());
+            [$keyword, $referenceField] = GeneralUtility::trimExplode(':', $attribute->getPosition());
 
             switch ($keyword) {
-                case AbstractColumnAnnotation::POSITIONS['PALETTE']:
+                case Column::POSITIONS['PALETTE']:
                     $newPaletteIdentifier = $referenceField;
 
                     if (!isset($this->palettes[$referenceField]) || '' === $this->palettes[$referenceField]->getPosition()) {
@@ -654,7 +627,7 @@ class TcaService
                     [$paletteKeyword, $referenceField] = GeneralUtility::trimExplode(':',
                         $this->palettes[$referenceField]->getPosition());
 
-                    if (AbstractColumnAnnotation::POSITIONS['TAB'] === $paletteKeyword) {
+                    if (Column::POSITIONS['TAB'] === $paletteKeyword) {
                         $newTabIdentifier = $referenceField;
 
                         if (!isset($this->tabs[$referenceField]) || '' === $this->tabs[$referenceField]->getPosition()) {
@@ -668,7 +641,7 @@ class TcaService
                     }
 
                     break;
-                case AbstractColumnAnnotation::POSITIONS['TAB']:
+                case Column::POSITIONS['TAB']:
                     $newTabIdentifier = $referenceField;
 
                     if (!isset($this->tabs[$referenceField]) || '' === $this->tabs[$referenceField]->getPosition()) {
@@ -680,11 +653,11 @@ class TcaService
                     [, $referenceField] = GeneralUtility::trimExplode(':', $this->tabs[$referenceField]->getPosition());
                     break;
                 case Palette::SPECIAL_POSITIONS['NEW_LINE_AFTER']:
-                    $position = AbstractColumnAnnotation::POSITIONS['AFTER'] . ':' . $referenceField;
+                    $position = Column::POSITIONS['AFTER'] . ':' . $referenceField;
                     $columnName = Palette::SPECIAL_FIELDS['LINE_BREAK'] . ',' . $columnName;
                     break;
                 case Palette::SPECIAL_POSITIONS['NEW_LINE_BEFORE']:
-                    $position = AbstractColumnAnnotation::POSITIONS['BEFORE'] . ':' . $referenceField;
+                    $position = Column::POSITIONS['BEFORE'] . ':' . $referenceField;
                     $columnName .= ',' . Palette::SPECIAL_FIELDS['LINE_BREAK'];
                     break;
             }
@@ -725,20 +698,16 @@ class TcaService
 
         if (true === $fieldCanBeAdded) {
             if (null !== $newTabIdentifier) {
-                $tabDefinition = $this->addTabToShowItems($newTabIdentifier, $annotation->getTypeList());
-                $position = AbstractColumnAnnotation::POSITIONS['AFTER'] . ':' . $tabDefinition;
+                $tabDefinition = $this->addTabToShowItems($newTabIdentifier, $attribute->getTypeList());
+                $position = Column::POSITIONS['AFTER'] . ':' . $tabDefinition;
             }
 
             if (null !== $newPaletteIdentifier) {
                 $this->addToPalette($newPaletteIdentifier, [$columnName]);
-                $this->addPaletteToShowItems($newPaletteIdentifier, $annotation->getTypeList());
+                $this->addPaletteToShowItems($newPaletteIdentifier, $attribute->getTypeList());
             } else {
-                ExtensionManagementUtility::addToAllTCAtypes(
-                    $this->tableName,
-                    $columnName,
-                    $annotation->getTypeList(),
-                    $position
-                );
+                ExtensionManagementUtility::addToAllTCAtypes($this->tableName, $columnName, $attribute->getTypeList(),
+                    $position);
             }
         }
 
@@ -757,12 +726,8 @@ class TcaService
             $palettePosition = $this->palettes[$paletteIdentifier]->getPosition();
         }
 
-        ExtensionManagementUtility::addToAllTCAtypes(
-            $this->tableName,
-            '--palette--;;' . $paletteIdentifier,
-            $typeList,
-            $palettePosition ?? ''
-        );
+        ExtensionManagementUtility::addToAllTCAtypes($this->tableName, '--palette--;;' . $paletteIdentifier, $typeList,
+            $palettePosition ?? '');
     }
 
     /**
@@ -793,12 +758,7 @@ class TcaService
         }
 
         $tabDefinition = '--div--;' . $label;
-        ExtensionManagementUtility::addToAllTCAtypes(
-            $this->tableName,
-            $tabDefinition,
-            $typeList,
-            $tabPosition ?? ''
-        );
+        ExtensionManagementUtility::addToAllTCAtypes($this->tableName, $tabDefinition, $typeList, $tabPosition ?? '');
 
         return $tabDefinition;
     }
@@ -823,59 +783,45 @@ class TcaService
 
         if (is_array($enableColumns)) {
             if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']])) {
-                $this->addColumnConfiguration(
-                    $enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']],
-                    TcaUtility::getDefaultConfigurationForDisabledField()
-                );
+                $this->addColumnConfiguration($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']],
+                    TcaUtility::getDefaultConfigurationForDisabledField());
             }
 
             if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']])) {
-                $this->addColumnConfiguration(
-                    $enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']],
-                    TcaUtility::getDefaultConfigurationForStartTimeField()
-                );
+                $this->addColumnConfiguration($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']],
+                    TcaUtility::getDefaultConfigurationForStartTimeField());
                 $this->addToPalette(self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'],
                     [$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']]]);
             }
 
             if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']])) {
-                $this->addColumnConfiguration(
-                    $enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']],
-                    TcaUtility::getDefaultConfigurationForEndTimeField()
-                );
+                $this->addColumnConfiguration($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']],
+                    TcaUtility::getDefaultConfigurationForEndTimeField());
                 $this->addToPalette(self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'],
                     [$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']]]);
             }
         }
 
         if (!empty($ctrl->getLanguageField())) {
-            $this->addColumnConfiguration(
-                $ctrl->getLanguageField(),
-                TcaUtility::getDefaultConfigurationForLanguageField()
-            );
+            $this->addColumnConfiguration($ctrl->getLanguageField(),
+                TcaUtility::getDefaultConfigurationForLanguageField());
             $this->addToPalette(self::PALETTE_IDENTIFIERS['LANGUAGE'], [$ctrl->getLanguageField()]);
         }
 
         if (!empty($ctrl->getTransOrigPointerField())) {
-            $this->addColumnConfiguration(
-                $ctrl->getTransOrigPointerField(),
-                TcaUtility::getDefaultConfigurationForTransOrigPointerField($tableName)
-            );
+            $this->addColumnConfiguration($ctrl->getTransOrigPointerField(),
+                TcaUtility::getDefaultConfigurationForTransOrigPointerField($tableName));
             $this->addToPalette(self::PALETTE_IDENTIFIERS['LANGUAGE'], [$ctrl->getTransOrigPointerField()]);
         }
 
         if (!empty($ctrl->getTransOrigDiffSourceField())) {
-            $this->addColumnConfiguration(
-                $ctrl->getTransOrigDiffSourceField(),
-                TcaUtility::getDefaultConfigurationForTransOrigDiffSourceField()
-            );
+            $this->addColumnConfiguration($ctrl->getTransOrigDiffSourceField(),
+                TcaUtility::getDefaultConfigurationForTransOrigDiffSourceField());
         }
 
         if (!empty($ctrl->getTranslationSource())) {
-            $this->addColumnConfiguration(
-                $ctrl->getTranslationSource(),
-                TcaUtility::getDefaultConfigurationForTranslationSourceField()
-            );
+            $this->addColumnConfiguration($ctrl->getTranslationSource(),
+                TcaUtility::getDefaultConfigurationForTranslationSourceField());
         }
     }
 

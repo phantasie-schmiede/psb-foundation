@@ -58,4 +58,12 @@ class Checkbox extends AbstractColumnType
     {
         return $this->renderType;
     }
+
+    /**
+     * @param array $items
+     */
+    public function setItems(array $items): void
+    {
+        $this->items = $items;
+    }
 }

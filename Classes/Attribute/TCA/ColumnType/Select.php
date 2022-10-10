@@ -298,4 +298,12 @@ class Select extends AbstractColumnType
     {
         return $this->multiple;
     }
+
+    /**
+     * @param array|null $items
+     */
+    public function setItems(?array $items): void
+    {
+        $this->items = $items;
+    }
 }
