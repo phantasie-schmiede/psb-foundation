@@ -123,7 +123,7 @@ class ContextUtility
      */
     public static function isTypoScriptAvailable(): bool
     {
-        if (null !== $GLOBALS['TSFE'] && self::isFrontend()) {
+        if (isset($GLOBALS['TSFE']) && self::isFrontend()) {
             return true;
         }
 

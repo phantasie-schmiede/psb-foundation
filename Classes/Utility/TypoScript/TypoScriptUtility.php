@@ -102,7 +102,7 @@ class TypoScriptUtility
                 [
                     'userFunc' => $pageTypeConfiguration->getUserFunc(),
                 ],
-                $pageTypeConfiguration->getUserFuncParameters()
+                $pageTypeConfiguration->getUserFuncParameters(),
             );
         } else {
             $contentConfiguration = [
@@ -127,7 +127,7 @@ class TypoScriptUtility
         $contentConfiguration[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']] = $internalContentType;
 
         $typoScript = [
-            self::TYPO_SCRIPT_KEYS['CONDITION']               => 'request.getQueryParams()[\'type\'] == ' . $pageTypeConfiguration->getTypeNum(),
+            self::TYPO_SCRIPT_KEYS['CONDITION']               => $pageTypeConfiguration->getTypeNum() . ' == traverse(request.getQueryParams(), \'type\')',
             $pageTypeConfiguration->getTypoScriptObjectName() => [
                 self::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'PAGE',
                 10                                    => $contentConfiguration,
@@ -160,7 +160,7 @@ class TypoScriptUtility
     public static function registerTypoScript(
         ExtensionInformationInterface $extensionInformation,
         string $path,
-        string $title
+        string $title,
     ): void {
         ExtensionManagementUtility::addStaticFile($extensionInformation->getExtensionKey(), $path, $title);
     }
