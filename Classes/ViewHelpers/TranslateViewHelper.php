@@ -48,7 +48,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
     public static function renderStatic(
         array $arguments,
         Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
+        RenderingContextInterface $renderingContext,
     ): ?string {
         [
             'arguments'     => $translateArguments,
@@ -77,16 +77,16 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         try {
             $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey'],
                 $arguments['alternativeLanguageKeys']);
-        } catch (InvalidArgumentException $e) {
+        } catch (InvalidArgumentException) {
             $value = null;
         }
 
         if (null === $value) {
             $value = $default ?? $renderChildrenClosure();
+        }
 
-            if (!empty($translateArguments)) {
-                $value = vsprintf($value, $translateArguments);
-            }
+        if (null !== $value && !empty($translateArguments)) {
+            $value = vsprintf($value, $translateArguments);
         }
 
         return $value;
@@ -110,7 +110,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         $extensionName,
         $arguments,
         $languageKey,
-        $alternativeLanguageKeys
+        $alternativeLanguageKeys,
     ): ?string {
         return GeneralUtility::makeInstance(LocalizationService::class)
             ->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
