@@ -62,18 +62,20 @@ class EarlyAccessConstantsProvider extends AbstractProvider
         $contextParts = explode('/', Environment::getContext()->__toString());
         $lastIndex = count($contextParts) - 1;
         $contextParts[$lastIndex] = lcfirst($contextParts[$lastIndex]);
-        $filePath = self::DIRECTORY . implode('/', $contextParts) . '.yaml';
+        $contextSpecificFilePath = self::DIRECTORY . implode('/', $contextParts) . '.yaml';
 
         foreach ($allExtensionInformation as $extensionInformation) {
-            $yamlFile = GeneralUtility::getFileAbsFileName('EXT:' . $extensionInformation->getExtensionKey() . $filePath);
+            $basePath = 'EXT:' . $extensionInformation->getExtensionKey();
+            $yamlFiles = [
+                GeneralUtility::getFileAbsFileName($basePath . self::DIRECTORY . 'constants.yaml'),
+                GeneralUtility::getFileAbsFileName($basePath . $contextSpecificFilePath),
+            ];
 
-            if (!file_exists($yamlFile)) {
-                $yamlFile = GeneralUtility::getFileAbsFileName('EXT:' . $extensionInformation->getExtensionKey() . self::DIRECTORY . 'constants.yaml');
-            }
-
-            if (file_exists($yamlFile)) {
-                $constants = Yaml::parseFile($yamlFile) ?? [];
-                ArrayUtility::mergeRecursiveWithOverrule($mergedConstants, $constants);
+            foreach ($yamlFiles as $yamlFile) {
+                if (file_exists($yamlFile)) {
+                    $constants = Yaml::parseFile($yamlFile) ?? [];
+                    ArrayUtility::mergeRecursiveWithOverrule($mergedConstants, $constants);
+                }
             }
         }
 
