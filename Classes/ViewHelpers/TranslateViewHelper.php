@@ -16,12 +16,15 @@ use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 use function count;
 
 /**
@@ -32,8 +35,17 @@ use function count;
  *
  * @package PSB\PsbFoundation\ViewHelpers
  */
-class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelper
+class TranslateViewHelper extends AbstractViewHelper
 {
+    use CompileWithRenderStatic;
+
+    /**
+     * Output is escaped already. We must not escape children, to avoid double encoding.
+     *
+     * @var bool
+     */
+    protected $escapeChildren = false;
+
     /**
      * Return array element by key.
      *
@@ -41,7 +53,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
      * @param Closure                   $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
      *
-     * @return string
+     * @return string|null
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -69,7 +81,8 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
 
         $request = $renderingContext->getRequest();
 
-        if (null === $extensionName && !StringUtility::beginsWith($id, 'LLL:')) {
+        if (null === $extensionName && $request instanceof ServerRequestInterface && !StringUtility::beginsWith($id,
+                'LLL:')) {
             $extensionName = $request->getControllerExtensionName();
             $id = self::buildId($id, $renderingContext, $request);
         }
@@ -155,5 +168,19 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         }
 
         return $path . '/' . implode('/', $controllerName) . '/' . $request->getControllerActionName() . '.xlf:' . $id;
+    }
+
+    public function initializeArguments(): void
+    {
+        $this->registerArgument('alternativeLanguageKeys', 'array',
+            'Alternative language keys if no translation does exist. Ignored in non-extbase context.');
+        $this->registerArgument('arguments', 'array', 'Arguments to be replaced in the resulting string', false, []);
+        $this->registerArgument('default', 'string',
+            'If the given locallang key could not be found, this value is used. If this argument is not set, child nodes will be used to render the default');
+        $this->registerArgument('extensionName', 'string', 'UpperCamelCased extension key (for example BlogExample)');
+        $this->registerArgument('id', 'string', 'Translation ID. Same as key.');
+        $this->registerArgument('key', 'string', 'Translation Key');
+        $this->registerArgument('languageKey', 'string',
+            'Language key ("dk" for example) or "default" to use. If empty, use current language. Ignored in non-extbase context.');
     }
 }

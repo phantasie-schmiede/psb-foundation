@@ -22,8 +22,6 @@ use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
-use PSB\PsbFoundation\Traits\PropertyInjection\FlexFormServiceTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\IconRegistryTrait;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
@@ -32,7 +30,9 @@ use PSB\PsbFoundation\Utility\ValidationUtility;
 use ReflectionClass;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\DataHandling\PageDoktypeRegistry;
 use TYPO3\CMS\Core\Domain\Repository\PageRepository;
+use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -40,6 +40,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 use function in_array;
+use function is_array;
 use function is_int;
 
 /**
@@ -49,9 +50,6 @@ use function is_int;
  */
 class RegistrationService
 {
-    use FlexFormServiceTrait;
-    use IconRegistryTrait;
-
     public const ICON_SUFFIXES = [
         'CONTENT_FROM_PID' => '-contentFromPid',
         'ROOT'             => '-root',
@@ -85,6 +83,18 @@ class RegistrationService
     ];
 
     /**
+     * @param FlexFormService     $flexFormService
+     * @param IconRegistry        $iconRegistry
+     * @param PageDoktypeRegistry $pageDoktypeRegistry
+     */
+    public function __construct(
+        protected FlexFormService $flexFormService,
+        protected IconRegistry $iconRegistry,
+        protected PageDoktypeRegistry $pageDoktypeRegistry,
+    ) {
+    }
+
+    /**
      * For use in ext_localconf.php files
      *
      * @param ExtensionInformationInterface $extensionInformation
@@ -102,10 +112,10 @@ class RegistrationService
         ExtensionInformationInterface $extensionInformation,
         string $group,
         string $pluginName,
-        string $iconIdentifier = null
+        string $iconIdentifier = null,
     ): void {
         $iconIdentifier = $iconIdentifier ?? $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
-                GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
+            GeneralUtility::camelCaseToLowerCaseUnderscored($pluginName));
         $ll = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:' . $group . '.elements.' . lcfirst($pluginName);
         $description = $ll . '.description';
         $title = $ll . '.title';
@@ -171,7 +181,7 @@ class RegistrationService
                 $extensionInformation->getExtensionName(),
                 $pluginName,
                 $controllersAndCachedActions,
-                $controllersAndUncachedActions
+                $controllersAndUncachedActions,
             );
 
             if (isset($pluginConfiguration[PluginConfig::class])) {
@@ -195,19 +205,16 @@ class RegistrationService
      *
      * @param ExtensionInformationInterface $extensionInformation
      *
-     * @return void
+     * @return array
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      */
-    public function registerModules(ExtensionInformationInterface $extensionInformation): void
+    public function buildModuleConfigurations(ExtensionInformationInterface $extensionInformation): array
     {
-        if (!is_iterable($extensionInformation->getModules())) {
-            return;
-        }
-
         $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
+        $modules = [];
 
         foreach ($extensionInformation->getMainModules() as $key => $value) {
             if (is_int($key)) {
@@ -217,18 +224,13 @@ class RegistrationService
                 $configuration = $value;
             }
 
-            $labels = $configuration['labels'] ?? $this->getDefaultLabelPathForModule($extensionInformation,
-                    $mainModuleKey);
-            $this->checkLanguageLabelsForModule($labels, $localizationService);
+            $configuration ??= [];
+            $configuration['iconIdentifier'] ??= $this->getDefaultIconIdentifierForModule($extensionInformation,
+                $mainModuleKey);
+            $configuration['labels'] ??= $this->getDefaultLabelPathForModule($extensionInformation, $mainModuleKey);
 
-            ExtensionManagementUtility::addModule($mainModuleKey, '', $configuration['position'] ?? '', null, [
-                'labels'         => $labels,
-                'iconIdentifier' => $configuration['iconIdentifier'] ?? $this->getDefaultIconIdentifierForModule($extensionInformation,
-                        $mainModuleKey),
-                'name'           => $mainModuleKey,
-                'routeTarget'    => $configuration['routeTarget'] ?? null,
-            ]);
-
+            $this->checkLanguageLabelsForModule($configuration['labels'], $localizationService);
+            $modules[$mainModuleKey] = $configuration;
             unset($configuration);
         }
 
@@ -247,30 +249,28 @@ class RegistrationService
                 /** @var ModuleConfig $moduleConfig */
                 $moduleConfig = $moduleConfiguration[ModuleConfig::class];
                 $iconIdentifier = $moduleConfig->getIconIdentifier() ?? $this->getDefaultIconIdentifierForModule($extensionInformation,
-                        $submoduleKey);
+                    $submoduleKey);
                 $mainModuleName = $moduleConfig->getMainModuleName();
                 $position = $moduleConfig->getPosition();
                 $access = $moduleConfig->getAccess();
                 $labels = $moduleConfig->getLabels() ?? $this->getDefaultLabelPathForModule($extensionInformation,
-                        $submoduleKey);
+                    $submoduleKey);
                 $this->checkLanguageLabelsForModule($labels, $localizationService);
                 $navigationComponentId = $moduleConfig->getNavigationComponentId();
 
-                ExtensionUtility::registerModule(
-                    $extensionInformation->getExtensionName(),
-                    $mainModuleName,
-                    $submoduleKey,
-                    $position,
-                    $controllersAndActions,
-                    [
-                        'access'                => $access,
-                        'iconIdentifier'        => $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-                        'labels'                => $labels,
-                        'navigationComponentId' => $navigationComponentId,
-                    ]
-                );
+                $modules[$submoduleKey] = [
+                    'access'                => $access,
+                    'controllerActions'     => $controllersAndActions,
+                    'iconIdentifier'        => $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
+                    'labels'                => $labels,
+                    'navigationComponentId' => $navigationComponentId,
+                    'parent'                => $mainModuleName,
+                    'position'              => $position,
+                ];
             }
         }
+
+        return $modules;
     }
 
     /**
@@ -366,7 +366,7 @@ class RegistrationService
                 $extensionInformation->getExtensionName(),
                 $pluginName,
                 $title,
-                $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
+                $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
             );
 
             unset ($title);
@@ -412,7 +412,7 @@ class RegistrationService
         array $configuration,
         string $extensionKey,
         string $group,
-        string $key
+        string $key,
     ): void {
         if (!in_array($group, $this->contentElementWizardGroups, true)) {
             $this->addElementWizardGroup($extensionKey, $group);
@@ -430,15 +430,18 @@ class RegistrationService
      */
     private function addPageTypeToGlobals(array $configuration, int $doktype): void
     {
-        // Add new page type:
-        $GLOBALS['PAGES_TYPES'][$doktype] = [
-            'type'          => $configuration['type'] ?? 'web',
-            'allowedTables' => $configuration['allowedTables'] ? implode(', ', $configuration['allowedTables']) : '*',
-        ];
+        $configuration['allowedTables'] ??= '*';
+        $configuration['type'] ??= 'web';
+
+        if (is_array($configuration['allowedTables'])) {
+            $configuration['allowedTables'] = implode(', ', $configuration['allowedTables']);
+        }
+
+        $this->pageDoktypeRegistry->add($doktype, $configuration);
 
         // Allow backend users to drag and drop the new page type:
         ExtensionManagementUtility::addUserTSConfig(
-            'options.pageTree.doktypesToShowInNewPageDragArea := addToList(' . $doktype . ')'
+            'options.pageTree.doktypesToShowInNewPageDragArea := addToList(' . $doktype . ')',
         );
     }
 
@@ -456,7 +459,7 @@ class RegistrationService
     private function addPageTypeToPagesTca(
         array $configuration,
         int $doktype,
-        string $extensionKey
+        string $extensionKey,
     ): void {
         $table = 'pages';
         $label = $configuration['label'] ?? 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.' . $configuration['name'];
@@ -475,11 +478,11 @@ class RegistrationService
                 $doktype,
             ],
             '1',
-            'after'
+            'after',
         );
 
         $iconIdentifier = $configuration['iconIdentifier'] ?? 'page-type-' . str_replace('_', '-',
-                GeneralUtility::camelCaseToLowerCaseUnderscored($configuration['name']));
+            GeneralUtility::camelCaseToLowerCaseUnderscored($configuration['name']));
 
         $icons = [
             $doktype => $iconIdentifier,
@@ -504,7 +507,7 @@ class RegistrationService
                         'showitem' => $GLOBALS['TCA'][$table]['types'][PageRepository::DOKTYPE_DEFAULT]['showitem'],
                     ],
                 ],
-            ]
+            ],
         );
     }
 
@@ -535,7 +538,7 @@ class RegistrationService
     private function collectActionsAndConfiguration(
         array $controllerCollection,
         string $collectMode,
-        string $pluginName = ''
+        string $pluginName = '',
     ): array {
         $configuration = [];
         $controllersAndCachedActions = [];
@@ -645,7 +648,7 @@ class RegistrationService
             self::COLLECT_MODES['CONFIGURE_PLUGINS'] => [
                 $configuration,
                 $controllersAndCachedActions,
-                $controllersAndUncachedActions
+                $controllersAndUncachedActions,
             ],
             self::COLLECT_MODES['REGISTER_MODULES'] => [$configuration, $controllersAndCachedActions],
             self::COLLECT_MODES['REGISTER_PLUGINS'] => [$configuration],
@@ -662,7 +665,7 @@ class RegistrationService
      */
     private function getDefaultIconIdentifierForModule(
         ExtensionInformationInterface $extensionInformation,
-        string $moduleKey
+        string $moduleKey,
     ): string {
         return str_replace('_', '-', $extensionInformation->getExtensionKey()) . '-module-' . str_replace('_', '-',
                 GeneralUtility::camelCaseToLowerCaseUnderscored($moduleKey));
@@ -676,7 +679,7 @@ class RegistrationService
      */
     private function getDefaultLabelPathForModule(
         ExtensionInformationInterface $extensionInformation,
-        string $moduleKey
+        string $moduleKey,
     ): string {
         return 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . lcfirst($moduleKey) . '.xlf';
     }
@@ -689,7 +692,7 @@ class RegistrationService
      */
     private function getDefaultLabelPathForPlugin(
         ExtensionInformationInterface $extensionInformation,
-        string $pluginName
+        string $pluginName,
     ): string {
         return 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . lcfirst($pluginName) . '.title';
     }

@@ -10,12 +10,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\Configuration;
 
-use PSB\PsbFoundation\Data\ExtensionInformationInterface;
-use PSB\PsbFoundation\Utility\FileUtility;
-use PSB\PsbFoundation\Utility\StringUtility;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use function in_array;
-
 /**
  * Class TcaUtility
  *
@@ -198,43 +192,5 @@ class TcaUtility
                 'type' => 'passthrough',
             ],
         ];
-    }
-
-    /**
-     * For usage in ext_tables.php
-     *
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return void
-     */
-    public static function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
-    {
-        /*
-         * The "Check for Broken Extensions" function in the upgrade module doesn't load the TCA. This breaks the
-         * following code and would raise an exception if we didn't exit here in this case.
-         * @see TYPO3\CMS\Install\Controller\UpgradeController::extensionCompatTesterLoadExtTablesAction()
-         */
-        if (!isset($GLOBALS['TCA'])) {
-            return;
-        }
-
-        $identifier = 'tx_' . mb_strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
-        $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
-            return StringUtility::beginsWith($key, $identifier);
-        });
-
-        foreach ($newTables as $tableName) {
-            if (true === ($GLOBALS['TCA'][$tableName]['ctrl']['allowTableOnStandardPages'] ?? false)) {
-                ExtensionManagementUtility::allowTableOnStandardPages($tableName);
-            }
-
-            $cshFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $tableName . '.xlf';
-
-            if (!in_array($cshFilePath, $GLOBALS['TCA_DESCR'][$tableName]['refs'] ?? [], true)
-                && FileUtility::fileExists($cshFilePath)
-            ) {
-                ExtensionManagementUtility::addLLrefForTCAdescr($tableName, $cshFilePath);
-            }
-        }
     }
 }

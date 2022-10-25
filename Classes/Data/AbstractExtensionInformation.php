@@ -11,13 +11,14 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Data;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function get_class;
 
 /**
  * Class AbstractExtensionInformation
  *
  * You only need to extend this class to be able to provide the extension_key, the ExtensionName and the VendorName.
  * This information is extracted within the constructor using the namespaced class name of your class. If you want to
- * use module or plugin services, make sure to overwrite the constants MODULES and PLUGINS with your own information
+ * use module, plugin or page type services, make sure to overwrite the constants MODULES and PLUGINS with your own information
  * (see examples below).
  *
  * @package PSB\PsbFoundation\Data
@@ -26,16 +27,19 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
 {
     /**
      * may be overridden in extending class
+     * @TODO: check available options!
      */
     public const MAIN_MODULES = [
         /*
-        *  'mainModuleKey' => [
-        *      'iconIdentifier' => '...', // optional
-        *      'labels'         => '...', // optional
-        *      'position'       => '...', // optional
-        *      'routeTarget'    => '...', // optional
-        *  ],
-        */
+         * 'mainModuleKey' => [
+         *     'appearance'          => [
+         *         'renderInModuleMenu' => [bool], // optional
+         *     ],
+         *     'iconIdentifier'      => [string], // optional
+         *     'labels'              => [path to xlf-file], // optional
+         *     'navigationComponent' => '@typo3/backend/page-tree/page-tree-element', // optional
+         * ],
+         */
     ];
 
     /**

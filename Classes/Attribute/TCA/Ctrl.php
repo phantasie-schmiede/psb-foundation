@@ -11,8 +11,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA;
 
 use Attribute;
-use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -39,7 +37,6 @@ class Ctrl extends AbstractTcaAttribute
     /**
      * @param array|null  $EXT                              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Ext.html
      * @param bool|null   $adminOnly                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/AdminOnly.html
-     * @param bool|null   $allowTableOnStandardPages
      * @param array|null  $container                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Container.html
      * @param string|null $copyAfterDuplFields              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CopyAfterDuplFields.html
      * @param string|null $crdate                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Crdate.html
@@ -55,6 +52,9 @@ class Ctrl extends AbstractTcaAttribute
      * @param bool|null   $hideAtCopy                       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideAtCopy.html
      * @param bool|null   $hideTable                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideTable.html
      * @param string|null $iconfile                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Iconfile.html
+     * @param bool|null   $ignorePageTypeRestriction        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
+     * @param bool|null   $ignoreRootLevelRestriction       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
+     * @param bool|null   $ignoreWebMountRestriction        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
      * @param bool|null   $is_static                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/IsStatic.html
      * @param string|null $label                            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
      * @param string|null $label_alt                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
@@ -85,15 +85,6 @@ class Ctrl extends AbstractTcaAttribute
     public function __construct(
         protected ?array $EXT = null,
         protected ?bool $adminOnly = null,
-        /**
-         * This property is not part of the official ctrl options. It can be set to true, if you want to insert records
-         * of a table on standard content pages (instead of SysFolders only). This would call
-         * ExtensionManagementUtility::allowTableOnStandardPages.
-         *
-         * @see ExtensionManagementUtility
-         * @see TcaUtility
-         */
-        protected ?bool $allowTableOnStandardPages = null,
         protected ?array $container = null,
         protected ?string $copyAfterDuplFields = null,
         protected ?string $crdate = 'crdate',
@@ -109,6 +100,9 @@ class Ctrl extends AbstractTcaAttribute
         protected ?bool $hideAtCopy = null,
         protected ?bool $hideTable = null,
         protected ?string $iconfile = 'EXT:core/Resources/Public/Icons/T3Icons/svgs/mimetypes/mimetypes-x-sys_action.svg',
+        protected ?bool $ignorePageTypeRestriction = null,
+        protected ?bool $ignoreRootLevelRestriction = null,
+        protected ?bool $ignoreWebMountRestriction = null,
         protected ?bool $is_static = null,
         /** You can use the property name. It will be converted to the column name automatically. */
         protected ?string $label = 'uid',
@@ -147,14 +141,6 @@ class Ctrl extends AbstractTcaAttribute
     public function getAdminOnly(): ?bool
     {
         return $this->adminOnly;
-    }
-
-    /**
-     * @return bool|null
-     */
-    public function getAllowTableOnStandardPages(): ?bool
-    {
-        return $this->allowTableOnStandardPages;
     }
 
     /**
@@ -398,6 +384,18 @@ class Ctrl extends AbstractTcaAttribute
      */
     public function getSecurity(): ?array
     {
+        $securityOptions = [
+            'ignorePageTypeRestriction' => $this->ignorePageTypeRestriction,
+            'ignoreRootLevelRestriction' => $this->ignoreRootLevelRestriction,
+            'ignoreWebMountRestriction' => $this->ignoreWebMountRestriction,
+        ];
+
+        foreach ($securityOptions as $securityOption => $value) {
+            if (null !== $value) {
+                $this->security[$securityOption] = $value;
+            }
+        }
+
         return $this->security;
     }
 
