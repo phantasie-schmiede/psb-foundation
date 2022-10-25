@@ -625,7 +625,7 @@ class RegistrationService
             }
 
             Typo3CoreArrayUtility::mergeRecursiveWithOverrule($configuration,
-                ReflectionUtility::getAttributeInstance(PluginConfig::class, $controller)?->toArray());
+                ReflectionUtility::getAttributeInstance(PluginConfig::class, $controller)?->toArray() ?? []);
             unset($specifiedActions);
         }
 

@@ -474,6 +474,11 @@ class TcaService
         foreach ($properties as $property) {
             /** @var Column $attribute */
             $attribute = ReflectionUtility::getAttributeInstance(Column::class, $property);
+
+            if (!$attribute instanceof Column) {
+                continue;
+            }
+
             $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
             if ('' === $attribute->getLabel()) {
