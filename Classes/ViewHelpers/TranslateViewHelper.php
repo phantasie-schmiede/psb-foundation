@@ -20,8 +20,10 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotCon
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3\CMS\Extbase\Utility\DebuggerUtility;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
+use ValueError;
 use function count;
 
 /**
@@ -41,7 +43,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
      * @param Closure                   $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
      *
-     * @return string
+     * @return null|string
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -86,7 +88,7 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         }
 
         if (null !== $value && !empty($translateArguments)) {
-            $value = vsprintf($value, $translateArguments);
+            self::formatVolatileString($value, $translateArguments);
         }
 
         return $value;
@@ -155,5 +157,21 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
         }
 
         return $path . '/' . implode('/', $controllerName) . '/' . $request->getControllerActionName() . '.xlf:' . $id;
+    }
+
+    /**
+     * @param string $value
+     * @param array  $translateArguments
+     *
+     * @return void
+     */
+    private static function formatVolatileString(string &$value, array $translateArguments): void
+    {
+        try {
+            $value = vsprintf($value, $translateArguments);
+        } catch (ValueError) {
+            $value = str_replace('%', '%%', $value);
+            self::formatVolatileString($value, $translateArguments);
+        }
     }
 }
