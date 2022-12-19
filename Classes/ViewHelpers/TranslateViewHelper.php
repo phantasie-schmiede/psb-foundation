@@ -157,22 +157,26 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
 
         return $path . '/' . implode('/', $controllerName) . '/' . $request->getControllerActionName() . '.xlf:' . $id;
     }
-
+    
     /**
      * @param string $value
      * @param array  $translateArguments
+     * @param bool   $recursive
      *
      * @return void
      */
-    private static function formatVolatileString(string &$value, array $translateArguments, bool $recursive = false): void
-    {
+    private static function formatVolatileString(
+        string &$value,
+        array $translateArguments,
+        bool $recursive = false
+    ): void {
         try {
             $value = vsprintf($value, $translateArguments);
         } catch (ValueError $error) {
-            if($recursive) {
+            if ($recursive) {
                 throw $error;
             }
-            
+
             $value = str_replace('%', '%%', $value);
             self::formatVolatileString($value, $translateArguments, true);
         }
