@@ -165,13 +165,17 @@ class TranslateViewHelper extends \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelp
      *
      * @return void
      */
-    private static function formatVolatileString(string &$value, array $translateArguments): void
+    private static function formatVolatileString(string &$value, array $translateArguments, bool $recursive = false): void
     {
         try {
             $value = vsprintf($value, $translateArguments);
-        } catch (ValueError) {
+        } catch (ValueError $error) {
+            if($recursive) {
+                throw $error;
+            }
+            
             $value = str_replace('%', '%%', $value);
-            self::formatVolatileString($value, $translateArguments);
+            self::formatVolatileString($value, $translateArguments, true);
         }
     }
 }
