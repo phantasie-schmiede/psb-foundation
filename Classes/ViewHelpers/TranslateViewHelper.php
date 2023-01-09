@@ -96,10 +96,10 @@ class TranslateViewHelper extends AbstractViewHelper
 
         if (null === $value) {
             $value = $default ?? $renderChildrenClosure();
-        }
 
-        if (null !== $value && !empty($translateArguments)) {
-            $value = vsprintf($value, $translateArguments);
+            if (null !== $value && !empty($translateArguments)) {
+                $value = vsprintf($value, $translateArguments);
+            }
         }
 
         return $value;
