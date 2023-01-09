@@ -19,6 +19,7 @@ use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
@@ -38,6 +39,9 @@ use function count;
 class TranslateViewHelper extends AbstractViewHelper
 {
     use CompileWithRenderStatic;
+
+    public const MARKER_AFTER = '}';
+    public const MARKER_BEFORE = '{';
 
     /**
      * Output is escaped already. We must not escape children, to avoid double encoding.
@@ -100,6 +104,16 @@ class TranslateViewHelper extends AbstractViewHelper
             if (null !== $value && !empty($translateArguments)) {
                 $value = vsprintf($value, $translateArguments);
             }
+        }
+
+        if (!empty($translateArguments) && ArrayUtility::isAssociative($translateArguments)) {
+            $markerReplacements = [];
+
+            foreach ($translateArguments as $marker => $replacement) {
+                $markerReplacements[self::MARKER_BEFORE . $marker . self::MARKER_AFTER] = $replacement;
+            }
+
+            $value = str_replace(array_keys($markerReplacements), array_values($markerReplacements), $value);
         }
 
         return $value;
