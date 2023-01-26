@@ -98,12 +98,9 @@ class TypoScriptUtility
         }
 
         if ('' !== $pageTypeConfiguration->getUserFunc()) {
-            $contentConfiguration = array_merge(
-                [
-                    'userFunc' => $pageTypeConfiguration->getUserFunc(),
-                ],
-                $pageTypeConfiguration->getUserFuncParameters(),
-            );
+            $contentConfiguration = array_merge([
+                'userFunc' => $pageTypeConfiguration->getUserFunc(),
+            ], $pageTypeConfiguration->getUserFuncParameters());
         } else {
             $contentConfiguration = [
                 'action'                      => $pageTypeConfiguration->getAction(),
@@ -127,7 +124,6 @@ class TypoScriptUtility
         $contentConfiguration[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']] = $internalContentType;
 
         $typoScript = [
-            self::TYPO_SCRIPT_KEYS['CONDITION']               => $pageTypeConfiguration->getTypeNum() . ' == traverse(request.getQueryParams(), \'type\')',
             $pageTypeConfiguration->getTypoScriptObjectName() => [
                 self::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'PAGE',
                 10                                    => $contentConfiguration,
@@ -220,8 +216,7 @@ class TypoScriptUtility
                     } elseif (1 === count($value)) {
                         self::resetLineBreaks();
                         self::$objectPath .= $key . '.';
-                        $typoScript .= self::buildTypoScriptFromArray($value,
-                            $indentationLevel);
+                        $typoScript .= self::buildTypoScriptFromArray($value, $indentationLevel);
                     } else {
                         $typoScript .= self::$lineBreakBeforeCurlyBracketOpen . $indentation . self::$objectPath . $key . ' {' . LF;
                         self::resetLineBreaks();
