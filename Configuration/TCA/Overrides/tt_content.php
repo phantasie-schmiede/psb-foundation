@@ -5,7 +5,7 @@ use PSB\PsbFoundation\Service\Configuration\RegistrationService;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-defined('TYPO3_MODE') or die();
+defined('TYPO3') or die();
 
 (static function () {
     // register all plugins of those extensions which provide an ExtensionInformation-class

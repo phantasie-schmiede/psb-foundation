@@ -8,7 +8,7 @@ use Symfony\Component\Finder\Finder;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-defined('TYPO3_MODE') or die();
+defined('TYPO3') or die();
 
 (static function () {
     // register TypoScript of those extensions which provide an ExtensionInformation-class
