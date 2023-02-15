@@ -8,7 +8,7 @@ use Symfony\Component\Finder\Finder;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-defined('TYPO3_MODE') or die();
+defined('TYPO3') or die();
 
 (static function () {
     // register TypoScript of those extensions which provide an ExtensionInformation-class
@@ -29,7 +29,7 @@ defined('TYPO3_MODE') or die();
         if (true === $finder->hasResults()) {
             $title = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/sys_template.xlf:template.title';
 
-            if (false === $localizationService->translationExists($title)) {
+            if (false === $localizationService->translationExists($title, false)) {
                 $title = 'Main configuration';
             }
 

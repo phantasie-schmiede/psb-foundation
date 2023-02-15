@@ -97,4 +97,26 @@ class FileUtility
 
         return $numberFormatter->format($bytes) . ' ' . $unitString;
     }
+
+    /**
+     * @param string $fileName
+     * @param string $content
+     * @param bool   $append
+     *
+     * @return bool
+     */
+    public static function write(string $fileName, string $content, bool $append = false): bool
+    {
+        $fileName = GeneralUtility::getFileAbsFileName($fileName) ?: $fileName;
+        $pathDetails = pathinfo($fileName);
+
+        // Directory creation is skipped if it already exists.
+        GeneralUtility::mkdir_deep($pathDetails['dirname']);
+        GeneralUtility::
+        $success = (bool)file_put_contents($fileName, $content, $append ? FILE_APPEND : 0);
+
+        if ($success) {
+            GeneralUtility::fixPermissions($fileName);
+        }
+    }
 }

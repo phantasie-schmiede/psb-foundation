@@ -104,7 +104,7 @@ class ContextUtility
      */
     public static function isBootProcessRunning(): bool
     {
-        return !GeneralUtility::getContainer()->get('boot.state')->done;
+        return !GeneralUtility::getContainer()->get('boot.state')->complete;
     }
 
     /**

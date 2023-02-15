@@ -16,11 +16,13 @@ use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
@@ -54,8 +56,10 @@ class TranslateViewHelper extends AbstractViewHelper
      * @param RenderingContextInterface $renderingContext
      *
      * @return string|null
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws NotFoundExceptionInterface
      */
     public static function renderStatic(
         array $arguments,
@@ -81,7 +85,7 @@ class TranslateViewHelper extends AbstractViewHelper
 
         $request = $renderingContext->getRequest();
 
-        if (null === $extensionName && $request instanceof ServerRequestInterface && !StringUtility::beginsWith($id,
+        if (null === $extensionName && $request instanceof RequestInterface && !StringUtility::beginsWith($id,
                 'LLL:')) {
             $extensionName = $request->getControllerExtensionName();
             $id = self::buildId($id, $renderingContext, $request);
@@ -115,8 +119,10 @@ class TranslateViewHelper extends AbstractViewHelper
      * @param string[] $alternativeLanguageKeys Alternative language keys if no translation does exist
      *
      * @return string|null
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws NotFoundExceptionInterface
      */
     protected static function translate(
         $id,

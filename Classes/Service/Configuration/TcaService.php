@@ -20,7 +20,6 @@ use PSB\PsbFoundation\Attribute\TCA\Palette;
 use PSB\PsbFoundation\Attribute\TCA\Tab;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
-use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
 use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
@@ -38,8 +37,6 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
-use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
-use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 use function array_slice;
 use function get_class;
 use function in_array;
@@ -52,7 +49,6 @@ use function is_array;
  */
 class TcaService
 {
-    use ConnectionPoolTrait;
     use ExtensionInformationServiceTrait;
     use LocalizationServiceTrait;
 
@@ -86,16 +82,6 @@ class TcaService
     protected static array $classTableMapping = [];
 
     /**
-     * @var ClassesConfiguration
-     */
-    protected ClassesConfiguration $classesConfiguration;
-
-    /**
-     * @var ClassesConfigurationFactory
-     */
-    protected ClassesConfigurationFactory $classesConfigurationFactory;
-
-    /**
      * @var string
      */
     protected string $defaultLabelPath = '';
@@ -114,15 +100,6 @@ class TcaService
      * @var Tab[]
      */
     protected array $tabs = [];
-
-    /**
-     * @param ClassesConfigurationFactory $classesConfigurationFactory
-     */
-    public function __construct(ClassesConfigurationFactory $classesConfigurationFactory)
-    {
-        $this->classesConfigurationFactory = $classesConfigurationFactory;
-        $this->classesConfiguration = $this->classesConfigurationFactory->createClassesConfiguration();
-    }
 
     /**
      * @param string $columnName
@@ -223,13 +200,7 @@ class TcaService
      */
     public function convertClassNameToTableName(string $className): string
     {
-        if ($this->classesConfiguration->hasClass($className)) {
-            $classSettings = $this->classesConfiguration->getConfigurationFor($className);
-
-            if (isset($classSettings['tableName']) && '' !== $classSettings['tableName']) {
-                return $classSettings['tableName'];
-            }
-        }
+        // @TODO: Add custom mapping because ClassesConfiguration can't be used here because it's using the CacheManager!
 
         $classNameParts = explode('\\', $className);
 
@@ -251,14 +222,7 @@ class TcaService
      */
     public function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
-        if (null !== $className && $this->classesConfiguration->hasClass($className)) {
-            $configuration = $this->classesConfiguration->getConfigurationFor($className);
-
-            if (isset($configuration['properties'][$propertyName])) {
-                return $configuration['properties'][$propertyName]['fieldName'];
-            }
-        }
-
+        // @TODO: Add custom mapping because ClassesConfiguration can't be used here because it's using the CacheManager!
         return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
     }
 

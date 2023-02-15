@@ -12,10 +12,14 @@ namespace PSB\PsbFoundation\Service;
 
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
+use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\Xml\XmlUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -31,34 +35,16 @@ use function array_slice;
 class LocalizationService
 {
     private const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
+    private const TEMP_LOG_FILE                 = 'log/psb_foundation/postponed_language_labels.log';
 
     /**
-     * @param string $key
-     * @param bool   $keyExists
-     *
-     * @return void
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @param ExtensionInformationService $extensionInformationService
+     * @param ExtensionInformation        $extensionInformation
      */
-    public function logMissingLanguageLabels(string $key, bool $keyExists): void
-    {
-        if (true === (bool)GeneralUtility::makeInstance(ExtensionInformationService::class)
-                ->getConfiguration(GeneralUtility::makeInstance(ExtensionInformation::class),
-                    'debug.logMissingLanguageLabels')) {
-            $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-                ->getConnectionForTable(self::MISSING_LANGUAGE_LABELS_TABLE);
-
-            // Avoid duplicates without using a select query as check for existing entries
-            $connection->delete(self::MISSING_LANGUAGE_LABELS_TABLE, [
-                'locallang_key' => $key,
-            ]);
-
-            if (false === $keyExists) {
-                $connection->insert(self::MISSING_LANGUAGE_LABELS_TABLE, [
-                    'locallang_key' => $key,
-                ]);
-            }
-        }
+    public function __construct(
+        protected readonly ExtensionInformationService $extensionInformationService,
+        protected readonly ExtensionInformation $extensionInformation,
+    ) {
     }
 
     /**
@@ -74,20 +60,23 @@ class LocalizationService
      *                                             setup will be used
      *
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @see \TYPO3\CMS\Extbase\Utility\LocalizationUtility
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
+     * @see LocalizationUtility
      */
     public function translate(
         string $key,
         string $extensionName = null,
         array $arguments = null,
         string $languageKey = null,
-        array $alternativeLanguageKeys = null
+        array $alternativeLanguageKeys = null,
     ): ?string {
         $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey,
             $alternativeLanguageKeys);
-        $this->logMissingLanguageLabels($key, (bool)$translation);
+        $this->logMissingLanguageLabels($key, null !== $translation);
 
         return $translation;
     }
@@ -99,13 +88,16 @@ class LocalizationService
      *                                   be removed
      *
      * @return string
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public function translateConcatenatingNewLines(
         string $key,
         string $extension = null,
-        string $newLineMarker = '||'
+        string $newLineMarker = '||',
     ): string {
         $translation = $this->translate($key, $extension);
         $translation = preg_replace('/\s+/', ' ', $translation);
@@ -121,8 +113,11 @@ class LocalizationService
      * @param string|null $extension
      *
      * @return string
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public function translatePreservingNewLines(string $key, string $extension = null): string
     {
@@ -151,10 +146,12 @@ class LocalizationService
      * @param bool   $logMissingTranslation
      *
      * @return bool
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public function translationExists(string $key, bool $logMissingTranslation = true): bool
     {
@@ -191,7 +188,7 @@ class LocalizationService
             }
         }
 
-        if (true === $logMissingTranslation) {
+        if ($logMissingTranslation) {
             $this->logMissingLanguageLabels($key, false);
         }
 
@@ -202,10 +199,12 @@ class LocalizationService
      * @param string $label
      *
      * @return bool
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public function validateLabel(string $label): bool
     {
@@ -218,5 +217,70 @@ class LocalizationService
         }
 
         return $this->translationExists($label);
+    }
+
+    /**
+     * @param string $key
+     * @param bool   $keyExists
+     *
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
+     */
+    private function logMissingLanguageLabels(string $key, bool $keyExists): void
+    {
+        if ($this->extensionInformationService->getConfiguration($this->extensionInformation,
+            'debug.logMissingLanguageLabels')) {
+            $filePath = Environment::getVarPath() . self::TEMP_LOG_FILE;
+
+            if (ContextUtility::isBootProcessRunning()) {
+                /*
+                 * The TCA is not loaded yet. That means the ConnectionPool is not available and the logging has to be
+                 * postponed.
+                 */
+                file_put_contents($filePath, json_encode([$key => $keyExists], JSON_THROW_ON_ERROR) . LF, FILE_APPEND);
+            } else {
+                // Check for postponed log entries.
+                if ($logContent = file_get_contents($filePath)) {
+                    $postponedEntries = StringUtility::explodeByLineBreaks($logContent);
+
+                    foreach ($postponedEntries as $postponedEntry) {
+                        [$postponedKey, $postponedKeyExists] = json_decode($postponedEntry, false, 512,
+                            JSON_THROW_ON_ERROR);
+                        $this->writeLogToDatabase($postponedKey, $postponedKeyExists);
+                    }
+
+                    unlink($filePath);
+                }
+
+                $this->writeLogToDatabase($key, $keyExists);
+            }
+        }
+    }
+
+    /**
+     * @param string $key
+     * @param bool   $keyExists
+     *
+     * @return void
+     */
+    private function writeLogToDatabase(string $key, bool $keyExists): void
+    {
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable(self::MISSING_LANGUAGE_LABELS_TABLE);
+
+        // Avoid duplicates without using a select query as check for existing entries
+        $connection->delete(self::MISSING_LANGUAGE_LABELS_TABLE, [
+            'locallang_key' => $key,
+        ]);
+
+        if (false === $keyExists) {
+            $connection->insert(self::MISSING_LANGUAGE_LABELS_TABLE, [
+                'locallang_key' => $key,
+            ]);
+        }
     }
 }
