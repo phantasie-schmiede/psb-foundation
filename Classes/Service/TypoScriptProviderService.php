@@ -12,13 +12,12 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use JsonException;
-use PSB\PsbFoundation\Traits\PropertyInjection\ConfigurationManagerTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\TypoScriptServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
@@ -31,15 +30,17 @@ use function is_string;
  */
 class TypoScriptProviderService
 {
-    use ConfigurationManagerTrait;
-    use TypoScriptServiceTrait;
-
     /**
+     * @param ConfigurationManagerInterface $configurationManager
+     * @param TypoScriptService             $typoScriptService
+     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function __construct()
-    {
+    public function __construct(
+        protected readonly ConfigurationManagerInterface $configurationManager,
+        protected readonly TypoScriptService $typoScriptService,
+    ) {
         ValidationUtility::requiresTypoScriptLoaded();
     }
 

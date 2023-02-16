@@ -12,10 +12,10 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\Mm;
-use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use ReflectionClass;
 use RuntimeException;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use function get_class;
@@ -27,7 +27,13 @@ use function get_class;
  */
 class ObjectService
 {
-    use ConnectionPoolTrait;
+    /**
+     * @param ConnectionPool $connectionPool
+     */
+    public function __construct(
+        protected readonly ConnectionPool $connectionPool,
+    ) {
+    }
 
     /**
      * If you have a select field in TCA with 'multiple' set to true, Extbase still returns each selected record only
@@ -53,7 +59,6 @@ class ObjectService
                 1584867595);
         }
 
-        $reflectionProperty->setAccessible(true);
         $objectStorageElements = $reflectionProperty->getValue($object);
         $objectStorageElementsByUid = [];
 

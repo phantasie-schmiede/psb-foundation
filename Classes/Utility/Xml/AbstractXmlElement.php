@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility\Xml;
 
 use PSB\PsbFoundation\Traits\AutoFillPropertiesTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\ObjectServiceTrait;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -25,7 +24,6 @@ use function is_array;
 class AbstractXmlElement implements XmlElementInterface
 {
     use AutoFillPropertiesTrait;
-    use ObjectServiceTrait;
 
     /**
      * @var array

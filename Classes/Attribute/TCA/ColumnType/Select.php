@@ -12,7 +12,7 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
-use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
+use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -24,8 +24,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Select extends AbstractColumnType
 {
-    use ExtensionInformationServiceTrait;
-
     public const EMPTY_DEFAULT_ITEM = [
         [
             'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose',
@@ -40,6 +38,11 @@ class Select extends AbstractColumnType
         'SELECT_SINGLE_BOX'            => 'selectSingleBox',
         'SELECT_TREE'                  => 'selectTree',
     ];
+
+    /**
+     * @var ExtensionInformationService
+     */
+    protected ExtensionInformationService $extensionInformationService;
 
     /**
      * @var TcaService
@@ -108,6 +111,7 @@ class Select extends AbstractColumnType
         protected ?bool $treeConfigShowHeader = null,
         protected ?string $treeConfigStartingPoints = null,
     ) {
+        $this->extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
 
         if (class_exists($linkedModel)) {

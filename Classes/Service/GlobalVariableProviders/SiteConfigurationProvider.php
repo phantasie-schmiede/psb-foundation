@@ -10,12 +10,12 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
-use PSB\PsbFoundation\Traits\PropertyInjection\SiteFinderTrait;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\Entity\Site;
+use TYPO3\CMS\Core\Site\SiteFinder;
 
 /**
  * Class SiteConfigurationProvider
@@ -24,7 +24,13 @@ use TYPO3\CMS\Core\Site\Entity\Site;
  */
 class SiteConfigurationProvider extends AbstractProvider
 {
-    use SiteFinderTrait;
+    /**
+     * @param SiteFinder $siteFinder
+     */
+    public function __construct(
+        protected readonly SiteFinder $siteFinder,
+    ) {
+    }
 
     /**
      * @return Site

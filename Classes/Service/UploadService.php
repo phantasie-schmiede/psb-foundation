@@ -10,11 +10,11 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service;
 
-use PSB\PsbFoundation\Traits\PropertyInjection\StorageRepositoryTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\TcaServiceTrait;
+use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use TYPO3\CMS\Core\Resource\Exception\InsufficientFolderAccessPermissionsException;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use function get_class;
@@ -26,9 +26,16 @@ use function get_class;
  */
 class UploadService
 {
-//    use ResourceFactoryTrait;
-    use StorageRepositoryTrait;
-    use TcaServiceTrait;
+    /**
+     * @param StorageRepository $storageRepository
+     * @param TcaService        $tcaService
+     */
+    public function __construct(
+        // use ResourceFactory;
+        protected readonly StorageRepository $storageRepository,
+        protected readonly TcaService $tcaService,
+    ) {
+    }
 
     /**
      * @param Request             $request
@@ -65,9 +72,8 @@ class UploadService
             $uploadDirectory = $configuration['uploadDirectory'];
 
             if (str_contains($uploadDirectory, ':')) {
-//                $this->storageRepository->findByCombinedIdentifier();
+                // $this->storageRepository->findByCombinedIdentifier();
             } else {
-
             }
         } else {
             $defaultStorage = $this->storageRepository->getDefaultStorage();

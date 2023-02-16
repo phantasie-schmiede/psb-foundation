@@ -20,8 +20,8 @@ use PSB\PsbFoundation\Attribute\TCA\Palette;
 use PSB\PsbFoundation\Attribute\TCA\Tab;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
-use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionInformationServiceTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\LocalizationServiceTrait;
+use PSB\PsbFoundation\Service\ExtensionInformationService;
+use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -49,9 +49,6 @@ use function is_array;
  */
 class TcaService
 {
-    use ExtensionInformationServiceTrait;
-    use LocalizationServiceTrait;
-
     public const PALETTE_IDENTIFIERS = [
         'LANGUAGE'         => 'language',
         'TIME_RESTRICTION' => 'timeRestriction',
@@ -100,6 +97,16 @@ class TcaService
      * @var Tab[]
      */
     protected array $tabs = [];
+
+    /**
+     * @param ExtensionInformationService $extensionInformationService
+     * @param LocalizationService         $localizationService
+     */
+    public function __construct(
+        protected readonly ExtensionInformationService $extensionInformationService,
+        protected readonly LocalizationService $localizationService,
+    ) {
+    }
 
     /**
      * @param string $columnName

@@ -13,12 +13,12 @@ namespace PSB\PsbFoundation\Service;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionConfigurationTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\PackageManagerTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
+use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function count;
@@ -32,13 +32,20 @@ use function is_array;
  */
 class ExtensionInformationService
 {
-    use ExtensionConfigurationTrait;
-    use PackageManagerTrait;
-
     /**
      * @var ExtensionInformationInterface[]
      */
     protected array $extensionInformationInstances = [];
+
+    /**
+     * @param ExtensionConfiguration $extensionConfiguration
+     * @param PackageManager         $packageManager
+     */
+    public function __construct(
+        protected readonly ExtensionConfiguration $extensionConfiguration,
+        protected readonly PackageManager $packageManager,
+    ) {
+    }
 
     /**
      * @param string $className
