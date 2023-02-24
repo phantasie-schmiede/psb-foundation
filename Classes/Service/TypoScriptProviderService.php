@@ -74,7 +74,7 @@ class TypoScriptProviderService
         array_walk_recursive($typoScript, static function (&$item) {
             if (is_string($item)) {
                 // if constants are not set
-                if (StringUtility::beginsWith($item, '{$')) {
+                if (str_starts_with($item, '{$')) {
                     $item = null;
                 } else {
                     $item = StringUtility::convertString($item);

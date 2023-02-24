@@ -34,23 +34,6 @@ use function strlen;
 class StringUtility
 {
     /**
-     * mb_strrpos() is used for performance reasons here. mb_strpos() would search the whole string if the needle isn't
-     * found right at the beginning. The combination of a reversed search and the negative offset ensure that only the
-     * relevant part of the string is searched. Additionally mb_strrpos has a better performance than mb_substr().
-     *
-     * @TODO: Replace with str_starts_with() when switching to php 8!
-     *
-     * @param string $string
-     * @param string $beginning
-     *
-     * @return bool
-     */
-    public static function beginsWith(string $string, string $beginning): bool
-    {
-        return 0 === mb_strrpos($string, $beginning, -mb_strlen($string));
-    }
-
-    /**
      * @param $url
      *
      * @return string
@@ -85,7 +68,7 @@ class StringUtility
             return $variable;
         }
 
-        if (1 === strlen($variable) || !self::beginsWith($variable, '0') || in_array($variable[1], ['.', ','], true)) {
+        if (1 === strlen($variable) || !str_starts_with($variable, '0') || in_array($variable[1], ['.', ','], true)) {
             $intRepresentation = filter_var($variable, FILTER_VALIDATE_INT);
 
             if (false !== $intRepresentation) {
@@ -99,12 +82,12 @@ class StringUtility
             }
         }
 
-        if (self::beginsWith($variable, 'TS:') && !ContextUtility::isBootProcessRunning()) {
-            $typoscriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
+        if (str_starts_with($variable, 'TS:') && !ContextUtility::isBootProcessRunning()) {
+            $typoScriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
             [, $path] = GeneralUtility::trimExplode(':', $variable);
 
-            if ($typoscriptProviderService->has($path)) {
-                return $typoscriptProviderService->get($path);
+            if ($typoScriptProviderService->has($path)) {
+                return $typoScriptProviderService->get($path);
             }
         }
 
@@ -297,25 +280,6 @@ class StringUtility
         }
 
         return mb_substr($string, 0, $length) . $appendix;
-    }
-
-    /**
-     * @TODO: Replace with str_ends_with() when switching to php 8!
-     *
-     * @param string $string
-     * @param string $ending
-     *
-     * @return bool
-     */
-    public static function endsWith(string $string, string $ending): bool
-    {
-        $offset = mb_strlen($ending);
-
-        if ($offset > mb_strlen($string)) {
-            return false;
-        }
-
-        return mb_strpos($string, $ending, -$offset) === mb_strlen($string) - $offset;
     }
 
     /**

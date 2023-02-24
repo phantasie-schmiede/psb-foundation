@@ -212,7 +212,7 @@ class LocalizationService
             return false;
         }
 
-        if (!StringUtility::beginsWith($label, 'LLL:')) {
+        if (!str_starts_with($label, 'LLL:')) {
             return true;
         }
 

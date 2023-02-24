@@ -14,7 +14,6 @@ use Closure;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ContextUtility;
-use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -42,7 +41,7 @@ class TranslateViewHelper extends AbstractViewHelper
 {
     use CompileWithRenderStatic;
 
-    public const MARKER_AFTER = '}';
+    public const MARKER_AFTER  = '}';
     public const MARKER_BEFORE = '{';
 
     /**
@@ -89,8 +88,7 @@ class TranslateViewHelper extends AbstractViewHelper
 
         $request = $renderingContext->getRequest();
 
-        if (null === $extensionName && $request instanceof RequestInterface && !StringUtility::beginsWith($id,
-                'LLL:')) {
+        if (null === $extensionName && $request instanceof RequestInterface && !str_starts_with($id, 'LLL:')) {
             $extensionName = $request->getControllerExtensionName();
             $id = self::buildId($id, $renderingContext, $request);
         }

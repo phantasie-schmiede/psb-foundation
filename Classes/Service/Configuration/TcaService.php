@@ -212,7 +212,7 @@ class TcaService
         $classNameParts = explode('\\', $className);
 
         // Skip vendor and product name for core classes
-        if (StringUtility::beginsWith($className, 'TYPO3\\CMS\\')) {
+        if (str_starts_with($className, 'TYPO3\\CMS\\')) {
             $classPartsToSkip = 2;
         } else {
             $classPartsToSkip = 1;
@@ -377,7 +377,7 @@ class TcaService
 
                 $tableName = $this->convertClassNameToTableName($fullQualifiedClassName);
 
-                if (StringUtility::beginsWith($tableName,
+                if (str_starts_with($tableName,
                     'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
                     self::$classTableMapping[self::CLASS_TABLE_MAPPING_KEYS['TCA']][$fullQualifiedClassName] = $tableName;
                 } else {

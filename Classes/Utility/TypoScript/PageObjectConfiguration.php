@@ -244,7 +244,7 @@ class PageObjectConfiguration
      */
     public function setController(string $controllerClassName): self
     {
-        if (!StringUtility::endsWith($controllerClassName, 'Controller')) {
+        if (!str_ends_with($controllerClassName, 'Controller')) {
             throw new InvalidArgumentException(__CLASS__ . ': ' . $controllerClassName . ' does not meet the conventions for controller class names!',
                 1560233166);
         }

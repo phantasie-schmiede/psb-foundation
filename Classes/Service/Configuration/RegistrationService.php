@@ -562,8 +562,8 @@ class RegistrationService
                 foreach ($methods as $method) {
                     $methodName = $method->getName();
 
-                    if (!StringUtility::endsWith($methodName, 'Action')
-                        || StringUtility::beginsWith($methodName, 'initialize')
+                    if (!str_ends_with($methodName, 'Action')
+                        || str_starts_with($methodName, 'initialize')
                         || in_array($method->getDeclaringClass()->getName(),
                             [AbstractModuleController::class, ActionController::class], true)
                     ) {
