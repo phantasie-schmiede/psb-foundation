@@ -26,7 +26,7 @@ class FileUtility
 {
     /**
      * Although calculated on a base of 2, the average user might be confused when he is shown the technically correct
-     * unit names like KiB, MiB or GiB. Hence the inaccurate, "old" units are being used.
+     * unit names like KiB, MiB or GiB. Hence, the inaccurate, "old" units are being used.
      */
     public const FILE_SIZE_UNITS = [
         'B'  => 0,
@@ -47,7 +47,7 @@ class FileUtility
      */
     public static function fileExists(string $filename): bool
     {
-        return file_exists(GeneralUtility::getFileAbsFileName($filename));
+        return file_exists(self::resolveFileName($filename));
     }
 
     /**
@@ -72,7 +72,7 @@ class FileUtility
                 $bytes = $input;
                 break;
             case is_string($input):
-                $input = GeneralUtility::getFileAbsFileName($input);
+                $input = self::resolveFileName($input);
                 $bytes = filesize($input);
                 break;
             default:
@@ -100,6 +100,30 @@ class FileUtility
 
     /**
      * @param string $fileName
+     *
+     * @return false|string
+     */
+    public static function getMimeType(string $fileName): bool|string
+    {
+        $fileInformation = finfo_open(FILEINFO_MIME_TYPE);
+        $mimeType = $fileInformation->file($fileName);
+        finfo_close($fileInformation);
+
+        return $mimeType;
+    }
+
+    /**
+     * @param string $fileName
+     *
+     * @return string
+     */
+    public static function resolveFileName(string $fileName): string
+    {
+        return GeneralUtility::getFileAbsFileName($fileName) ? : $fileName;
+    }
+
+    /**
+     * @param string $fileName
      * @param string $content
      * @param bool   $append
      *
@@ -107,16 +131,22 @@ class FileUtility
      */
     public static function write(string $fileName, string $content, bool $append = false): bool
     {
-        $fileName = GeneralUtility::getFileAbsFileName($fileName) ?: $fileName;
+        $fileName = self::resolveFileName($fileName);
         $pathDetails = pathinfo($fileName);
 
         // Directory creation is skipped if it already exists.
         GeneralUtility::mkdir_deep($pathDetails['dirname']);
-        GeneralUtility::
+
+        if (!@is_file($fileName)) {
+            $changePermissions = true;
+        }
+
         $success = (bool)file_put_contents($fileName, $content, $append ? FILE_APPEND : 0);
 
-        if ($success) {
+        if ($success && ($changePermissions ?? false)) {
             GeneralUtility::fixPermissions($fileName);
         }
+
+        return $success;
     }
 }
