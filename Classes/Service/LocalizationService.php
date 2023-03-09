@@ -13,6 +13,7 @@ namespace PSB\PsbFoundation\Service;
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Utility\ContextUtility;
+use PSB\PsbFoundation\Utility\FileUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\Xml\XmlUtility;
 use Psr\Container\ContainerExceptionInterface;
@@ -234,14 +235,14 @@ class LocalizationService
     {
         if ($this->extensionInformationService->getConfiguration($this->extensionInformation,
             'debug.logMissingLanguageLabels')) {
-            $filePath = Environment::getVarPath() . self::TEMP_LOG_FILE;
+            $filePath = rtrim(Environment::getVarPath(), '/') . '/' . self::TEMP_LOG_FILE;
 
             if (ContextUtility::isBootProcessRunning()) {
                 /*
                  * The TCA is not loaded yet. That means the ConnectionPool is not available and the logging has to be
                  * postponed.
                  */
-                file_put_contents($filePath, json_encode([$key => $keyExists], JSON_THROW_ON_ERROR) . LF, FILE_APPEND);
+                FileUtility::write($filePath, json_encode([$key => $keyExists], JSON_THROW_ON_ERROR) . LF, true);
             } else {
                 // Check for postponed log entries.
                 if ($logContent = file_get_contents($filePath)) {
