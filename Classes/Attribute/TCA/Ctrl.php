@@ -65,7 +65,7 @@ class Ctrl extends AbstractTcaAttribute
      * @param string|null $prependAtCopy                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/PrependAtCopy.html
      * @param bool|null   $readOnly                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ReadOnly.html
      * @param int|null    $rootLevel                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/RootLevel.html
-     * @param string|null $searchFields                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SearchFields.html
+     * @param array|null  $searchFields                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SearchFields.html
      * @param array|null  $security                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
      * @param string|null $selicon_field                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SeliconField.html
      * @param string|null $shadowColumnsForNewPlaceholders  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ShadowColumnsForNewPlaceholders.html
@@ -115,7 +115,7 @@ class Ctrl extends AbstractTcaAttribute
         protected ?string $prependAtCopy = null,
         protected ?bool $readOnly = null,
         protected ?int $rootLevel = null,
-        protected ?string $searchFields = null,
+        protected ?array $searchFields = null,
         protected ?array $security = null,
         protected ?string $selicon_field = null,
         protected ?string $shadowColumnsForNewPlaceholders = null,
@@ -370,8 +370,7 @@ class Ctrl extends AbstractTcaAttribute
             return null;
         }
 
-        $searchFields = GeneralUtility::trimExplode(',', $this->searchFields);
-
+        $searchFields = $this->searchFields;
         array_walk($searchFields, function (&$item) {
             $item = $this->tcaService->convertPropertyNameToColumnName($item);
         });
@@ -385,9 +384,9 @@ class Ctrl extends AbstractTcaAttribute
     public function getSecurity(): ?array
     {
         $securityOptions = [
-            'ignorePageTypeRestriction' => $this->ignorePageTypeRestriction,
+            'ignorePageTypeRestriction'  => $this->ignorePageTypeRestriction,
             'ignoreRootLevelRestriction' => $this->ignoreRootLevelRestriction,
-            'ignoreWebMountRestriction' => $this->ignoreWebMountRestriction,
+            'ignoreWebMountRestriction'  => $this->ignoreWebMountRestriction,
         ];
 
         foreach ($securityOptions as $securityOption => $value) {

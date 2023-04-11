@@ -66,7 +66,6 @@ class ObjectUtility
         $properties = $reflectionClass->getProperties();
 
         foreach ($properties as $property) {
-            $property->setAccessible(true);
             $getterMethodName = 'get' . GeneralUtility::underscoredToUpperCamelCase($property->getName());
 
             if (!$reflectionClass->hasMethod($getterMethodName)) {

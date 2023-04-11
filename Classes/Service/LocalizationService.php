@@ -38,6 +38,8 @@ class LocalizationService
     private const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
     private const TEMP_LOG_FILE                 = 'log/psb_foundation/postponed_language_labels.log';
 
+    protected string $logFilePath;
+
     /**
      * @param ExtensionInformationService $extensionInformationService
      * @param ExtensionInformation        $extensionInformation
@@ -46,6 +48,7 @@ class LocalizationService
         protected readonly ExtensionInformationService $extensionInformationService,
         protected readonly ExtensionInformation $extensionInformation,
     ) {
+        $this->logFilePath = rtrim(Environment::getVarPath(), '/') . '/' . self::TEMP_LOG_FILE;
     }
 
     /**
@@ -235,26 +238,24 @@ class LocalizationService
     {
         if ($this->extensionInformationService->getConfiguration($this->extensionInformation,
             'debug.logMissingLanguageLabels')) {
-            $filePath = rtrim(Environment::getVarPath(), '/') . '/' . self::TEMP_LOG_FILE;
-
             if (ContextUtility::isBootProcessRunning()) {
                 /*
                  * The TCA is not loaded yet. That means the ConnectionPool is not available and the logging has to be
                  * postponed.
                  */
-                FileUtility::write($filePath, json_encode([$key => $keyExists], JSON_THROW_ON_ERROR) . LF, true);
+                FileUtility::write($this->logFilePath, json_encode([$key, $keyExists], JSON_THROW_ON_ERROR) . LF, true);
             } else {
                 // Check for postponed log entries.
-                if ($logContent = file_get_contents($filePath)) {
+                if (file_exists($this->logFilePath) && $logContent = file_get_contents($this->logFilePath)) {
                     $postponedEntries = StringUtility::explodeByLineBreaks($logContent);
 
-                    foreach ($postponedEntries as $postponedEntry) {
+                    foreach (array_filter($postponedEntries) as $postponedEntry) {
                         [$postponedKey, $postponedKeyExists] = json_decode($postponedEntry, false, 512,
                             JSON_THROW_ON_ERROR);
                         $this->writeLogToDatabase($postponedKey, $postponedKeyExists);
                     }
 
-                    unlink($filePath);
+                    unlink($this->logFilePath);
                 }
 
                 $this->writeLogToDatabase($key, $keyExists);

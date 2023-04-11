@@ -8,7 +8,6 @@
   - [Tabs and palettes](#tabs-and-palettes)
   - [Extending domain models](#extending-domain-models)
   - [Default language label paths](#default-language-label-paths)
-  - [Additional configuration options](#additional-configuration-options)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
   - [FlexForms](#flexforms)
   - [Content element wizard](#content-element-wizard)
@@ -301,13 +300,6 @@ The labels will be build this way:<br>
 If you provide the file `EXT:your_extension_name/Resources/Private/Language/Backend/CSH/[tabelName].xlf`
 it will be registered automatically.
 
-#### Additional configuration options
-A special property has been added to the Ctrl annotation:
-
-| Property                  | Description                                                                                               |
-|---------------------------|-----------------------------------------------------------------------------------------------------------|
-| allowTableOnStandardPages | If set to true, you can insert records of a table on standard content pages (instead of SysFolders only). |
-
 ### Registering and configuring plugins
 - Classes/Data/ExtensionInformation.php
   ```php
@@ -418,82 +410,50 @@ psb_foundation will create the necessary TypoScript so that this action can be c
 
 ### Registering and configuring modules
 This process is very similar to the way plugins are registered.
+Look into the configuration classes to see all available options and their default values.
 
 - Classes/Data/ExtensionInformation.php
   ```php
-  public const MAIN_MODULES = [
-      'mainModuleName',
-      'mainModuleWithCustomConfiguration' => [
-          'iconIdentifier' => '...', // optional
-          'labels'         => '...', // optional
-          'position'       => '...', // optional
-          'routeTarget'    => '...', // optional
-      ],
-      ...
-  ];
-
-  public const MODULES = [
-      'ModuleName' => [
-          \Your\Extension\Controller\YourModuleController::class,
-          \Your\Extension\Controller\AnotherModuleController::class,
-      ],
-      ...
-  ];
+  public function __construct()
+    {
+        parent::__construct();
+        $this->addMainModule(GeneralUtility::makeInstance(MainModuleConfiguration::class,
+            key: 'my_main_module',
+            position: ['after' => 'web']
+        ));
+        $this->addModule(GeneralUtility::makeInstance(ModuleConfiguration::class,
+            controllers: [MyController::class],
+            key: 'my_module',
+            parent: 'my_main_module'
+        ));
+    }
   ```
 
 - Classes/Controller/YourModuleController.php
   ```php
   use PSB\PsbFoundation\Annotation\ModuleAction;
-  use PSB\PsbFoundation\Annotation\ModuleConfig;
 
-  /**
-   * @ModuleConfig(iconIdentifier="special-icon", mainModuleName="web", position="after:list")
-   */
   class YourModuleController extends ActionController
   {
       /**
-       * @ModuleAction()
        * @return ResponseInterface
        */
-      public function simpleAction(): ResponseInterface
-      {
-      }
-
-      /**
-       * @ModuleAction(default=true)
-       * @return ResponseInterface
-       */
+      #[ModuleAction(default: true)]
       public function mainAction(): ResponseInterface
       {
+          ...
+      }
+  
+      /**
+       * @return ResponseInterface
+       */
+      #[ModuleAction]
+      public function simpleAction(): ResponseInterface
+      {
+          ...
       }
   }
   ```
-
-Instead of `ActionController` you can extend `PSB\PsbFoundation\Controller\Backend\AbstractModuleController`.
-This class provides the required `ModuleTemplateFactory`.
-You can access the ModuleTemplate via `$this->moduleTemplate`, e.g. to add FlashMessages.
-At the end of your actions you can just call `$this->render()` and your corresponding fluid-template will be returned.
-
-```php
-use PSB\PsbFoundation\Annotation\ModuleAction;
-use PSB\PsbFoundation\Annotation\ModuleConfig;
-use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
-
-/**
-* @ModuleConfig(iconIdentifier="special-icon", mainModuleName="web", position="after:list")
-*/
-class YourModuleController extends AbstractModuleController
-{
-   /**
-     * @ModuleAction(default=true)
-     * @return ResponseInterface
-     */
-    public function simpleAction(): ResponseInterface
-    {
-        return $this->render();
-    }
-}
-```
 
 Modules need to provide three labels:
 

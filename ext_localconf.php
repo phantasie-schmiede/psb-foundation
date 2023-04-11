@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
 
-use PSB\PsbFoundation\Service\Configuration\RegistrationService;
+use PSB\PsbFoundation\Service\Configuration\PageTypeService;
+use PSB\PsbFoundation\Service\Configuration\PluginService;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\GlobalVariableProviders\EarlyAccessConstantsProvider;
 use PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider;
@@ -20,11 +21,12 @@ defined('TYPO3') or die();
 
     // configure all plugins of those extensions which provide an ExtensionInformation-class and add TypoScript if missing
     $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
-    $registrationService = GeneralUtility::makeInstance(RegistrationService::class);
-    $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+    $pageTypeService = GeneralUtility::makeInstance(PageTypeService::class);
+    $pluginService = GeneralUtility::makeInstance(PluginService::class);
 
-    foreach ($allExtensionInformation as $extensionInformation) {
-        $registrationService->configurePlugins($extensionInformation);
+    foreach ($extensionInformationService->getExtensionInformation() as $extensionInformation) {
+        $pageTypeService->addToDragArea($extensionInformation);
+        $pluginService->configurePlugins($extensionInformation);
         $pageTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TsConfig/Page/Page.tsconfig';
 
         if (FileUtility::fileExists($pageTsConfigFilename)) {

@@ -7,7 +7,13 @@ services:
   PSB\PsbFoundation\:
     resource: '../Classes/*'
 
-  PSB\PsbFoundation\Service\Configuration\RegistrationService:
+  PSB\PsbFoundation\Service\Configuration\ModuleService:
+    public: true
+
+  PSB\PsbFoundation\Service\Configuration\PageTypeService:
+    public: true
+
+  PSB\PsbFoundation\Service\Configuration\PluginService:
     public: true
 
   PSB\PsbFoundation\Service\Configuration\TcaService:

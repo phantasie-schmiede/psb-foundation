@@ -10,8 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Attribute;
 
-use PSB\PsbFoundation\Utility\ObjectUtility;
-use ReflectionException;
+use PSB\PsbFoundation\Traits\ObjectToArrayTrait;
 
 /**
  * Class AbstractAttribute
@@ -20,12 +19,5 @@ use ReflectionException;
  */
 abstract class AbstractAttribute
 {
-    /**
-     * @return array
-     * @throws ReflectionException
-     */
-    public function toArray(): array
-    {
-        return ObjectUtility::toArray($this);
-    }
+    use ObjectToArrayTrait;
 }

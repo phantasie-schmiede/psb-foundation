@@ -28,17 +28,22 @@ interface ExtensionInformationInterface
     public function getExtensionName(): string;
 
     /**
-     * @return array
+     * @return MainModuleConfiguration[]
      */
     public function getMainModules(): array;
 
     /**
-     * @return array
+     * @return ModuleConfiguration[]
      */
     public function getModules(): array;
 
     /**
-     * @return array
+     * @return PageTypeConfiguration[]
+     */
+    public function getPageTypes(): array;
+
+    /**
+     * @return PluginConfiguration[]
      */
     public function getPlugins(): array;
 

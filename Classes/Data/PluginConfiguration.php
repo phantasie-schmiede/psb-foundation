@@ -8,32 +8,40 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-namespace PSB\PsbFoundation\Attribute;
-
-use Attribute;
+namespace PSB\PsbFoundation\Data;
 
 /**
- * Class PluginConfig
+ * Class PluginConfiguration
  *
- * Use this attribute for a plugin controller class.
- *
- * @package PSB\PsbFoundation\Attribute
+ * @package PSB\PsbFoundation\Data
  */
-#[Attribute(Attribute::TARGET_CLASS)]
-class PluginConfig extends AbstractAttribute
+class PluginConfiguration
 {
     /**
+     * @param string $key
+     * @param array $controllers
      * @param string $flexForm
      * @param string $group
      * @param string $iconIdentifier
      * @param string $title
      */
     public function __construct(
+        protected string $key,
+        protected array  $controllers = [],
         protected string $flexForm = '',
         protected string $group = '',
         protected string $iconIdentifier = '',
         protected string $title = '',
-    ) {
+    )
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function getControllers(): array
+    {
+        return $this->controllers;
     }
 
     /**
@@ -58,6 +66,14 @@ class PluginConfig extends AbstractAttribute
     public function getIconIdentifier(): string
     {
         return $this->iconIdentifier;
+    }
+
+    /**
+     * @return string
+     */
+    public function getKey(): string
+    {
+        return $this->key;
     }
 
     /**
