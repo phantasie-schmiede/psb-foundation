@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\ViewHelpers;
 
 use Closure;
 use InvalidArgumentException;
+use JsonException;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
@@ -62,6 +63,7 @@ class TranslateViewHelper extends AbstractViewHelper
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
     public static function renderStatic(
@@ -134,14 +136,15 @@ class TranslateViewHelper extends AbstractViewHelper
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
     protected static function translate(
-        $id,
-        $extensionName,
-        $arguments,
-        $languageKey,
-        $alternativeLanguageKeys,
+        string $id,
+        string $extensionName,
+        array  $arguments,
+        string $languageKey,
+        array  $alternativeLanguageKeys,
     ): ?string {
         return GeneralUtility::makeInstance(LocalizationService::class)
             ->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);

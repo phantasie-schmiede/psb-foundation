@@ -52,11 +52,12 @@ class XmlUtility
     public static function convertFromXml(SimpleXMLElement|string $xml, bool $sortAlphabetically = false, array $mapping = []): object|array|string
     {
         if (is_string($xml)) {
+            /** @noinspection CallableParameterUseCaseInTypeContextInspection */
             $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
-        }
 
-        if (!$xml instanceof SimpleXMLElement) {
-            throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
+            if (!$xml instanceof SimpleXMLElement) {
+                throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
+            }
         }
 
         return self::buildFromXml($sortAlphabetically, $xml, $mapping);

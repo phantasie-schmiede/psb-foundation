@@ -171,14 +171,15 @@ class LocalizationService
 
         if (file_exists($languageFilePath)) {
             $xmlData = XmlUtility::convertFromXml(file_get_contents($languageFilePath));
+            $transUnitArray = $xmlData['xliff']['file']['body']['trans-unit'] ?? null;
 
-            if (isset($xmlData['xliff']['file']['body']['trans-unit'])) {
+            if (null !== $transUnitArray) {
                 // If file contains only one label, an additional array level has to be added for the following foreach.
-                if (ArrayUtility::isAssociative($xmlData['xliff']['file']['body']['trans-unit'])) {
-                    $xmlData['xliff']['file']['body']['trans-unit'] = [$xmlData['xliff']['file']['body']['trans-unit']];
+                if (ArrayUtility::isAssociative($transUnitArray)) {
+                    $transUnitArray = [$transUnitArray];
                 }
 
-                foreach ($xmlData['xliff']['file']['body']['trans-unit'] as $transUnit) {
+                foreach ($transUnitArray as $transUnit) {
                     if (isset($transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
                         $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
 

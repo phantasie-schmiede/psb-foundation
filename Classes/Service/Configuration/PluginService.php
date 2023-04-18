@@ -1,5 +1,4 @@
 <?php
-/** @noinspection UnsupportedStringOffsetOperationsInspection */
 declare(strict_types=1);
 
 /*
@@ -74,9 +73,7 @@ class PluginService
      * For use in ext_localconf.php files
      *
      * @param ExtensionInformationInterface $extensionInformation
-     * @param string $group
-     * @param string $pluginName
-     * @param string|null $iconIdentifier
+     * @param PluginConfiguration $pluginConfiguration
      *
      * @return void
      * @throws ContainerExceptionInterface
@@ -196,10 +193,12 @@ class PluginService
      * @param string $key
      *
      * @return void
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     private function addElementWizardGroup(string $extensionKey, string $key): void
     {
@@ -221,10 +220,12 @@ class PluginService
      * @param string $key
      *
      * @return void
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     private function addElementWizardItem(
         array  $configuration,
@@ -246,7 +247,7 @@ class PluginService
      * @return array[]
      */
     private function collectActionsAndConfiguration(
-        PluginConfiguration           $configuration,
+        PluginConfiguration $configuration,
     ): array
     {
         $controllersAndCachedActions = [];
@@ -337,7 +338,7 @@ class PluginService
         }
 
         if (isset($fileName)) {
-            $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $fileName  . '.xml';
+            $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $fileName . '.xml';
         } else {
             $flexFormFilePath = $configuration->getFlexForm();
         }

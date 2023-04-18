@@ -46,7 +46,7 @@ class TypoScriptUtilityTest extends UnitTestCase
     /**
      * @return Generator
      */
-    public function convertArrayToTypoScriptDataProvider(): Generator
+    public static function convertArrayToTypoScriptDataProvider(): Generator
     {
         $path = GeneralUtility::getFileAbsFileName('EXT:psb_foundation/Tests/Unit/Utility/TypoScript/');
 

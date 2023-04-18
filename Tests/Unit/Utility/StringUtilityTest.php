@@ -53,7 +53,7 @@ class StringUtilityTest extends UnitTestCase
     /**
      * @return Generator
      */
-    public function convertStringDataProvider(): Generator
+    public static function convertStringDataProvider(): Generator
     {
         yield 'empty string' => [
             '',

@@ -25,13 +25,13 @@ use function get_class;
  *
  * @package PSB\PsbFoundation\Service
  */
-class ObjectService
+readonly class ObjectService
 {
     /**
      * @param ConnectionPool $connectionPool
      */
     public function __construct(
-        protected readonly ConnectionPool $connectionPool,
+        protected ConnectionPool $connectionPool,
     ) {
     }
 
@@ -74,13 +74,13 @@ class ObjectService
             ->where($queryBuilder->expr()
                 ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid())))
             ->orderBy('sorting')
-            ->execute();
+            ->executeQuery();
 
         // Create a complete collection by using the ordered items of the mm-table by replacing the foreign uid with the
         // concrete object.
         $completeElements = [];
 
-        while ($row = $statement->fetch()) {
+        while ($row = $statement->fetchAssociative()) {
             $completeElements[] = $objectStorageElementsByUid[$row['uid_foreign']];
         }
 

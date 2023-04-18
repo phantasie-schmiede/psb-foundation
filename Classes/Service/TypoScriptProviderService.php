@@ -28,7 +28,7 @@ use function is_string;
  *
  * @package PSB\PsbFoundation\Service
  */
-class TypoScriptProviderService
+readonly class TypoScriptProviderService
 {
     /**
      * @param ConfigurationManagerInterface $configurationManager
@@ -38,8 +38,8 @@ class TypoScriptProviderService
      * @throws NotFoundExceptionInterface
      */
     public function __construct(
-        protected readonly ConfigurationManagerInterface $configurationManager,
-        protected readonly TypoScriptService $typoScriptService,
+        protected ConfigurationManagerInterface $configurationManager,
+        protected TypoScriptService             $typoScriptService,
     ) {
         ValidationUtility::requiresTypoScriptLoaded();
     }

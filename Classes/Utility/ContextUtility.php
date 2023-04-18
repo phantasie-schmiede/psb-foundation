@@ -73,7 +73,7 @@ class ContextUtility
         }
 
         if (self::isFrontend()) {
-            return self::getCurrentFrontendLanguage()->getLocale();
+            return self::getCurrentFrontendLanguage()->getLocale()->getName();
         }
 
         return self::DEFAULT_LANGUAGE_KEY;

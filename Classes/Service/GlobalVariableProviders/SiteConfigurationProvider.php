@@ -43,6 +43,6 @@ class SiteConfigurationProvider extends AbstractProvider
         ValidationUtility::requiresFrontendContext();
         ValidationUtility::requiresTypoScriptLoaded();
 
-        return $this->siteFinder->getSiteByPageId((int)$GLOBALS['TSFE']->id);
+        return $this->siteFinder->getSiteByPageId($GLOBALS['TSFE']->id);
     }
 }

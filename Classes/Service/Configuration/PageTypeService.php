@@ -1,5 +1,4 @@
 <?php
-/** @noinspection UnsupportedStringOffsetOperationsInspection */
 declare(strict_types=1);
 
 /*

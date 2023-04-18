@@ -15,8 +15,6 @@ use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\VariableUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
@@ -52,11 +50,10 @@ class RequestParameterProvider extends AbstractProvider
      */
     public static function getRequestParameters(): array
     {
-        $parameters = GeneralUtility::_GET();
-        ArrayUtility::mergeRecursiveWithOverrule($parameters, GeneralUtility::_POST());
+        $parameters = [];
+        parse_str($GLOBALS['QUERY_STRING'], $parameters);
 
         array_walk_recursive($parameters, static function (&$item) {
-            $item = filter_var($item, FILTER_SANITIZE_STRING);
             $item = StringUtility::convertString($item);
         });
 

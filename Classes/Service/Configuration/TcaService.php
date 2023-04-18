@@ -24,7 +24,8 @@ use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
-use PSB\PsbFoundation\Utility\StringUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
@@ -162,12 +163,14 @@ class TcaService
      *                           If set to true, the configuration of all extending domain models is added to the TCA.
      *
      * @return void
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws ImplementationException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws MisconfiguredTcaException
+     * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
     public function buildTca(bool $overrideMode): void
@@ -241,10 +244,12 @@ class TcaService
      * @param string $description
      *
      * @return void
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public function createPalette(string $identifier, string $label = '', string $description = ''): void
     {
@@ -298,10 +303,12 @@ class TcaService
      * @param string $labelPath
      *
      * @return array
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     public function processSelectItemsArray(array $items, string $labelPath): array
     {
@@ -392,11 +399,13 @@ class TcaService
      * @param bool   $overrideMode
      *
      * @return void
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws MisconfiguredTcaException
+     * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
     protected function buildFromDocComment(string $className, bool $overrideMode): void
@@ -561,10 +570,12 @@ class TcaService
      * @param string $columnName
      *
      * @return bool returns true if the field could be added to TCA
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     private function addFieldIfAlreadyPossible(Column $attribute, string $columnName): bool
     {
@@ -711,19 +722,23 @@ class TcaService
      * @param string $typeList
      *
      * @return string
+     * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
     private function addTabToShowItems(string $identifier, string $typeList = ''): string
     {
+        $label = '';
+
         if (isset($this->tabs[$identifier])) {
             $label = $this->tabs[$identifier]->getLabel();
             $tabPosition = $this->tabs[$identifier]->getPosition();
         }
 
-        if (false === $this->localizationService->validateLabel($label ?? '')) {
+        if (false === $this->localizationService->validateLabel($label)) {
             $defaultLabel = $this->defaultLabelPath . 'tab.' . $identifier . '.label';
 
             if ($this->localizationService->translationExists($defaultLabel)) {

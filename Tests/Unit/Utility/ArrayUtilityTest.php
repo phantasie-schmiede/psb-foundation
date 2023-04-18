@@ -40,7 +40,7 @@ class ArrayUtilityTest extends UnitTestCase
     /**
      * @return Generator
      */
-    public function countRecursiveDataProvider(): Generator
+    public static function countRecursiveDataProvider(): Generator
     {
         yield 'empty array' => [
             [],
