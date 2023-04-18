@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Data;
 
+use PSB\PsbFoundation\Enum\ContentType;
+
 /**
  * Class PluginConfiguration
  *
@@ -18,7 +20,11 @@ namespace PSB\PsbFoundation\Data;
 class PluginConfiguration
 {
     /**
-     * @param string $key
+     * @param string $name
+     * @param bool $ajaxCacheable
+     * @param ContentType $ajaxContentType
+     * @param bool $ajaxDisableAllHeaderCode
+     * @param int $ajaxTypeNum
      * @param array $controllers
      * @param string $flexForm
      * @param string $group
@@ -26,14 +32,34 @@ class PluginConfiguration
      * @param string $title
      */
     public function __construct(
-        protected string $key,
-        protected array  $controllers = [],
-        protected string $flexForm = '',
-        protected string $group = '',
-        protected string $iconIdentifier = '',
-        protected string $title = '',
+        protected string      $name,
+        protected bool        $ajaxCacheable = false,
+        protected ContentType $ajaxContentType = ContentType::HTML,
+        protected bool        $ajaxDisableAllHeaderCode = false,
+        protected int         $ajaxTypeNum = 0,
+        protected array       $controllers = [],
+        protected string      $flexForm = '',
+        protected string      $group = '',
+        protected string      $iconIdentifier = '',
+        protected string      $title = '',
     )
     {
+    }
+
+    /**
+     * @return ContentType
+     */
+    public function getAjaxContentType(): ContentType
+    {
+        return $this->ajaxContentType;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAjaxTypeNum(): int
+    {
+        return $this->ajaxTypeNum;
     }
 
     /**
@@ -71,9 +97,9 @@ class PluginConfiguration
     /**
      * @return string
      */
-    public function getKey(): string
+    public function getName(): string
     {
-        return $this->key;
+        return $this->name;
     }
 
     /**
@@ -82,5 +108,21 @@ class PluginConfiguration
     public function getTitle(): string
     {
         return $this->title;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAjaxCacheable(): bool
+    {
+        return $this->ajaxCacheable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAjaxDisableAllHeaderCode(): bool
+    {
+        return $this->ajaxDisableAllHeaderCode;
     }
 }

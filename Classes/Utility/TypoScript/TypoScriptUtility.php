@@ -103,15 +103,8 @@ class TypoScriptUtility
             ], $pageTypeConfiguration->getUserFuncParameters());
         } else {
             $contentConfiguration = [
-                'action'                      => $pageTypeConfiguration->getAction(),
-                'controller'                  => $pageTypeConfiguration->getController(),
                 'extensionName'               => $pageTypeConfiguration->getExtensionName(),
                 'pluginName'                  => $pageTypeConfiguration->getPluginName(),
-                'switchableControllerActions' => [
-                    $pageTypeConfiguration->getController() => [
-                        1 => $pageTypeConfiguration->getAction(),
-                    ],
-                ],
                 'userFunc'                    => 'TYPO3\CMS\Extbase\Core\Bootstrap->run',
                 'vendorName'                  => $pageTypeConfiguration->getVendorName(),
             ];
@@ -130,7 +123,7 @@ class TypoScriptUtility
                 'config'                              => [
                     'additionalHeaders'    => [
                         10 => [
-                            'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType(),
+                            'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType()->value,
                         ],
                     ],
                     'admPanel'             => false,

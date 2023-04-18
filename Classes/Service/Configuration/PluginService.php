@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\Configuration;
 
 use JsonException;
-use PSB\PsbFoundation\Attribute\PageType;
 use PSB\PsbFoundation\Attribute\PluginAction;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Data\PluginConfiguration;
@@ -94,21 +93,21 @@ class PluginService
     {
         $group = $pluginConfiguration->getGroup() ?: mb_strtolower($extensionInformation->getVendorName());
         $iconIdentifier = $pluginConfiguration->getIconIdentifier() ?: $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
-                GeneralUtility::camelCaseToLowerCaseUnderscored($pluginConfiguration->getKey()));
-        $ll = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:' . $group . '.elements.' . lcfirst($pluginConfiguration->getKey());
+                GeneralUtility::camelCaseToLowerCaseUnderscored($pluginConfiguration->getName()));
+        $ll = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:' . $group . '.elements.' . lcfirst($pluginConfiguration->getName());
         $description = $ll . '.description';
         $title = $ll . '.title';
-        $listType = str_replace('_', '', $extensionInformation->getExtensionKey()) . '_' . mb_strtolower($pluginConfiguration->getKey());
+        $listType = str_replace('_', '', $extensionInformation->getExtensionKey()) . '_' . mb_strtolower($pluginConfiguration->getName());
 
         if (false === $this->localizationService->translationExists($description)) {
             $description = '';
         }
 
         if (false === $this->localizationService->translationExists($title, false)) {
-            $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $pluginConfiguration->getKey());
+            $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $pluginConfiguration->getName());
 
             if (false === $this->localizationService->translationExists($title)) {
-                $title = $pluginConfiguration->getKey();
+                $title = $pluginConfiguration->getName();
             }
         }
 
@@ -144,10 +143,14 @@ class PluginService
             [
                 $controllersAndCachedActions,
                 $controllersAndUncachedActions,
-            ] = $this->collectActionsAndConfiguration($extensionInformation, $configuration);
+            ] = $this->collectActionsAndConfiguration($configuration);
 
-            ExtensionUtility::configurePlugin($extensionInformation->getExtensionName(), $configuration->getKey(),
+            ExtensionUtility::configurePlugin($extensionInformation->getExtensionName(), $configuration->getName(),
                 $controllersAndCachedActions, $controllersAndUncachedActions);
+
+            if (0 < $configuration->getAjaxTypeNum()) {
+                $this->registerPageTypeForPlugin($configuration, $extensionInformation);
+            }
 
             $this->addPluginToElementWizard($extensionInformation, $configuration);
         }
@@ -172,17 +175,17 @@ class PluginService
             $title = $configuration->getTitle();
 
             if (empty($title)) {
-                $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $configuration->getKey());
+                $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $configuration->getName());
 
                 if (false === $this->localizationService->translationExists($title)) {
-                    $title = $configuration->getKey();
+                    $title = $configuration->getName();
                 }
             }
 
             $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
-                    GeneralUtility::camelCaseToLowerCaseUnderscored($configuration->getKey()));
+                    GeneralUtility::camelCaseToLowerCaseUnderscored($configuration->getName()));
 
-            $pluginSignature = ExtensionUtility::registerPlugin($extensionInformation->getExtensionName(), $configuration->getKey(), $title,
+            $pluginSignature = ExtensionUtility::registerPlugin($extensionInformation->getExtensionName(), $configuration->getName(), $title,
                 $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin');
             $this->registerFlexFormForPlugin($extensionInformation, $configuration, $pluginSignature);
         }
@@ -239,12 +242,10 @@ class PluginService
     }
 
     /**
-     * @param ExtensionInformationInterface $extensionInformation
      * @param PluginConfiguration $configuration
      * @return array[]
      */
     private function collectActionsAndConfiguration(
-        ExtensionInformationInterface $extensionInformation,
         PluginConfiguration           $configuration,
     ): array
     {
@@ -260,6 +261,7 @@ class PluginService
             }
 
             $controller = GeneralUtility::makeInstance(ReflectionClass::class, $controllerClassName);
+            $controllersAndCachedActions[$controllerClassName] = [];
             $methods = $controller->getMethods();
 
             foreach ($methods as $method) {
@@ -284,12 +286,6 @@ class PluginService
 
                 if (true === $pluginAction->isUncached()) {
                     $controllersAndUncachedActions[$controllerClassName][] = $actionName;
-                }
-
-                $pageType = ReflectionUtility::getAttributeInstance(PageType::class, $method);
-
-                if ($pageType instanceof PageType) {
-                    $this->registerPageTypeForAction($actionName, $configuration, $controllerClassName, $extensionInformation, $pageType);
                 }
             }
 
@@ -337,7 +333,7 @@ class PluginService
                 $fileName = $configuration->getFlexForm();
             }
         } else {
-            $fileName = $configuration->getKey();
+            $fileName = $configuration->getName();
         }
 
         if (isset($fileName)) {
@@ -354,38 +350,30 @@ class PluginService
     }
 
     /**
-     * @param string $actionName
      * @param PluginConfiguration $pluginConfiguration
-     * @param string $controllerClassName
      * @param ExtensionInformationInterface $extensionInformation
-     * @param PageType $pageType
      * @return void
      */
-    private function registerPageTypeForAction(
-        string                        $actionName,
+    private function registerPageTypeForPlugin(
         PluginConfiguration           $pluginConfiguration,
-        string                        $controllerClassName,
-        ExtensionInformationInterface $extensionInformation,
-        PageType                      $pageType): void
+        ExtensionInformationInterface $extensionInformation
+    ): void
     {
         $pageObjectConfiguration = GeneralUtility::makeInstance(PageObjectConfiguration::class);
-        $pageObjectConfiguration->setAction($actionName);
-        $pageObjectConfiguration->setCacheable($pageType->isCacheable());
-        $pageObjectConfiguration->setContentType($pageType->getContentType());
-        $pageObjectConfiguration->setController($controllerClassName);
-        $pageObjectConfiguration->setDisableAllHeaderCode($pageType->isDisableAllHeaderCode());
+        $pageObjectConfiguration->setCacheable($pluginConfiguration->isAjaxCacheable());
+        $pageObjectConfiguration->setContentType($pluginConfiguration->getAjaxContentType());
+        $pageObjectConfiguration->setDisableAllHeaderCode($pluginConfiguration->isAjaxDisableAllHeaderCode());
         $pageObjectConfiguration->setExtensionName($extensionInformation->getExtensionName());
-        $pageObjectConfiguration->setPluginName($pluginConfiguration->getKey());
-        $pageObjectConfiguration->setTypeNum($pageType->getTypeNum());
+        $pageObjectConfiguration->setPluginName($pluginConfiguration->getName());
+        $pageObjectConfiguration->setTypeNum($pluginConfiguration->getAjaxTypeNum());
         $typoScriptObjectName = strtolower(implode('_', [
             'ajax',
-            $extensionInformation['vendorName'],
-            $extensionInformation['extensionName'],
-            str_replace('\\', '', $pageObjectConfiguration->getController()),
-            $actionName,
+            $extensionInformation->getVendorName(),
+            $extensionInformation->getExtensionName(),
+            $pluginConfiguration->getName(),
         ]));
         $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);
-        $pageObjectConfiguration->setVendorName($extensionInformation['vendorName']);
+        $pageObjectConfiguration->setVendorName($extensionInformation->getVendorName());
         TypoScriptUtility::registerPageType($pageObjectConfiguration);
     }
 }
