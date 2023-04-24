@@ -18,12 +18,19 @@ use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\Localization\LanguageService;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface as ExtbaseRequestInterface;
+use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
@@ -63,12 +70,13 @@ class TranslateViewHelper extends AbstractViewHelper
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
     public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
+        array                     $arguments,
+        Closure                   $renderChildrenClosure,
         RenderingContextInterface $renderingContext,
     ): ?string {
         [
@@ -85,10 +93,14 @@ class TranslateViewHelper extends AbstractViewHelper
         }
 
         if ('' === (string)$id) {
-            throw new Exception('An argument "key" or "id" has to be provided', 1351584844);
+            throw new Exception('An argument "key" or "id" has to be provided', 1682312266);
         }
 
-        $request = $renderingContext->getRequest();
+        $request = null;
+
+        if ($renderingContext instanceof RenderingContext) {
+            $request = $renderingContext->getRequest();
+        }
 
         if (null === $extensionName && $request instanceof RequestInterface && !str_starts_with($id, 'LLL:')) {
             $extensionName = $request->getControllerExtensionName();
@@ -96,14 +108,19 @@ class TranslateViewHelper extends AbstractViewHelper
         }
 
         try {
-            $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey'],
-                $arguments['alternativeLanguageKeys']);
+            if ($request instanceof ExtbaseRequestInterface) {
+                $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey'],
+                    $arguments['alternativeLanguageKeys']);
+            } else {
+                $value = static::getLanguageService($request)->sL($id);
+                GeneralUtility::makeInstance(LocalizationService::class)->translationExists($id);
+            }
         } catch (InvalidArgumentException) {
             $value = null;
         }
 
         if (null === $value) {
-            $value = $default ?? $renderChildrenClosure();
+            $value = $default ?? $renderChildrenClosure() ?? '';
 
             if (null !== $value && !empty($translateArguments)) {
                 $value = vsprintf($value, $translateArguments);
@@ -124,13 +141,36 @@ class TranslateViewHelper extends AbstractViewHelper
     }
 
     /**
+     * @param ServerRequestInterface|null $request
+     *
+     * @return LanguageService
+     * @see \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelper
+     */
+    protected static function getLanguageService(ServerRequestInterface $request = null): LanguageService
+    {
+        if (isset($GLOBALS['LANG'])) {
+            return $GLOBALS['LANG'];
+        }
+        $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
+        if ($request !== null && ApplicationType::fromRequest($request)->isFrontend()) {
+            $GLOBALS['LANG'] = $languageServiceFactory->createFromSiteLanguage($request->getAttribute('language')
+                ?? $request->getAttribute('site')->getDefaultLanguage());
+
+            return $GLOBALS['LANG'];
+        }
+        $GLOBALS['LANG'] = $languageServiceFactory->createFromUserPreferences($GLOBALS['BE_USER'] ?? null);
+
+        return $GLOBALS['LANG'];
+    }
+
+    /**
      * Wrapper call to static LocalizationService
      *
-     * @param string   $id                      Translation Key
-     * @param string   $extensionName           UpperCamelCased extension key (for example BlogExample)
-     * @param array    $arguments               Arguments to be replaced in the resulting string
-     * @param string   $languageKey             Language key to use for this translation
-     * @param string[] $alternativeLanguageKeys Alternative language keys if no translation does exist
+     * @param string      $id                      Translation Key
+     * @param string|null $extensionName           UpperCamelCased extension key (for example BlogExample)
+     * @param array|null  $arguments               Arguments to be replaced in the resulting string
+     * @param string|null $languageKey             Language key to use for this translation
+     * @param string[]    $alternativeLanguageKeys Alternative language keys if no translation does exist
      *
      * @return string|null
      * @throws ContainerExceptionInterface
@@ -141,10 +181,10 @@ class TranslateViewHelper extends AbstractViewHelper
      */
     protected static function translate(
         string $id,
-        string $extensionName,
-        array  $arguments,
-        string $languageKey,
-        array  $alternativeLanguageKeys,
+        string $extensionName = null,
+        array  $arguments = null,
+        string $languageKey = null,
+        array  $alternativeLanguageKeys = null,
     ): ?string {
         return GeneralUtility::makeInstance(LocalizationService::class)
             ->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
