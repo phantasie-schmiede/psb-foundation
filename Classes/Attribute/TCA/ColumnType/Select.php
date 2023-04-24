@@ -122,13 +122,13 @@ class Select extends AbstractColumnType
             $this->foreignTable = $this->tcaService->convertClassNameToTableName($linkedModel);
         }
 
-        if ($renderType instanceof SelectRenderType::selectSingle) {
+        if (SelectRenderType::selectSingle === $renderType) {
             $this->autoSizeMax = $autoSizeMax ?? 1;
             $this->maxItems = $maxItems ?? 1;
             $this->size = $size ?? 1;
         }
 
-        if ($renderType instanceof SelectRenderType::selectTree) {
+        if (SelectRenderType::selectTree === $renderType) {
             $this->autoSizeMax = null;
             $this->size = null;
         }
@@ -300,7 +300,7 @@ class Select extends AbstractColumnType
      */
     public function getTreeConfig(): ?array
     {
-        if (!$this->renderType instanceof SelectRenderType::selectTree) {
+        if (SelectRenderType::selectTree !== $this->renderType) {
             return null;
         }
 

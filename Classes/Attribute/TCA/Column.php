@@ -221,7 +221,11 @@ class Column extends AbstractTcaAttribute
             }
         }
 
-        $configuration['config'] = $this->getConfiguration()->toArray();
+        $config = $this->getConfiguration()->toArray();
+
+        foreach ($config as $key => $value) {
+            $configuration['config'][TcaUtility::convertKey($key)] = $value;
+        }
 
         if (null !== $this->isNullable()) {
             $configuration['config']['nullable'] = $this->isNullable();

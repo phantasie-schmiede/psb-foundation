@@ -75,6 +75,8 @@ class Checkbox extends AbstractColumnType
      */
     public function getEval(): ?string
     {
+        $validation = null;
+
         if (!empty($this->validation)) {
             $validation = [$this->validation];
         }
