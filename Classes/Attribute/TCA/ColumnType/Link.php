@@ -22,12 +22,12 @@ class Link extends AbstractColumnType
 {
     /**
      * @param array|null $allowedTypes https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/AllowedTypes.html
-     * @param bool|null  $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/Autocomplete.html
+     * @param bool       $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/Autocomplete.html
      * @param array|null $valuePicker  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/ValuePicker.html
      */
     public function __construct(
         protected ?array $allowedTypes = null,
-        protected ?bool $autocomplete = null,
+        protected bool   $autocomplete = false,
         protected ?array $valuePicker = null,
     ) {
     }
@@ -41,9 +41,9 @@ class Link extends AbstractColumnType
     }
 
     /**
-     * @return bool|null
+     * @return bool
      */
-    public function getAutocomplete(): ?bool
+    public function getAutocomplete(): bool
     {
         return $this->autocomplete;
     }

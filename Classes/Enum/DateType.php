@@ -11,13 +11,13 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Enum;
 
 /**
- * Enum ContentType
+ * Enum DateType
  *
  * @package PSB\PsbFoundation\Enum
  */
-enum ContentType: string
+enum DateType: string
 {
-    case HTML = 'text/html';
-    case JSON = 'application/json';
-    case XML  = 'text/xml';
+    case date     = 'date';
+    case datetime = 'datetime';
+    case time     = 'time';
 }

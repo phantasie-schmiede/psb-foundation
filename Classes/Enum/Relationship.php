@@ -11,13 +11,13 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Enum;
 
 /**
- * Enum ContentType
+ * Enum Relationship
  *
  * @package PSB\PsbFoundation\Enum
  */
-enum ContentType: string
+enum Relationship: string
 {
-    case HTML = 'text/html';
-    case JSON = 'application/json';
-    case XML  = 'text/xml';
+    case manyToMany = 'manyToMany';
+    case oneToMany  = 'oneToMany';
+    case oneToOne   = 'oneToOne';
 }

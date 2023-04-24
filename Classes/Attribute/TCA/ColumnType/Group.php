@@ -36,7 +36,7 @@ class Group extends AbstractColumnType
      */
     public function __construct(
         protected ?string $allowed = null,
-        protected ?array $elementBrowserEntryPoints = null,
+        protected ?array  $elementBrowserEntryPoints = null,
         protected ?string $foreignTable = null,
         protected ?string $linkedModel = null,
     ) {
@@ -45,5 +45,29 @@ class Group extends AbstractColumnType
         if (class_exists($linkedModel)) {
             $this->foreignTable = $this->tcaService->convertClassNameToTableName($linkedModel);
         }
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getAllowed(): ?string
+    {
+        return $this->allowed;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getElementBrowserEntryPoints(): ?array
+    {
+        return $this->elementBrowserEntryPoints;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getForeignTable(): ?string
+    {
+        return $this->foreignTable;
     }
 }

@@ -21,21 +21,21 @@ use Attribute;
 class Number extends AbstractColumnType
 {
     /**
-     * @param bool|null   $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Autocomplete.html
-     * @param string|null $format       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Format.html
-     * @param int|null    $rangeLower   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
-     * @param int|null    $rangeUpper   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
-     * @param int|null    $sliderStep   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
-     * @param int|null    $sliderWidth  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
-     * @param array|null  $valuePicker  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/ValuePicker.html
+     * @param bool|null  $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Autocomplete.html
+     * @param string     $format       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Format.html
+     * @param int|null   $rangeLower   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
+     * @param int|null   $rangeUpper   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
+     * @param int|null   $sliderStep   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
+     * @param int|null   $sliderWidth  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
+     * @param array|null $valuePicker  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/ValuePicker.html
      */
     public function __construct(
-        protected ?bool $autocomplete = null,
-        protected ?string $format = null,
-        protected ?int $rangeLower = null,
-        protected ?int $rangeUpper = null,
-        protected ?int $sliderStep = null,
-        protected ?int $sliderWidth = null,
+        protected ?bool  $autocomplete = null,
+        protected string $format = 'integer',
+        protected ?int   $rangeLower = null,
+        protected ?int   $rangeUpper = null,
+        protected ?int   $sliderStep = null,
+        protected ?int   $sliderWidth = null,
         protected ?array $valuePicker = null,
     ) {
     }
@@ -49,9 +49,9 @@ class Number extends AbstractColumnType
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getFormat(): ?string
+    public function getFormat(): string
     {
         return $this->format;
     }

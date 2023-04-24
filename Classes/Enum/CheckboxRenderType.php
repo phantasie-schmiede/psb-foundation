@@ -11,13 +11,13 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Enum;
 
 /**
- * Enum ContentType
+ * Enum CheckboxRenderType
  *
  * @package PSB\PsbFoundation\Enum
  */
-enum ContentType: string
+enum CheckboxRenderType: string
 {
-    case HTML = 'text/html';
-    case JSON = 'application/json';
-    case XML  = 'text/xml';
+    case checkboxLabeledToggle = 'checkboxLabeledToggle';
+    case checkboxToggle        = 'checkboxToggle';
+    case default               = 'default';
 }

@@ -10,11 +10,14 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
+use Attribute;
+
 /**
  * Class File
  *
  * @package PSB\PsbFoundation\Attribute\TCA\ColumnType
  */
+#[Attribute(Attribute::TARGET_PROPERTY)]
 class File extends AbstractColumnType
 {
     /**
@@ -26,24 +29,26 @@ class File extends AbstractColumnType
      * @param bool         $uploadFileNameGeneratorAppendHash
      * @param string|null  $uploadFileNameGeneratorPrefix
      * @param string       $uploadFileNameGeneratorPropertySeparator
-     * @param array|null   $uploadFileNameGeneratorProperties   Mandatory property for other file name generator options!
-     * @param array|null   $uploadFileNameGeneratorReplacements Associative array whose keys will be replaced by its values in the file name
+     * @param array|null   $uploadFileNameGeneratorProperties   Mandatory property for other file name generator
+     *                                                          options!
+     * @param array|null   $uploadFileNameGeneratorReplacements Associative array whose keys will be replaced by its
+     *                                                          values in the file name
      * @param string|null  $uploadFileNameGeneratorSuffix
      * @param string|null  $uploadTargetFolder
      */
     public function __construct(
         protected array|string $allowed = 'common-image-types',
-        protected ?int $maxitems = null,
-        protected ?int $minitems = null,
-        protected ?array $overrideChildTca = null,
-        protected ?array $upload = null,
-        protected bool $uploadFileNameGeneratorAppendHash = true,
-        protected ?string $uploadFileNameGeneratorPrefix = null,
-        protected string $uploadFileNameGeneratorPropertySeparator = '-',
-        protected ?array $uploadFileNameGeneratorProperties = null,
-        protected ?array $uploadFileNameGeneratorReplacements = null,
-        protected ?string $uploadFileNameGeneratorSuffix = null,
-        protected ?string $uploadTargetFolder = null,
+        protected ?int         $maxitems = null,
+        protected ?int         $minitems = null,
+        protected ?array       $overrideChildTca = null,
+        protected ?array       $upload = null,
+        protected bool         $uploadFileNameGeneratorAppendHash = true,
+        protected ?string      $uploadFileNameGeneratorPrefix = null,
+        protected string       $uploadFileNameGeneratorPropertySeparator = '-',
+        protected ?array       $uploadFileNameGeneratorProperties = null,
+        protected ?array       $uploadFileNameGeneratorReplacements = null,
+        protected ?string      $uploadFileNameGeneratorSuffix = null,
+        protected ?string      $uploadTargetFolder = null,
     ) {
     }
 
