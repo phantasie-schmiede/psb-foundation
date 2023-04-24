@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Attribute\TCA;
 
+use Attribute;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeInterface;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use ReflectionException;
@@ -22,7 +23,8 @@ use function str_contains;
  *
  * @package PSB\PsbFoundation\Attribute\TCA
  */
-abstract class Column extends AbstractTcaAttribute
+#[Attribute(Attribute::TARGET_PROPERTY)]
+class Column extends AbstractTcaAttribute
 {
     public const EXCLUDED_FIELDS = [
         'configuration',
@@ -41,43 +43,42 @@ abstract class Column extends AbstractTcaAttribute
         'TAB'     => 'tab',
     ];
 
+    // If you don't want a field to be shown in backend at all, set this value for typeList.
     public const TYPE_LIST_NONE = 'none';
 
-    // If you don't want a field to be shown in backend at all, set this value for typeList.
+    protected ?ColumnTypeInterface $configuration = null;
 
     /**
-     * @param ColumnTypeInterface $configuration
-     * @param string|null         $description https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Description.html#example
-     * @param string|array|null   $displayCond https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
-     * @param bool|null           $exclude     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Exclude.html
-     * @param string|null         $l10nDisplay https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nDisplay.html
-     * @param string|null         $l10nMode    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nMode.html
-     * @param string              $label       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Label.html
-     * @param bool|null           $nullable    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/Nullable.html
-     * @param string|null         $onChange    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/OnChange.html
-     * @param string              $position
-     * @param bool|null           $readOnly    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/ReadOnly.html
-     * @param string              $typeList
+     * @param string|null       $description https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Description.html#example
+     * @param string|array|null $displayCond https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
+     * @param bool|null         $exclude     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Exclude.html
+     * @param string|null       $l10nDisplay https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nDisplay.html
+     * @param string|null       $l10nMode    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nMode.html
+     * @param string            $label       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Label.html
+     * @param bool|null         $nullable    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/Nullable.html
+     * @param string|null       $onChange    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/OnChange.html
+     * @param string            $position
+     * @param bool|null         $readOnly    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/ReadOnly.html
+     * @param string            $typeList
      */
     public function __construct(
-        protected ColumnTypeInterface $configuration,
-        protected ?string $description = null,
+        protected ?string           $description = null,
         protected string|array|null $displayCond = null,
-        protected ?bool $exclude = null,
-        protected ?string $l10nDisplay = null,
-        protected ?string $l10nMode = null,
-        protected string $label = '',
-        protected ?bool $nullable = null,
-        protected ?string $onChange = null,
+        protected ?bool             $exclude = null,
+        protected ?string           $l10nDisplay = null,
+        protected ?string           $l10nMode = null,
+        protected string            $label = '',
+        protected ?bool             $nullable = null,
+        protected ?string           $onChange = null,
         /**
          * Usage: 'key:propertyName'
          * You can use the keys 'after', 'before', 'palette', 'replace' and 'tab'.
          * If the referenced field belongs to a palette, there are also the options 'newLineAfter' and 'newLineBefore',
          * which will create a line break between this field and the referenced one.
          */
-        protected string $position = '',
-        protected ?bool $readOnly = null,
-        protected string $typeList = '',
+        protected string            $position = '',
+        protected ?bool             $readOnly = null,
+        protected string            $typeList = '',
     ) {
         parent::__construct();
     }
@@ -187,6 +188,14 @@ abstract class Column extends AbstractTcaAttribute
     public function isReadOnly(): ?bool
     {
         return $this->readOnly;
+    }
+
+    /**
+     * @param ColumnTypeInterface $configuration
+     */
+    public function setConfiguration(ColumnTypeInterface $configuration): void
+    {
+        $this->configuration = $configuration;
     }
 
     /**

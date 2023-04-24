@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility;
 
+use ReflectionAttribute;
 use ReflectionClass;
 use ReflectionClassConstant;
 use ReflectionFunctionAbstract;
@@ -31,10 +32,10 @@ class ReflectionUtility
      * @return object|null
      */
     public static function getAttributeInstance(
-        string $attributeClass,
+        string                                                                                                    $attributeClass,
         ReflectionClass|ReflectionClassConstant|ReflectionFunctionAbstract|ReflectionParameter|ReflectionProperty $reflection,
     ): ?object {
-        $attributes = $reflection->getAttributes($attributeClass);
+        $attributes = $reflection->getAttributes($attributeClass, ReflectionAttribute::IS_INSTANCEOF);
 
         return 0 < count($attributes) ? $attributes[0]->newInstance() : null;
     }

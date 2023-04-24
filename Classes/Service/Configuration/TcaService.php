@@ -14,6 +14,7 @@ use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Attribute\TCA\Column;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\Checkbox;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeInterface;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
 use PSB\PsbFoundation\Attribute\TCA\Ctrl;
 use PSB\PsbFoundation\Attribute\TCA\Palette;
@@ -105,7 +106,7 @@ class TcaService
      */
     public function __construct(
         protected readonly ExtensionInformationService $extensionInformationService,
-        protected readonly LocalizationService $localizationService,
+        protected readonly LocalizationService         $localizationService,
     ) {
     }
 
@@ -430,9 +431,9 @@ class TcaService
         $this->defaultLabelPath .= lcfirst($reflection->getShortName()) . '.xlf:';
         $this->palettes = [];
 
-        foreach ($reflection->getAttributes(Palette::class) as $attribute) {
+        foreach ($reflection->getAttributes(Palette::class) as $paletteAttribute) {
             /** @var Palette $paletteConfiguration */
-            $paletteConfiguration = $attribute->newInstance();
+            $paletteConfiguration = $paletteAttribute->newInstance();
             $this->palettes[$paletteConfiguration->getIdentifier()] = $paletteConfiguration;
         }
 
@@ -443,8 +444,8 @@ class TcaService
 
         $this->tabs = [];
 
-        foreach ($reflection->getAttributes(Tab::class) as $attribute) {
-            $tabConfiguration = $attribute->newInstance();
+        foreach ($reflection->getAttributes(Tab::class) as $tabAttribute) {
+            $tabConfiguration = $tabAttribute->newInstance();
             $this->tabs[$tabConfiguration->getIdentifier()] = $tabConfiguration;
         }
 
@@ -452,29 +453,30 @@ class TcaService
         $columnConfigurations = [];
 
         foreach ($properties as $property) {
-            /** @var Column $attribute */
-            $attribute = ReflectionUtility::getAttributeInstance(Column::class, $property);
+            $columnTypeAttribute = ReflectionUtility::getAttributeInstance(ColumnTypeInterface::class, $property);
 
-            if (!$attribute instanceof Column) {
+            if (!$columnTypeAttribute instanceof ColumnTypeInterface) {
                 continue;
             }
 
+            $columnAttribute = ReflectionUtility::getAttributeInstance(Column::class,
+                $property) ?? GeneralUtility::makeInstance(Column::class);
+
             $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
-            if ('' === $attribute->getLabel()) {
+            if ('' === $columnAttribute->getLabel()) {
                 $label = $this->defaultLabelPath . $property->getName();
                 $this->localizationService->translationExists($label);
-                $attribute->setLabel($label);
+                $columnAttribute->setLabel($label);
             }
 
-            $configuration = $attribute->getConfiguration();
-
-            if (($configuration instanceof Checkbox || $configuration instanceof Select) && null !== $configuration->getItems() && ArrayUtility::isAssociative($configuration->getItems())) {
-                $configuration->setItems($this->processSelectItemsArray($configuration->getItems(),
+            if (($columnTypeAttribute instanceof Checkbox || $columnTypeAttribute instanceof Select) && null !== $columnTypeAttribute->getItems() && ArrayUtility::isAssociative($columnTypeAttribute->getItems())) {
+                $columnTypeAttribute->setItems($this->processSelectItemsArray($columnTypeAttribute->getItems(),
                     $this->defaultLabelPath . $property->getName() . '.'));
             }
 
-            $columnConfigurations[$columnName] = $attribute;
+            $columnAttribute->setConfiguration($columnTypeAttribute);
+            $columnConfigurations[$columnName] = $columnAttribute;
         }
 
         if ([] === $columnConfigurations) {
@@ -514,15 +516,15 @@ class TcaService
         while (!empty($columnConfigurations)) {
             $newColumnAddedToTypes = false;
 
-            foreach ($columnConfigurations as $columnName => $attribute) {
-                $columnHasBeenAdded = $this->addFieldIfAlreadyPossible($attribute, $columnName);
+            foreach ($columnConfigurations as $columnName => $configuration) {
+                $columnHasBeenAdded = $this->addFieldIfAlreadyPossible($configuration, $columnName);
 
                 if (true === $columnHasBeenAdded) {
                     $newColumnAddedToTypes = true;
                 }
 
-                if (true === $columnHasBeenAdded || Column::TYPE_LIST_NONE === $attribute->getTypeList()) {
-                    $columnConfiguration = $attribute->toArray();
+                if (true === $columnHasBeenAdded || Column::TYPE_LIST_NONE === $configuration->getTypeList()) {
+                    $columnConfiguration = $configuration->toArray();
                     ExtensionManagementUtility::addTCAcolumns($this->tableName, [$columnName => $columnConfiguration]);
                     unset($columnConfigurations[$columnName]);
                 }
