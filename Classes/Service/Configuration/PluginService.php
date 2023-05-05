@@ -21,6 +21,7 @@ use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
+use ReflectionException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\DataHandling\PageDoktypeRegistry;
@@ -244,7 +245,9 @@ class PluginService
 
     /**
      * @param PluginConfiguration $configuration
+     *
      * @return array[]
+     * @throws ReflectionException
      */
     private function collectActionsAndConfiguration(
         PluginConfiguration $configuration,
@@ -261,7 +264,7 @@ class PluginService
                 $specifiedActions = $value;
             }
 
-            $controller = GeneralUtility::makeInstance(ReflectionClass::class, $controllerClassName);
+            $controller = new ReflectionClass($controllerClassName);
             $controllersAndCachedActions[$controllerClassName] = [];
             $methods = $controller->getMethods();
 

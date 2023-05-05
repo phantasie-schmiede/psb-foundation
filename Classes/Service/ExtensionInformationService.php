@@ -13,13 +13,15 @@ namespace PSB\PsbFoundation\Service;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Utility\StringUtility;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function count;
 use function in_array;
@@ -116,6 +118,42 @@ class ExtensionInformationService
         }
 
         return $extensionConfiguration;
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     *
+     * @return array
+     */
+    public function getDomainModelClassNames(ExtensionInformationInterface $extensionInformation): array
+    {
+        $classNames = [];
+
+        try {
+            $finder = Finder::create()
+                ->files()
+                ->in(ExtensionManagementUtility::extPath($extensionInformation->getExtensionKey()) . 'Classes/Domain/Model')
+                ->name('*.php');
+
+            /** @var SplFileInfo $fileInfo */
+            foreach ($finder as $fileInfo) {
+                $classNameComponents = array_merge([
+                    $extensionInformation->getVendorName(),
+                    $extensionInformation->getExtensionName(),
+                    'Domain\Model',
+                ], explode('/', substr($fileInfo->getRelativePathname(), 0, -4)));
+
+                $fullQualifiedClassName = implode('\\', $classNameComponents);
+
+                if (class_exists($fullQualifiedClassName)) {
+                    $classNames[] = $fullQualifiedClassName;
+                }
+            }
+        } catch (InvalidArgumentException) {
+            // No such directory in this extension
+        }
+
+        return $classNames;
     }
 
     /**

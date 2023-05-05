@@ -12,10 +12,8 @@ namespace PSB\PsbFoundation\Utility;
 
 use ReflectionAttribute;
 use ReflectionClass;
-use ReflectionClassConstant;
-use ReflectionFunctionAbstract;
-use ReflectionParameter;
-use ReflectionProperty;
+use ReflectionException;
+use Reflector;
 use function count;
 
 /**
@@ -26,15 +24,20 @@ use function count;
 class ReflectionUtility
 {
     /**
-     * @param string                                                                                                    $attributeClass
-     * @param ReflectionClass|ReflectionClassConstant|ReflectionFunctionAbstract|ReflectionParameter|ReflectionProperty $reflection
+     * @param string           $attributeClass
+     * @param Reflector|string $reflection Can be a reflection or a full qualified class name.
      *
      * @return object|null
+     * @throws ReflectionException
      */
     public static function getAttributeInstance(
-        string                                                                                                    $attributeClass,
-        ReflectionClass|ReflectionClassConstant|ReflectionFunctionAbstract|ReflectionParameter|ReflectionProperty $reflection,
+        string $attributeClass,
+        Reflector|string $reflection,
     ): ?object {
+        if (is_string($reflection)) {
+            $reflection = new ReflectionClass($reflection);
+        }
+
         $attributes = $reflection->getAttributes($attributeClass, ReflectionAttribute::IS_INSTANCEOF);
 
         return 0 < count($attributes) ? $attributes[0]->newInstance() : null;

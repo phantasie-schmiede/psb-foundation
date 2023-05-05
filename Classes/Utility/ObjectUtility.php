@@ -62,7 +62,7 @@ class ObjectUtility
     public static function toArray(object $object): array
     {
         $arrayRepresentation = [];
-        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $object);
+        $reflectionClass = new ReflectionClass($object);
         $properties = $reflectionClass->getProperties();
 
         foreach ($properties as $property) {

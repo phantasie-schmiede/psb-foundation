@@ -20,6 +20,7 @@ use PSB\PsbFoundation\Utility\ReflectionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
+use ReflectionException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
@@ -159,6 +160,7 @@ class ModuleService
      * @param array $controllersCollection
      *
      * @return array
+     * @throws ReflectionException
      */
     private function collectActions(
         array $controllersCollection,
@@ -174,7 +176,7 @@ class ModuleService
                 $specifiedActions = $value;
             }
 
-            $controller = GeneralUtility::makeInstance(ReflectionClass::class, $controllerClassName);
+            $controller = new ReflectionClass($controllerClassName);
             $controllersAndActions[$controllerClassName] = [];
             $methods = $controller->getMethods();
 

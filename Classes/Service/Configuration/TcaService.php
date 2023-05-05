@@ -10,13 +10,14 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\Configuration;
 
-use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Attribute\TCA\Column;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\Checkbox;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeInterface;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
 use PSB\PsbFoundation\Attribute\TCA\Ctrl;
+use PSB\PsbFoundation\Attribute\TCA\Mapping\Field;
+use PSB\PsbFoundation\Attribute\TCA\Mapping\Table;
 use PSB\PsbFoundation\Attribute\TCA\Palette;
 use PSB\PsbFoundation\Attribute\TCA\Tab;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
@@ -24,14 +25,14 @@ use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
+use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
+use ReflectionProperty;
 use RuntimeException;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -39,6 +40,8 @@ use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
+use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 use function array_slice;
 use function get_class;
 use function in_array;
@@ -79,6 +82,11 @@ class TcaService
      * @var array
      */
     protected static array $classTableMapping = [];
+
+    /**
+     * @var ClassesConfiguration|null
+     */
+    protected ?ClassesConfiguration $classesConfiguration = null;
 
     /**
      * @var string
@@ -189,7 +197,7 @@ class TcaService
         if (isset(self::$classTableMapping[$key])) {
             foreach (self::$classTableMapping[$key] as $fullQualifiedClassName => $tableName) {
                 $this->setTableName($tableName);
-                $this->buildFromDocComment($fullQualifiedClassName, $overrideMode);
+                $this->buildFromAttributes($fullQualifiedClassName, $overrideMode);
             }
         }
     }
@@ -205,13 +213,32 @@ class TcaService
     }
 
     /**
+     * Checks the ClassesConfiguration of TYPO3 if already available (it is not during bootstrapping). Otherwise, the
+     * value from mapping attributes is returned. As last fallback, the class name is converted according to the
+     * naming convention.
+     *
      * @param string $className
      *
      * @return string
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function convertClassNameToTableName(string $className): string
     {
-        // @TODO: Add custom mapping because ClassesConfiguration can't be used here because it's using the CacheManager!
+        if ($this->checkClassesConfiguration() && $this->classesConfiguration->hasClass($className)) {
+            $configuration = $this->classesConfiguration->getConfigurationFor($className);
+
+            if (!empty($configuration['tableName'])) {
+                return $configuration['tableName'];
+            }
+        }
+
+        $tableMapping = ReflectionUtility::getAttributeInstance(Table::class, $className);
+
+        if ($tableMapping instanceof Table) {
+            return $tableMapping->getName();
+        }
 
         $classNameParts = explode('\\', $className);
 
@@ -226,14 +253,35 @@ class TcaService
     }
 
     /**
+     * Checks the ClassesConfiguration of TYPO3 if already available (it is not during bootstrapping). Otherwise, the
+     * value from mapping attributes is returned. As last fallback, the property name is converted according to the
+     * naming convention.
+     *
      * @param string      $propertyName
      * @param string|null $className
      *
      * @return string
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
-        // @TODO: Add custom mapping because ClassesConfiguration can't be used here because it's using the CacheManager!
+        if ($this->checkClassesConfiguration() && $this->classesConfiguration->hasClass($className)) {
+            $configuration = $this->classesConfiguration->getConfigurationFor($className);
+
+            if (!empty($configuration['properties'][$propertyName]['fieldName'])) {
+                return $configuration['properties'][$propertyName]['fieldName'];
+            }
+        }
+
+        $propertyReflection = new ReflectionProperty($className, $propertyName);
+        $fieldMapping = ReflectionUtility::getAttributeInstance(Field::class, $propertyReflection);
+
+        if ($fieldMapping instanceof Field) {
+            return $fieldMapping->getName();
+        }
+
         return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);
     }
 
@@ -345,7 +393,10 @@ class TcaService
 
     /**
      * @return void
+     * @throws ContainerExceptionInterface
      * @throws ImplementationException
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     protected function buildClassesTableMapping(): void
     {
@@ -353,43 +404,21 @@ class TcaService
         $allExtensionInformation = $this->extensionInformationService->getExtensionInformation();
 
         foreach ($allExtensionInformation as $extensionInformation) {
-            try {
-                $finder = Finder::create()
-                    ->files()
-                    ->in(ExtensionManagementUtility::extPath($extensionInformation->getExtensionKey()) . 'Classes/Domain/Model')
-                    ->name('*.php');
-            } catch (InvalidArgumentException) {
-                // No such directory in this extension
-                continue;
-            }
+            $classNames = $this->extensionInformationService->getDomainModelClassNames($extensionInformation);
 
-            /** @var SplFileInfo $fileInfo */
-            foreach ($finder as $fileInfo) {
-                $classNameComponents = array_merge([
-                    $extensionInformation->getVendorName(),
-                    $extensionInformation->getExtensionName(),
-                    'Domain\Model',
-                ], explode('/', substr($fileInfo->getRelativePathname(), 0, -4)));
-
-                $fullQualifiedClassName = implode('\\', $classNameComponents);
-
-                if (!class_exists($fullQualifiedClassName)) {
-                    continue;
-                }
-
-                $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $fullQualifiedClassName);
+            foreach ($classNames as $className) {
+                $reflectionClass = new ReflectionClass($className);
 
                 if ($reflectionClass->isAbstract() || $reflectionClass->isInterface()) {
                     continue;
                 }
 
-                $tableName = $this->convertClassNameToTableName($fullQualifiedClassName);
+                $tableName = $this->convertClassNameToTableName($className);
 
-                if (str_starts_with($tableName,
-                    'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
-                    self::$classTableMapping[self::CLASS_TABLE_MAPPING_KEYS['TCA']][$fullQualifiedClassName] = $tableName;
+                if (str_starts_with($tableName, 'tx_' . mb_strtolower($extensionInformation->getExtensionName()))) {
+                    self::$classTableMapping[self::CLASS_TABLE_MAPPING_KEYS['TCA']][$className] = $tableName;
                 } else {
-                    self::$classTableMapping[self::CLASS_TABLE_MAPPING_KEYS['TCA_OVERRIDES']][$fullQualifiedClassName] = $tableName;
+                    self::$classTableMapping[self::CLASS_TABLE_MAPPING_KEYS['TCA_OVERRIDES']][$className] = $tableName;
                 }
             }
         }
@@ -409,9 +438,9 @@ class TcaService
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    protected function buildFromDocComment(string $className, bool $overrideMode): void
+    protected function buildFromAttributes(string $className, bool $overrideMode): void
     {
-        $reflection = GeneralUtility::makeInstance(ReflectionClass::class, $className);
+        $reflection = new ReflectionClass($className);
 
         /** @var Ctrl|null $ctrl */
         $ctrl = ReflectionUtility::getAttributeInstance(Ctrl::class, $reflection);
@@ -754,6 +783,21 @@ class TcaService
         ExtensionManagementUtility::addToAllTCAtypes($this->tableName, $tabDefinition, $typeList, $tabPosition ?? '');
 
         return $tabDefinition;
+    }
+
+    /**
+     * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function checkClassesConfiguration(): bool
+    {
+        if (null === $this->classesConfiguration && !ContextUtility::isBootProcessRunning()) {
+            $this->classesConfiguration = GeneralUtility::makeInstance(ClassesConfigurationFactory::class)
+                ?->createClassesConfiguration();
+        }
+
+        return $this->classesConfiguration instanceof ClassesConfiguration;
     }
 
     /**

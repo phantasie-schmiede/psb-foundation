@@ -48,7 +48,7 @@ readonly class ObjectService
     public function resolveMultipleMmRelation(AbstractDomainObject $object, string $property): array
     {
         // Store each ObjectStorage element by uid.
-        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $object);
+        $reflectionClass = new ReflectionClass($object);
         $reflectionProperty = $reflectionClass->getProperty($property);
 
         /** @var Mm|null $mm */

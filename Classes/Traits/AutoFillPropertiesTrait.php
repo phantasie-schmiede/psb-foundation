@@ -31,7 +31,7 @@ trait AutoFillPropertiesTrait
      */
     public function fillProperties(array $properties): void
     {
-        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $this);
+        $reflectionClass = new ReflectionClass($this);
 
         foreach ($properties as $property => $value) {
             $property = StringUtility::sanitizePropertyName($property);
