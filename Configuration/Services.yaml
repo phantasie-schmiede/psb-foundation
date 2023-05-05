@@ -7,6 +7,12 @@ services:
   PSB\PsbFoundation\:
     resource: '../Classes/*'
 
+  PSB\PsbFoundation\EventListener\DatabaseEnricher:
+    tags:
+      - name: event.listener
+        identifier: 'psbFoundation_databaseEnricher'
+        event: TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent
+
   PSB\PsbFoundation\Service\Configuration\ModuleService:
     public: true
 
