@@ -27,13 +27,6 @@ defined('TYPO3') or die();
     foreach ($extensionInformationService->getExtensionInformation() as $extensionInformation) {
         $pageTypeService->addToDragArea($extensionInformation);
         $pluginService->configurePlugins($extensionInformation);
-        $pageTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TsConfig/Page/Page.tsconfig';
-
-        if (FileUtility::fileExists($pageTsConfigFilename)) {
-            ExtensionManagementUtility::addPageTSConfig('
-             @import \'' . $pageTsConfigFilename . '\'
-        ');
-        }
 
         $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TsConfig/User/User.tsconfig';
 
