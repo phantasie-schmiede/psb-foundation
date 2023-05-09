@@ -134,6 +134,7 @@ class PluginService
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function configurePlugins(ExtensionInformationInterface $extensionInformation): void
     {
@@ -289,7 +290,11 @@ class PluginService
                 }
 
                 if (true === $pluginAction->isUncached()) {
-                    $controllersAndUncachedActions[$controllerClassName][] = $actionName;
+                    if (true === $pluginAction->isDefault()) {
+                        array_unshift($controllersAndUncachedActions[$controllerClassName], $actionName);
+                    } else {
+                        $controllersAndUncachedActions[$controllerClassName][] = $actionName;
+                    }
                 }
             }
 
