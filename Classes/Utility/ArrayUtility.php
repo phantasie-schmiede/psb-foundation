@@ -43,6 +43,17 @@ class ArrayUtility
     }
 
     /**
+     * @param mixed $needle
+     * @param array $array
+     *
+     * @return false|int|string
+     */
+    public static function findLastOccurrence(mixed $needle, array $array): bool|int|string
+    {
+        return array_search($needle, array_reverse($array, true), true);
+    }
+
+    /**
      * @param $variable
      *
      * @return array
@@ -99,8 +110,7 @@ class ArrayUtility
     {
         if (!Typo3ArrayUtility::isAssociative($array)) {
             $combinedArray = [];
-            array_push($combinedArray, ...array_slice($array, 0, $index), ...$elements,
-                ...array_slice($array, $index));
+            array_push($combinedArray, ...array_slice($array, 0, $index), ...$elements, ...array_slice($array, $index));
 
             return $combinedArray;
         }

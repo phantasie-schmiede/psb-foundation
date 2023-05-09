@@ -11,7 +11,7 @@ defined('TYPO3') or die();
     // register all plugins of those extensions which provide an ExtensionInformation-class
     $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
     $pluginService = GeneralUtility::makeInstance(PluginService::class);
-    $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+    $allExtensionInformation = $extensionInformationService->getAllExtensionInformation();
 
     foreach ($allExtensionInformation as $extensionInformation) {
         $pluginService->registerPlugins($extensionInformation);

@@ -11,7 +11,7 @@ defined('TYPO3') or die();
     $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
     $pageTypeService = GeneralUtility::makeInstance(PageTypeService::class);
 
-    foreach ($extensionInformationService->getExtensionInformation() as $extensionInformation) {
+    foreach ($extensionInformationService->getAllExtensionInformation() as $extensionInformation) {
         $pageTypeService->addToSelectBox($extensionInformation);
     }
 })();

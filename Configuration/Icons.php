@@ -12,7 +12,7 @@ return call_user_func(
     static function () {
         $icons = [];
         $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
-        $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+        $allExtensionInformation = $extensionInformationService->getAllExtensionInformation();
 
         foreach ($allExtensionInformation as $extensionInformation) {
             $path = GeneralUtility::getFileAbsFileName('EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Public/Icons');

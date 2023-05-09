@@ -13,7 +13,7 @@ defined('TYPO3') or die();
 (static function () {
     // register TypoScript of those extensions which provide an ExtensionInformation-class
     $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
-    $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+    $allExtensionInformation = $extensionInformationService->getAllExtensionInformation();
     $localizationService = GeneralUtility::makeInstance(LocalizationService::class);
 
     foreach ($allExtensionInformation as $extensionInformation) {

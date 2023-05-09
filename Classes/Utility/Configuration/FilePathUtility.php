@@ -10,7 +10,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\Configuration;
 
-use TYPO3\CMS\Core\Core\Environment;
+use PSB\PsbFoundation\Data\ExtensionInformationInterface;
+use PSB\PsbFoundation\Utility\ArrayUtility;
 
 /**
  * Class FilePathUtility
@@ -19,27 +20,57 @@ use TYPO3\CMS\Core\Core\Environment;
  */
 class FilePathUtility
 {
+    public const EXTENSION_DIRECTORY_PREFIX = 'EXT:';
+    public const LANGUAGE_LABEL_PREFIX      = 'LLL:';
+
     /**
-     * For use in php-files located in EXT:extension_key/Configuration/.
-     *
-     * @param string|null $filename custom filename without extension (.xlf is added automatically)
+     * @param ExtensionInformationInterface $extensionInformation
      *
      * @return string
      */
-    public static function getLanguageFilePath(string $filename = null): string
+    public static function getLanguageFilePath(ExtensionInformationInterface $extensionInformation): string
     {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-        $callingFile = $trace[0]['file'];
+        return self::LANGUAGE_LABEL_PREFIX . self::getResourcePath($extensionInformation) . 'Private/Language/';
+    }
 
-        // Environment path and backtrace path may be different due to directory mounts in the file system!
-        $callingFilePathParts = explode(Environment::getExtensionsPath() . '/', $callingFile);
-        $shortPath = 'LLL:EXT:' . $callingFilePathParts[1];
-        $pathParts = explode('/', $shortPath);
-        $extensionPath = array_shift($pathParts);
-        $callingFilename = array_pop($pathParts);
+    /**
+     * For use in php-files located in an extension directory.
+     *
+     * This function generates the corresponding prefix for backend labels.
+     * Example: Calling from EXT:my_extension/Configuration/TCA/Overrides/tt_content.xlf without submitting
+     * a filename will return
+     * "LLL:EXT:my_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf".
+     *
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string|null                   $filename custom filename without extension (.xlf is added automatically)
+     *
+     * @return string
+     */
+    public static function getLanguageFilePathForCurrentFile(
+        ExtensionInformationInterface $extensionInformation,
+        string $filename = null
+    ): string {
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+        $callingFilePathElements = explode('/', $trace[0]['file']);
+        $indexOfExtensionKey = ArrayUtility::findLastOccurrence($extensionInformation->getExtensionKey(),
+            $callingFilePathElements);
+        $relativeFilePathElements = array_slice($callingFilePathElements, $indexOfExtensionKey);
+        $callingFilename = array_pop($relativeFilePathElements);
         $filename = ($filename ?? str_replace('.php', '', $callingFilename)) . '.xlf:';
 
-        return $extensionPath . '/Resources/Private/Language/Backend/' . implode('/',
-                $pathParts) . '/' . lcfirst($filename);
+        return self::getLanguageFilePath($extensionInformation) . implode('/',
+                $relativeFilePathElements) . '/' . lcfirst($filename);
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     *
+     * @return string
+     */
+    public static function getResourcePath(ExtensionInformationInterface $extensionInformation): string
+    {
+        $subDirectoryPath = $extensionInformation->getExtensionKey() . '/Resources/';
+
+        return self::EXTENSION_DIRECTORY_PREFIX . $subDirectoryPath;
     }
 }

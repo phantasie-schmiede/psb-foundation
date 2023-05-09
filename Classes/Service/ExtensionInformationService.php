@@ -18,7 +18,6 @@ use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
-use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
 use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
@@ -95,6 +94,19 @@ class ExtensionInformationService
     }
 
     /**
+     * @return ExtensionInformationInterface[]
+     * @throws ImplementationException
+     */
+    public function getAllExtensionInformation(): array
+    {
+        if (empty($this->extensionInformationInstances)) {
+            $this->register();
+        }
+
+        return $this->extensionInformationInstances;
+    }
+
+    /**
      * Additional wrapper function to access specific settings defined in ext_conf_template.txt of an extension more
      * easily.
      *
@@ -157,41 +169,17 @@ class ExtensionInformationService
     }
 
     /**
-     * @return ExtensionInformationInterface[]
+     * @param string $extensionKey
+     *
+     * @return ExtensionInformationInterface
      * @throws ImplementationException
      */
-    public function getExtensionInformation(): array
+    public function getExtensionInformation(string $extensionKey): ExtensionInformationInterface
     {
-        if (empty($this->extensionInformationInstances)) {
-            $this->register();
-        }
+        $instances = $this->getAllExtensionInformation();
 
-        return $this->extensionInformationInstances;
-    }
-
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return string
-     * @throws UnknownPackageException
-     */
-    public function getLanguageFilePath(ExtensionInformationInterface $extensionInformation): string
-    {
-        return $this->getResourcePath($extensionInformation) . 'Private/Language/';
-    }
-
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return string
-     * @throws UnknownPackageException
-     */
-    public function getResourcePath(ExtensionInformationInterface $extensionInformation): string
-    {
-        $subDirectoryPath = '/' . $extensionInformation->getExtensionKey() . '/Resources/';
-
-        return $this->packageManager->getPackage($extensionInformation->getExtensionKey())
-                ->getPackagePath() . $subDirectoryPath;
+        return $instances[$extensionKey] ?? throw new ImplementationException(__CLASS__ . ': There is no ExtensionInformation registered for ' . $extensionKey . '!',
+            1683560687);
     }
 
     /**

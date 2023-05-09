@@ -24,7 +24,7 @@ defined('TYPO3') or die();
     $pageTypeService = GeneralUtility::makeInstance(PageTypeService::class);
     $pluginService = GeneralUtility::makeInstance(PluginService::class);
 
-    foreach ($extensionInformationService->getExtensionInformation() as $extensionInformation) {
+    foreach ($extensionInformationService->getAllExtensionInformation() as $extensionInformation) {
         $pageTypeService->addToDragArea($extensionInformation);
         $pluginService->configurePlugins($extensionInformation);
 

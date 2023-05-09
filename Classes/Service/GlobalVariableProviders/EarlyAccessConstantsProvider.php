@@ -55,7 +55,7 @@ class EarlyAccessConstantsProvider extends AbstractProvider
     {
         $mergedConstants = [];
         $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
-        $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+        $allExtensionInformation = $extensionInformationService->getAllExtensionInformation();
 
         // This builds the path for a context-specific file with a lowercase filename.
         /** @var array $contextParts */
