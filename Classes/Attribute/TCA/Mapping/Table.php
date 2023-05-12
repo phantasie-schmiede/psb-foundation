@@ -26,11 +26,11 @@ class Table
 {
     /**
      * @param string      $name
-     * @param string|null $parentClass
+     * @param string|null $parentClass If parent class is given, the model will be added to that class' subclasses.
      * @param string|null $recordType
      */
     public function __construct(
-        protected string $name,
+        protected string      $name,
         protected string|null $parentClass = null,
         protected string|null $recordType = null,
     ) {

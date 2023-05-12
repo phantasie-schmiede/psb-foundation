@@ -43,4 +43,12 @@ abstract class AbstractColumnType extends AbstractAttribute implements ColumnTyp
 
         return $configuration;
     }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return defined('static::DATABASE_DEFINITION') ? static::DATABASE_DEFINITION : '';
+    }
 }

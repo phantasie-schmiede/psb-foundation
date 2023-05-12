@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
+use PSB\PsbFoundation\Enum\NumberFormat;
 
 /**
  * Class Number
@@ -20,23 +21,28 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Number extends AbstractColumnType
 {
+    public const DATABASE_DEFINITIONS = [
+        'DECIMAL' => 'double(11,2) DEFAULT \'0.00\'',
+        'INTEGER' => 'int(11) DEFAULT \'0\'',
+    ];
+
     /**
-     * @param bool|null  $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Autocomplete.html
-     * @param string     $format       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Format.html
-     * @param int|null   $rangeLower   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
-     * @param int|null   $rangeUpper   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
-     * @param int|null   $sliderStep   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
-     * @param int|null   $sliderWidth  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
-     * @param array|null $valuePicker  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/ValuePicker.html
+     * @param bool|null    $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Autocomplete.html
+     * @param NumberFormat $format       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Format.html
+     * @param int|null     $rangeLower   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
+     * @param int|null     $rangeUpper   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
+     * @param int|null     $sliderStep   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
+     * @param int|null     $sliderWidth  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
+     * @param array|null   $valuePicker  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/ValuePicker.html
      */
     public function __construct(
-        protected ?bool  $autocomplete = null,
-        protected string $format = 'integer',
-        protected ?int   $rangeLower = null,
-        protected ?int   $rangeUpper = null,
-        protected ?int   $sliderStep = null,
-        protected ?int   $sliderWidth = null,
-        protected ?array $valuePicker = null,
+        protected ?bool        $autocomplete = null,
+        protected NumberFormat $format = NumberFormat::integer,
+        protected ?int         $rangeLower = null,
+        protected ?int         $rangeUpper = null,
+        protected ?int         $sliderStep = null,
+        protected ?int         $sliderWidth = null,
+        protected ?array       $valuePicker = null,
     ) {
     }
 
@@ -51,7 +57,19 @@ class Number extends AbstractColumnType
     /**
      * @return string
      */
-    public function getFormat(): string
+    public function getDatabaseDefinition(): string
+    {
+        return match ($this->format) {
+            NumberFormat::decimal => self::DATABASE_DEFINITIONS['DECIMAL'],
+            NumberFormat::integer => self::DATABASE_DEFINITIONS['INTEGER'],
+            default               => '',
+        };
+    }
+
+    /**
+     * @return NumberFormat
+     */
+    public function getFormat(): NumberFormat
     {
         return $this->format;
     }

@@ -22,6 +22,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class Category extends AbstractColumnType
 {
+    public const DATABASE_DEFINITION = 'int(11) unsigned DEFAULT \'0\'';
+
     /**
      * @var TcaService
      */

@@ -16,16 +16,16 @@ use PSB\PsbFoundation\Utility\StringUtility;
 use function is_string;
 
 /**
- * Class DateTime
- *
- * Fields of this type will be added to the database by TYPO3 automatically.
- * There is no need to manually add them in ext_tables.sql!
+ * Class Datetime
  *
  * @package PSB\PsbFoundation\Attribute\TCA\ColumnType
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class DateTime extends AbstractColumnType
+class Datetime extends AbstractColumnType
 {
+    // Database field for type datetime is added by TYPO3 automatically.
+    public const DATABASE_DEFINITION = '';
+
     /**
      * @param DateType|null         $dbType            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/DbType.html
      * @param bool|null             $disableAgeDisplay https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/DisableAgeDisplay.html

@@ -20,6 +20,8 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Link extends AbstractColumnType
 {
+    public const DATABASE_DEFINITION = 'varchar(255) DEFAULT \'\'';
+
     /**
      * @param array|null $allowedTypes https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/AllowedTypes.html
      * @param bool       $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/Autocomplete.html

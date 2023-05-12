@@ -20,6 +20,11 @@ interface ColumnTypeInterface
     /**
      * @return string
      */
+    public function getDatabaseDefinition(): string;
+
+    /**
+     * @return string
+     */
     public function getType(): string;
 
     /**

@@ -26,6 +26,8 @@ use function str_contains;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Column extends AbstractTcaAttribute
 {
+    public const DATABASE_DEFINITION_KEY = 'databaseDefinition';
+
     public const EXCLUDED_FIELDS = [
         'configuration',
         'nullable',
@@ -222,6 +224,7 @@ class Column extends AbstractTcaAttribute
         }
 
         $config = $this->getConfiguration()->toArray();
+        $databaseDefinition = $this->getConfiguration()->getDatabaseDefinition();
 
         foreach ($config as $key => $value) {
             $configuration['config'][TcaUtility::convertKey($key)] = $value;
@@ -229,6 +232,14 @@ class Column extends AbstractTcaAttribute
 
         if (null !== $this->isNullable()) {
             $configuration['config']['nullable'] = $this->isNullable();
+        }
+
+        if (!empty($databaseDefinition)) {
+            if (true !== $this->isNullable()) {
+                $databaseDefinition .= ' NOT NULL';
+            }
+
+            $configuration['config'][self::DATABASE_DEFINITION_KEY] = $databaseDefinition;
         }
 
         if (null !== $this->isReadOnly()) {

@@ -22,6 +22,8 @@ use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Checkbox extends AbstractColumnType
 {
+    public const DATABASE_DEFINITION = 'tinyint(4) DEFAULT \'0\'';
+
     /**
      * The parameters $maximumRecordsChecked and $maximumRecordsCheckedInPid are used for the TCA properties eval and
      * validation.

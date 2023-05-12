@@ -25,6 +25,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Select extends AbstractColumnType
 {
+    public const DATABASE_DEFINITION = 'int(11) unsigned DEFAULT \'0\'';
+
     public const EMPTY_DEFAULT_ITEM = [
         [
             'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose',
