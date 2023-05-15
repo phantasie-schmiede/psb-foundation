@@ -11,6 +11,9 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA;
 
 use Attribute;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -281,6 +284,9 @@ class Ctrl extends AbstractTcaAttribute
 
     /**
      * @return string
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function getLabel(): string
     {
@@ -289,6 +295,9 @@ class Ctrl extends AbstractTcaAttribute
 
     /**
      * @return string|null
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function getLabelAlt(): ?string
     {

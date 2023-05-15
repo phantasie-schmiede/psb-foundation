@@ -267,19 +267,21 @@ class TcaService
      */
     public function convertPropertyNameToColumnName(string $propertyName, string $className = null): string
     {
-        if ($this->checkClassesConfiguration() && $this->classesConfiguration->hasClass($className)) {
-            $configuration = $this->classesConfiguration->getConfigurationFor($className);
+        if (!empty($className)) {
+            if ($this->checkClassesConfiguration() && $this->classesConfiguration->hasClass($className)) {
+                $configuration = $this->classesConfiguration->getConfigurationFor($className);
 
-            if (!empty($configuration['properties'][$propertyName]['fieldName'])) {
-                return $configuration['properties'][$propertyName]['fieldName'];
+                if (!empty($configuration['properties'][$propertyName]['fieldName'])) {
+                    return $configuration['properties'][$propertyName]['fieldName'];
+                }
             }
-        }
 
-        $propertyReflection = new ReflectionProperty($className, $propertyName);
-        $fieldMapping = ReflectionUtility::getAttributeInstance(Field::class, $propertyReflection);
+            $propertyReflection = new ReflectionProperty($className, $propertyName);
+            $fieldMapping = ReflectionUtility::getAttributeInstance(Field::class, $propertyReflection);
 
-        if ($fieldMapping instanceof Field) {
-            return $fieldMapping->getName();
+            if ($fieldMapping instanceof Field) {
+                return $fieldMapping->getName();
+            }
         }
 
         return GeneralUtility::camelCaseToLowerCaseUnderscored($propertyName);

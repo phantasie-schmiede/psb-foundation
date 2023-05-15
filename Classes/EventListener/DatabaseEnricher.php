@@ -30,7 +30,7 @@ class DatabaseEnricher
     public function __invoke(AlterTableDefinitionStatementsEvent $event): void
     {
         $tca = $GLOBALS['TCA'];
-        $configurationPaths = ArrayUtility::inArrayRecursive($tca, Column::DATABASE_DEFINITION_KEY);
+        $configurationPaths = ArrayUtility::inArrayRecursive($tca, Column::DATABASE_DEFINITION_KEY, true);
 
         if (empty($configurationPaths)) {
             return;
@@ -70,8 +70,7 @@ class DatabaseEnricher
                 $createStatement .= LF . '    ' . $fieldName . ' ' . $databaseDefinition . ',';
             }
 
-            $createStatement .= rtrim($createStatement, ',') . LF . ');';
-
+            $createStatement = rtrim($createStatement, ',') . LF . ');';
             $event->addSqlData($createStatement);
         }
     }
@@ -85,7 +84,8 @@ class DatabaseEnricher
      */
     private function sqlHasFieldDefinition(string $fieldName, string $sql, string $tableName): bool
     {
-        // @TODO: Scan raw SQL!
-        return true;
+        $pattern = '/CREATE\s+TABLE\s+' . $tableName . '\s+\([^;]*[\s,]+' . $fieldName . '\s+[^;]*\);/sU';
+
+        return (bool)preg_match($pattern, $sql);
     }
 }

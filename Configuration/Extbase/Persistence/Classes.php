@@ -10,7 +10,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 $classesConfiguration = [];
 $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
 
-foreach ($extensionInformationService->getExtensionInformation() as $extensionInformation) {
+foreach ($extensionInformationService->getAllExtensionInformation() as $extensionInformation) {
     foreach ($extensionInformationService->getDomainModelClassNames($extensionInformation) as $className) {
         $tableMapping = ReflectionUtility::getAttributeInstance(Table::class, $className);
 

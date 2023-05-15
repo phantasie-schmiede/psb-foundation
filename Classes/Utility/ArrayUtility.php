@@ -68,10 +68,9 @@ class ArrayUtility
     }
 
     /**
-     *
-     *
      * @param array $haystack
      * @param mixed $needle
+     * @param bool  $searchKey
      * @param bool  $searchForSubstring
      *
      * @return array
@@ -79,18 +78,21 @@ class ArrayUtility
     public static function inArrayRecursive(
         array $haystack,
         mixed $needle,
-        bool  $searchForSubstring = false
+        bool  $searchKey = false,
+        bool  $searchForSubstring = false,
     ): array {
         $results = [];
 
         foreach ($haystack as $key => $value) {
-            if ($value === $needle || (true === $searchForSubstring && is_string($value) && str_contains($value,
+            $comparedVariable = $searchKey ? $key : $value;
+
+            if ($comparedVariable === $needle || ($searchForSubstring && is_string($comparedVariable) && str_contains($comparedVariable,
                         $needle))) {
                 $results[] = $key;
             }
 
             if (is_array($value)) {
-                $subResult = self::inArrayRecursive($value, $needle, $searchForSubstring);
+                $subResult = self::inArrayRecursive($value, $needle, $searchKey, $searchForSubstring);
 
                 if (!empty($subResult)) {
                     foreach ($subResult as $subKey) {
