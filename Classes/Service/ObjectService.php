@@ -16,7 +16,6 @@ use PSB\PsbFoundation\Utility\ReflectionUtility;
 use ReflectionClass;
 use RuntimeException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use function get_class;
 
@@ -25,13 +24,13 @@ use function get_class;
  *
  * @package PSB\PsbFoundation\Service
  */
-readonly class ObjectService
+class ObjectService
 {
     /**
      * @param ConnectionPool $connectionPool
      */
     public function __construct(
-        protected ConnectionPool $connectionPool,
+        protected readonly ConnectionPool $connectionPool,
     ) {
     }
 

@@ -6,8 +6,10 @@ Breaking changes
 
 - Method signature from ArrayUtility::inArrayRecursive() changed.
   - Argument `$returnIndex` is removed.
+  - New argument `$searchKey` which allows to search for array keys instead of values.
   - Method always returns an array of paths with all occurences of the search value.
-  - If nothing is found an empty string is returned.
+  - If nothing is found an empty array is returned.
+  - New signature: `inArrayRecursive(array $haystack, mixed $needle, bool  $searchKey = false, bool  $searchForSubstring = false): array`
 - FilePathUtility broke when using symlinks. Method signature and name of getLanguageFilePath() were changed with this
   refactoring!
   - changed to `getLanguageFilePathForCurrentFile(ExtensionInformationInterface $extensionInformation, string $filename = null)`
