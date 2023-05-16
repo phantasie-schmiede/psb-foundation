@@ -13,6 +13,8 @@ namespace PSB\PsbFoundation\Attribute\TCA;
 use Attribute;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeInterface;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function in_array;
@@ -30,10 +32,12 @@ class Column extends AbstractTcaAttribute
 
     public const EXCLUDED_FIELDS = [
         'configuration',
+        'default',
         'nullable',
         'palette',
         'position',
         'readOnly',
+        'required',
         'typeList',
     ];
 
@@ -51,6 +55,7 @@ class Column extends AbstractTcaAttribute
     protected ?ColumnTypeInterface $configuration = null;
 
     /**
+     * @param mixed             $default     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Default.html
      * @param string|null       $description https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Description.html#example
      * @param string|array|null $displayCond https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
      * @param bool|null         $exclude     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Exclude.html
@@ -61,9 +66,11 @@ class Column extends AbstractTcaAttribute
      * @param string|null       $onChange    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/OnChange.html
      * @param string            $position
      * @param bool|null         $readOnly    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/ReadOnly.html
+     * @param bool|null         $required    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Required.html
      * @param string            $typeList
      */
     public function __construct(
+        protected mixed             $default = null,
         protected ?string           $description = null,
         protected string|array|null $displayCond = null,
         protected ?bool             $exclude = null,
@@ -80,6 +87,7 @@ class Column extends AbstractTcaAttribute
          */
         protected string            $position = '',
         protected ?bool             $readOnly = null,
+        protected ?bool             $required = null,
         protected string            $typeList = '',
     ) {
         parent::__construct();
@@ -91,6 +99,14 @@ class Column extends AbstractTcaAttribute
     public function getConfiguration(): ColumnTypeInterface
     {
         return $this->configuration;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault(): mixed
+    {
+        return $this->default;
     }
 
     /**
@@ -143,6 +159,9 @@ class Column extends AbstractTcaAttribute
 
     /**
      * @return string
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function getPosition(): string
     {
@@ -193,6 +212,14 @@ class Column extends AbstractTcaAttribute
     }
 
     /**
+     * @return bool|null
+     */
+    public function isRequired(): ?bool
+    {
+        return $this->required;
+    }
+
+    /**
      * @param ColumnTypeInterface $configuration
      */
     public function setConfiguration(ColumnTypeInterface $configuration): void
@@ -230,6 +257,10 @@ class Column extends AbstractTcaAttribute
             $configuration['config'][TcaUtility::convertKey($key)] = $value;
         }
 
+        if (null !== $this->getDefault()) {
+            $configuration['config']['default'] = $this->getDefault();
+        }
+
         if (null !== $this->isNullable()) {
             $configuration['config']['nullable'] = $this->isNullable();
         }
@@ -244,6 +275,10 @@ class Column extends AbstractTcaAttribute
 
         if (null !== $this->isReadOnly()) {
             $configuration['config']['readOnly'] = $this->isReadOnly();
+        }
+
+        if (null !== $this->isRequired()) {
+            $configuration['config']['required'] = $this->isRequired();
         }
 
         return $configuration;

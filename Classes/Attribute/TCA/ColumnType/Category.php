@@ -30,7 +30,6 @@ class Category extends AbstractColumnType
     protected TcaService $tcaService;
 
     /**
-     * @param string|null  $default                 https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Category/Properties/Default.html
      * @param array        $exclusiveKeys           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Category/Properties/ExclusiveKeys.html|null
      * @param Relationship $relationship            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Category/Properties/Relationship.html
      * @param array|null   $treeConfig              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Category/Properties/TreeConfig.html
@@ -46,7 +45,6 @@ class Category extends AbstractColumnType
      * @param array        $treeConfigStartingPoints
      */
     public function __construct(
-        protected ?string      $default = null,
         protected array        $exclusiveKeys = [],
         protected Relationship $relationship = Relationship::manyToMany,
         protected ?array       $treeConfig = null,
@@ -60,14 +58,6 @@ class Category extends AbstractColumnType
         protected array        $treeConfigStartingPoints = [],
     ) {
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getDefault(): ?string
-    {
-        return $this->default;
     }
 
     /**

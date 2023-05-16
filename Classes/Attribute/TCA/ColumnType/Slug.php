@@ -24,13 +24,11 @@ class Slug extends AbstractColumnType
     public const DATABASE_DEFINITION = '';
 
     /**
-     * @param mixed  $default
      * @param string $eval              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Slug/Properties/Eval.html
      * @param string $fallbackCharacter https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Slug/Properties/FallbackCharacter.html
      * @param array  $generatorOptions  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Slug/Properties/GeneratorOptions.html
      */
     public function __construct(
-        protected string $default = '',
         protected string $eval = 'uniqueInSite',
         protected string $fallbackCharacter = '-',
         protected array $generatorOptions = [
@@ -42,14 +40,6 @@ class Slug extends AbstractColumnType
             ],
         ],
     ) {
-    }
-
-    /**
-     * @return string
-     */
-    public function getDefault(): string
-    {
-        return $this->default;
     }
 
     /**

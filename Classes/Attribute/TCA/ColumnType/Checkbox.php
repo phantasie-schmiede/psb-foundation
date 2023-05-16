@@ -29,7 +29,6 @@ class Checkbox extends AbstractColumnType
      * validation.
      *
      * @param int|string         $cols               https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Cols.html
-     * @param int                $default            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Default.html
      * @param string             $eval               https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Eval.html
      * @param false|boolean      $invertStateDisplay https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/InvertStateDisplay.html
      * @param array              $items              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Items.html
@@ -42,7 +41,6 @@ class Checkbox extends AbstractColumnType
      */
     public function __construct(
         protected int|string         $cols = 1,
-        protected int                $default = 0,
         protected string             $eval = '',
         protected bool               $invertStateDisplay = false,
         protected array              $items = [],
@@ -62,14 +60,6 @@ class Checkbox extends AbstractColumnType
     public function getCols(): int|string
     {
         return $this->cols;
-    }
-
-    /**
-     * @return int
-     */
-    public function getDefault(): int
-    {
-        return $this->default;
     }
 
     /**
