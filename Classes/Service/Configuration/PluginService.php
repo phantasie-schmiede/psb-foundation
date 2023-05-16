@@ -151,7 +151,9 @@ class PluginService
                 $this->registerPageTypeForPlugin($configuration, $extensionInformation);
             }
 
-            $this->addPluginToElementWizard($extensionInformation, $configuration);
+            if ($configuration->isAddToElementWizard()) {
+                $this->addPluginToElementWizard($extensionInformation, $configuration);
+            }
         }
     }
 

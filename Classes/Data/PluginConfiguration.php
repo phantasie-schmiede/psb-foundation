@@ -20,19 +20,21 @@ use PSB\PsbFoundation\Enum\ContentType;
 class PluginConfiguration
 {
     /**
-     * @param string $name
-     * @param bool $ajaxCacheable
+     * @param string      $name
+     * @param bool        $addToElementWizard
+     * @param bool        $ajaxCacheable
      * @param ContentType $ajaxContentType
-     * @param bool $ajaxDisableAllHeaderCode
-     * @param int $ajaxTypeNum
-     * @param array $controllers
-     * @param string $flexForm
-     * @param string $group
-     * @param string $iconIdentifier
-     * @param string $title
+     * @param bool        $ajaxDisableAllHeaderCode
+     * @param int         $ajaxTypeNum
+     * @param array       $controllers
+     * @param string      $flexForm
+     * @param string      $group
+     * @param string      $iconIdentifier
+     * @param string      $title
      */
     public function __construct(
         protected string      $name,
+        protected bool        $addToElementWizard = true,
         protected bool        $ajaxCacheable = false,
         protected ContentType $ajaxContentType = ContentType::HTML,
         protected bool        $ajaxDisableAllHeaderCode = false,
@@ -44,6 +46,14 @@ class PluginConfiguration
         protected string      $title = '',
     )
     {
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAddToElementWizard(): bool
+    {
+        return $this->addToElementWizard;
     }
 
     /**
