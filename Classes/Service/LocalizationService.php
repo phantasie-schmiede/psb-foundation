@@ -46,7 +46,7 @@ class LocalizationService
      */
     public function __construct(
         protected readonly ExtensionInformationService $extensionInformationService,
-        protected readonly ExtensionInformation $extensionInformation,
+        protected readonly ExtensionInformation        $extensionInformation,
     ) {
         $this->logFilePath = rtrim(Environment::getVarPath(), '/') . '/' . self::TEMP_LOG_FILE;
     }
@@ -59,9 +59,6 @@ class LocalizationService
      * @param array|null  $arguments               The arguments of the extension, being passed over to vsprintf
      * @param string|null $languageKey             The language key or null for using the current language from the
      *                                             system
-     * @param string[]    $alternativeLanguageKeys The alternative language keys if no translation was found. If null
-     *                                             and we are in the frontend, then the language_alt from TypoScript
-     *                                             setup will be used
      *
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
      * @throws ContainerExceptionInterface
@@ -74,12 +71,10 @@ class LocalizationService
     public function translate(
         string $key,
         string $extensionName = null,
-        array $arguments = null,
+        array  $arguments = null,
         string $languageKey = null,
-        array $alternativeLanguageKeys = null,
     ): ?string {
-        $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey,
-            $alternativeLanguageKeys);
+        $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey);
         $this->logMissingLanguageLabels($key, null !== $translation);
 
         return $translation;
