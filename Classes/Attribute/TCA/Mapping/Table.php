@@ -25,14 +25,14 @@ use Attribute;
 class Table
 {
     /**
-     * @param string      $name
-     * @param string|null $parentClass If parent class is given, the model will be added to that class' subclasses.
-     * @param string|null $recordType
+     * @param string          $name
+     * @param string|null     $parentClass If parent class is given, the model will be added to that class' subclasses.
+     * @param int|string|null $recordType
      */
     public function __construct(
-        protected string      $name,
-        protected string|null $parentClass = null,
-        protected string|null $recordType = null,
+        protected string          $name,
+        protected string|null     $parentClass = null,
+        protected int|string|null $recordType = null,
     ) {
     }
 
@@ -53,9 +53,9 @@ class Table
     }
 
     /**
-     * @return string|null
+     * @return int|string|null
      */
-    public function getRecordType(): ?string
+    public function getRecordType(): int|string|null
     {
         return $this->recordType;
     }
