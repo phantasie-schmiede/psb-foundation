@@ -12,6 +12,9 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -33,12 +36,18 @@ class Group extends AbstractColumnType
      * @param string|null $foreignTable              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/ForeignTable.html
      * @param string|null $linkedModel               Instead of directly specifying a foreign table, it is possible to
      *                                               specify a domain model class.
+     * @param int|null    $maxItems                  https://docs.typo3.org/m/typo3/reference-tca/12.4/en-us/ColumnsConfig/CommonProperties/Maxitems.html
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function __construct(
         protected ?string $allowed = null,
         protected ?array  $elementBrowserEntryPoints = null,
         protected ?string $foreignTable = null,
         protected ?string $linkedModel = null,
+        protected ?int    $maxItems = null,
     ) {
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
 
@@ -69,5 +78,13 @@ class Group extends AbstractColumnType
     public function getForeignTable(): ?string
     {
         return $this->foreignTable;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxItems(): ?int
+    {
+        return $this->maxItems;
     }
 }
