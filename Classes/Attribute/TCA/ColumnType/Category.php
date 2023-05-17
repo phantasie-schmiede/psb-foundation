@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
+use Attribute;
 use PSB\PsbFoundation\Enum\Relationship;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
@@ -20,6 +21,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  *
  * @package PSB\PsbFoundation\Attribute\TCA\ColumnType
  */
+#[Attribute(Attribute::TARGET_PROPERTY)]
 class Category extends AbstractColumnType
 {
     public const DATABASE_DEFINITION = 'int(11) unsigned DEFAULT \'0\'';
