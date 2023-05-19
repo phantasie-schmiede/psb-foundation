@@ -11,6 +11,8 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
+use PSB\PsbFoundation\Data\ExtensionInformation;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class File
@@ -94,33 +96,41 @@ class File extends AbstractColumnType
         $configuration = null;
 
         if (null !== $this->uploadFileNameGeneratorProperties) {
-            $configuration['fileNameGenerator']['properties'] = $this->uploadFileNameGeneratorProperties;
+            $fileNameGeneratorOptions['properties'] = $this->uploadFileNameGeneratorProperties;
 
             if (null !== $this->uploadFileNameGeneratorAppendHash) {
-                $configuration['fileNameGenerator']['appendHash'] = $this->uploadFileNameGeneratorAppendHash;
+                $fileNameGeneratorOptions['appendHash'] = $this->uploadFileNameGeneratorAppendHash;
             }
 
             if (null !== $this->uploadFileNameGeneratorPrefix) {
-                $configuration['fileNameGenerator']['prefix'] = $this->uploadFileNameGeneratorPrefix;
+                $fileNameGeneratorOptions['prefix'] = $this->uploadFileNameGeneratorPrefix;
             }
 
             if (null !== $this->uploadFileNameGeneratorPropertySeparator) {
-                $configuration['fileNameGenerator']['propertySeparator'] = $this->uploadFileNameGeneratorPropertySeparator;
+                $fileNameGeneratorOptions['propertySeparator'] = $this->uploadFileNameGeneratorPropertySeparator;
             }
 
             if (null !== $this->uploadFileNameGeneratorReplacements) {
-                $configuration['fileNameGenerator']['replacements'] = $this->uploadFileNameGeneratorReplacements;
+                $fileNameGeneratorOptions['replacements'] = $this->uploadFileNameGeneratorReplacements;
             }
 
             if (null !== $this->uploadFileNameGeneratorSuffix) {
-                $configuration['fileNameGenerator']['suffix'] = $this->uploadFileNameGeneratorSuffix;
+                $fileNameGeneratorOptions['suffix'] = $this->uploadFileNameGeneratorSuffix;
             }
+
+            $configuration['fileNameGenerator'] = $fileNameGeneratorOptions;
         }
 
         if (null !== $this->uploadTargetFolder) {
             $configuration['targetFolder'] = $this->uploadTargetFolder;
         }
 
-        return $configuration;
+        if (empty($configuration)) {
+            return null;
+        }
+
+        $extensionInformation = GeneralUtility::makeInstance(ExtensionInformation::class);
+
+        return ['EXT' => [$extensionInformation->getExtensionKey() => ['upload' => $configuration]]];
     }
 }

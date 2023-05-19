@@ -12,6 +12,9 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -41,6 +44,10 @@ class Inline extends AbstractColumnType
      * @param string|null $mm                 https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/Mm.html
      * @param array|null  $mmMatchFields
      * @param string|null $mmOppositeField    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Inline/Properties/Mm.html#confval-MM_opposite_field-type-inline
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function __construct(
         protected ?array $appearance = [
@@ -82,6 +89,9 @@ class Inline extends AbstractColumnType
 
     /**
      * @return string|null
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function getForeignField(): ?string
     {
