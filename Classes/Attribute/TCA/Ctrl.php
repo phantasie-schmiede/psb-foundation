@@ -38,52 +38,52 @@ class Ctrl extends AbstractTcaAttribute
     ];
 
     /**
-     * @param array|null  $EXT                              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Ext.html
-     * @param bool|null   $adminOnly                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/AdminOnly.html
-     * @param array|null  $container                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Container.html
-     * @param string|null $copyAfterDuplFields              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CopyAfterDuplFields.html
-     * @param string|null $crdate                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Crdate.html
-     * @param string      $cruser_id                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CruserId.html
-     * @param string|null $default_sortby                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DefaultSortby.html
-     * @param string|null $delete                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Delete.html
-     * @param string|null $descriptionColumn                https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DescriptionColumn.html
-     * @param string|null $editlock                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Editlock.html
-     * @param array|null  $enablecolumns                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Enablecolumns.html
-     * @param string|null $formattedLabel_userFunc          https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/FormattedLabelUserFunc.html
-     * @param array|null  $formattedLabel_userFunc_options  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/FormattedLabelUserFuncOptions.html
-     * @param string|null $groupName                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/GroupName.html
-     * @param bool|null   $hideAtCopy                       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideAtCopy.html
-     * @param bool|null   $hideTable                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideTable.html
-     * @param string|null $iconfile                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Iconfile.html
-     * @param bool|null   $ignorePageTypeRestriction        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
-     * @param bool|null   $ignoreRootLevelRestriction       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
-     * @param bool|null   $ignoreWebMountRestriction        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
-     * @param bool|null   $is_static                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/IsStatic.html
-     * @param string|null $label                            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
-     * @param string|null $label_alt                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
-     * @param bool|null   $label_alt_force                  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
-     * @param string|null $label_userFunc                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/LabelUserfunc.html
-     * @param string|null $languageField                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/LanguageField.html
-     * @param string|null $origUid                          https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/OrigUid.html
-     * @param string|null $prependAtCopy                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/PrependAtCopy.html
-     * @param bool|null   $readOnly                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ReadOnly.html
-     * @param int|null    $rootLevel                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/RootLevel.html
-     * @param array|null  $searchFields                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SearchFields.html
-     * @param array|null  $security                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
-     * @param string|null $selicon_field                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SeliconField.html
-     * @param string|null $shadowColumnsForNewPlaceholders  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ShadowColumnsForNewPlaceholders.html
-     * @param string|null $sortby                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Sortby.html
-     * @param string|null $title                            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Title.html
-     * @param string|null $transOrigDiffSourceField         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TransOrigDiffSourceField.html
-     * @param string|null $transOrigPointerField            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TransOrigPointerField.html
-     * @param string|null $translationSource                https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TranslationSource.html
-     * @param string|null $tstamp                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Tstamp.html
-     * @param string|null $type                             https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Type.html
-     * @param array|null  $typeicon_classes                 https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconClasses.html
-     * @param string|null $typeicon_column                  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconColumn.html
-     * @param string|null $useColumnsForDefaultValues       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/UseColumnsForDefaultValues.html
-     * @param bool|null   $versioningWS                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/VersioningWS.html
-     * @param bool|null   $versioningWS_alwaysAllowLiveEdit https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/VersioningWSAlwaysAllowLiveEdit.html
+     * @param array|null        $EXT                              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Ext.html
+     * @param bool|null         $adminOnly                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/AdminOnly.html
+     * @param array|null        $container                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Container.html
+     * @param string|null       $copyAfterDuplFields              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CopyAfterDuplFields.html
+     * @param string|null       $crdate                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Crdate.html
+     * @param string            $cruser_id                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CruserId.html
+     * @param string|null       $default_sortby                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DefaultSortby.html
+     * @param string|null       $delete                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Delete.html
+     * @param string|null       $descriptionColumn                https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DescriptionColumn.html
+     * @param string|null       $editlock                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Editlock.html
+     * @param array|null        $enablecolumns                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Enablecolumns.html
+     * @param string|null       $formattedLabel_userFunc          https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/FormattedLabelUserFunc.html
+     * @param array|null        $formattedLabel_userFunc_options  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/FormattedLabelUserFuncOptions.html
+     * @param string|null       $groupName                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/GroupName.html
+     * @param bool|null         $hideAtCopy                       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideAtCopy.html
+     * @param bool|null         $hideTable                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideTable.html
+     * @param string|null       $iconfile                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Iconfile.html
+     * @param bool|null         $ignorePageTypeRestriction        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
+     * @param bool|null         $ignoreRootLevelRestriction       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
+     * @param bool|null         $ignoreWebMountRestriction        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
+     * @param bool|null         $is_static                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/IsStatic.html
+     * @param string|null       $label                            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
+     * @param array|string|null $label_alt                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
+     * @param bool|null         $label_alt_force                  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Label.html
+     * @param string|null       $label_userFunc                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/LabelUserfunc.html
+     * @param string|null       $languageField                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/LanguageField.html
+     * @param string|null       $origUid                          https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/OrigUid.html
+     * @param string|null       $prependAtCopy                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/PrependAtCopy.html
+     * @param bool|null         $readOnly                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ReadOnly.html
+     * @param int|null          $rootLevel                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/RootLevel.html
+     * @param array|null        $searchFields                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SearchFields.html
+     * @param array|null        $security                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
+     * @param string|null       $selicon_field                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SeliconField.html
+     * @param string|null       $shadowColumnsForNewPlaceholders  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ShadowColumnsForNewPlaceholders.html
+     * @param string|null       $sortby                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Sortby.html
+     * @param string|null       $title                            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Title.html
+     * @param string|null       $transOrigDiffSourceField         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TransOrigDiffSourceField.html
+     * @param string|null       $transOrigPointerField            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TransOrigPointerField.html
+     * @param string|null       $translationSource                https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TranslationSource.html
+     * @param string|null       $tstamp                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Tstamp.html
+     * @param string|null       $type                             https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Type.html
+     * @param array|null        $typeicon_classes                 https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconClasses.html
+     * @param string|null       $typeicon_column                  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconColumn.html
+     * @param string|null       $useColumnsForDefaultValues       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/UseColumnsForDefaultValues.html
+     * @param bool|null         $versioningWS                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/VersioningWS.html
+     * @param bool|null         $versioningWS_alwaysAllowLiveEdit https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/VersioningWSAlwaysAllowLiveEdit.html
      */
     public function __construct(
         protected ?array $EXT = null,
@@ -110,7 +110,7 @@ class Ctrl extends AbstractTcaAttribute
         /** You can use the property name. It will be converted to the column name automatically. */
         protected ?string $label = 'uid',
         /** You can use property names. They will be converted to their column names automatically. */
-        protected ?string $label_alt = null,
+        protected array|string|null $label_alt = null,
         protected ?bool $label_alt_force = null,
         protected ?string $label_userFunc = null,
         protected ?string $languageField = 'sys_language_uid',
@@ -305,7 +305,11 @@ class Ctrl extends AbstractTcaAttribute
             return null;
         }
 
-        $altLabels = GeneralUtility::trimExplode(',', $this->label_alt);
+        if (is_string($this->label_alt)) {
+            $altLabels = GeneralUtility::trimExplode(',', $this->label_alt);
+        } else {
+            $altLabels = $this->label_alt;
+        }
 
         array_walk($altLabels, function (&$item) {
             $item = $this->tcaService->convertPropertyNameToColumnName($item);
