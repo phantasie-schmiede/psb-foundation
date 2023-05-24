@@ -37,6 +37,8 @@ class TcaUtility
     private const PROPERTY_KEY_MAPPING = [
         'cruserId'                      => 'cruser_id',
         'defaultSortBy'                 => 'default_sortby',
+        'editLock'                      => 'editlock',
+        'enableColumns'                 => 'enablecolumns',
         'enableRichText'                => 'enableRichtext',
         'foreignField'                  => 'foreign_field',
         'foreignMatchFields'            => 'foreign_match_fields',
@@ -60,10 +62,10 @@ class TcaUtility
         'mmInsertFields'                => 'MM_insert_fields',
         'mmMatchFields'                 => 'MM_match_fields',
         'mmOppositeField'               => 'MM_opposite_field',
-        'seliconField'                  => 'selicon_field',
+        'selIconField'                  => 'selicon_field',
         'sortBy'                        => 'sortby',
-        'typeiconClasses'               => 'typeicon_classes',
-        'typeiconColumn'                => 'typeicon_column',
+        'typeIconClasses'               => 'typeicon_classes',
+        'typeIconColumn'                => 'typeicon_column',
     ];
 
     /**

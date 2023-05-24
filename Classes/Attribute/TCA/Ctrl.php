@@ -47,8 +47,8 @@ class Ctrl extends AbstractTcaAttribute
      * @param string|null       $defaultSortBy                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DefaultSortby.html
      * @param string|null       $delete                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Delete.html
      * @param string|null       $descriptionColumn                https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DescriptionColumn.html
-     * @param string|null       $editlock                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Editlock.html
-     * @param array|null        $enablecolumns                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Enablecolumns.html
+     * @param string|null       $editLock                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Editlock.html
+     * @param array|null        $enableColumns                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Enablecolumns.html
      * @param string|null       $formattedLabelUserFunc           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/FormattedLabelUserFunc.html
      * @param array|null        $formattedLabelUserFuncOptions    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/FormattedLabelUserFuncOptions.html
      * @param string|null       $groupName                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/GroupName.html
@@ -70,7 +70,7 @@ class Ctrl extends AbstractTcaAttribute
      * @param int|null          $rootLevel                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/RootLevel.html
      * @param array|null        $searchFields                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SearchFields.html
      * @param array|null        $security                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
-     * @param string|null       $seliconField                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SeliconField.html
+     * @param string|null       $selIconField                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SeliconField.html
      * @param string|null       $shadowColumnsForNewPlaceholders  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ShadowColumnsForNewPlaceholders.html
      * @param string|null       $sortby                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Sortby.html
      * @param string|null       $title                            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Title.html
@@ -79,8 +79,8 @@ class Ctrl extends AbstractTcaAttribute
      * @param string|null       $translationSource                https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TranslationSource.html
      * @param string|null       $tstamp                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Tstamp.html
      * @param string|null       $type                             https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Type.html
-     * @param array|null        $typeiconClasses                  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconClasses.html
-     * @param string|null       $typeiconColumn                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconColumn.html
+     * @param array|null        $typeIconClasses                  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconClasses.html
+     * @param string|null       $typeIconColumn                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TypeiconColumn.html
      * @param string|null       $useColumnsForDefaultValues       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/UseColumnsForDefaultValues.html
      * @param bool|null         $versioningWS                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/VersioningWS.html
      * @param bool|null         $versioningWS_alwaysAllowLiveEdit https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/VersioningWSAlwaysAllowLiveEdit.html
@@ -95,8 +95,8 @@ class Ctrl extends AbstractTcaAttribute
         protected ?string           $defaultSortBy = 'uid DESC',
         protected ?string           $delete = 'deleted',
         protected ?string           $descriptionColumn = null,
-        protected ?string           $editlock = null,
-        protected ?array            $enablecolumns = self::ENABLE_COLUMNS,
+        protected ?string           $editLock = null,
+        protected ?array            $enableColumns = self::ENABLE_COLUMNS,
         protected ?string           $formattedLabelUserFunc = null,
         protected ?array            $formattedLabelUserFuncOptions = null,
         protected ?string           $groupName = null,
@@ -120,7 +120,7 @@ class Ctrl extends AbstractTcaAttribute
         protected ?int              $rootLevel = null,
         protected ?array            $searchFields = null,
         protected ?array            $security = null,
-        protected ?string           $seliconField = null,
+        protected ?string           $selIconField = null,
         protected ?string           $shadowColumnsForNewPlaceholders = null,
         protected ?string           $sortby = null,
         protected ?string           $title = null,
@@ -129,8 +129,8 @@ class Ctrl extends AbstractTcaAttribute
         protected ?string           $translationSource = 'l10n_source',
         protected ?string           $tstamp = 'tstamp',
         protected ?string           $type = null,
-        protected ?array            $typeiconClasses = null,
-        protected ?string           $typeiconColumn = null,
+        protected ?array            $typeIconClasses = null,
+        protected ?string           $typeIconColumn = null,
         protected ?string           $useColumnsForDefaultValues = null,
         protected ?bool             $versioningWS = null,
         protected ?bool             $versioningWS_alwaysAllowLiveEdit = null,
@@ -213,17 +213,17 @@ class Ctrl extends AbstractTcaAttribute
     /**
      * @return string|null
      */
-    public function getEditlock(): ?string
+    public function getEditLock(): ?string
     {
-        return $this->editlock;
+        return $this->editLock;
     }
 
     /**
      * @return array|null
      */
-    public function getEnablecolumns(): ?array
+    public function getEnableColumns(): ?array
     {
-        return $this->enablecolumns;
+        return $this->enableColumns;
     }
 
     /**
@@ -417,9 +417,9 @@ class Ctrl extends AbstractTcaAttribute
     /**
      * @return string|null
      */
-    public function getSeliconField(): ?string
+    public function getSelIconField(): ?string
     {
-        return $this->seliconField;
+        return $this->selIconField;
     }
 
     /**
@@ -489,9 +489,9 @@ class Ctrl extends AbstractTcaAttribute
     /**
      * @return array|null
      */
-    public function getTypeiconClasses(): ?array
+    public function getTypeIconClasses(): ?array
     {
-        return $this->typeiconClasses;
+        return $this->typeIconClasses;
     }
 
     /**
@@ -500,13 +500,13 @@ class Ctrl extends AbstractTcaAttribute
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    public function getTypeiconColumn(): ?string
+    public function getTypeIconColumn(): ?string
     {
-        if (null === $this->typeiconColumn) {
+        if (null === $this->typeIconColumn) {
             return null;
         }
 
-        return $this->tcaService->convertPropertyNameToColumnName($this->typeiconColumn);
+        return $this->tcaService->convertPropertyNameToColumnName($this->typeIconColumn);
     }
 
     /**
