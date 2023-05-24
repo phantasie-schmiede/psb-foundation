@@ -45,6 +45,7 @@ class TcaUtility
         'foreignTableWhere'             => 'foreign_table_where',
         'formattedLabelUserFunc'        => 'formattedLabel_userFunc',
         'formattedLabelUserFuncOptions' => 'formattedLabel_userFunc_options',
+        'iconFile'                      => 'iconfile',
         'internalType'                  => 'internal_type',
         'isStatic'                      => 'is_static',
         'l10nDisplay'                   => 'l10n_display',

@@ -54,7 +54,7 @@ class Ctrl extends AbstractTcaAttribute
      * @param string|null       $groupName                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/GroupName.html
      * @param bool|null         $hideAtCopy                       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideAtCopy.html
      * @param bool|null         $hideTable                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/HideTable.html
-     * @param string|null       $iconfile                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Iconfile.html
+     * @param string|null       $iconFile                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Iconfile.html
      * @param bool|null         $ignorePageTypeRestriction        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
      * @param bool|null         $ignoreRootLevelRestriction       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
      * @param bool|null         $ignoreWebMountRestriction        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
@@ -102,7 +102,7 @@ class Ctrl extends AbstractTcaAttribute
         protected ?string           $groupName = null,
         protected ?bool             $hideAtCopy = null,
         protected ?bool             $hideTable = null,
-        protected ?string           $iconfile = 'EXT:core/Resources/Public/Icons/T3Icons/svgs/mimetypes/mimetypes-x-sys_action.svg',
+        protected ?string           $iconFile = 'EXT:core/Resources/Public/Icons/T3Icons/svgs/mimetypes/mimetypes-x-sys_action.svg',
         protected ?bool             $ignorePageTypeRestriction = null,
         protected ?bool             $ignoreRootLevelRestriction = null,
         protected ?bool             $ignoreWebMountRestriction = null,
@@ -269,9 +269,9 @@ class Ctrl extends AbstractTcaAttribute
     /**
      * @return string|null
      */
-    public function getIconfile(): ?string
+    public function getIconFile(): ?string
     {
-        return $this->iconfile;
+        return $this->iconFile;
     }
 
     /**
