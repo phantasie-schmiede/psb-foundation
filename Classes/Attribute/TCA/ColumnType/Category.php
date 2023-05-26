@@ -12,8 +12,10 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use PSB\PsbFoundation\Enum\Relationship;
-use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -80,15 +82,12 @@ class Category extends AbstractColumnType
 
     /**
      * @return array|null
-     * @throws MisconfiguredTcaException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function getTreeConfig(): ?array
     {
-        if (empty($this->treeConfigChildrenField) && empty($this->treeConfigParentField)) {
-            throw new MisconfiguredTcaException(__CLASS__ . ': Either childrenField or parentField has to be set in treeConfig - childrenField takes precedence.',
-                1682339361);
-        }
-
         if (null !== $this->treeConfigExpandAll) {
             $configuration['appearance']['expandAll'] = $this->treeConfigExpandAll;
         }
@@ -121,6 +120,6 @@ class Category extends AbstractColumnType
             $configuration['startingPoints'] = implode(', ', $this->treeConfigStartingPoints);
         }
 
-        return $configuration;
+        return $configuration ?? null;
     }
 }
