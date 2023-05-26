@@ -221,9 +221,9 @@ class Select extends AbstractColumnType
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getMaxItems(): int
+    public function getMaxItems(): ?int
     {
         return $this->maxItems;
     }
