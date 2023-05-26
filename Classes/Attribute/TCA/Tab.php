@@ -25,13 +25,13 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class Tab extends AbstractTcaAttribute
 {
     /**
-     * @param string      $identifier
-     * @param string|null $label
-     * @param string      $position
+     * @param string $identifier
+     * @param string $label
+     * @param string $position
      */
     public function __construct(
         protected string $identifier = '',
-        protected ?string $label = null,
+        protected string $label = '',
         /**
          * Usage: 'key:propertyName'
          * You can use the keys 'after', 'before' and 'replace'.
@@ -50,9 +50,9 @@ class Tab extends AbstractTcaAttribute
     }
 
     /**
-     * @return string|null
+     * @return string
      */
-    public function getLabel(): ?string
+    public function getLabel(): string
     {
         return $this->label;
     }
