@@ -58,7 +58,7 @@ class Select extends AbstractColumnType
      * @param string|null      $foreignTableWhere       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/ForeignTableWhere.html
      * @param array|null       $items                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/Items.html
      * @param string|null      $itemsProcFunc           https://docs.typo3.org/m/typo3/reference-tca/11.5/en-us/ColumnsConfig/CommonProperties/ItemsProcFunc.html
-     * @param string|null      $linkedModel             Instead of directly specifying a foreign table, it is possible
+     * @param string           $linkedModel             Instead of directly specifying a foreign table, it is possible
      *                                                  to specify a domain model class.
      * @param int|null         $maxItems                https://docs.typo3.org/m/typo3/reference-tca/12.4/en-us/ColumnsConfig/CommonProperties/Maxitems.html
      * @param int|null         $minItems                https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Minitems.html#tca-property-minitems
@@ -95,7 +95,7 @@ class Select extends AbstractColumnType
         protected ?string          $foreignTableWhere = null,
         protected ?array           $items = null,
         protected ?string          $itemsProcFunc = null,
-        protected ?string          $linkedModel = null,
+        protected string           $linkedModel = '',
         protected ?int             $maxItems = null,
         protected ?int             $minItems = null,
         protected ?string          $mm = null,

@@ -34,7 +34,7 @@ class Group extends AbstractColumnType
      * @param string|null $allowed                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/Allowed.html
      * @param array|null  $elementBrowserEntryPoints https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/ElementBrowserEntryPoints.html
      * @param string|null $foreignTable              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/ForeignTable.html
-     * @param string|null $linkedModel               Instead of directly specifying a foreign table, it is possible to
+     * @param string      $linkedModel               Instead of directly specifying a foreign table, it is possible to
      *                                               specify a domain model class.
      * @param int|null    $maxItems                  https://docs.typo3.org/m/typo3/reference-tca/12.4/en-us/ColumnsConfig/CommonProperties/Maxitems.html
      *
@@ -46,7 +46,7 @@ class Group extends AbstractColumnType
         protected ?string $allowed = null,
         protected ?array  $elementBrowserEntryPoints = null,
         protected ?string $foreignTable = null,
-        protected ?string $linkedModel = null,
+        protected string  $linkedModel = '',
         protected ?int    $maxItems = null,
     ) {
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
