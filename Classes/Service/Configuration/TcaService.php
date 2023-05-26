@@ -73,34 +73,15 @@ class TcaService
         'uid',
     ];
 
-    /**
-     * @var bool
-     */
     protected static bool $allowCaching = true;
-
-    /**
-     * @var array
-     */
     protected static array $classTableMapping = [];
-
-    /**
-     * @var ClassesConfiguration|null
-     */
     protected ?ClassesConfiguration $classesConfiguration = null;
-
-    /**
-     * @var string
-     */
     protected string $defaultLabelPath = '';
 
     /**
      * @var Palette[]
      */
     protected array $palettes = [];
-
-    /**
-     * @var string
-     */
     protected string $tableName = '';
 
     /**
@@ -339,6 +320,9 @@ class TcaService
      * @param string         $property
      *
      * @return array
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function getConfigurationForPropertyOfDomainModel(AbstractEntity $domainModel, string $property): array
     {
@@ -366,11 +350,11 @@ class TcaService
         $selectItems = [];
 
         foreach ($items as $key => $value) {
-            $identifier = GeneralUtility::underscoredToLowerCamelCase($key);
+            $identifier = GeneralUtility::underscoredToLowerCamelCase((string)$key);
             $label = $labelPath . $identifier;
 
             if (!$this->localizationService->translationExists($label, false)) {
-                $label = ucfirst((string)$value);
+                $label = ucfirst(is_string($key) ? $key : (string)$value);
             }
 
             $selectItems[] = [$label, $value];
@@ -383,6 +367,9 @@ class TcaService
      * @param string $classOrTableName
      *
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function setTableName(string $classOrTableName): void
     {
@@ -609,6 +596,7 @@ class TcaService
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     private function addFieldIfAlreadyPossible(Column $attribute, string $columnName): bool
     {
@@ -739,6 +727,9 @@ class TcaService
      * @param string $typeList
      *
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     private function addPaletteToShowItems(string $paletteIdentifier, string $typeList = ''): void
     {
@@ -761,6 +752,7 @@ class TcaService
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     private function addTabToShowItems(string $identifier, string $typeList = ''): string
     {
