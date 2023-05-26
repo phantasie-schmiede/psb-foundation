@@ -72,7 +72,7 @@ class Ctrl extends AbstractTcaAttribute
      * @param array|null        $security                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Security.html
      * @param string|null       $selIconField                     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/SeliconField.html
      * @param string|null       $shadowColumnsForNewPlaceholders  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/ShadowColumnsForNewPlaceholders.html
-     * @param string|null       $sortby                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Sortby.html
+     * @param string|null       $sortBy                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Sortby.html
      * @param string|null       $title                            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Title.html
      * @param string|null       $transOrigDiffSourceField         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TransOrigDiffSourceField.html
      * @param string|null       $transOrigPointerField            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/TransOrigPointerField.html
@@ -122,7 +122,7 @@ class Ctrl extends AbstractTcaAttribute
         protected ?array            $security = null,
         protected ?string           $selIconField = null,
         protected ?string           $shadowColumnsForNewPlaceholders = null,
-        protected ?string           $sortby = null,
+        protected ?string           $sortBy = null,
         protected ?string           $title = null,
         protected ?string           $transOrigDiffSourceField = 'l10n_diffsource',
         protected ?string           $transOrigPointerField = 'l10n_parent',
@@ -435,7 +435,7 @@ class Ctrl extends AbstractTcaAttribute
      */
     public function getSortBy(): ?string
     {
-        return $this->sortby;
+        return $this->sortBy;
     }
 
     /**
