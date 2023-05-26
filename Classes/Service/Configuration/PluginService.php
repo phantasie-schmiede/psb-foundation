@@ -269,6 +269,7 @@ class PluginService
 
             $controller = new ReflectionClass($controllerClassName);
             $controllersAndCachedActions[$controllerClassName] = [];
+            $controllersAndUncachedActions[$controllerClassName] = [];
             $methods = $controller->getMethods();
 
             foreach ($methods as $method) {
