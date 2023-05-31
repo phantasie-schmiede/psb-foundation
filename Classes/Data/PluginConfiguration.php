@@ -37,7 +37,7 @@ class PluginConfiguration
         protected bool        $addToElementWizard = true,
         protected bool        $ajaxCacheable = false,
         protected ContentType $ajaxContentType = ContentType::HTML,
-        protected bool        $ajaxDisableAllHeaderCode = false,
+        protected bool        $ajaxDisableAllHeaderCode = true,
         protected int         $ajaxTypeNum = 0,
         protected array       $controllers = [],
         protected string      $flexForm = '',
