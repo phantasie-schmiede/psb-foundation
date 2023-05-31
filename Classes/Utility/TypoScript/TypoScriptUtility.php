@@ -123,7 +123,7 @@ class TypoScriptUtility
                 'config'                              => [
                     'additionalHeaders'    => [
                         10 => [
-                            'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType()->value,
+                            'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType()->value . '; charset=utf-8',
                         ],
                     ],
                     'admPanel'             => false,

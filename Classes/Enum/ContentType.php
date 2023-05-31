@@ -19,5 +19,7 @@ enum ContentType: string
 {
     case HTML = 'text/html';
     case JSON = 'application/json';
-    case XML  = 'text/xml';
+    case PLAIN = 'text/plain';
+    case RSS = 'application/rss+xml';
+    case XML = 'text/xml';
 }
