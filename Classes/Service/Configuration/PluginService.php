@@ -15,6 +15,7 @@ use PSB\PsbFoundation\Attribute\PluginAction;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Data\PluginConfiguration;
 use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
@@ -147,7 +148,7 @@ class PluginService
             ExtensionUtility::configurePlugin($extensionInformation->getExtensionName(), $configuration->getName(),
                 $controllersAndCachedActions, $controllersAndUncachedActions);
 
-            if (0 < $configuration->getAjaxTypeNum()) {
+            if (0 < $configuration->getTypeNum()) {
                 $this->registerPageTypeForPlugin($configuration, $extensionInformation);
             }
 
@@ -349,7 +350,7 @@ class PluginService
         }
 
         if (isset($fileName)) {
-            $flexFormFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $fileName . '.xml';
+            $flexFormFilePath = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $fileName . '.xml';
         } else {
             $flexFormFilePath = $configuration->getFlexForm();
         }
@@ -372,14 +373,13 @@ class PluginService
     ): void
     {
         $pageObjectConfiguration = GeneralUtility::makeInstance(PageObjectConfiguration::class);
-        $pageObjectConfiguration->setCacheable($pluginConfiguration->isAjaxCacheable());
-        $pageObjectConfiguration->setContentType($pluginConfiguration->getAjaxContentType());
-        $pageObjectConfiguration->setDisableAllHeaderCode($pluginConfiguration->isAjaxDisableAllHeaderCode());
+        $pageObjectConfiguration->setCacheable($pluginConfiguration->isTypeNumCacheable());
+        $pageObjectConfiguration->setContentType($pluginConfiguration->getTypeNumContentType());
+        $pageObjectConfiguration->setDisableAllHeaderCode($pluginConfiguration->isTypeNumDisableAllHeaderCode());
         $pageObjectConfiguration->setExtensionName($extensionInformation->getExtensionName());
         $pageObjectConfiguration->setPluginName($pluginConfiguration->getName());
-        $pageObjectConfiguration->setTypeNum($pluginConfiguration->getAjaxTypeNum());
+        $pageObjectConfiguration->setTypeNum($pluginConfiguration->getTypeNum());
         $typoScriptObjectName = strtolower(implode('_', [
-            'ajax',
             $extensionInformation->getVendorName(),
             $extensionInformation->getExtensionName(),
             $pluginConfiguration->getName(),
