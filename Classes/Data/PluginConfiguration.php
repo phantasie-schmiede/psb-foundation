@@ -22,54 +22,29 @@ class PluginConfiguration
     /**
      * @param string      $name
      * @param bool        $addToElementWizard
-     * @param bool        $ajaxCacheable
-     * @param ContentType $ajaxContentType
-     * @param bool        $ajaxDisableAllHeaderCode
-     * @param int         $ajaxTypeNum
      * @param array       $controllers
      * @param string      $flexForm
      * @param string      $group
      * @param string      $iconIdentifier
      * @param string      $title
+     * @param int         $typeNum
+     * @param bool        $typeNumCacheable
+     * @param ContentType $typeNumContentType
+     * @param bool        $typeNumDisableAllHeaderCode
      */
     public function __construct(
         protected string      $name,
         protected bool        $addToElementWizard = true,
-        protected bool        $ajaxCacheable = false,
-        protected ContentType $ajaxContentType = ContentType::HTML,
-        protected bool        $ajaxDisableAllHeaderCode = true,
-        protected int         $ajaxTypeNum = 0,
         protected array       $controllers = [],
         protected string      $flexForm = '',
         protected string      $group = '',
         protected string      $iconIdentifier = '',
         protected string      $title = '',
-    )
-    {
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAddToElementWizard(): bool
-    {
-        return $this->addToElementWizard;
-    }
-
-    /**
-     * @return ContentType
-     */
-    public function getAjaxContentType(): ContentType
-    {
-        return $this->ajaxContentType;
-    }
-
-    /**
-     * @return int
-     */
-    public function getAjaxTypeNum(): int
-    {
-        return $this->ajaxTypeNum;
+        protected int         $typeNum = 0,
+        protected bool        $typeNumCacheable = false,
+        protected ContentType $typeNumContentType = ContentType::HTML,
+        protected bool        $typeNumDisableAllHeaderCode = true,
+    ) {
     }
 
     /**
@@ -121,18 +96,42 @@ class PluginConfiguration
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    public function isAjaxCacheable(): bool
+    public function getTypeNum(): int
     {
-        return $this->ajaxCacheable;
+        return $this->typeNum;
+    }
+
+    /**
+     * @return ContentType
+     */
+    public function getTypeNumContentType(): ContentType
+    {
+        return $this->typeNumContentType;
     }
 
     /**
      * @return bool
      */
-    public function isAjaxDisableAllHeaderCode(): bool
+    public function isAddToElementWizard(): bool
     {
-        return $this->ajaxDisableAllHeaderCode;
+        return $this->addToElementWizard;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTypeNumCacheable(): bool
+    {
+        return $this->typeNumCacheable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isTypeNumDisableAllHeaderCode(): bool
+    {
+        return $this->typeNumDisableAllHeaderCode;
     }
 }
