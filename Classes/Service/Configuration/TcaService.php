@@ -24,8 +24,9 @@ use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Utility\ArrayUtility;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
-use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -35,13 +36,14 @@ use ReflectionProperty;
 use RuntimeException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Package\PackageManager;
+use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3ArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use TYPO3\CMS\Extbase\DomainObject\AbstractValueObject;
 use TYPO3\CMS\Extbase\Persistence\ClassesConfiguration;
-use TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory;
 use function array_slice;
 use function get_class;
 use function in_array;
@@ -54,16 +56,14 @@ use function is_array;
  */
 class TcaService
 {
-    public const PALETTE_IDENTIFIERS = [
-        'LANGUAGE'         => 'language',
-        'TIME_RESTRICTION' => 'timeRestriction',
-    ];
-
-    public const UNSET_KEYWORD = 'UNSET';
-
     protected const CLASS_TABLE_MAPPING_KEYS = [
         'TCA_OVERRIDES' => 'tcaOverrides',
         'TCA'           => 'tca',
+    ];
+
+    public const PALETTE_IDENTIFIERS = [
+        'LANGUAGE'         => 'language',
+        'TIME_RESTRICTION' => 'timeRestriction',
     ];
 
     protected const PROTECTED_COLUMNS = [
@@ -72,6 +72,8 @@ class TcaService
         'tstamp',
         'uid',
     ];
+
+    public const UNSET_KEYWORD = 'UNSET';
 
     protected static bool $allowCaching = true;
     protected static array $classTableMapping = [];
@@ -92,10 +94,12 @@ class TcaService
     /**
      * @param ExtensionInformationService $extensionInformationService
      * @param LocalizationService         $localizationService
+     * @param PackageManager              $packageManager
      */
     public function __construct(
         protected readonly ExtensionInformationService $extensionInformationService,
         protected readonly LocalizationService         $localizationService,
+        protected readonly PackageManager              $packageManager,
     ) {
     }
 
@@ -488,7 +492,7 @@ class TcaService
                 $columnAttribute->setLabel($label);
             }
 
-            if (($columnTypeAttribute instanceof Checkbox || $columnTypeAttribute instanceof Select) && null !== $columnTypeAttribute->getItems() && ArrayUtility::isAssociative($columnTypeAttribute->getItems())) {
+            if (($columnTypeAttribute instanceof Checkbox || $columnTypeAttribute instanceof Select) && null !== $columnTypeAttribute->getItems() && Typo3ArrayUtility::isAssociative($columnTypeAttribute->getItems())) {
                 $columnTypeAttribute->setItems($this->processSelectItemsArray($columnTypeAttribute->getItems(),
                     $this->defaultLabelPath . $property->getName() . '.'));
             }
@@ -515,7 +519,7 @@ class TcaService
             $ctrlProperties = $ctrl->toArray();
 
             if ($overrideMode) {
-                $ctrlProperties = array_filter($ctrlProperties, static function ($key) use ($reflection) {
+                $ctrlProperties = array_filter($ctrlProperties, static function($key) use ($reflection) {
                     $setArguments = $reflection->getAttributes(Ctrl::class)[0]->getArguments();
 
                     return in_array($key, $setArguments, true);
@@ -608,7 +612,7 @@ class TcaService
 
         if ('' !== $attribute->getTypeList()) {
             $typeList = GeneralUtility::trimExplode(',', $attribute->getTypeList());
-            $types = array_filter($types, static function ($typeIdentifier) use ($typeList) {
+            $types = array_filter($types, static function($typeIdentifier) use ($typeList) {
                 return in_array($typeIdentifier, $typeList, true);
             }, ARRAY_FILTER_USE_KEY);
         }
@@ -676,11 +680,11 @@ class TcaService
 
                 foreach ($GLOBALS['TCA'][$this->tableName]['palettes'] as $paletteIdentifier => $paletteConfiguration) {
                     $fieldList = GeneralUtility::trimExplode(',', $paletteConfiguration['showitem']);
-                    array_walk($fieldList, static function (&$item) {
+                    array_walk($fieldList, static function(&$item) {
                         $item = explode(';', $item)[0];
                     });
 
-                    if (in_array($referenceField, $fieldList)) {
+                    if (in_array($referenceField, $fieldList, true)) {
                         // @TODO: Palettes may define a label between ;;. Consider this case, too!
                         $containingPalettes[] = '--palette--;;' . $paletteIdentifier;
                     }
@@ -786,12 +790,85 @@ class TcaService
      */
     private function checkClassesConfiguration(): bool
     {
-        if (null === $this->classesConfiguration && !ContextUtility::isBootProcessRunning()) {
-            $this->classesConfiguration = GeneralUtility::makeInstance(ClassesConfigurationFactory::class)
-                ?->createClassesConfiguration();
+        if (null === $this->classesConfiguration) {
+            /*
+             * Copied from TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory because instantiation of that class
+             * would throw an exception (e. g. CacheManager not available, dependency injection not ready).
+             */
+            $classes = [];
+
+            foreach ($this->packageManager->getActivePackages() as $activePackage) {
+                $persistenceClassesFile = $activePackage->getPackagePath() . 'Configuration/Extbase/Persistence/Classes.php';
+
+                if (file_exists($persistenceClassesFile)) {
+                    $definedClasses = require $persistenceClassesFile;
+
+                    if (is_array($definedClasses)) {
+                        Typo3ArrayUtility::mergeRecursiveWithOverrule(
+                            $classes,
+                            $definedClasses,
+                            true,
+                            false
+                        );
+                    }
+                }
+            }
+
+            $classes = $this->inheritPropertiesFromParentClasses($classes);
+            $this->classesConfiguration =  GeneralUtility::makeInstance(ClassesConfiguration::class, $classes);
         }
 
         return $this->classesConfiguration instanceof ClassesConfiguration;
+    }
+
+    /**
+     * Copied from TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory because instantiation of that class would
+     * throw an exception (e. g. CacheManager not available, dependency injection not ready).
+     *
+     * @param array $classes
+     *
+     * @return array
+     */
+    private function inheritPropertiesFromParentClasses(array $classes): array
+    {
+        foreach (array_keys($classes) as $className) {
+            if (!isset($classes[$className]['properties'])) {
+                $classes[$className]['properties'] = [];
+            }
+
+            /*
+             * At first we need to clean the list of parent classes.
+             * This methods is expected to be called for models that either inherit
+             * AbstractEntity or AbstractValueObject, therefore we want to know all
+             * parents of $className until one of these parents.
+             */
+            $relevantParentClasses = [];
+            $parentClasses = class_parents($className) ?: [];
+            while (null !== $parentClass = array_shift($parentClasses)) {
+                if (in_array($parentClass, [AbstractEntity::class, AbstractValueObject::class], true)) {
+                    break;
+                }
+
+                $relevantParentClasses[] = $parentClass;
+            }
+
+            /*
+             * Once we found all relevant parent classes of $class, we can check their
+             * property configuration and merge theirs with the current one. This is necessary
+             * to get the property configuration of parent classes in the current one to not
+             * miss data in the model later on.
+             */
+            foreach ($relevantParentClasses as $currentClassName) {
+                if (null === $properties = $classes[$currentClassName]['properties'] ?? null) {
+                    continue;
+                }
+
+                // Merge new properties over existing ones.
+                $classes[$className]['properties'] = array_replace_recursive($properties, $classes[$className]['properties'] ?? []);
+            }
+        }
+
+        return $classes;
     }
 
     /**
