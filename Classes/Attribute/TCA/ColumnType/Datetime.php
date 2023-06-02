@@ -56,7 +56,7 @@ class Datetime extends AbstractColumnType
      */
     public function getDbType(): string
     {
-        return $this->dbType?->value ?? $this->format->value;
+        return $this->dbType?->value;
     }
 
     /**
