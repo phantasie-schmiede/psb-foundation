@@ -67,11 +67,11 @@ class Number extends AbstractColumnType
     }
 
     /**
-     * @return NumberFormat
+     * @return string
      */
-    public function getFormat(): NumberFormat
+    public function getFormat(): string
     {
-        return $this->format;
+        return $this->format->value;
     }
 
     /**

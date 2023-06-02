@@ -68,11 +68,11 @@ class Datetime extends AbstractColumnType
     }
 
     /**
-     * @return DateType
+     * @return string
      */
-    public function getFormat(): DateType
+    public function getFormat(): string
     {
-        return $this->format;
+        return $this->format->value;
     }
 
     /**
