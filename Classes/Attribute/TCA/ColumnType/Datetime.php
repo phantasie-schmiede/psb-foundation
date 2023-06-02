@@ -52,9 +52,9 @@ class Datetime extends AbstractColumnType
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDbType(): string
+    public function getDbType(): ?string
     {
         return $this->dbType?->value;
     }
