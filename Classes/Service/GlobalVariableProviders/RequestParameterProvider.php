@@ -51,8 +51,8 @@ class RequestParameterProvider extends AbstractProvider
      */
     public static function getRequestParameters(): array
     {
-        $parameters = $_GET;
-        ArrayUtility::mergeRecursiveWithOverrule($parameters, $_POST);
+        $parameters = $_GET ?? [];
+        ArrayUtility::mergeRecursiveWithOverrule($parameters, $_POST ?? []);
 
         array_walk_recursive($parameters, static function (&$item) {
             $item = StringUtility::convertString($item);
