@@ -21,6 +21,9 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class User extends AbstractColumnType
 {
+    // Database definition has to be added in ext_tables.sql of your extension!
+    public const DATABASE_DEFINITION = '';
+
     /**
      * @param array|null $parameters
      * @param string     $renderType

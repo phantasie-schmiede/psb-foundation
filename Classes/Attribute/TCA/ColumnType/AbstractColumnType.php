@@ -20,6 +20,21 @@ use ReflectionException;
  */
 abstract class AbstractColumnType extends AbstractAttribute implements ColumnTypeInterface
 {
+    public const DATABASE_DEFINITIONS = [
+        'BITMAP_32'        => 'tinyint(5) DEFAULT \'0\'',
+        'INTEGER_UNSIGNED' => 'int(11) unsigned DEFAULT \'0\'',
+        'STRING'           => 'varchar(255) DEFAULT \'\'',
+        'TEXT'             => 'text',
+    ];
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return defined('static::DATABASE_DEFINITION') ? static::DATABASE_DEFINITION : '';
+    }
+
     /**
      * Returns the short class name (lower case) for ['config']['type'].
      *
@@ -42,13 +57,5 @@ abstract class AbstractColumnType extends AbstractAttribute implements ColumnTyp
         $configuration['type'] = $this->getType();
 
         return $configuration;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDatabaseDefinition(): string
-    {
-        return defined('static::DATABASE_DEFINITION') ? static::DATABASE_DEFINITION : '';
     }
 }

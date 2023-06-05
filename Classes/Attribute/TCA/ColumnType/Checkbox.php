@@ -11,8 +11,18 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
+use JsonException;
 use PSB\PsbFoundation\Enum\CheckboxRenderType;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
+use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Utility\ArrayUtility;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
  * Class Checkbox
@@ -20,9 +30,9 @@ use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
  * @package PSB\PsbFoundation\Attribute\TCA\ColumnType
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class Checkbox extends AbstractColumnType
+class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
-    public const DATABASE_DEFINITION = 'tinyint(4) DEFAULT \'0\'';
+    public const DATABASE_DEFINITION = self::DATABASE_DEFINITIONS['BITMAP_32'];
 
     /**
      * The parameters $maximumRecordsChecked and $maximumRecordsCheckedInPid are used for the TCA properties eval and
@@ -127,10 +137,87 @@ class Checkbox extends AbstractColumnType
     }
 
     /**
-     * @param array $items
+     * @param LocalizationService $localizationService
+     * @param string              $labelPath
+     *
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
-    public function setItems(array $items): void
+    public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
     {
-        $this->items = $items;
+        // $items already has TCA format
+        if (ArrayUtility::isMultiDimensionalArray($this->items)) {
+            $this->processTcaFormat($localizationService);
+        }
+
+        // $items has to be transformed into TCA format
+        $this->processSimpleFormat($localizationService, $labelPath);
+    }
+
+    /**
+     * @param LocalizationService $localizationService
+     * @param string              $labelPath
+     *
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
+     */
+    private function processSimpleFormat(LocalizationService $localizationService, string $labelPath = ''): void
+    {
+        $selectItems = [];
+
+        foreach ($this->items as $value) {
+            if (!empty($labelPath) && !str_starts_with($value, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+                $identifier = GeneralUtility::underscoredToLowerCamelCase((string)$value);
+                $label = rtrim($labelPath, ':') . ':' . $identifier;
+            } else {
+                $label = $value;
+            }
+
+            if (!str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX) || !$localizationService->translationExists($label)) {
+                $label = (string)$value;
+            }
+
+            $selectItems[] = [
+                'label' => $label,
+            ];
+        }
+
+        $this->items = $selectItems;
+    }
+
+    /**
+     * @param LocalizationService $localizationService
+     *
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
+     */
+    private function processTcaFormat(LocalizationService $localizationService): void
+    {
+        foreach ($this->items as $item) {
+            foreach ([
+                 'label',
+                 'labelChecked',
+                 'labelUnchecked',
+             ] as $key) {
+                if (!empty($item[$key]) && str_starts_with($item[$key], FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+                    $localizationService->translationExists($item[$key]);
+                }
+            }
+        }
     }
 }

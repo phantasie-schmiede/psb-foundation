@@ -22,7 +22,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class File extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = 'int(11) unsigned DEFAULT \'0\'';
+    public const DATABASE_DEFINITION = self::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
 
     /**
      * @param array|string $allowed                             https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/File/Properties/Allowed.html

@@ -20,7 +20,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Text extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = 'text';
+    public const DATABASE_DEFINITION = self::DATABASE_DEFINITIONS['TEXT'];
 
     /**
      * @param int       $cols           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Text/Properties/Cols.html

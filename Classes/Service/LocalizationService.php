@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Service;
 
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\FileUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
@@ -212,7 +213,7 @@ class LocalizationService
             return false;
         }
 
-        if (!str_starts_with($label, 'LLL:')) {
+        if (!str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
             return true;
         }
 

@@ -12,9 +12,9 @@ namespace PSB\PsbFoundation\Service\Configuration;
 
 use JsonException;
 use PSB\PsbFoundation\Attribute\TCA\Column;
-use PSB\PsbFoundation\Attribute\TCA\ColumnType\Checkbox;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\AbstractColumnTypeWithItems;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeInterface;
-use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeWithItemsInterface;
 use PSB\PsbFoundation\Attribute\TCA\Ctrl;
 use PSB\PsbFoundation\Attribute\TCA\Mapping\Field;
 use PSB\PsbFoundation\Attribute\TCA\Mapping\Table;
@@ -24,8 +24,6 @@ use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
-use PSB\PsbFoundation\Utility\ArrayUtility;
-use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use Psr\Container\ContainerExceptionInterface;
@@ -338,36 +336,6 @@ class TcaService
     }
 
     /**
-     * @param array  $items
-     * @param string $labelPath
-     *
-     * @return array
-     * @throws ContainerExceptionInterface
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
-     * @throws JsonException
-     * @throws NotFoundExceptionInterface
-     */
-    public function processSelectItemsArray(array $items, string $labelPath): array
-    {
-        $selectItems = [];
-
-        foreach ($items as $key => $value) {
-            $identifier = GeneralUtility::underscoredToLowerCamelCase((string)$key);
-            $label = $labelPath . $identifier;
-
-            if (!$this->localizationService->translationExists($label, false)) {
-                $label = ucfirst(is_string($key) ? $key : (string)$value);
-            }
-
-            $selectItems[] = [$label, $value];
-        }
-
-        return $selectItems;
-    }
-
-    /**
      * @param string $classOrTableName
      *
      * @return void
@@ -492,9 +460,11 @@ class TcaService
                 $columnAttribute->setLabel($label);
             }
 
-            if (($columnTypeAttribute instanceof Checkbox || $columnTypeAttribute instanceof Select) && null !== $columnTypeAttribute->getItems() && Typo3ArrayUtility::isAssociative($columnTypeAttribute->getItems())) {
-                $columnTypeAttribute->setItems($this->processSelectItemsArray($columnTypeAttribute->getItems(),
-                    $this->defaultLabelPath . $property->getName() . '.'));
+            if ($columnTypeAttribute instanceof ColumnTypeWithItemsInterface) {
+                $columnTypeAttribute->processItems(
+                    $this->localizationService,
+                    $this->defaultLabelPath . $property->getName() . '.'
+                );
             }
 
             $columnAttribute->setConfiguration($columnTypeAttribute);

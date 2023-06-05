@@ -65,6 +65,18 @@ class Group extends AbstractColumnType
     }
 
     /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        if (empty($this->mm)) {
+            return self::DATABASE_DEFINITIONS['TEXT'];
+        }
+
+        return self::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+    }
+
+    /**
      * @return array|null
      */
     public function getElementBrowserEntryPoints(): ?array

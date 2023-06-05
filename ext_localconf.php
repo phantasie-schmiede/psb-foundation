@@ -8,6 +8,7 @@ use PSB\PsbFoundation\Service\GlobalVariableProviders\EarlyAccessConstantsProvid
 use PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider;
 use PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider;
 use PSB\PsbFoundation\Service\GlobalVariableService;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\FileUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -28,7 +29,7 @@ defined('TYPO3') or die();
         $pageTypeService->addToDragArea($extensionInformation);
         $pluginService->configurePlugins($extensionInformation);
 
-        $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TsConfig/User/User.tsconfig';
+        $userTsConfigFilename = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/TsConfig/User/User.tsconfig';
 
         if (FileUtility::fileExists($userTsConfigFilename)) {
             ExtensionManagementUtility::addUserTSConfig('

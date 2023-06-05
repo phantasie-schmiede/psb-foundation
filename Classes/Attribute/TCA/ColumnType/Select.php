@@ -11,11 +11,20 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
+use JsonException;
 use PSB\PsbFoundation\Enum\SelectRenderType;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
+use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Utility\ArrayUtility;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
  * Class Select
@@ -23,10 +32,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  * @package PSB\PsbFoundation\Attribute\TCA\ColumnType
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class Select extends AbstractColumnType
+class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
-    public const DATABASE_DEFINITION = 'int(11) unsigned DEFAULT \'0\'';
-
     public const EMPTY_DEFAULT_ITEM = [
         [
             'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose',
@@ -149,6 +156,32 @@ class Select extends AbstractColumnType
     public function getAutoSizeMax(): ?int
     {
         return $this->autoSizeMax;
+    }
+
+    /**
+     * @return string
+     * @throws ContainerExceptionInterface
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
+     */
+    public function getDatabaseDefinition(): string
+    {
+        if (!empty($this->items)) {
+            $items = $this->tcaService->processSelectItemsArray($this->items);
+
+            foreach ($items as $item) {
+                $value = $item['value'];
+
+                if (is_string($value)) {
+                    return self::DATABASE_DEFINITIONS['STRING'];
+                }
+            }
+        }
+
+        return self::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
     }
 
     /**
@@ -363,10 +396,84 @@ class Select extends AbstractColumnType
     }
 
     /**
-     * @param array|null $items
+     * @param LocalizationService $localizationService
+     * @param string              $labelPath
+     *
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
-    public function setItems(?array $items): void
+    public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
     {
-        $this->items = $items;
+        // $items already has TCA format
+        if (ArrayUtility::isMultiDimensionalArray($this->items)) {
+            $this->processTcaFormat($localizationService);
+        }
+
+        // $items has to be transformed into TCA format
+        $this->processSimpleFormat($localizationService, $labelPath);
+    }
+
+    /**
+     * @param LocalizationService $localizationService
+     * @param string              $labelPath
+     *
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
+     */
+    private function processSimpleFormat(LocalizationService $localizationService, string $labelPath = ''): void
+    {
+        $selectItems = [];
+
+        foreach ($this->items as $key => $value) {
+            if (!empty($labelPath) && !str_starts_with($key, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+                $identifier = GeneralUtility::underscoredToLowerCamelCase((string)$key);
+                $label = rtrim($labelPath, ':') . ':' . $identifier;
+            } else {
+                $label = $key;
+            }
+
+            if (!str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX) || !$localizationService->translationExists($label)) {
+                $label = is_string($key) ? $key : (string)$value;
+            }
+
+            $selectItems[] = [
+                'label' => $label,
+                'value' => $value,
+            ];
+        }
+
+        $this->items = $selectItems;
+    }
+
+    /**
+     * @param LocalizationService $localizationService
+     *
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
+     */
+    private function processTcaFormat(LocalizationService $localizationService): void
+    {
+        foreach ($this->items as $item) {
+            $label = $item['label'];
+
+            if (str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+                $localizationService->translationExists($label);
+            }
+        }
     }
 }

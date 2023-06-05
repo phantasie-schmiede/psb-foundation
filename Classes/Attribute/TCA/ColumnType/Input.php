@@ -20,7 +20,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Input extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = 'varchar(255) DEFAULT \'\'';
+    public const DATABASE_DEFINITION = self::DATABASE_DEFINITIONS['STRING'];
 
     /**
      * @param string     $eval        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Eval.html

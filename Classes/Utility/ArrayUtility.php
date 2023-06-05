@@ -125,6 +125,22 @@ class ArrayUtility
     }
 
     /**
+     * @param array $array
+     *
+     * @return bool
+     */
+    public static function isMultiDimensionalArray(array $array): bool
+    {
+        foreach ($array as $value) {
+            if (is_array($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * This function shuffles associative arrays and those with integer keys - even multidimensional ones if desired.
      *
      * @param array $array

@@ -14,6 +14,7 @@ use Closure;
 use InvalidArgumentException;
 use JsonException;
 use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
 use Psr\Container\ContainerExceptionInterface;
@@ -102,7 +103,7 @@ class TranslateViewHelper extends AbstractViewHelper
             $request = $renderingContext->getRequest();
         }
 
-        if (null === $extensionName && $request instanceof RequestInterface && !str_starts_with($id, 'LLL:')) {
+        if (null === $extensionName && $request instanceof RequestInterface && !str_starts_with($id, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
             $extensionName = $request->getControllerExtensionName();
             $id = self::buildId($id, $renderingContext, $request);
         }
@@ -207,7 +208,7 @@ class TranslateViewHelper extends AbstractViewHelper
                 $registry = $templateVariableContainer->get(RegisterLanguageFileViewHelper::VARIABLE_NAME);
 
                 if (isset($registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias])) {
-                    return 'LLL:' . $registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias] . ':' . $id;
+                    return FilePathUtility::LANGUAGE_LABEL_PREFIX . $registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias] . ':' . $id;
                 }
             }
         }
