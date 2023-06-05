@@ -180,7 +180,7 @@ class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterfac
         $selectItems = [];
 
         foreach ($this->items as $value) {
-            if (!empty($labelPath) && !str_starts_with($value, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+            if (!empty($labelPath) && !str_starts_with((string)$value, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
                 $identifier = GeneralUtility::underscoredToLowerCamelCase((string)$value);
                 $label = rtrim($labelPath, ':') . ':' . $identifier;
             } else {

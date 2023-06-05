@@ -94,7 +94,7 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
         $selectItems = [];
 
         foreach ($this->items as $key => $value) {
-            if (!empty($labelPath) && !str_starts_with($key, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+            if (!empty($labelPath) && !str_starts_with((string)$key, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
                 $identifier = GeneralUtility::underscoredToLowerCamelCase((string)$key);
                 $label = rtrim($labelPath, ':') . ':' . $identifier;
             } else {

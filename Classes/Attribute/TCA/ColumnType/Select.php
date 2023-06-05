@@ -431,7 +431,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         $selectItems = [];
 
         foreach ($this->items as $key => $value) {
-            if (!empty($labelPath) && !str_starts_with($key, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+            if (!empty($labelPath) && !str_starts_with((string)$key, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
                 $identifier = GeneralUtility::underscoredToLowerCamelCase((string)$key);
                 $label = rtrim($labelPath, ':') . ':' . $identifier;
             } else {
@@ -465,7 +465,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
     private function processTcaFormat(LocalizationService $localizationService): void
     {
         foreach ($this->items as $item) {
-            $label = $item['label'];
+            $label = $item['label'] ?? '';
 
             if (str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
                 $localizationService->translationExists($label);
