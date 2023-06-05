@@ -35,7 +35,6 @@ class TcaUtility
      * kept unchanged.
      */
     private const PROPERTY_KEY_MAPPING = [
-        'cruserId'                      => 'cruser_id',
         'defaultSortBy'                 => 'default_sortby',
         'editLock'                      => 'editlock',
         'enableColumns'                 => 'enablecolumns',
@@ -48,7 +47,6 @@ class TcaUtility
         'formattedLabelUserFunc'        => 'formattedLabel_userFunc',
         'formattedLabelUserFuncOptions' => 'formattedLabel_userFunc_options',
         'iconFile'                      => 'iconfile',
-        'internalType'                  => 'internal_type',
         'isStatic'                      => 'is_static',
         'l10nDisplay'                   => 'l10n_display',
         'l10nMode'                      => 'l10n_mode',
@@ -87,7 +85,7 @@ class TcaUtility
             'config'  => [
                 'items'      => [
                     [
-                        0                    => '',
+                        'label'              => '',
                         'invertStateDisplay' => true,
                     ],
                 ],
@@ -110,12 +108,10 @@ class TcaUtility
                     'allowLanguageSynchronization' => true,
                 ],
                 'default'    => 0,
-                'eval'       => 'datetime, int',
                 'range'      => [
-                    'upper' => mktime(0, 0, 0, 1, 1, 2038),
+                    'upper' => gmmktime(0, 0, 0, 1, 1, 2038),
                 ],
-                'renderType' => 'inputDateTime',
-                'type'       => 'input',
+                'type'       => 'datetime',
             ],
             'exclude' => true,
             'label'   => self::CORE_FIELD_LABELS['END_TIME'],
@@ -147,9 +143,7 @@ class TcaUtility
                     'allowLanguageSynchronization' => true,
                 ],
                 'default'    => 0,
-                'eval'       => 'datetime, int',
-                'renderType' => 'inputDateTime',
-                'type'       => 'input',
+                'type'       => 'datetime',
             ],
             'exclude' => true,
             'label'   => self::CORE_FIELD_LABELS['START_TIME'],
@@ -183,8 +177,8 @@ class TcaUtility
                 'foreign_table_where' => 'AND {#' . $tableName . '}.{#pid}=###CURRENT_PID### AND {#' . $tableName . '}.{#sys_language_uid} IN (-1,0)',
                 'items'               => [
                     [
-                        '',
-                        0,
+                        'label' => '',
+                        'value' => 0,
                     ],
                 ],
                 'renderType'          => 'selectSingle',

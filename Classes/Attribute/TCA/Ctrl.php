@@ -43,7 +43,6 @@ class Ctrl extends AbstractTcaAttribute
      * @param array|null        $container                        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Container.html
      * @param string|null       $copyAfterDuplFields              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CopyAfterDuplFields.html
      * @param string|null       $crdate                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Crdate.html
-     * @param string            $cruserId                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/CruserId.html
      * @param string|null       $defaultSortBy                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DefaultSortby.html
      * @param string|null       $delete                           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/Delete.html
      * @param string|null       $descriptionColumn                https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Ctrl/Properties/DescriptionColumn.html
@@ -91,7 +90,6 @@ class Ctrl extends AbstractTcaAttribute
         protected ?array            $container = null,
         protected ?string           $copyAfterDuplFields = null,
         protected ?string           $crdate = 'crdate',
-        protected string            $cruserId = 'cruser_id',
         protected ?string           $defaultSortBy = 'uid DESC',
         protected ?string           $delete = 'deleted',
         protected ?string           $descriptionColumn = null,
@@ -168,14 +166,6 @@ class Ctrl extends AbstractTcaAttribute
     public function getCrdate(): ?string
     {
         return $this->crdate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCruserId(): string
-    {
-        return $this->cruserId;
     }
 
     /**
