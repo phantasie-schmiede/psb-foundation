@@ -160,12 +160,6 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
 
     /**
      * @return string
-     * @throws ContainerExceptionInterface
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
-     * @throws JsonException
-     * @throws NotFoundExceptionInterface
      */
     public function getDatabaseDefinition(): string
     {
@@ -407,6 +401,10 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
      */
     public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
     {
+        if (!is_array ($this->items)) {
+            return;
+        }
+
         // $items already has TCA format
         if (ArrayUtility::isMultiDimensionalArray($this->items)) {
             $this->processTcaFormat($localizationService);

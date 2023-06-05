@@ -150,6 +150,10 @@ class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterfac
      */
     public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
     {
+        if (!is_array ($this->items)) {
+            return;
+        }
+
         // $items already has TCA format
         if (ArrayUtility::isMultiDimensionalArray($this->items)) {
             $this->processTcaFormat($localizationService);
