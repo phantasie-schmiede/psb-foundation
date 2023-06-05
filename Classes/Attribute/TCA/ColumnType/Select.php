@@ -170,9 +170,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
     public function getDatabaseDefinition(): string
     {
         if (!empty($this->items)) {
-            $items = $this->tcaService->processSelectItemsArray($this->items);
-
-            foreach ($items as $item) {
+            foreach ($this->items as $item) {
                 $value = $item['value'];
 
                 if (is_string($value)) {
