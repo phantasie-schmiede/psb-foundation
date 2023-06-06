@@ -12,6 +12,8 @@ namespace PSB\PsbFoundation\Utility\Configuration;
 
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
+use TYPO3\CMS\Core\Utility\PathUtility;
 
 /**
  * Class FilePathUtility
@@ -48,7 +50,7 @@ class FilePathUtility
      */
     public static function getLanguageFilePathForCurrentFile(
         ExtensionInformationInterface $extensionInformation,
-        string $filename = null
+        string                        $filename = null
     ): string {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
         $callingFilePathElements = explode('/', $trace[0]['file']);
@@ -64,13 +66,54 @@ class FilePathUtility
 
     /**
      * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $subdirectory
      *
      * @return string
      */
-    public static function getResourcePath(ExtensionInformationInterface $extensionInformation): string
+    public static function getPrivateResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
     {
-        $subDirectoryPath = $extensionInformation->getExtensionKey() . '/Resources/';
+        $directoryPath = self::getResourcePath($extensionInformation, 'Private/' . ltrim('/', $subdirectory));
 
-        return self::EXTENSION_DIRECTORY_PREFIX . $subDirectoryPath;
+        return self::EXTENSION_DIRECTORY_PREFIX . $directoryPath;
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $subdirectory
+     *
+     * @return string
+     */
+    public static function getPublicResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
+    {
+        $directoryPath = self::getResourcePath($extensionInformation, 'Public/' . ltrim('/', $subdirectory));
+
+        return self::EXTENSION_DIRECTORY_PREFIX . $directoryPath;
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $subdirectory
+     *
+     * @return string
+     * @throws InvalidFileException
+     */
+    public static function getPublicResourceWebPath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
+    {
+        $directoryPath = self::getPublicResourcePath($extensionInformation, $subdirectory);
+
+        return PathUtility::getPublicResourceWebPath($directoryPath);
+    }
+
+    /**
+     * @param ExtensionInformationInterface $extensionInformation
+     * @param string                        $subdirectory
+     *
+     * @return string
+     */
+    public static function getResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
+    {
+        $directoryPath = $extensionInformation->getExtensionKey() . '/Resources/' . ltrim('/', $subdirectory);
+
+        return self::EXTENSION_DIRECTORY_PREFIX . $directoryPath;
     }
 }
