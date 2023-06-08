@@ -401,7 +401,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
      */
     public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
     {
-        if (!is_array ($this->items)) {
+        if (!is_array($this->items)) {
             return;
         }
 
@@ -431,15 +431,14 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         $selectItems = [];
 
         foreach ($this->items as $key => $value) {
-            if (!empty($labelPath) && !str_starts_with((string)$key, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
-                $identifier = GeneralUtility::underscoredToLowerCamelCase((string)$key);
-                $label = rtrim($labelPath, ':') . ':' . $identifier;
-            } else {
-                $label = $key;
+            $label = is_string($key) ? $key : (string)$value;
+
+            if (!empty($labelPath) && !str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+                $label = $labelPath . GeneralUtility::underscoredToLowerCamelCase($label);
             }
 
-            if (!str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX) || !$localizationService->translationExists($label)) {
-                $label = is_string($key) ? $key : (string)$value;
+            if (str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+                $localizationService->translationExists($label);
             }
 
             $selectItems[] = [

@@ -72,9 +72,7 @@ class FilePathUtility
      */
     public static function getPrivateResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
     {
-        $directoryPath = self::getResourcePath($extensionInformation, 'Private/' . ltrim('/', $subdirectory));
-
-        return self::EXTENSION_DIRECTORY_PREFIX . $directoryPath;
+        return self::getResourcePath($extensionInformation, 'Private/' . ltrim($subdirectory, '/'));
     }
 
     /**
@@ -85,9 +83,7 @@ class FilePathUtility
      */
     public static function getPublicResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
     {
-        $directoryPath = self::getResourcePath($extensionInformation, 'Public/' . ltrim('/', $subdirectory));
-
-        return self::EXTENSION_DIRECTORY_PREFIX . $directoryPath;
+        return self::getResourcePath($extensionInformation, 'Public/' . ltrim($subdirectory, '/'));
     }
 
     /**
@@ -112,7 +108,7 @@ class FilePathUtility
      */
     public static function getResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
     {
-        $directoryPath = $extensionInformation->getExtensionKey() . '/Resources/' . ltrim('/', $subdirectory);
+        $directoryPath = $extensionInformation->getExtensionKey() . '/Resources/' . ltrim($subdirectory, '/');
 
         return self::EXTENSION_DIRECTORY_PREFIX . $directoryPath;
     }
