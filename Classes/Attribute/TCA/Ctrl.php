@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA;
 
 use Attribute;
+use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
@@ -25,6 +26,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_CLASS)]
 class Ctrl extends AbstractTcaAttribute
 {
+    public const DEFAULT_SORTBY = 'uid DESC';
+
     public const ENABLE_COLUMNS = [
         self::ENABLE_COLUMN_IDENTIFIERS['DISABLED']  => 'hidden',
         self::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']   => 'endtime',
@@ -90,7 +93,7 @@ class Ctrl extends AbstractTcaAttribute
         protected ?array            $container = null,
         protected ?string           $copyAfterDuplFields = null,
         protected ?string           $crdate = 'crdate',
-        protected ?string           $defaultSortBy = 'uid DESC',
+        protected ?string           $defaultSortBy = self::DEFAULT_SORTBY,
         protected ?string           $delete = 'deleted',
         protected ?string           $descriptionColumn = null,
         protected ?string           $editLock = null,
@@ -173,6 +176,10 @@ class Ctrl extends AbstractTcaAttribute
      */
     public function getDefaultSortBy(): ?string
     {
+        if (self::DEFAULT_SORTBY === $this->defaultSortBy && !empty($this->sortBy)) {
+            return null;
+        }
+
         return $this->defaultSortBy;
     }
 
@@ -521,5 +528,21 @@ class Ctrl extends AbstractTcaAttribute
     public function getVersioningWSAlwaysAllowLiveEdit(): ?bool
     {
         return $this->versioningWS_alwaysAllowLiveEdit;
+    }
+
+    /**
+     * @return array
+     * @throws ReflectionException
+     */
+    public function toArray(): array
+    {
+        $array = parent::toArray();
+        $result = [];
+
+        foreach ($array as $key => $value) {
+            $result[TcaUtility::convertKey($key)] = $value;
+        }
+
+        return $result;
     }
 }
