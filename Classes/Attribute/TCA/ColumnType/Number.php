@@ -21,12 +21,6 @@ use PSB\PsbFoundation\Enum\NumberFormat;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Number extends AbstractColumnType
 {
-    public const DATABASE_DEFINITIONS = [
-        'DECIMAL'          => 'double(11,2) DEFAULT \'0.00\'',
-        'INTEGER_SIGNED'   => 'int(11) DEFAULT \'0\'',
-        'INTEGER_UNSIGNED' => 'int(11) unsigned DEFAULT \'0\'',
-    ];
-
     /**
      * @param bool|null    $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Autocomplete.html
      * @param NumberFormat $format       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Format.html
@@ -61,14 +55,14 @@ class Number extends AbstractColumnType
     public function getDatabaseDefinition(): string
     {
         if (NumberFormat::decimal === $this->format) {
-            return self::DATABASE_DEFINITIONS['DECIMAL'];
+            return AbstractColumnType::DATABASE_DEFINITIONS['DECIMAL'];
         }
 
         if (NumberFormat::integer === $this->format && 0 < (int)$this->rangeLower) {
-            return self::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+            return AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
         }
 
-        return self::DATABASE_DEFINITIONS['INTEGER_SIGNED'];
+        return AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_SIGNED'];
     }
 
     /**

@@ -20,7 +20,7 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Link extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = self::DATABASE_DEFINITIONS['STRING'];
+    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['STRING'];
 
     /**
      * @param array|null $allowedTypes https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/AllowedTypes.html

@@ -26,7 +26,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Category extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = self::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
 
     /**
      * @var TcaService

@@ -70,10 +70,10 @@ class Group extends AbstractColumnType
     public function getDatabaseDefinition(): string
     {
         if (empty($this->mm)) {
-            return self::DATABASE_DEFINITIONS['TEXT'];
+            return AbstractColumnType::DATABASE_DEFINITIONS['TEXT'];
         }
 
-        return self::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+        return AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
     }
 
     /**

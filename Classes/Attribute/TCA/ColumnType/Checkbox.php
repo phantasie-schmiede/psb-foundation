@@ -32,7 +32,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
-    public const DATABASE_DEFINITION = self::DATABASE_DEFINITIONS['BITMAP_32'];
+    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['BITMAP_32'];
 
     /**
      * The parameters $maximumRecordsChecked and $maximumRecordsCheckedInPid are used for the TCA properties eval and

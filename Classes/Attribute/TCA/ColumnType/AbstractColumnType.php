@@ -22,6 +22,8 @@ abstract class AbstractColumnType extends AbstractAttribute implements ColumnTyp
 {
     public const DATABASE_DEFINITIONS = [
         'BITMAP_32'        => 'tinyint(5) DEFAULT \'0\'',
+        'DECIMAL'          => 'double(11,2) DEFAULT \'0.00\'',
+        'INTEGER_SIGNED'   => 'int(11) DEFAULT \'0\'',
         'INTEGER_UNSIGNED' => 'int(11) unsigned DEFAULT \'0\'',
         'STRING'           => 'varchar(255) DEFAULT \'\'',
         'TEXT'             => 'text',

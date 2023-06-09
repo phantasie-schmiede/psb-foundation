@@ -163,17 +163,23 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
      */
     public function getDatabaseDefinition(): string
     {
+        $negativeValues = false;
+
         if (!empty($this->items)) {
             foreach ($this->items as $item) {
                 $value = $item['value'];
 
                 if (is_string($value)) {
-                    return self::DATABASE_DEFINITIONS['STRING'];
+                    return AbstractColumnType::DATABASE_DEFINITIONS['STRING'];
+                }
+
+                if (is_int($value) && 0 > $value) {
+                    $negativeValues = true;
                 }
             }
         }
 
-        return self::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+        return $negativeValues ? AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_SIGNED'] : AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
     }
 
     /**
