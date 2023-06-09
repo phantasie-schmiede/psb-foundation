@@ -22,8 +22,9 @@ use PSB\PsbFoundation\Enum\NumberFormat;
 class Number extends AbstractColumnType
 {
     public const DATABASE_DEFINITIONS = [
-        'DECIMAL' => 'double(11,2) DEFAULT \'0.00\'',
-        'INTEGER' => 'int(11) DEFAULT \'0\'',
+        'DECIMAL'          => 'double(11,2) DEFAULT \'0.00\'',
+        'INTEGER_SIGNED'   => 'int(11) DEFAULT \'0\'',
+        'INTEGER_UNSIGNED' => 'int(11) unsigned DEFAULT \'0\'',
     ];
 
     /**
@@ -59,11 +60,15 @@ class Number extends AbstractColumnType
      */
     public function getDatabaseDefinition(): string
     {
-        return match ($this->format) {
-            NumberFormat::decimal => self::DATABASE_DEFINITIONS['DECIMAL'],
-            NumberFormat::integer => self::DATABASE_DEFINITIONS['INTEGER'],
-            default               => '',
-        };
+        if (NumberFormat::decimal === $this->format) {
+            return self::DATABASE_DEFINITIONS['DECIMAL'];
+        }
+
+        if (NumberFormat::integer === $this->format && 0 < (int)$this->rangeLower) {
+            return self::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+        }
+
+        return self::DATABASE_DEFINITIONS['INTEGER_SIGNED'];
     }
 
     /**
