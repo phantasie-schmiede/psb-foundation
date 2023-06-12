@@ -293,6 +293,18 @@ class StringUtility
     }
 
     /**
+     * @param string $sentence
+     *
+     * @return string
+     */
+    public static function getFirstWord(string $sentence): string
+    {
+        $words = GeneralUtility::trimExplode(' ', $sentence);
+
+        return $words[0];
+    }
+
+    /**
      * @param int $style
      *
      * @return NumberFormatter

@@ -58,7 +58,7 @@ class Number extends AbstractColumnType
             return AbstractColumnType::DATABASE_DEFINITIONS['DECIMAL'];
         }
 
-        if (NumberFormat::integer === $this->format && 0 <= (int)$this->rangeLower) {
+        if (NumberFormat::integer === $this->format && null !== $this->rangeLower && 0 <= $this->rangeLower) {
             return AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
         }
 

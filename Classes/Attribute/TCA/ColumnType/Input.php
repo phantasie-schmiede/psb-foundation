@@ -31,11 +31,23 @@ class Input extends AbstractColumnType
      */
     public function __construct(
         protected string $eval = 'trim',
-        protected ?int $max = null,
-        protected ?int $min = null,
-        protected int $size = 20,
+        protected ?int   $max = 255,
+        protected ?int   $min = null,
+        protected int    $size = 20,
         protected ?array $valuePicker = null,
     ) {
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        if (null !== $this->max) {
+            return 'varchar(' . $this->max . ') DEFAULT \'\'';
+        }
+
+        return 'varchar DEFAULT \'\'';
     }
 
     /**

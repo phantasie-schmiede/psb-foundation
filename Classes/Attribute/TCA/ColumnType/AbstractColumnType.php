@@ -21,7 +21,7 @@ use ReflectionException;
 abstract class AbstractColumnType extends AbstractAttribute implements ColumnTypeInterface
 {
     public const DATABASE_DEFINITIONS = [
-        'BITMAP_32'        => 'tinyint(5) DEFAULT \'0\'',
+        'BITMAP_32'        => 'tinyint unsigned DEFAULT \'0\'',
         'DECIMAL'          => 'double(11,2) DEFAULT \'0.00\'',
         'INTEGER_SIGNED'   => 'int(11) DEFAULT \'0\'',
         'INTEGER_UNSIGNED' => 'int(11) unsigned DEFAULT \'0\'',

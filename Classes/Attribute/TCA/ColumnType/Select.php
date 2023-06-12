@@ -163,7 +163,8 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
      */
     public function getDatabaseDefinition(): string
     {
-        $negativeValues = false;
+        $hasFloatValues = false;
+        $hasNegativeValues = false;
 
         if (!empty($this->items)) {
             foreach ($this->items as $item) {
@@ -173,13 +174,19 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
                     return AbstractColumnType::DATABASE_DEFINITIONS['STRING'];
                 }
 
-                if (is_int($value) && 0 > $value) {
-                    $negativeValues = true;
+                if (is_float($value)) {
+                    $hasFloatValues = true;
+                } elseif (is_int($value) && 0 > $value) {
+                    $hasNegativeValues = true;
                 }
             }
         }
 
-        return $negativeValues ? AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_SIGNED'] : AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+        if ($hasFloatValues) {
+            return AbstractColumnType::DATABASE_DEFINITIONS['DECIMAL'];
+        }
+
+        return $hasNegativeValues ? AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_SIGNED'] : AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
     }
 
     /**

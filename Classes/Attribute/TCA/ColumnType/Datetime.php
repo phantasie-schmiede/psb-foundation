@@ -35,7 +35,7 @@ class Datetime extends AbstractColumnType
      * @param \DateTime|string|null $rangeUpper
      */
     public function __construct(
-        protected ?DateType             $dbType = null,
+        protected ?DateType             $dbType = DateType::datetime,
         protected ?bool                 $disableAgeDisplay = null,
         protected DateType              $format = DateType::datetime,
         protected array                 $range = [],
