@@ -187,7 +187,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         }
 
         if ($hasStringValues) {
-            return DefinitionUtility::varchar($maxStringLength);
+            return DefinitionUtility::varchar(1 === $this->maxItems ? $maxStringLength : 255);
         }
 
         if ($hasFloatValues) {
