@@ -730,14 +730,12 @@ class TcaService
      */
     private function addTabToShowItems(string $identifier, string $typeList = ''): string
     {
-        $label = '';
-
         if (isset($this->tabs[$identifier])) {
             $label = $this->tabs[$identifier]->getLabel();
             $tabPosition = $this->tabs[$identifier]->getPosition();
         }
 
-        if (false === $this->localizationService->validateLabel($label)) {
+        if (false === $this->localizationService->validateLabel($label ?? $identifier)) {
             $defaultLabel = $this->defaultLabelPath . 'tab.' . $identifier . '.label';
 
             if ($this->localizationService->translationExists($defaultLabel)) {
@@ -747,7 +745,7 @@ class TcaService
             }
         }
 
-        $tabDefinition = '--div--;' . $label;
+        $tabDefinition = '--div--;' . ($label ?? $identifier);
         ExtensionManagementUtility::addToAllTCAtypes($this->tableName, $tabDefinition, $typeList, $tabPosition ?? '');
 
         return $tabDefinition;
