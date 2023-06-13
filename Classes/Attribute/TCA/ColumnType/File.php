@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use PSB\PsbFoundation\Data\ExtensionInformation;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -22,8 +23,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class File extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
-
     /**
      * @param array|string $allowed                             https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/File/Properties/Allowed.html
      * @param int|null     $maxItems                            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/File/Properties/Maxitems.html
@@ -62,6 +61,14 @@ class File extends AbstractColumnType
     public function getAllowed(): array|string
     {
         return $this->allowed;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return DefinitionUtility::int(unsigned: true);
     }
 
     /**

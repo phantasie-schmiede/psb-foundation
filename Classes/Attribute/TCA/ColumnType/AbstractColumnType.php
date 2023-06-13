@@ -20,23 +20,6 @@ use ReflectionException;
  */
 abstract class AbstractColumnType extends AbstractAttribute implements ColumnTypeInterface
 {
-    public const DATABASE_DEFINITIONS = [
-        'BITMAP_32'        => 'tinyint unsigned DEFAULT \'0\'',
-        'DECIMAL'          => 'double(11,2) DEFAULT \'0.00\'',
-        'INTEGER_SIGNED'   => 'int DEFAULT \'0\'',
-        'INTEGER_UNSIGNED' => 'int unsigned DEFAULT \'0\'',
-        'STRING'           => 'varchar(255) DEFAULT \'\'',
-        'TEXT'             => 'text',
-    ];
-
-    /**
-     * @return string
-     */
-    public function getDatabaseDefinition(): string
-    {
-        return defined('static::DATABASE_DEFINITION') ? static::DATABASE_DEFINITION : '';
-    }
-
     /**
      * Returns the short class name (lower case) for ['config']['type'].
      *

@@ -20,9 +20,6 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Slug extends AbstractColumnType
 {
-    // Database field for type slug is added by TYPO3 automatically.
-    public const DATABASE_DEFINITION = '';
-
     /**
      * @param string $eval              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Slug/Properties/Eval.html
      * @param string $fallbackCharacter https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Slug/Properties/FallbackCharacter.html
@@ -31,7 +28,7 @@ class Slug extends AbstractColumnType
     public function __construct(
         protected string $eval = 'uniqueInSite',
         protected string $fallbackCharacter = '-',
-        protected array $generatorOptions = [
+        protected array  $generatorOptions = [
             'fields'               => ['title', 'nav_title'],
             'fieldSeparator'       => '/',
             'prefixParentPageSlug' => true,
@@ -40,6 +37,16 @@ class Slug extends AbstractColumnType
             ],
         ],
     ) {
+    }
+
+    /**
+     * Database field for type datetime is added by TYPO3 automatically.
+     *
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return '';
     }
 
     /**

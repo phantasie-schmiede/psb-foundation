@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
@@ -25,8 +26,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Inline extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
-
     /**
      * @var TcaService
      */
@@ -85,6 +84,14 @@ class Inline extends AbstractColumnType
     public function getAppearance(): array
     {
         return $this->appearance;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return DefinitionUtility::int(unsigned: true);
     }
 
     /**

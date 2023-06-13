@@ -17,6 +17,7 @@ use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -32,8 +33,6 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
-    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['BITMAP_32'];
-
     /**
      * The parameters $maximumRecordsChecked and $maximumRecordsCheckedInPid are used for the TCA properties eval and
      * validation.
@@ -70,6 +69,14 @@ class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterfac
     public function getCols(): int|string
     {
         return $this->cols;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return DefinitionUtility::tinyint(unsigned: true);
     }
 
     /**
@@ -150,7 +157,7 @@ class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterfac
      */
     public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
     {
-        if (!is_array ($this->items)) {
+        if (!is_array($this->items)) {
             return;
         }
 

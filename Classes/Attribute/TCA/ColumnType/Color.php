@@ -15,6 +15,7 @@ use JsonException;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -30,16 +31,22 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
-    public const DATABASE_DEFINITION = 'tinyint(4) DEFAULT \'0\'';
-
     /**
-     * @param array $items https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Items.html
+     * @param array $items       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Check/Properties/Items.html
      * @param array $valuePicker https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Color/Properties/ValuePicker.html
      */
     public function __construct(
         protected array $items = [],
         protected array $valuePicker = [],
     ) {
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return DefinitionUtility::char(7);
     }
 
     /**
@@ -64,7 +71,7 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
      */
     public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
     {
-        if (!is_array ($this->items)) {
+        if (!is_array($this->items)) {
             return;
         }
 

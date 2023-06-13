@@ -13,6 +13,7 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 use Attribute;
 use PSB\PsbFoundation\Enum\Relationship;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
@@ -26,8 +27,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Category extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
-
     /**
      * @var TcaService
      */
@@ -62,6 +61,14 @@ class Category extends AbstractColumnType
         protected array        $treeConfigStartingPoints = [],
     ) {
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return DefinitionUtility::int(unsigned: true);
     }
 
     /**

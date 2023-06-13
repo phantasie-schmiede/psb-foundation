@@ -19,6 +19,7 @@ use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -165,13 +166,16 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
     {
         $hasFloatValues = false;
         $hasNegativeValues = false;
+        $hasStringValues = false;
+        $maxStringLength = 0;
 
         if (!empty($this->items)) {
             foreach ($this->items as $item) {
                 $value = $item['value'];
+                $maxStringLength = max($maxStringLength, strlen((string)$value));
 
                 if (is_string($value)) {
-                    return AbstractColumnType::DATABASE_DEFINITIONS['STRING'];
+                    $hasStringValues = true;
                 }
 
                 if (is_float($value)) {
@@ -182,11 +186,15 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
             }
         }
 
-        if ($hasFloatValues) {
-            return AbstractColumnType::DATABASE_DEFINITIONS['DECIMAL'];
+        if ($hasStringValues) {
+            return DefinitionUtility::varchar($maxStringLength);
         }
 
-        return $hasNegativeValues ? AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_SIGNED'] : AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+        if ($hasFloatValues) {
+            return DefinitionUtility::decimal(11, 2);
+        }
+
+        return DefinitionUtility::int(unsigned: !$hasNegativeValues);
     }
 
     /**

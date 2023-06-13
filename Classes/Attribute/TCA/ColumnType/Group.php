@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
@@ -70,10 +71,10 @@ class Group extends AbstractColumnType
     public function getDatabaseDefinition(): string
     {
         if (empty($this->mm)) {
-            return AbstractColumnType::DATABASE_DEFINITIONS['TEXT'];
+            return DefinitionUtility::text();
         }
 
-        return AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
+        return DefinitionUtility::int(unsigned: true);
     }
 
     /**

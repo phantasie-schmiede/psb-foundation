@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 
 /**
  * Class Text
@@ -20,8 +21,6 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Text extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['TEXT'];
-
     /**
      * @param int       $cols           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Text/Properties/Cols.html
      * @param bool|null $enableRichText https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Text/Properties/EnableRichtext.html
@@ -42,6 +41,14 @@ class Text extends AbstractColumnType
     public function getCols(): int
     {
         return $this->cols;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return DefinitionUtility::text();
     }
 
     /**

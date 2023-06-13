@@ -20,4 +20,11 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class PassThrough extends AbstractColumnType
 {
+    /**
+     * Database definition has to be added in ext_tables.sql of your extension!
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return '';
+    }
 }

@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use PSB\PsbFoundation\Enum\NumberFormat;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 
 /**
  * Class Number
@@ -24,8 +25,10 @@ class Number extends AbstractColumnType
     /**
      * @param bool|null    $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Autocomplete.html
      * @param NumberFormat $format       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/Format.html
+     * @param int          $precision    used internally for database definition only (when format=decimal)
      * @param int|null     $rangeLower   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
      * @param int|null     $rangeUpper   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Range.html
+     * @param int          $scale        used internally for database definition only (when format=decimal)
      * @param int|null     $sliderStep   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
      * @param int|null     $sliderWidth  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Slider.html
      * @param array|null   $valuePicker  https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Number/Properties/ValuePicker.html
@@ -33,8 +36,10 @@ class Number extends AbstractColumnType
     public function __construct(
         protected ?bool        $autocomplete = null,
         protected NumberFormat $format = NumberFormat::integer,
+        protected int          $precision = 11,
         protected ?int         $rangeLower = null,
         protected ?int         $rangeUpper = null,
+        protected int          $scale = 2,
         protected ?int         $sliderStep = null,
         protected ?int         $sliderWidth = null,
         protected ?array       $valuePicker = null,
@@ -55,14 +60,12 @@ class Number extends AbstractColumnType
     public function getDatabaseDefinition(): string
     {
         if (NumberFormat::decimal === $this->format) {
-            return AbstractColumnType::DATABASE_DEFINITIONS['DECIMAL'];
+            return DefinitionUtility::decimal($this->precision, $this->scale);
         }
 
-        if (NumberFormat::integer === $this->format && null !== $this->rangeLower && 0 <= $this->rangeLower) {
-            return AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_UNSIGNED'];
-        }
+        $unsigned = NumberFormat::integer === $this->format && null !== $this->rangeLower && 0 <= $this->rangeLower;
 
-        return AbstractColumnType::DATABASE_DEFINITIONS['INTEGER_SIGNED'];
+        return DefinitionUtility::int(unsigned: $unsigned);
     }
 
     /**

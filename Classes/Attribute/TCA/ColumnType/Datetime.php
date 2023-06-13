@@ -23,9 +23,6 @@ use function is_string;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Datetime extends AbstractColumnType
 {
-    // Database field for type datetime is added by TYPO3 automatically.
-    public const DATABASE_DEFINITION = '';
-
     /**
      * @param DateType|null         $dbType            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/DbType.html
      * @param bool|null             $disableAgeDisplay https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/DisableAgeDisplay.html
@@ -49,6 +46,16 @@ class Datetime extends AbstractColumnType
         if (is_string($rangeUpper)) {
             $this->rangeUpper = StringUtility::convertToDateTime($this->rangeUpper);
         }
+    }
+
+    /**
+     * Database field for type datetime is added by TYPO3 automatically.
+     *
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return '';
     }
 
     /**

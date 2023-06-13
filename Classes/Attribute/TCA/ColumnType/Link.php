@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 
 /**
  * Class Link
@@ -20,8 +21,6 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Link extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['STRING'];
-
     /**
      * @param array|null $allowedTypes https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/AllowedTypes.html
      * @param bool       $autocomplete https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Link/Properties/Autocomplete.html
@@ -60,5 +59,13 @@ class Link extends AbstractColumnType
         }
 
         return ['items' => $this->valuePicker];
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseDefinition(): string
+    {
+        return DefinitionUtility::text();
     }
 }

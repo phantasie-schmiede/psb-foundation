@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
+use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 
 /**
  * Class Input
@@ -20,18 +21,16 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Input extends AbstractColumnType
 {
-    public const DATABASE_DEFINITION = AbstractColumnType::DATABASE_DEFINITIONS['STRING'];
-
     /**
      * @param string     $eval        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Eval.html
-     * @param int|null   $max         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Max.html
+     * @param int        $max         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Max.html
      * @param int|null   $min         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Min.html
      * @param int        $size        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/Size.html
      * @param array|null $valuePicker https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Input/Properties/ValuePicker.html
      */
     public function __construct(
         protected string $eval = 'trim',
-        protected ?int   $max = 255,
+        protected int    $max = 255,
         protected ?int   $min = null,
         protected int    $size = 20,
         protected ?array $valuePicker = null,
@@ -43,11 +42,7 @@ class Input extends AbstractColumnType
      */
     public function getDatabaseDefinition(): string
     {
-        if (null !== $this->max) {
-            return 'varchar(' . $this->max . ') DEFAULT \'\'';
-        }
-
-        return 'varchar DEFAULT \'\'';
+        return DefinitionUtility::varchar($this->max);
     }
 
     /**
@@ -59,9 +54,9 @@ class Input extends AbstractColumnType
     }
 
     /**
-     * @return int|null
+     * @return int
      */
-    public function getMax(): ?int
+    public function getMax(): int
     {
         return $this->max;
     }
