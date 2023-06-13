@@ -21,7 +21,8 @@ use Attribute;
 class PassThrough extends AbstractColumnType
 {
     /**
-     * Database definition has to be added in ext_tables.sql of your extension!
+     * Database definition has to be provided by extension author! Either in ext_tables.sql or the property
+     * "databaseDefinition" of the attribute PSB\PsbFoundation\Attribute\TCA\Column.
      */
     public function getDatabaseDefinition(): string
     {
