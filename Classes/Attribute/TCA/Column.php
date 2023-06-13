@@ -56,24 +56,27 @@ class Column extends AbstractTcaAttribute
     protected ?ColumnTypeInterface $configuration = null;
 
     /**
-     * @param bool              $addDatabaseKey Set to true to add this field as simple key like
-     *                                          "KEY my_field (my_field)".
-     * @param mixed             $default        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Default.html
-     * @param string|null       $description    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Description.html#example
-     * @param string|array|null $displayCond    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
-     * @param bool|null         $exclude        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Exclude.html
-     * @param string|null       $l10nDisplay    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nDisplay.html
-     * @param string|null       $l10nMode       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nMode.html
-     * @param string            $label          https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Label.html
-     * @param bool|null         $nullable       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/Nullable.html
-     * @param string|null       $onChange       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/OnChange.html
+     * @param bool              $addDatabaseKey     Set to true to add this field as simple key like
+     *                                              "KEY my_field (my_field)".
+     * @param string|null       $databaseDefinition Use this property to override the automatically generated
+     *                                              definition.
+     * @param mixed             $default            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Default.html
+     * @param string|null       $description        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Description.html#example
+     * @param string|array|null $displayCond        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
+     * @param bool|null         $exclude            https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Exclude.html
+     * @param string|null       $l10nDisplay        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nDisplay.html
+     * @param string|null       $l10nMode           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nMode.html
+     * @param string            $label              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Label.html
+     * @param bool|null         $nullable           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/Nullable.html
+     * @param string|null       $onChange           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/OnChange.html
      * @param string            $position
-     * @param bool|null         $readOnly       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/ReadOnly.html
-     * @param bool|null         $required       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Required.html
+     * @param bool|null         $readOnly           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/ReadOnly.html
+     * @param bool|null         $required           https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Required.html
      * @param string            $typeList
      */
     public function __construct(
         protected bool              $addDatabaseKey = false,
+        protected ?string           $databaseDefinition = null,
         protected mixed             $default = null,
         protected ?string           $description = null,
         protected string|array|null $displayCond = null,
@@ -253,7 +256,7 @@ class Column extends AbstractTcaAttribute
         }
 
         $config = $this->getConfiguration()->toArray();
-        $databaseDefinition = $this->getConfiguration()->getDatabaseDefinition();
+        $databaseDefinition = $this->databaseDefinition ?? $this->getConfiguration()->getDatabaseDefinition();
 
         foreach ($config as $key => $value) {
             $configuration['config'][TcaUtility::convertKey($key)] = $value;
@@ -268,7 +271,7 @@ class Column extends AbstractTcaAttribute
         }
 
         if (!empty($databaseDefinition)) {
-            if (true !== $this->nullable) {
+            if (!$this->nullable && !str_ends_with($databaseDefinition, ' NULL')) {
                 $databaseDefinition .= ' NOT NULL';
             }
 
