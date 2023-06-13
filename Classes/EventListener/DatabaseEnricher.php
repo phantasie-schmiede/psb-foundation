@@ -11,9 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\EventListener;
 
 use PSB\PsbFoundation\Attribute\TCA\Column;
-use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
-use PSB\PsbFoundation\Utility\VariableUtility;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 
 /**
@@ -24,8 +22,9 @@ use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 class DatabaseEnricher
 {
     protected const CREATE_TABLE_PHRASE = 'CREATE TABLE';
-    protected const SKIP_KEYWORDS       = [
-        'KEY',
+    protected const INDENTATION = '    ';
+    protected const KEY_DEFINITION = 'KEY ';
+    protected const SKIP_KEYWORDS = [
         'PRIMARY',
         'UNIQUE',
     ];
@@ -39,46 +38,47 @@ class DatabaseEnricher
      */
     public function __invoke(AlterTableDefinitionStatementsEvent $event): void
     {
-        $tca = $GLOBALS['TCA'];
-        $configurationPaths = ArrayUtility::inArrayRecursive($tca, Column::DATABASE_DEFINITION_KEY, true);
-
-        if (empty($configurationPaths)) {
-            return;
-        }
-
         $additionalFields = [];
+        $additionalKeys = [];
         $sql = implode(LF, $event->getSqlData());
         $this->originalFields = $this->generateDataFromRawSql($sql);
 
-        foreach ($configurationPaths as $configurationPath) {
-            $configurationPathParts = explode('.', $configurationPath);
+        foreach ($GLOBALS['TCA'] as $tableName => $tableConfiguration) {
+            foreach ($tableConfiguration['columns'] as $columnName => $columnConfiguration) {
+                if (
+                    !empty($columnConfiguration['config']['EXT']['psb_foundation'][Column::CONFIGURATION_IDENTIFIERS['DATABASE_DEFINITION']])
+                    && !$this->sqlHasFieldDefinition($columnName, $tableName)
+                ) {
+                    $additionalFields[$tableName][$columnName] = $columnConfiguration['config']['EXT']['psb_foundation'][Column::CONFIGURATION_IDENTIFIERS['DATABASE_DEFINITION']];
+                }
 
-            /*
-             * Get this part:                          ⬇
-             * $GLOBALS['TCA'][<tableName>]['columns'][X]['config']['databaseDefinition']
-             */
-            $fieldName = $configurationPathParts[count($configurationPathParts) - 3];
-
-            /*
-             * Get this part:  ⬇
-             * $GLOBALS['TCA'][X]['columns'][<columnName>]['config']['databaseDefinition']
-             */
-            $tableName = $configurationPathParts[count($configurationPathParts) - 5];
-
-            if (!$this->sqlHasFieldDefinition($fieldName, $tableName)) {
-                $additionalFields[$tableName][$fieldName] = VariableUtility::getValueByPath($tca, $configurationPath);
+                if (
+                    !empty($columnConfiguration['config']['EXT']['psb_foundation'][Column::CONFIGURATION_IDENTIFIERS['DATABASE_KEY']])
+                    && !$this->sqlHasKeyDefinition($columnName, $tableName)
+                ) {
+                    $additionalKeys[$tableName][] = $columnName;
+                }
             }
         }
 
-        if (empty($additionalFields)) {
-            return;
-        }
-
+        // Create SQL for field definitions.
         foreach ($additionalFields as $tableName => $fields) {
             $createStatement = self::CREATE_TABLE_PHRASE . ' ' . $tableName . ' (';
 
             foreach ($fields as $fieldName => $databaseDefinition) {
-                $createStatement .= LF . '    ' . $fieldName . ' ' . $databaseDefinition . ',';
+                $createStatement .= LF . self::INDENTATION . $fieldName . ' ' . $databaseDefinition . ',';
+            }
+
+            $createStatement = rtrim($createStatement, ',') . LF . ');';
+            $event->addSqlData($createStatement);
+        }
+
+        // Create SQL for index key definitions.
+        foreach ($additionalKeys as $tableName => $keyNames) {
+            $createStatement = self::CREATE_TABLE_PHRASE . ' ' . $tableName . ' (';
+
+            foreach ($keyNames as $keyName) {
+                $createStatement .= LF . self::INDENTATION . self::KEY_DEFINITION . $keyName . ' (' . $keyName . '),';
             }
 
             $createStatement = rtrim($createStatement, ',') . LF . ');';
@@ -124,13 +124,19 @@ class DatabaseEnricher
             }
 
             if (!empty($tableName)) {
+                if (str_starts_with($line, self::KEY_DEFINITION)) {
+                    $keyName = StringUtility::getFirstWord(substr($line, strlen(self::KEY_DEFINITION)));
+                    $data[$tableName]['keys'][] = $keyName;
+                    continue;
+                }
+
                 /*
                  * Should be a field definition at this point!
                  * Remove backticks.
                  */
                 $line = trim($line, '`');
                 $fieldName = StringUtility::getFirstWord($line);
-                $data[$tableName][] = $fieldName;
+                $data[$tableName]['fields'][] = $fieldName;
             }
         }
 
@@ -145,6 +151,17 @@ class DatabaseEnricher
      */
     private function sqlHasFieldDefinition(string $fieldName, string $tableName): bool
     {
-        return in_array($fieldName, $this->originalFields[$tableName] ?? [], true);
+        return in_array($fieldName, $this->originalFields[$tableName]['fields'] ?? [], true);
+    }
+
+    /**
+     * @param string $keyName
+     * @param string $tableName
+     *
+     * @return bool
+     */
+    private function sqlHasKeyDefinition(string $keyName, string $tableName): bool
+    {
+        return in_array($keyName, $this->originalFields[$tableName]['keys'] ?? [], true);
     }
 }

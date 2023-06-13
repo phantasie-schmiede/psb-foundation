@@ -299,7 +299,7 @@ class StringUtility
      */
     public static function getFirstWord(string $sentence): string
     {
-        $words = GeneralUtility::trimExplode(' ', $sentence);
+        $words = GeneralUtility::trimExplode(' ', $sentence, true);
 
         return $words[0];
     }

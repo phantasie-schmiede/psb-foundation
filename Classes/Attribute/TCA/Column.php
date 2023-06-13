@@ -17,7 +17,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use function in_array;
 use function str_contains;
 
 /**
@@ -28,17 +27,19 @@ use function str_contains;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Column extends AbstractTcaAttribute
 {
-    public const DATABASE_DEFINITION_KEY = 'databaseDefinition';
+    public const COLUMN_FIELDS = [
+        'description',
+        'displayCond',
+        'exclude',
+        'l10nDisplay',
+        'l10nMode',
+        'label',
+        'onChange',
+    ];
 
-    public const EXCLUDED_FIELDS = [
-        'configuration',
-        'default',
-        'nullable',
-        'palette',
-        'position',
-        'readOnly',
-        'required',
-        'typeList',
+    public const CONFIGURATION_IDENTIFIERS = [
+        'DATABASE_DEFINITION' => 'databaseDefinition',
+        'DATABASE_KEY'        => 'databaseKey',
     ];
 
     public const POSITIONS = [
@@ -55,21 +56,24 @@ class Column extends AbstractTcaAttribute
     protected ?ColumnTypeInterface $configuration = null;
 
     /**
-     * @param mixed             $default     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Default.html
-     * @param string|null       $description https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Description.html#example
-     * @param string|array|null $displayCond https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
-     * @param bool|null         $exclude     https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Exclude.html
-     * @param string|null       $l10nDisplay https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nDisplay.html
-     * @param string|null       $l10nMode    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nMode.html
-     * @param string            $label       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Label.html
-     * @param bool|null         $nullable    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/Nullable.html
-     * @param string|null       $onChange    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/OnChange.html
+     * @param bool              $addDatabaseKey Set to true to add this field as simple key like
+     *                                          "KEY my_field (my_field)".
+     * @param mixed             $default        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Default.html
+     * @param string|null       $description    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Description.html#example
+     * @param string|array|null $displayCond    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/DisplayCond.html
+     * @param bool|null         $exclude        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Exclude.html
+     * @param string|null       $l10nDisplay    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nDisplay.html
+     * @param string|null       $l10nMode       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/L10nMode.html
+     * @param string            $label          https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/Label.html
+     * @param bool|null         $nullable       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Datetime/Properties/Nullable.html
+     * @param string|null       $onChange       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/Columns/Properties/OnChange.html
      * @param string            $position
-     * @param bool|null         $readOnly    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/ReadOnly.html
-     * @param bool|null         $required    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Required.html
+     * @param bool|null         $readOnly       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/ReadOnly.html
+     * @param bool|null         $required       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/CommonProperties/Required.html
      * @param string            $typeList
      */
     public function __construct(
+        protected bool              $addDatabaseKey = false,
         protected mixed             $default = null,
         protected ?string           $description = null,
         protected string|array|null $displayCond = null,
@@ -244,10 +248,8 @@ class Column extends AbstractTcaAttribute
         $properties = parent::toArray();
         $configuration = [];
 
-        foreach ($properties as $key => $value) {
-            if (!in_array($key, self::EXCLUDED_FIELDS, true)) {
-                $configuration[TcaUtility::convertKey($key)] = $value;
-            }
+        foreach (self::COLUMN_FIELDS as $key) {
+            $configuration[TcaUtility::convertKey($key)] = $properties[$key];
         }
 
         $config = $this->getConfiguration()->toArray();
@@ -257,28 +259,32 @@ class Column extends AbstractTcaAttribute
             $configuration['config'][TcaUtility::convertKey($key)] = $value;
         }
 
-        if (null !== $this->getDefault()) {
-            $configuration['config']['default'] = $this->getDefault();
+        if (null !== $this->default) {
+            $configuration['config']['default'] = $this->default;
         }
 
-        if (null !== $this->isNullable()) {
-            $configuration['config']['nullable'] = $this->isNullable();
+        if (null !== $this->nullable) {
+            $configuration['config']['nullable'] = $this->nullable;
         }
 
         if (!empty($databaseDefinition)) {
-            if (true !== $this->isNullable()) {
+            if (true !== $this->nullable) {
                 $databaseDefinition .= ' NOT NULL';
             }
 
-            $configuration['config'][self::DATABASE_DEFINITION_KEY] = $databaseDefinition;
+            $configuration['config']['EXT']['psb_foundation'][self::CONFIGURATION_IDENTIFIERS['DATABASE_DEFINITION']] = $databaseDefinition;
         }
 
-        if (null !== $this->isReadOnly()) {
-            $configuration['config']['readOnly'] = $this->isReadOnly();
+        if ($this->addDatabaseKey) {
+            $configuration['config']['EXT']['psb_foundation'][self::CONFIGURATION_IDENTIFIERS['DATABASE_KEY']] = true;
         }
 
-        if (null !== $this->isRequired()) {
-            $configuration['config']['required'] = $this->isRequired();
+        if (null !== $this->readOnly) {
+            $configuration['config']['readOnly'] = $this->readOnly;
+        }
+
+        if (null !== $this->required) {
+            $configuration['config']['required'] = $this->required;
         }
 
         return $configuration;
