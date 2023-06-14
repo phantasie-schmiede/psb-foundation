@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\Utility\PathUtility;
 class FilePathUtility
 {
     public const EXTENSION_DIRECTORY_PREFIX = 'EXT:';
+    public const LANGUAGE_FILE_EXTENSION    = '.xlf';
     public const LANGUAGE_LABEL_PREFIX      = 'LLL:';
 
     /**
@@ -39,9 +40,9 @@ class FilePathUtility
      * For use in php-files located in an extension directory.
      *
      * This function generates the corresponding prefix for backend labels.
-     * Example: Calling from EXT:my_extension/Configuration/TCA/Overrides/tt_content.xlf without submitting
+     * Example: Calling from EXT:my_extension/Configuration/TCA/Overrides/tt_content.php without submitting
      * a filename will return
-     * "LLL:EXT:my_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf".
+     * "LLL:EXT:my_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:".
      *
      * @param ExtensionInformationInterface $extensionInformation
      * @param string|null                   $filename custom filename without extension (.xlf is added automatically)
@@ -56,12 +57,18 @@ class FilePathUtility
         $callingFilePathElements = explode('/', $trace[0]['file']);
         $indexOfExtensionKey = ArrayUtility::findLastOccurrence($extensionInformation->getExtensionKey(),
             $callingFilePathElements);
-        $relativeFilePathElements = array_slice($callingFilePathElements, $indexOfExtensionKey);
-        $callingFilename = array_pop($relativeFilePathElements);
-        $filename = ($filename ?? str_replace('.php', '', $callingFilename)) . '.xlf:';
 
-        return self::getLanguageFilePath($extensionInformation) . implode('/',
-                $relativeFilePathElements) . '/' . lcfirst($filename);
+        // Retrieve all array items AFTER the extension key.
+        $relativeFilePathElements = array_slice($callingFilePathElements, $indexOfExtensionKey + 1);
+        $callingFilename = array_pop($relativeFilePathElements);
+        $filename = ($filename ?? str_replace('.php', '', $callingFilename));
+
+        if (!str_ends_with($filename, self::LANGUAGE_FILE_EXTENSION)) {
+            $filename .= self::LANGUAGE_FILE_EXTENSION;
+        }
+
+        return self::getLanguageFilePath($extensionInformation) . 'Backend/' . implode('/',
+                $relativeFilePathElements) . '/' . lcfirst($filename) . ':';
     }
 
     /**
