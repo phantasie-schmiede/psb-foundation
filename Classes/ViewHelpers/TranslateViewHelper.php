@@ -30,7 +30,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
-use TYPO3\CMS\Extbase\Mvc\RequestInterface as ExtbaseRequestInterface;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
@@ -41,8 +40,16 @@ use function count;
 /**
  * Class TranslateViewHelper
  *
- * Overwrites the core ViewHelper in order to use \PSB\PsbFoundation\Service\LocalizationService which is able to log
- * missing language labels.
+ * Extended clone of the core ViewHelper in order to use \PSB\PsbFoundation\Service\LocalizationService which is able
+ * to log missing language labels.
+ * Additionally it provides a more conveniant way to pass variables into translations:
+ * Instead of:
+ * <f:translate arguments="{0: 'myVar', 1: 123} id="myLabel" />
+ * <source>My two variables are %1$s and %2$s.</source>
+ * you can use:
+ * <psb:translate arguments="{myVar: 'myVar', anotherVar: 123} id="myLabel" />
+ * <source>My two variables are {myVar} and {anotherVar}.</source>
+ * If a variable is not passed, the marker will remain untouched!
  *
  * @package PSB\PsbFoundation\ViewHelpers
  */
@@ -103,19 +110,19 @@ class TranslateViewHelper extends AbstractViewHelper
             $request = $renderingContext->getRequest();
         }
 
-        if (null === $extensionName && $request instanceof RequestInterface && !str_starts_with($id, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
-            $extensionName = $request->getControllerExtensionName();
-            $id = self::buildId($id, $renderingContext, $request);
+        if (!str_starts_with($id, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
+            $result = static::checkRegisteredLanguageFiles($id, $renderingContext);
+
+            if (false !== $result) {
+                $id = $result;
+            } elseif (null === $extensionName && $request instanceof RequestInterface) {
+                $extensionName = $request->getControllerExtensionName();
+                $id = static::buildIdFromRequest($id, $request);
+            }
         }
 
         try {
-            if ($request instanceof ExtbaseRequestInterface) {
-                $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey'],
-                    $arguments['alternativeLanguageKeys']);
-            } else {
-                $value = static::getLanguageService($request)->sL($id);
-                GeneralUtility::makeInstance(LocalizationService::class)->translationExists($id);
-            }
+            $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey']);
         } catch (InvalidArgumentException) {
             $value = null;
         }
@@ -167,11 +174,10 @@ class TranslateViewHelper extends AbstractViewHelper
     /**
      * Wrapper call to static LocalizationService
      *
-     * @param string      $id                      Translation Key
-     * @param string|null $extensionName           UpperCamelCased extension key (for example BlogExample)
-     * @param array|null  $arguments               Arguments to be replaced in the resulting string
-     * @param string|null $languageKey             Language key to use for this translation
-     * @param string[]    $alternativeLanguageKeys Alternative language keys if no translation does exist
+     * @param string      $id            Translation Key
+     * @param string|null $extensionName UpperCamelCased extension key (for example BlogExample)
+     * @param array|null  $arguments     Arguments to be replaced in the resulting string
+     * @param string|null $languageKey   Language key to use for this translation
      *
      * @return string|null
      * @throws ContainerExceptionInterface
@@ -185,34 +191,19 @@ class TranslateViewHelper extends AbstractViewHelper
         string $extensionName = null,
         array  $arguments = null,
         string $languageKey = null,
-        array  $alternativeLanguageKeys = null,
     ): ?string {
         return GeneralUtility::makeInstance(LocalizationService::class)
-            ->translate($id, $extensionName, $arguments, $languageKey, $alternativeLanguageKeys);
+            ->translate($id, $extensionName, $arguments, $languageKey);
     }
 
     /**
-     * @param string                    $id
-     * @param RenderingContextInterface $renderingContext
-     * @param Request                   $request
+     * @param string  $id
+     * @param Request $request
      *
      * @return string
      */
-    private static function buildId(string $id, RenderingContextInterface $renderingContext, Request $request): string
+    private static function buildIdFromRequest(string $id, Request $request): string
     {
-        if (0 < mb_strpos($id, ':')) {
-            [$alias, $id] = GeneralUtility::trimExplode(':', $id);
-            $templateVariableContainer = $renderingContext->getVariableProvider();
-
-            if ($templateVariableContainer->exists(RegisterLanguageFileViewHelper::VARIABLE_NAME)) {
-                $registry = $templateVariableContainer->get(RegisterLanguageFileViewHelper::VARIABLE_NAME);
-
-                if (isset($registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias])) {
-                    return FilePathUtility::LANGUAGE_LABEL_PREFIX . $registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias] . ':' . $id;
-                }
-            }
-        }
-
         $path = 'LLL:EXT:' . GeneralUtility::camelCaseToLowerCaseUnderscored($request->getControllerExtensionName()) . '/Resources/Private/Language/';
 
         if (ContextUtility::isFrontend()) {
@@ -232,10 +223,32 @@ class TranslateViewHelper extends AbstractViewHelper
         return $path . '/' . implode('/', $controllerName) . '/' . $request->getControllerActionName() . '.xlf:' . $id;
     }
 
+    /**
+     * @param string                    $id
+     * @param RenderingContextInterface $renderingContext
+     *
+     * @return false|string
+     */
+    private static function checkRegisteredLanguageFiles(string $id, RenderingContextInterface $renderingContext): bool|string
+    {
+        if (0 < mb_strpos($id, ':')) {
+            [$alias, $id] = GeneralUtility::trimExplode(':', $id);
+            $templateVariableContainer = $renderingContext->getVariableProvider();
+
+            if ($templateVariableContainer->exists(RegisterLanguageFileViewHelper::VARIABLE_NAME)) {
+                $registry = $templateVariableContainer->get(RegisterLanguageFileViewHelper::VARIABLE_NAME);
+
+                if (isset($registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias])) {
+                    return FilePathUtility::LANGUAGE_LABEL_PREFIX . $registry[RegisterLanguageFileViewHelper::REGISTRY_KEY][$alias] . ':' . $id;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public function initializeArguments(): void
     {
-        $this->registerArgument('alternativeLanguageKeys', 'array',
-            'Alternative language keys if no translation does exist. Ignored in non-extbase context.');
         $this->registerArgument('arguments', 'array', 'Arguments to be replaced in the resulting string', false, []);
         $this->registerArgument('default', 'string',
             'If the given locallang key could not be found, this value is used. If this argument is not set, child nodes will be used to render the default');
