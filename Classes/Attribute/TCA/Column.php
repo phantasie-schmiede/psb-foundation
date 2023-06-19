@@ -252,7 +252,9 @@ class Column extends AbstractTcaAttribute
         $configuration = [];
 
         foreach (self::COLUMN_FIELDS as $key) {
-            $configuration[TcaUtility::convertKey($key)] = $properties[$key];
+            if (!empty($properties[$key])) {
+                $configuration[TcaUtility::convertKey($key)] = $properties[$key];
+            }
         }
 
         $config = $this->getConfiguration()->toArray();

@@ -22,6 +22,7 @@ use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use ReflectionException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -36,10 +37,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
     public const EMPTY_DEFAULT_ITEM = [
-        [
-            'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose',
-            0,
-        ],
+        'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose' =>  0,
     ];
 
     /**
@@ -90,6 +88,10 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
      *                                                  column name automatically.
      * @param bool|null        $treeConfigShowHeader
      * @param array            $treeConfigStartingPoints
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function __construct(
         protected ?bool            $allowNonIdValues = null,
@@ -353,8 +355,10 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         }
 
         if (empty($this->treeConfigChildrenField) && empty($this->treeConfigParentField)) {
-            throw new MisconfiguredTcaException(__CLASS__ . ': Either childrenField or parentField has to be set in treeConfig - childrenField takes precedence.',
-                1682339361);
+            throw new MisconfiguredTcaException(
+                __CLASS__ . ': Either childrenField or parentField has to be set in treeConfig - childrenField takes precedence.',
+                1682339361
+            );
         }
 
         if (null !== $this->treeConfigExpandAll) {
@@ -374,7 +378,9 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         }
 
         if (null !== $this->treeConfigChildrenField) {
-            $configuration['childrenField'] = $this->tcaService->convertPropertyNameToColumnName($this->treeConfigChildrenField);
+            $configuration['childrenField'] = $this->tcaService->convertPropertyNameToColumnName(
+                $this->treeConfigChildrenField,
+            );
         }
 
         if (null !== $this->treeConfigDataProvider) {
@@ -382,7 +388,9 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         }
 
         if (null !== $this->treeConfigParentField) {
-            $configuration['parentField'] = $this->tcaService->convertPropertyNameToColumnName($this->treeConfigParentField);
+            $configuration['parentField'] = $this->tcaService->convertPropertyNameToColumnName(
+                $this->treeConfigParentField,
+            );
         }
 
         if (!empty($this->treeConfigStartingPoints)) {
@@ -429,6 +437,8 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         // $items already has TCA format
         if (ArrayUtility::isMultiDimensionalArray($this->items)) {
             $this->processTcaFormat($localizationService);
+
+            return;
         }
 
         // $items has to be transformed into TCA format
@@ -452,7 +462,15 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         $selectItems = [];
 
         foreach ($this->items as $key => $value) {
-            $label = is_string($key) ? $key : (string)$value;
+            if (!is_string($key)
+                && (is_string($value)
+                    || is_numeric($value)
+                )
+            ) {
+                $label = (string)$value;
+            } else {
+                $label = (string)$key;
+            }
 
             if (!empty($labelPath) && !str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
                 $label = $labelPath . GeneralUtility::underscoredToLowerCamelCase($label);

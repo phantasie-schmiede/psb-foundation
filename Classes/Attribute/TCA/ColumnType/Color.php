@@ -101,7 +101,15 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
         $selectItems = [];
 
         foreach ($this->items as $key => $value) {
-            $label = is_string($key) ? $key : (string)$value;
+            if (!is_string($key)
+                && (is_string($value)
+                    || is_numeric($value)
+                )
+            ) {
+                $label = (string)$value;
+            } else {
+                $label = (string)$key;
+            }
 
             if (!empty($labelPath) && !str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
                 $label = $labelPath . GeneralUtility::underscoredToLowerCamelCase($label);
