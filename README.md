@@ -1,6 +1,11 @@
 # PSB Foundation
 ## Enhanced extension programming in Extbase
 
+---
+**IMPORTANT**
+See [CHANGELOG.md](CHANGELOG.md) for upgrading from v1 to v2!
+---
+
 - [What does it do?](#what-does-it-do)
 - [Why should you use it?](#why-should-you-use-it)
 - [Getting started](#getting-started)
@@ -26,11 +31,11 @@
 
 ### What does it do?
 This extension
-- generates the TCA for your domain models by reading their PHPDoc-annotations
-- autocompletion for TCA by annotation classes
-- configures and registers modules and plugins based on PHPDoc-annotations in your controllers
-- registers custom page types
-- auto-registers existing FlexForms, TypoScript, TSconfig, CSH language files and icons
+- generates the TCA for your domain models by reading their php attributes
+- offers autocompletion for TCA by constructor properties of attribute classes
+- generates database definitions for your domain models
+- simplifies the registration of modules, plugins and page types
+- auto-registers existing FlexForms, TypoScript and icons
 - provides convenient ways to access often used core-functionalities
 
 #### IMPORTANT
@@ -46,9 +51,12 @@ The goal of this extension is to
 - reduce duplicated code
 - reduce number of hard-coded string identifiers and keys, and therefore the likelihood of errors due to typos
 
-The stronger use of convention over configuration simplifies the adaptation to breaking changes in those parts this extension handles.
-Think about the updated registration of icons (`Configuration/Icons.php`) or the way plugin configuration has changed (remove vendor, add full qualified controller classname) in TYPO3 v11.
-You wouldn't have had to refactor each and every extension of yours. Some small changes in psb_foundation and you are ready to go.
+The stronger use of convention over configuration simplifies the adaptation to breaking changes in those parts this
+extension handles.
+Think about the updated registration of icons (`Configuration/Icons.php`) or the way plugin configuration has changed
+(remove vendor, add full qualified controller classname) in TYPO3 v11.
+You wouldn't have had to refactor each and every extension of yours. Some small changes in psb_foundation and you are
+ready to go.
 
 ### Getting started
 Create the following file: `EXT:your_extension/Classes/Data/ExtensionInformation.php`. Define the class and make
@@ -86,58 +94,36 @@ annotation of type `PSB\PsbFoundation\Annotation\TCA\Ctrl` in their PHPDoc-comme
 relates to an existing table in the database and detects if it extends another model from a different extension and
 manipulates the TCA accordingly.
 
-You can provide configuration options via PHPDoc-annotations.
-Available annotations with default values can be found in `psb_foundation/Classes/Annotations/TCA`.
-The available annotation properties also include onChange, label, position, etc.
-There are more annotations than unique field types.
-This extension offers different presets, e.g.
-
-- type: input
-  - Date
-  - DateTime
-  - Input
-  - Integer
-  - Link
-- type: inline (FileReference)
-  - Document
-  - Image
-- type: select
-  - Inline
-  - MM
+You can provide configuration options via attributes.
+Available attributes with default values can be found in `psb_foundation/Classes/Attribute/TCA`.
 
 Simple example:
 
 ```php
-use PSB\PsbFoundation\Annotation\TCA\Column;
-use PSB\PsbFoundation\Annotation\TCA\Ctrl;
+use PSB\PsbFoundation\Attribute\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Input;
+use PSB\PsbFoundation\Attribute\TCA\Ctrl;
 
-/**
- * @Ctrl(label="name", searchFields="description, name")
- */
+#[Ctrl(label: 'name', searchFields: ['description', 'name')]
 class YourClass
 {
-    /**
-     * @Column\Input(eval="trim, required")
-     */
+    #[Column(required: true)]
+    #[Input(eval: 'trim')]
     protected string $name = '';
 
-    /**
-     * You can leave out the brackets if you are fine with the default values.
-     *
-     * @Column\Input
-     */
+    // You can leave out the brackets if you are fine with the default values.
+    #[Input]
     protected string $inputUsingTheDefaultValues = '';
 
-    /**
-     * @Column\Checkbox(exclude=1)
-     */
+    #[Column(exclude: true)]
+    #[Checkbox]
     protected bool $adminOnly = true;
 
     ...
 }
 ```
 
-Properties without TCA\[...]-annotation will not be considered in TCA-generation.
+Properties without TCA\[...]-attribute will not be considered in TCA-generation.
 Some configurations will be added automatically if specific fields are defined in the ctrl-section:
 
 | Property                  | Default value    |

@@ -1,6 +1,13 @@
 PSB Foundation 2.0
 ==================
 
+When I started this project, I promised that TYPO3 upgrades will become easier because the abstraction layer this
+extension offers will remain and all core changes will be tackled under the hood so that you won't have to worry.
+Guess what: As the developers of TYPO3 seemed to break their promise of easier upgrades and introduced a ton of breaking
+changes in v12.0 (which I love!) - and with php 8.1 at hand - I decided to go for a big refactoring. Sorry for that! But
+I hope that you will love the new structure and features. Version 1 won't be supported anymore. The following list will guide you through all necessary steps.
+Thank you for using psb_foundation! ❤
+
 Breaking changes
 ----------------
 
