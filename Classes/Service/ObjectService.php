@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\Mm;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use ReflectionClass;
 use RuntimeException;
@@ -50,12 +51,16 @@ class ObjectService
         $reflectionClass = new ReflectionClass($object);
         $reflectionProperty = $reflectionClass->getProperty($property);
 
-        /** @var Mm|null $mm */
-        $mm = ReflectionUtility::getAttributeInstance(Mm::class, $reflectionProperty);
+        $selectConfiguration = ReflectionUtility::getAttributeInstance(Select::class, $reflectionProperty);
 
-        if (null === $mm) {
-            throw new RuntimeException(__CLASS__ . ': The property "' . $property . '" of object "' . get_class($object) . '" is not of TCA type mm!',
+        if (!$selectConfiguration instanceof Select) {
+            throw new RuntimeException(__CLASS__ . ': The property "' . $property . '" of object "' . get_class($object) . '" is not of TCA type select!',
                 1584867595);
+        }
+
+        if (empty($selectConfiguration->getMm())) {
+            throw new RuntimeException(__CLASS__ . ': The select attribute of the property "' . $property . '" of object "' . get_class($object) . '" does not define a mm-table!',
+                                       1687382027);
         }
 
         $objectStorageElements = $reflectionProperty->getValue($object);
@@ -67,9 +72,9 @@ class ObjectService
         }
 
         // Get all mm-relation entries.
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($mm->getMm());
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($selectConfiguration->getMm());
         $statement = $queryBuilder->select('uid_foreign')
-            ->from($mm->getMm())
+            ->from($selectConfiguration->getMm())
             ->where($queryBuilder->expr()
                 ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid())))
             ->orderBy('sorting')

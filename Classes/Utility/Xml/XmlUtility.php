@@ -374,7 +374,7 @@ class XmlUtility
                 $positionB = $b['tagValue'][self::SPECIAL_KEYS['POSITION']] ?? 0;
             }
 
-            return $positionA > $positionB;
+            return $positionA - $positionB;
         });
 
         return $siblings;
