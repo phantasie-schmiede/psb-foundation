@@ -176,8 +176,8 @@ class LocalizationService
                 }
 
                 foreach ($transUnitArray as $transUnit) {
-                    if (isset($transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
-                        $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']];
+                    if (isset($transUnit[XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']])) {
+                        $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']];
 
                         if ($id === $transUnitTagAttributes['id']) {
                             $this->logMissingLanguageLabels($key, true);
