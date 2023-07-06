@@ -26,12 +26,12 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
- * Class Checkbox
+ * Class Check
  *
  * @package PSB\PsbFoundation\Attribute\TCA\ColumnType
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterface
+class Check extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
     /**
      * The parameters $maximumRecordsChecked and $maximumRecordsCheckedInPid are used for the TCA properties eval and
@@ -55,7 +55,7 @@ class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterfac
         protected array              $items = [],
         protected int                $maximumRecordsChecked = 0,
         protected int                $maximumRecordsCheckedInPid = 0,
-        protected CheckboxRenderType $renderType = CheckboxRenderType::checkboxToggle,
+        protected CheckboxRenderType $renderType = CheckboxRenderType::default,
         protected array|null         $validation = null,
     ) {
         if (!is_int($cols) && 'inline' !== $cols) {
@@ -110,10 +110,14 @@ class Checkbox extends AbstractColumnType implements ColumnTypeWithItemsInterfac
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getRenderType(): string
+    public function getRenderType(): ?string
     {
+        if (CheckboxRenderType::default === $this->renderType) {
+            return null;
+        }
+
         return $this->renderType->value;
     }
 

@@ -124,7 +124,8 @@ class YourClass
 ```
 
 Properties without TCA\[...]-attribute will not be considered in TCA-generation.
-Some configurations will be added automatically if specific fields are defined in the ctrl-section:
+Some configurations will be added automatically if specific fields are defined in the CTRL attribute
+(which they are by default):
 
 | Property                  | Default value    |
 |---------------------------|------------------|
@@ -136,9 +137,9 @@ Some configurations will be added automatically if specific fields are defined i
 | transOrigPointerField     | l10n_parent      |
 | translationSource         | l10n_source      |
 
-Most of these properties will be added in additional tabs at the end of `showitems` for all types.
+The fields for enableColumns will be added in additional tabs at the end of `showitems` for all types.
 
-The relational types `inline`, `mm` and `select` have a special property named `linkedModel`.
+The relational types `inline` and `select` have a special property named `linkedModel`.
 Instead of using `foreign_table` you can specify the class name of the related domain model and psb_foundation will
 insert the corresponding table name into the TCA.
 
@@ -149,15 +150,25 @@ Extended example:
 
 ```php
 use PSB\PsbFoundation\Annotation\TCA\Column;
+use PSB\PsbFoundation\Annotation\TCA\ColumnType\Inline;
+use PSB\PsbFoundation\Annotation\TCA\ColumnType\Select;
+use PSB\PsbFoundation\Annotation\TCA\ColumnType\Text;
 use PSB\PsbFoundation\Annotation\TCA\Ctrl;
 
-/**
- * @Ctrl(hideTable=true, label="richText", labelAlt="someProperty, anotherProperty",
- *       labelAltForce=true, sortBy="customSortField", type="myType")
- */
+#[Ctrl(
+    hideTable: true,
+    label: 'richText',
+    labelAlt: [
+        'someProperty',
+        'anotherProperty',
+    ],
+    labelAltForce: true,
+    sortBy: 'customSortField',
+    type: 'myType',
+)]
 class YourModel
 {
-    /**
+    /*
      * This constant is used as value for TCA-property "items". The keys will be used as label identifiers - converted
      * to lowerCamelCase:
      * EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[modelName].xlf:myType.default
@@ -168,32 +179,38 @@ class YourModel
         'RECORD_WITH_IMAGE' => 'recordWithImage',
     ];
 
-    /**
-     * @Column\Select(items=self::TYPES)
-     */
+    #[Select(items: self::TYPES)]
     protected string $myType = self::TYPES['DEFAULT'];
 
-    /**
-     * @Column\Text(cols=40, enableRichtext=true, rows=10)
-     */
+    #[Text(
+        cols: 40,
+        enableRichtext: true,
+        rows: 10,
+    )]
     protected string $richText = '';
 
     /**
      * @var ObjectStorage<AnotherModel>
-     * @Column\Inline(linkedModel=AnotherModel::class, foreignField="yourModel")
      */
+    #[Inline(
+        linkedModel: AnotherModel::class,
+        foreignField: 'yourModel',
+    )]
     protected ObjectStorage $inlineRelation;
 
-    /**
-     * @Column\Select(linkedModel=AnotherModel::class, position="before:propertyName2")
-     */
+    #[Column(position: 'before:propertyName2')]
+    #[Select(linkedModel: AnotherModel::class)]
     protected ?AnotherModel $simpleSelectField = null;
 
-    /**
-     * This field is only added to the types 'interview' and 'profile'.
-     *
-     * @Column\Image(allowedFileTypes="jpeg, jpg", maxItems=1, typeList="interview, profile")
-     */
+    // This field is only added to the types 'interview' and 'profile'.
+    #[Column(typeList: 'interview, profile')]
+    #[File(
+        allowed: [
+            'jpeg',
+            'jpg',
+        ],
+        maxItems: 1,
+    )]
     protected ?FileReference $image = null;
 
     ...
@@ -204,14 +221,10 @@ The argument position allows you to assign a field to a specific tab or palette.
 
 Example:
 ```php
-/**
- * @Column\Input(position="palette:my_palette")
- */
+#[Column(position: 'palette:my_palette')]
 protected string $description = '';
 
-/**
- * @Column\Input(position="tab:my_tab")
- */
+#[Column(position: 'tab:my_tab')]
 protected string $note = '';
 ```
 Without further configuration, tab and palette will be registered with the given identifier and added to the
@@ -219,24 +232,30 @@ end of the showitems-list. But you can add additional information for tabs and p
 For now, the identifiers of palettes and tabs have to be written in snake_case!
 
 ```php
-use PSB\PsbFoundation\Annotation\TCA;
-use PSB\PsbFoundation\Annotation\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\Palette;
+use PSB\PsbFoundation\Attribute\TCA\Tab;
 
 /**
- * @TCA\Ctrl()
- * @TCA\Palette(description="LLL:EXT:[...]", identifier="my_palette", position="before:someProperty")
  * @TCA\Tab(identifier="my_tab", label="Custom label", position="after:someProperty")
  */
+#[Ctrl]
+#[Palette(
+    description: 'LLL:EXT:[...]',
+    identifier: 'my_palette',
+    position: 'before:someProperty'
+)]
+#[Tab(
+    identifier: 'my_tab',
+    label: 'Custom label',
+    position: 'after:someProperty'
+)]
 class YourModel
 {
-    /**
-     * @Column\Input(position="palette:my_palette")
-     */
+    #[Column(position: 'palette:my_palette')]
     protected string $description = '';
 
-    /**
-     * @Column\Input(position="tab:my_tab")
-     */
+    #[Column(position: 'tab:my_tab')]
     protected string $note = '';
 
     ...
@@ -283,32 +302,30 @@ It will be transformed into the required multi-level format.
 The labels will be build this way:<br>
 `[propertyName].[arrayKeyTransformedToLowerCamelCase]`
 
-If you provide the file `EXT:your_extension_name/Resources/Private/Language/Backend/CSH/[tabelName].xlf`
-it will be registered automatically.
-
 ### Registering and configuring plugins
 - Classes/Data/ExtensionInformation.php
   ```php
-  public const PLUGINS = [
-      'PluginName' => [
-          \Your\Extension\Controller\YourController::class,
-      ],
-      'AnotherPluginWithMultipleControllers' => [
-          \Your\Extension\Controller\AnotherController::class,
-          \Your\Extension\Controller\ExtraController::class,
-          ...
-      ],
-      'AnotherPluginWhichDoesNotUseAllActionsInController' => [
-          \Your\Extension\Controller\YourController::class,
-          \Your\Extension\Controller\AnotherController::class => [
-              'actionName1', // This is not necessarily the default action!
-              'actionName2',
-              ...
-          ],
-          ...
-      ],
-      ...
-  ];
+  public function __construct()
+    {
+        parent::__construct();
+        $this->addPlugin(GeneralUtility::makeInstance(PluginConfiguration::class,
+            controllers: [MyController::class],
+            name: 'MyPlugin',
+        ));
+        $this->addPlugin(GeneralUtility::makeInstance(PluginConfiguration::class,
+            controllers: [
+                MyController::class => [
+                    'specificAction',
+                ],
+                AnotherController::class => [
+                    'specificAction', // This is not necessarily the default action!
+                    'anotherSpecificAction',
+                ],
+            ]],
+            group: 'customTabInContentElementWizard'
+            name: 'AnotherPlugin',
+        ));
+    }
   ```
 
 - Classes/Controller/YourController.php
@@ -316,51 +333,41 @@ it will be registered automatically.
   use PSB\PsbFoundation\Annotation\PluginAction;
   use PSB\PsbFoundation\Annotation\PluginConfig;
 
-  /**
-   * @PluginConfig(iconIdentifier="special-icon")
-   */
   class YourController extends ActionController
   {
-      /**
-       * @PluginAction
-       */
+      #[PluginAction]
       public function simpleAction(): void
       {
       }
 
-      /**
-       * @PluginAction(default=true)
-       */
+      #[PluginAction(default: true)]
       public function mainAction(): void
       {
       }
 
-      /**
-       * @PluginAction(uncached=true)
-       */
+      #[PluginAction(uncached: true)]
       public function uncachedAction(): void
       {
       }
   }
   ```
 
-The `PluginConfig`-annotation is not mandatory. You only need to set it, when additional configuration is desired (e.g.
-setting a custom icon identifier).
-Actions without the `PluginAction`-annotation won't be registered though -
+Actions without the `PluginAction`-attribute won't be registered -
 even if mentioned in the optional action list in `ExtensionInformation.php`!<br>
-If no action list is provided, all actions annotated with `PluginAction` will be registered.
-Which action will be used as default action and which actions should not be cached is determined by the annotation values only.
-Check the default values and comments in `EXT:psb_foundation/Classes/Annotation/`.
+If no action list is provided, all actions with the `PluginAction`-attribute will be registered.
+Which action will be used as default action and which actions should not be cached is determined by the attributes
+property values only.
+Check the default values and comments in `EXT:psb_foundation/Classes/Attribute/`.
 
 #### FlexForms
 If there is a file named `EXT:your_extension/Configuration/FlexForms/[PluginName].xml` it will be registered
-automatically. You can override this default by setting the `flexForm`-property of the `PluginConfig`-annotation. You
-can either provide a filename if your XML-file is located inside the `Configuration/FlexForms/`-directory or a full file
-path beginning with `EXT:`.
+automatically. You can override this default by passing a value for the `flexForm`-property to the
+`PluginConfiguration`-constructor. You can either provide a filename if your XML-file is located inside the
+`Configuration/FlexForms/`-directory or a full file path beginning with `EXT:`.
 
 #### Content element wizard
 Plugins will be added to the wizard automatically. There will be a tab for each vendor. You can override the location of
-your wizard entry by setting the `group`-property of the `PluginConfig`-annotation. The following language labels are
+your wizard entry by setting the `group`-property of `PluginConfiguration`. The following language labels are
 taken into account automatically if defined:
 
 - `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:`
@@ -372,9 +379,9 @@ If the label for title does not exist, this label will be tried:
 This label is also used for the select box item.
 If it doesn't exist either, the plugin name will be used as fallback.
 
-`[group]` defaults to the vendor name (lowercase) if not set within `PluginConfig`-annotation. That also defines the tab
-of the content element wizard. If a new tab is created, its label will be fetched from
-here: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:[group].header`
+`[group]` defaults to the vendor name (lowercase) if not set within `PluginConfiguration`. That also defines the tab
+of the content element wizard. If a new tab is created, its label will be fetched from here:
+`EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:[group].header`
 
 #### Custom page types for single actions
 ```php

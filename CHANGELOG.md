@@ -3,9 +3,10 @@ PSB Foundation 2.0
 
 When I started this project, I promised that TYPO3 upgrades will become easier because the abstraction layer this
 extension offers will remain and all core changes will be tackled under the hood so that you won't have to worry.
-Guess what: As the developers of TYPO3 seemed to break their promise of easier upgrades and introduced a ton of breaking
-changes in v12.0 (which I love!) - and with php 8.1 at hand - I decided to go for a big refactoring. Sorry for that! But
-I hope that you will love the new structure and features. Version 1 won't be supported anymore. The following list will guide you through all necessary steps.
+Guess what: As the developers of TYPO3 introduced a ton of breaking changes in v12.0 (which I love!) - and with php 8.1
+at hand - I decided to go for a big refactoring. Sorry for that! But I hope that you will love the new structure and
+features. Version 1 won't be supported anymore. The following list will guide you through all necessary steps.
+I will try to support two major versions in the future.
 Thank you for using psb_foundation! ❤
 
 Breaking changes
@@ -22,6 +23,8 @@ Breaking changes
   - changed to `getLanguageFilePathForCurrentFile(ExtensionInformationInterface $extensionInformation, string $filename = null)`
 - Migrate annotation classes to php attributes.
   - Example: `/** @Column\Input(eval="trim") */` becomes `#[Column\Input(eval: 'trim')]`
+  - Changed class name(!): Checkbox is now Check according to the underlying TCA type.
+    - Render type of Check defaults to "default" now! (Old default was checkboxToggle.)
 - Move ajax page type configuration from action to plugin level (configuring a specific action is not supported by TYPO3
   anymore).
   - All actions, that need to be called via typeNum, have to be default actions. This might require the configuration of new plugins.

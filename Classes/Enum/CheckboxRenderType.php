@@ -19,5 +19,5 @@ enum CheckboxRenderType: string
 {
     case checkboxLabeledToggle = 'checkboxLabeledToggle';
     case checkboxToggle        = 'checkboxToggle';
-    case default               = 'default';
+    case default               = '';
 }
