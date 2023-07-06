@@ -32,10 +32,16 @@ class XmlUtility
 {
     public const INDENTATION = '    ';
 
-    public const SPECIAL_KEYS = [
+    public const SPECIAL_ARRAY_KEYS = [
         'ATTRIBUTES' => '@attributes',
         'NODE_VALUE' => '@nodeValue',
         'POSITION'   => '@position',
+    ];
+
+    public const SPECIAL_XML_KEYS = [
+        '_attributes',
+        '_nodeValue',
+        '_position',
     ];
 
     /**
@@ -113,8 +119,8 @@ class XmlUtility
         $siblings = self::sortSiblings($siblings);
 
         foreach ($siblings as $value) {
-            if (isset($value['tagValue'][self::SPECIAL_KEYS['POSITION']])) {
-                unset($value['tagValue'][self::SPECIAL_KEYS['POSITION']]);
+            if (isset($value['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']])) {
+                unset($value['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']]);
             }
 
             $xml .= self::buildTag($value['tagName'], $value['tagValue'], $wellFormatted, $indentationLevel);
@@ -132,7 +138,7 @@ class XmlUtility
      */
     public static function getNodeValue(array $array, string $path, bool $strict = true): mixed
     {
-        $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
+        $path .= '.' . self::SPECIAL_ARRAY_KEYS['NODE_VALUE'];
 
         if (false === $strict && !ArrayUtility::isValidPath($array, $path, '.')) {
             return null;
@@ -174,7 +180,7 @@ class XmlUtility
      */
     public static function setNodeValue(array &$array, string $path, mixed $value): void
     {
-        $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
+        $path .= '.' . self::SPECIAL_ARRAY_KEYS['NODE_VALUE'];
         $array = ArrayUtility::setValueByPath($array, $path, $value, '.');
     }
 
@@ -203,7 +209,7 @@ class XmlUtility
                 $value = StringUtility::convertString(trim((string)$value));
             }
 
-            $array[self::SPECIAL_KEYS['ATTRIBUTES']][$attributeName] = $value;
+            $array[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$attributeName] = $value;
         }
 
         $namespaces = $xml->getDocNamespaces() ?: [];
@@ -234,7 +240,7 @@ class XmlUtility
                 if ($parsedChild instanceof XmlElementInterface) {
                     $parsedChild->_setPosition($positionOnThisLevel++);
                 } else {
-                    $parsedChild[self::SPECIAL_KEYS['POSITION']] = $positionOnThisLevel++;
+                    $parsedChild[self::SPECIAL_ARRAY_KEYS['POSITION']] = $positionOnThisLevel++;
                 }
 
                 if (!isset($array[$childTagName])) {
@@ -289,18 +295,18 @@ class XmlUtility
 
         $xml .= $indentation . '<' . $key;
 
-        if (is_array($value) && isset($value[self::SPECIAL_KEYS['ATTRIBUTES']]) && is_array($value[self::SPECIAL_KEYS['ATTRIBUTES']])) {
-            foreach ($value[self::SPECIAL_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
+        if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]) && is_array($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']])) {
+            foreach ($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
                 $xml .= ' ' . $attributeName . '="' . $attributeValue . '"';
             }
 
-            unset($value[self::SPECIAL_KEYS['ATTRIBUTES']]);
+            unset($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]);
         }
 
         $xml .= '>';
 
-        if (is_array($value) && isset($value[self::SPECIAL_KEYS['NODE_VALUE']])) {
-            $value = $value[self::SPECIAL_KEYS['NODE_VALUE']];
+        if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['NODE_VALUE']])) {
+            $value = $value[self::SPECIAL_ARRAY_KEYS['NODE_VALUE']];
         }
 
         if (is_array($value) || $value instanceof XmlElementInterface) {
@@ -342,11 +348,11 @@ class XmlUtility
     {
         if (count($node->attributes())) {
             foreach ($node->attributes() as $attributeName => $value) {
-                $parsedNode[self::SPECIAL_KEYS['ATTRIBUTES']][$attributeName] = StringUtility::convertString(trim((string)$value));
+                $parsedNode[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$attributeName] = StringUtility::convertString(trim((string)$value));
             }
         }
 
-        $parsedNode[self::SPECIAL_KEYS['NODE_VALUE']] = StringUtility::convertString(trim((string)$node));
+        $parsedNode[self::SPECIAL_ARRAY_KEYS['NODE_VALUE']] = StringUtility::convertString(trim((string)$node));
 
         return $parsedNode;
     }
@@ -365,16 +371,16 @@ class XmlUtility
             if ($a['tagValue'] instanceof XmlElementInterface) {
                 $positionA = $a['tagValue']->_getPosition();
             } elseif (is_array($a['tagValue'])) {
-                $positionA = $a['tagValue'][self::SPECIAL_KEYS['POSITION']] ?? 0;
+                $positionA = $a['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']] ?? 0;
             }
 
             if ($b['tagValue'] instanceof XmlElementInterface) {
                 $positionB = $b['tagValue']->_getPosition();
             } elseif (is_array($b['tagValue'])) {
-                $positionB = $b['tagValue'][self::SPECIAL_KEYS['POSITION']] ?? 0;
+                $positionB = $b['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']] ?? 0;
             }
 
-            return $positionA > $positionB;
+            return $positionA - $positionB;
         });
 
         return $siblings;

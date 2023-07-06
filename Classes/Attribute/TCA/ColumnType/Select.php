@@ -37,7 +37,7 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
     public const EMPTY_DEFAULT_ITEM = [
-        'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose' =>  0,
+        'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose' => 0,
     ];
 
     /**
@@ -189,7 +189,15 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         }
 
         if ($hasStringValues) {
-            return DefinitionUtility::varchar(1 === $this->maxItems ? $maxStringLength : 255);
+            if (
+                1 < $this->maxItems
+                || !empty($this->foreignTable)
+                || !empty($this->linkedModel)
+            ) {
+                $maxStringLength = 255;
+            }
+
+            return DefinitionUtility::varchar($maxStringLength);
         }
 
         if ($hasFloatValues) {
