@@ -29,12 +29,15 @@ defined('TYPO3') or die();
         $pageTypeService->addToDragArea($extensionInformation);
         $pluginService->configurePlugins($extensionInformation);
 
-        $userTsConfigFilename = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/TsConfig/User/User.tsconfig';
+        foreach ([
+             'user',
+             'User',
+         ] as $filename) {
+            $userTsConfigFilename = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/' . $filename . '.tsconfig';
 
-        if (FileUtility::fileExists($userTsConfigFilename)) {
-            ExtensionManagementUtility::addUserTSConfig('
-             @import \'' . $userTsConfigFilename . '\'
-        ');
+            if (FileUtility::fileExists($userTsConfigFilename)) {
+                ExtensionManagementUtility::addUserTSConfig('@import \'' . $userTsConfigFilename . '\'');
+            }
         }
     }
 })();

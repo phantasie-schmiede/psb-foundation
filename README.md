@@ -336,18 +336,21 @@ The labels will be build this way:<br>
   class YourController extends ActionController
   {
       #[PluginAction]
-      public function simpleAction(): void
+      public function simpleAction(): ResponseInterface
       {
+          ...
       }
 
       #[PluginAction(default: true)]
-      public function mainAction(): void
+      public function mainAction(): ResponseInterface
       {
+          ...
       }
 
       #[PluginAction(uncached: true)]
-      public function uncachedAction(): void
+      public function uncachedAction(): ResponseInterface
       {
+          ...
       }
   }
   ```
@@ -376,30 +379,40 @@ taken into account automatically if defined:
 
 If the label for title does not exist, this label will be tried:
 `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.[pluginName].title`<br>
-This label is also used for the select box item.
+This label is also used for the select box item (CType)`.
 If it doesn't exist either, the plugin name will be used as fallback.
 
 `[group]` defaults to the vendor name (lowercase) if not set within `PluginConfiguration`. That also defines the tab
 of the content element wizard. If a new tab is created, its label will be fetched from here:
 `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:[group].header`
 
-#### Custom page types for single actions
+#### Custom page types for single plugins
+You can add a custom page type that renders a specific plugin only.
+Simply define a typeNum in your PluginConfiguration: 
+
+Classes/Data/ExtensionInformation.php
 ```php
-use PSB\PsbFoundation\Annotation\PageType;
-use PSB\PsbFoundation\Annotation\PluginAction;
-
-...
-
-/**
- * @PluginAction(uncached=true)
- * @PageType(contentType=PageObjectConfiguration::CONTENT_TYPE_HTML, disableAllHeaderCode=false, typeNum=1589385441)
- */
-public function specialPageTypeAction()
+public function __construct()
 {
+    parent::__construct();
+    $this->addPlugin(GeneralUtility::makeInstance(PluginConfiguration::class,
+        controllers: [
+            MyController::class
+        ],
+        name: 'MyPlugin',
+        typeNum: 1589385441,
+    ));
 }
 ```
 
-psb_foundation will create the necessary TypoScript so that this action can be called directly with the request parameter `type=1589385441`.
+psb_foundation will create the necessary TypoScript so that this plugin can be called directly with the request parameter `type=1589385441`.
+If you defined a typeNum, you can add more specific information for that page type:
+
+| Option                      | Type               | Description                                                                | Default   |
+|-----------------------------|--------------------|----------------------------------------------------------------------------|-----------|
+| typeNumCacheable            | boolean            | whether the output should be cached?                                       | false     |
+| typeNumContentType          | ContentType (Enum) | defines the information about the content sent in header                   | text/html |
+| typeNumDisableAllHeaderCode | boolean            | whether the plugin output should not be wrapped inside the page's template | true      |
 
 ### Registering and configuring modules
 This process is very similar to the way plugins are registered.
@@ -428,18 +441,12 @@ Look into the configuration classes to see all available options and their defau
 
   class YourModuleController extends ActionController
   {
-      /**
-       * @return ResponseInterface
-       */
       #[ModuleAction(default: true)]
       public function mainAction(): ResponseInterface
       {
           ...
       }
   
-      /**
-       * @return ResponseInterface
-       */
       #[ModuleAction]
       public function simpleAction(): ResponseInterface
       {
@@ -464,22 +471,23 @@ Fallbacks regarding submodules only:
 - access: `group, user`
 - main module: `web`
 
-Check the other configuration options and comments in `EXT:psb_foundation/Classes/Annotation/`.
+Check the other configuration options and comments in `EXT:psb_foundation/Classes/Attributes/`.
 
 ### Registering custom page types
 Classes/Data/ExtensionInformation.php
-  ```php
-  public const PAGE_TYPES = [
-      123 => [ // doktype serves as key
-          'allowedTables'  => ['*'],
-          'iconIdentifier' => 'page-type-your-page-type-name'
-          'label'          => 'Your page type name'
-          'name'           => 'yourPageTypeName',
-          'type'           => 'web',
-      ],
-      ...
-  ];
-  ```
+```php
+public function __construct()
+{
+    parent::__construct();
+    $this->addPageType(GeneralUtility::makeInstance(PageTypeConfiguration::class,
+        allowedTables: ['*'],
+        iconIdentifier: 'page-type-your-page-type-name',
+        label: 'Your page type name',
+        name: 'yourPageTypeName',
+        doktype: 1691492222,
+    ));
+}
+```
 
 The keys (doktype) have to be of type integer. `name` is the only mandatory value.
 If you don't provide an icon identifier this default identifier will be used: `page-type-your-page-type-name`.
@@ -503,9 +511,12 @@ You can provide a custom title for the select item in the template module with `
 defaults to `'Main configuration'`.
 
 ### Auto-registration of TSconfig-files
-If these files exist, they will be included automatically:
-- `EXT:your_extension/Configuration/TSconfig/Page.tsconfig`
-- `EXT:your_extension/Configuration/TSconfig/User.tsconfig`
+If this file exists, it will be included automatically:
+- `EXT:your_extension/Configuration/User.tsconfig` (You can use 'User' or 'user')
+
+The core already handles the inclusion of
+- `EXT:your_extension/Configuration/Page.tsconfig` (You can use 'Page' or 'page')
+https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96614-AutomaticInclusionOfPageTsConfigOfExtensions.htm
 
 ### Auto-registration of icons
 All PNG- and SVG-files located in `EXT:your_extension/Resources/Public/Icons` will be registered automatically.

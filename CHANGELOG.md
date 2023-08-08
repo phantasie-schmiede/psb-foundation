@@ -49,8 +49,10 @@ Breaking changes
         ));
     }
     ```
-- Removed automatic inclusion of PageTS as this is done by the core now. ([Feature #96614](https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96614-AutomaticInclusionOfPageTsConfigOfExtensions.html))
+- Removed automatic inclusion of PageTSconfig as this is done by the core now. ([Feature #96614](https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96614-AutomaticInclusionOfPageTsConfigOfExtensions.html))
   - You might have to rename your TsConfig files.
+- Changed required location of UserTSconfig files for automatic inclusion (following the core):
+  - from `EXT:your_extension/Configuration/TSconfig/User/User.tsconfig` to `EXT:your_extension/Configuration/User.tsconfig` (You can use a lowercase filename, too.)
 - Removed property injection traits!
   - Use constructor injection instead.
 - Replace obsolete functions from StringUtility with native php functions.
