@@ -79,7 +79,7 @@ Features
   - `resolveFileName()` // resolves `EXT:`, but leaves invalid paths untouched (in contrast to `GeneralUtility::getFileAbsFileName()`)
   - `write()` // wrapper for file_put_contents which creates the file if it does not exist (including directories) and assures correct access rights
 - Allow fallbacks for GlobalVariableService::get().
-  - The method no longer throws an exception if a path does not exist and a fallback is given as second parameter.
+  - The method no longer throws an exception if a path does not exist and strict mode is set to false. The fallback value can be overridden.
 - Support convenient placeholders in language files.
 
 Bugfixes
