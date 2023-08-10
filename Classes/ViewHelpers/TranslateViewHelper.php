@@ -19,12 +19,8 @@ use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
-use TYPO3\CMS\Core\Http\ApplicationType;
-use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
@@ -36,6 +32,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 use function count;
+use function in_array;
 
 /**
  * Class TranslateViewHelper
@@ -108,6 +105,11 @@ class TranslateViewHelper extends AbstractViewHelper
 
         if ($renderingContext instanceof RenderingContext) {
             $request = $renderingContext->getRequest();
+            $languageKey = $request->getAttribute('language')?->getLocale();
+
+            if (in_array($languageKey, $arguments['excludedLanguages'], true)) {
+                return null;
+            }
         }
 
         if (!str_starts_with($id, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
@@ -146,29 +148,6 @@ class TranslateViewHelper extends AbstractViewHelper
         }
 
         return $value;
-    }
-
-    /**
-     * @param ServerRequestInterface|null $request
-     *
-     * @return LanguageService
-     * @see \TYPO3\CMS\Fluid\ViewHelpers\TranslateViewHelper
-     */
-    protected static function getLanguageService(ServerRequestInterface $request = null): LanguageService
-    {
-        if (isset($GLOBALS['LANG'])) {
-            return $GLOBALS['LANG'];
-        }
-        $languageServiceFactory = GeneralUtility::makeInstance(LanguageServiceFactory::class);
-        if ($request !== null && ApplicationType::fromRequest($request)->isFrontend()) {
-            $GLOBALS['LANG'] = $languageServiceFactory->createFromSiteLanguage($request->getAttribute('language')
-                ?? $request->getAttribute('site')->getDefaultLanguage());
-
-            return $GLOBALS['LANG'];
-        }
-        $GLOBALS['LANG'] = $languageServiceFactory->createFromUserPreferences($GLOBALS['BE_USER'] ?? null);
-
-        return $GLOBALS['LANG'];
     }
 
     /**
@@ -252,6 +231,7 @@ class TranslateViewHelper extends AbstractViewHelper
         $this->registerArgument('arguments', 'array', 'Arguments to be replaced in the resulting string', false, []);
         $this->registerArgument('default', 'string',
             'If the given locallang key could not be found, this value is used. If this argument is not set, child nodes will be used to render the default');
+        $this->registerArgument('excludedLanguages', 'array', 'List of language keys that should return null');
         $this->registerArgument('extensionName', 'string', 'UpperCamelCased extension key (for example BlogExample)');
         $this->registerArgument('id', 'string', 'Translation ID. Same as key.');
         $this->registerArgument('key', 'string', 'Translation Key');

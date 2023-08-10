@@ -74,6 +74,8 @@ Features
 
 - Add attributes for new TCA types introduced in v12.
 - Add more properties and getters for TCA attributes.
+- New attribute for TranslateViewHelper
+  - excludedLanguages: matching language keys will return null (bypasses fallbacks)
 - Add new helper functions to FileUtility.
   - `getMimeType()` // based on finfo
   - `resolveFileName()` // resolves `EXT:`, but leaves invalid paths untouched (in contrast to `GeneralUtility::getFileAbsFileName()`)
