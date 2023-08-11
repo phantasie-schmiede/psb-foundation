@@ -104,11 +104,19 @@ class TranslateViewHelper extends AbstractViewHelper
         $request = null;
 
         if ($renderingContext instanceof RenderingContext) {
+            $excludedLanguages = $arguments['excludedLanguages'];
             $request = $renderingContext->getRequest();
-            $languageKey = $request->getAttribute('language')?->getLocale();
 
-            if (in_array($languageKey, $arguments['excludedLanguages'], true)) {
-                return null;
+            if (is_array($excludedLanguages)) {
+                $locale = $request?->getAttribute('language')->getLocale()->getName();
+
+                array_walk($excludedLanguages, static function (&$languageKey) {
+                    $languageKey = str_replace('_', '-', $languageKey);
+                });
+
+                if (in_array($locale, $excludedLanguages, true)) {
+                    return null;
+                }
             }
         }
 
