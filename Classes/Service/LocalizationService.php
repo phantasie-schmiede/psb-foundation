@@ -83,7 +83,12 @@ class LocalizationService
         string $languageKey = null,
     ): ?string {
         if (isset($arguments[self::QUANTITY_ARGUMENT]) && is_numeric($arguments[self::QUANTITY_ARGUMENT])) {
-            $quantity = StringUtility::convertString($arguments[self::QUANTITY_ARGUMENT]);
+            if (is_string($arguments[self::QUANTITY_ARGUMENT])) {
+                $quantity = StringUtility::convertString($arguments[self::QUANTITY_ARGUMENT]);
+            } else {
+                $quantity = $arguments[self::QUANTITY_ARGUMENT];
+            }
+
             $pluralForm = PluralFormUtility::getPluralForm($languageKey ?? ContextUtility::getCurrentLocale(), $quantity);
             self::$pluralFormIndex = $pluralForm;
         }

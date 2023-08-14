@@ -179,7 +179,7 @@ class PluralFormUtility
     {
         // Example: If $languageKey is "de_CH" and there is no rule defined for it, try "de".
         if (!isset(static::LANGUAGE_RULE_MAPPING[$languageKey])) {
-            $languageKeyParts = explode('_', $languageKey);
+            $languageKeyParts = preg_split('/[_-]/', $languageKey);
             $languageKey = (string)array_shift($languageKeyParts);
         }
 
