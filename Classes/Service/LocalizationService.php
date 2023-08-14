@@ -15,12 +15,14 @@ use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\FileUtility;
+use PSB\PsbFoundation\Utility\Localization\PluralFormUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\Xml\XmlUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
@@ -36,10 +38,13 @@ use function array_slice;
  */
 class LocalizationService
 {
+    public const  QUANTITY_ARGUMENT             = 'quantity';
     private const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
     private const TEMP_LOG_FILE                 = 'log/psb_foundation/postponed_language_labels.log';
 
-    protected string $logFilePath;
+    // Temporary storage for calculated plural form that will be deleted once the LanguageService has read it.
+    public static ?int $pluralFormIndex = null;
+    protected string   $logFilePath;
 
     /**
      * @param ExtensionInformationService $extensionInformationService
@@ -62,9 +67,11 @@ class LocalizationService
      *                                             system
      *
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
+     * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      * @see LocalizationUtility
@@ -75,8 +82,16 @@ class LocalizationService
         array  $arguments = null,
         string $languageKey = null,
     ): ?string {
+        if (isset($arguments[self::QUANTITY_ARGUMENT]) && is_numeric($arguments[self::QUANTITY_ARGUMENT])) {
+            $quantity = StringUtility::convertString($arguments[self::QUANTITY_ARGUMENT]);
+            $pluralForm = PluralFormUtility::getPluralForm($languageKey ?? ContextUtility::getCurrentLocale(), $quantity);
+            self::$pluralFormIndex = $pluralForm;
+        }
+
         $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey);
         $this->logMissingLanguageLabels($key, null !== $translation);
+
+        self::$pluralFormIndex = null;
 
         return $translation;
     }
@@ -88,9 +103,11 @@ class LocalizationService
      *                                   be removed
      *
      * @return string
+     * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -113,9 +130,11 @@ class LocalizationService
      * @param string|null $extension
      *
      * @return string
+     * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */

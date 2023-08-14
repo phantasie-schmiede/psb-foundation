@@ -33,6 +33,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Exception;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithRenderStatic;
 use function count;
 use function in_array;
+use function is_array;
 
 /**
  * Class TranslateViewHelper
@@ -80,16 +81,18 @@ class TranslateViewHelper extends AbstractViewHelper
      * @throws NotFoundExceptionInterface
      */
     public static function renderStatic(
-        array                     $arguments,
-        Closure                   $renderChildrenClosure,
+        array $arguments,
+        Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext,
     ): ?string {
         [
-            'arguments'     => $translateArguments,
-            'default'       => $default,
-            'extensionName' => $extensionName,
-            'id'            => $id,
-            'key'           => $key,
+            'arguments'         => $translateArguments,
+            'default'           => $default,
+            'excludedLanguages' => $excludedLanguages,
+            'extensionName'     => $extensionName,
+            'id'                => $id,
+            'key'               => $key,
+            'languageKey'       => $languageKey,
         ] = $arguments;
 
         // Use key if id is empty.
@@ -104,7 +107,6 @@ class TranslateViewHelper extends AbstractViewHelper
         $request = null;
 
         if ($renderingContext instanceof RenderingContext) {
-            $excludedLanguages = $arguments['excludedLanguages'];
             $request = $renderingContext->getRequest();
 
             if (is_array($excludedLanguages)) {
@@ -132,7 +134,7 @@ class TranslateViewHelper extends AbstractViewHelper
         }
 
         try {
-            $value = static::translate($id, $extensionName, $translateArguments, $arguments['languageKey']);
+            $value = static::translate($id, $extensionName, $translateArguments, $languageKey);
         } catch (InvalidArgumentException) {
             $value = null;
         }
