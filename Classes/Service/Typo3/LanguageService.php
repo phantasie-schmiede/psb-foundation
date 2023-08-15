@@ -27,7 +27,7 @@ use TYPO3\CMS\Core\Localization\LanguageService as Typo3LanguageServiceAlias;
  * a lot more functions that are used on the way here. Therefore, this is done by a static property.
  *
  * @package PSB\PsbFoundation\Service\Typo3
- * @TODO: Check original file on TYPO3 update!
+ * @TODO    Check original file on TYPO3 update!
  */
 class LanguageService extends Typo3LanguageServiceAlias
 {
@@ -35,26 +35,39 @@ class LanguageService extends Typo3LanguageServiceAlias
      * Returns the label with key $index from the $LOCAL_LANG array used as the second argument respecting possible
      * plural forms (falls back to plural form 0 if other plural form is given but not defined in language file).
      *
-     * @param string $index Label key
-     * @param array $localLanguage $LOCAL_LANG array to get label key from
+     * @param string $index         Label key
+     * @param array  $localLanguage $LOCAL_LANG array to get label key from
+     *
      * @return string
      */
     protected function getLLL(string $index, array $localLanguage): string
     {
-        $pluralFormIndex = LocalizationService::$pluralFormIndex ?? 0;
+        $pluralFormIndex = 0;
 
-        if (isset($localLanguage[$this->lang][$index])) {
-            $value = is_string($localLanguage[$this->lang][$index])
-                ? $localLanguage[$this->lang][$index]
-                : ($localLanguage[$this->lang][$index][$pluralFormIndex]['target'] ?? $localLanguage[$this->lang][$index][0]['target']);
-        } elseif (isset($localLanguage['default'][$index])) {
-            $value = is_string($localLanguage['default'][$index])
-                ? $localLanguage['default'][$index]
-                : ($localLanguage['default'][$index][$pluralFormIndex]['target'] ?? $localLanguage['default'][$index][0]['target']);
-        } else {
-            $value = '';
+        if (str_contains($index, LocalizationService::PLURAL_FORM_MARKERS['BEGIN'])) {
+            [$index, $pluralFormIndexStub] = explode(LocalizationService::PLURAL_FORM_MARKERS['BEGIN'], $index);
+            $pluralFormIndex = (int)substr($pluralFormIndexStub, 0,
+                -strlen(LocalizationService::PLURAL_FORM_MARKERS['END']));
         }
 
-        return $value;
+        if (isset($localLanguage[$this->lang][$index])) {
+            $languageKey = $this->lang;
+        } elseif (isset($localLanguage['default'][$index])) {
+            $languageKey = 'default';
+        }
+
+        if (isset ($languageKey)) {
+            if (is_string($localLanguage[$languageKey][$index])) {
+                $value = $localLanguage[$languageKey][$index];
+            } elseif (isset($localLanguage[$languageKey][$index][$pluralFormIndex]['target'])) {
+                $value = $localLanguage[$languageKey][$index][$pluralFormIndex]['target'];
+            } else {
+                // Set static property for logging
+                LocalizationService::$pluralFormMissing = true;
+                $value = $localLanguage[$languageKey][$index][0]['target'];
+            }
+        }
+
+        return $value ?? '';
     }
 }

@@ -38,13 +38,20 @@ use function array_slice;
  */
 class LocalizationService
 {
+    public const  PLURAL_FORM_MARKERS           = [
+        'BEGIN' => '[',
+        'END'   => ']',
+    ];
     public const  QUANTITY_ARGUMENT             = 'quantity';
     private const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
     private const TEMP_LOG_FILE                 = 'log/psb_foundation/postponed_language_labels.log';
 
-    // Temporary storage for calculated plural form that will be deleted once the LanguageService has read it.
-    public static ?int $pluralFormIndex = null;
-    protected string   $logFilePath;
+    /*
+     * Temporary indicator for missing plural form that will be reset after each translation. The clean way of
+     * integrating this LocalizationService into TYPO3's LanguageService would cause too much overhead!
+     */
+    public static ?bool $pluralFormMissing = null;
+    protected string    $logFilePath;
 
     /**
      * @param ExtensionInformationService $extensionInformationService
@@ -89,14 +96,14 @@ class LocalizationService
                 $quantity = $arguments[self::QUANTITY_ARGUMENT];
             }
 
-            $pluralForm = PluralFormUtility::getPluralForm($languageKey ?? ContextUtility::getCurrentLocale(), $quantity);
-            self::$pluralFormIndex = $pluralForm;
+            $pluralForm = PluralFormUtility::getPluralForm($languageKey ?? ContextUtility::getCurrentLocale(),
+                $quantity);
+            $key .= self::PLURAL_FORM_MARKERS['BEGIN'] . $pluralForm . self::PLURAL_FORM_MARKERS['END'];
         }
 
         $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey);
-        $this->logMissingLanguageLabels($key, null !== $translation);
-
-        self::$pluralFormIndex = null;
+        $this->logMissingLanguageLabels($key, (null !== $translation && !self::$pluralFormMissing));
+        self::$pluralFormMissing = null;
 
         return $translation;
     }
