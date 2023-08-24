@@ -12,6 +12,9 @@ Thank you for using psb_foundation! ❤
 Breaking changes
 ----------------
 
+- Raised minimum required versions - no backwards compatibility!
+  - php version from 7.4 to 8.1
+  - TYPO3 version from 11 to 12
 - Method signature from ArrayUtility::inArrayRecursive() changed.
   - Argument `$returnIndex` is removed.
   - New argument `$searchKey` which allows to search for array keys instead of values.
@@ -21,17 +24,22 @@ Breaking changes
 - FilePathUtility broke when using symlinks. Method signature and name of getLanguageFilePath() were changed with this
   refactoring!
   - changed to `getLanguageFilePathForCurrentFile(ExtensionInformationInterface $extensionInformation, string $filename = null)`
-- Migrate annotation classes to php attributes.
+- Migrated annotation classes to php attributes.
   - Example: `/** @Column\Input(eval="trim") */` becomes `#[Column\Input(eval: 'trim')]`
   - Changed class name(!): Checkbox is now Check according to the underlying TCA type.
     - Render type of Check defaults to "default" now! (Old default was checkboxToggle.)
-- Move ajax page type configuration from action to plugin level (configuring a specific action is not supported by TYPO3
+- Moved ajax page type configuration from action to plugin level (configuring a specific action is not supported by TYPO3
   anymore).
   - All actions, that need to be called via typeNum, have to be default actions. This might require the configuration of new plugins.
-- Raised minimum required versions - no backwards compatibility!
-  - php version from 7.4 to 8.1
-  - TYPO3 version from 11 to 12
-- Refactor registration of modules, page types and plugins.
+- Added mapping attributes and auto configuration for classes which make use of them.
+  - TCA generation can't access the ClassesConfiguration from TYPO3 anymore because that uses the CacheManager which isn't available at this point.
+    That means that no information from `Configuration/Extbase/Persistence/Classes.php` can be used.
+    If this file exists in your extension you have to move all table and field mappings to the new attribute classes:
+    - `Classes/Attribute/TCA/Mapping/Field` property attribute
+    - `Classes/Attribute/TCA/Mapping/Table` class attribute
+  - That information can be removed from Classes.php then.
+    It will be generated automatically.
+- Refactored registration of modules, page types and plugins.
   - Instead of the constants, use the new configuration classes inside the constructor of your `ExtensionInformation.php`:
     - `\PSB\PsbFoundation\Data\MainModuleConfiguration`
     - `\PSB\PsbFoundation\Data\ModuleConfiguration`
@@ -50,22 +58,15 @@ Breaking changes
     }
     ```
 - Removed automatic inclusion of PageTS as this is done by the core now. ([Feature #96614](https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96614-AutomaticInclusionOfPageTsConfigOfExtensions.html))
-  - You might have to rename your TsConfig files.
+  - You might have to rename your TSconfig files.
 - Removed property injection traits!
   - Use constructor injection instead.
-- Replace obsolete functions from StringUtility with native php functions.
+- Removed obsolete functions from StringUtility. Replace them with native php functions.
   - `StringUtility::beginsWith()` becomes `str_starts_with()`
   - `StringUtility::endsWith()` becomes `str_ends_with()`
 - Use new TCA-option `['ctrl']['security']['ignorePageTypeRestriction']` for allowing records on standard pages.
   - You can use the property `ignorePageTypeRestriction` of the Ctrl-attribute.
-- Add mapping attributes and auto configuration for classes which make use of them.
-  - TCA generation can't access the ClassesConfiguration from TYPO3 anymore because that uses the CacheManager which isn't available at this point.
-    That means that no information from `Configuration/Extbase/Persistence/Classes.php` can be used.
-    If this file exists in your extension you have to move all table and field mappings to the new attribute classes:
-    - `Classes/Attribute/TCA/Mapping/Field` property attribute
-    - `Classes/Attribute/TCA/Mapping/Table` class attribute
-  - That information can be removed from Classes.php then.
-    It will be generated automatically.
+- Renamed directory TsConfig to TSconfig! This applies to default lookup directories in your extension, too.
 
 Features
 --------

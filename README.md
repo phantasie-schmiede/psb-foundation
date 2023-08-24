@@ -116,7 +116,7 @@ class YourClass
     protected string $inputUsingTheDefaultValues = '';
 
     #[Column(exclude: true)]
-    #[Checkbox]
+    #[Check]
     protected bool $adminOnly = true;
 
     ...
@@ -370,7 +370,7 @@ Plugins will be added to the wizard automatically. There will be a tab for each 
 your wizard entry by setting the `group`-property of `PluginConfiguration`. The following language labels are
 taken into account automatically if defined:
 
-- `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:`
+- `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSconfig/Page/Mod/Wizards/newContentElement.xlf:`
     - `[group].elements.[pluginName].description`
     - `[group].elements.[pluginName].title`
 
@@ -381,7 +381,7 @@ If it doesn't exist either, the plugin name will be used as fallback.
 
 `[group]` defaults to the vendor name (lowercase) if not set within `PluginConfiguration`. That also defines the tab
 of the content element wizard. If a new tab is created, its label will be fetched from here:
-`EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:[group].header`
+`EXT:your_extension/Resources/Private/Language/Backend/Configuration/TSconfig/Page/Mod/Wizards/newContentElement.xlf:[group].header`
 
 #### Custom page types for single actions
 ```php
