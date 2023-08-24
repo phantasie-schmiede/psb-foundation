@@ -528,10 +528,10 @@ Examples (filename => icon identifier):
 
 ### Extension settings
 #### Log missing language labels
-If activated, missing language labels will be stored in `tx_psbfoundation_missing_language_labels`. This is restricted
-to `PSB\PsbFoundation\Service\LocalizationService` which extends the LocalizationService of the TYPO3 core. All missing
-default labels (e.g. plugin title or field label) will be listed this way if you didn't provide a custom label. Fixed
-entries get removed on next check (every time the cache is cleared).<br>
+If activated, missing language labels will be stored in `tx_psbfoundation_missing_language_labels`.
+This is restricted to `PSB\PsbFoundation\Service\LocalizationService` which extends the LocalizationService of the TYPO3 core.
+All missing default labels (e.g. plugin title or field label) will be listed this way if you didn't provide a custom label.
+Fixed entries get removed on next check (every time the cache is cleared).<br>
 It's recommended to check this table during extension development.
 
 ### Helper classes

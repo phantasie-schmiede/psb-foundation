@@ -75,6 +75,8 @@ Features
 
 - Add attributes for new TCA types introduced in v12.
 - Add more properties and getters for TCA attributes.
+- Support usage of plural forms in language files.
+- Support convenient placeholders in language files.
 - New attribute for TranslateViewHelper
   - excludedLanguages: matching language keys will return null (bypasses fallbacks)
 - Add new helper functions to FileUtility.
@@ -83,7 +85,6 @@ Features
   - `write()` // wrapper for file_put_contents which creates the file if it does not exist (including directories) and assures correct access rights
 - Allow fallbacks for GlobalVariableService::get().
   - The method no longer throws an exception if a path does not exist and strict mode is set to false. The fallback value can be overridden.
-- Support convenient placeholders in language files.
 
 Bugfixes
 --------
