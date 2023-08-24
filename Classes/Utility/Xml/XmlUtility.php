@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\Xml;
 
+use DOMDocument;
 use JsonException;
 use PSB\PsbFoundation\Utility\StringUtility;
 use Psr\Container\ContainerExceptionInterface;
@@ -30,8 +31,6 @@ use function is_string;
  */
 class XmlUtility
 {
-    public const INDENTATION = '    ';
-
     public const SPECIAL_ARRAY_KEYS = [
         'ATTRIBUTES' => '@attributes',
         'NODE_VALUE' => '@nodeValue',
@@ -45,6 +44,28 @@ class XmlUtility
     ];
 
     /**
+     * @param string $xml
+     * @param bool   $forceNoWrap
+     *
+     * @return string
+     */
+    public static function beautifyXml(string $xml, bool $forceNoWrap = false): string
+    {
+        $dom = new DOMDocument();
+        $dom->preserveWhiteSpace = false;
+        $dom->loadXML($xml);
+        $dom->formatOutput = true;
+        $formattedXml = $dom->saveXML();
+
+        if ($forceNoWrap) {
+            // Replace spaces with non-breaking spaces to enforce correct indentation in frontend.
+            $formattedXml = str_replace(' ', "\xc2\xa0", $formattedXml);
+        }
+
+        return $formattedXml;
+    }
+
+    /**
      * @param SimpleXMLElement|string $xml
      * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
      * @param array                   $mapping
@@ -55,8 +76,11 @@ class XmlUtility
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    public static function convertFromXml(SimpleXMLElement|string $xml, bool $sortAlphabetically = false, array $mapping = []): object|array|string
-    {
+    public static function convertFromXml(
+        SimpleXMLElement|string $xml,
+        bool $sortAlphabetically = false,
+        array $mapping = []
+    ): object|array|string {
         if (is_string($xml)) {
             /** @noinspection CallableParameterUseCaseInTypeContextInspection */
             $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
@@ -72,58 +96,17 @@ class XmlUtility
     /**
      * @param array|XmlElementInterface $data
      * @param bool                      $wellFormatted
-     * @param int                       $indentationLevel
      *
      * @return string
      */
     public static function convertToXml(
         array|XmlElementInterface $data,
         bool $wellFormatted = true,
-        int $indentationLevel = 0
     ): string {
-        $xml = '';
-        $siblings = [];
+        $xml = self::buildXml($data);
 
-        if ($data instanceof XmlElementInterface) {
-            $data = [$data::getTagName() => $data->toArray()];
-        }
-
-        foreach ($data as $key => $value) {
-            if (false === $value) {
-                continue;
-            }
-
-            if ($value instanceof XmlElementInterface) {
-                $value = $value->toArray();
-            }
-
-            if (is_array($value) && !ArrayUtility::isAssociative($value)) {
-                foreach ($value as $sibling) {
-                    if ($sibling instanceof XmlElementInterface) {
-                        $sibling = $sibling->toArray();
-                    }
-
-                    $siblings[] = [
-                        'tagName'  => $key,
-                        'tagValue' => $sibling,
-                    ];
-                }
-            } else {
-                $siblings[] = [
-                    'tagName'  => $key,
-                    'tagValue' => $value,
-                ];
-            }
-        }
-
-        $siblings = self::sortSiblings($siblings);
-
-        foreach ($siblings as $value) {
-            if (isset($value['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']])) {
-                unset($value['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']]);
-            }
-
-            $xml .= self::buildTag($value['tagName'], $value['tagValue'], $wellFormatted, $indentationLevel);
+        if ($wellFormatted) {
+            $xml = self::beautifyXml($xml);
         }
 
         return $xml;
@@ -196,8 +179,12 @@ class XmlUtility
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    private static function buildFromXml(bool $sortAlphabetically, SimpleXMLElement|string $xml, array $mapping, bool $rootLevel = true): object|array|string
-    {
+    private static function buildFromXml(
+        bool $sortAlphabetically,
+        SimpleXMLElement|string $xml,
+        array $mapping,
+        bool $rootLevel = true
+    ): object|array|string {
         if (is_string($xml)) {
             return $xml;
         }
@@ -212,7 +199,7 @@ class XmlUtility
             $array[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$attributeName] = $value;
         }
 
-        $namespaces = $xml->getDocNamespaces() ?: [];
+        $namespaces = $xml->getDocNamespaces() ? : [];
         $namespaces[] = '';
 
         foreach ($namespaces as $prefix => $namespace) {
@@ -276,24 +263,12 @@ class XmlUtility
     /**
      * @param string $key
      * @param        $value
-     * @param bool   $wellFormatted
-     * @param int    $indentationLevel
      *
      * @return string
      */
-    private static function buildTag(string $key, $value, bool $wellFormatted, int $indentationLevel): string
+    private static function buildTag(string $key, $value): string
     {
-        $xml = '';
-
-        if (true === $wellFormatted) {
-            $indentation = self::createIndentation($indentationLevel);
-            $linebreak = LF;
-        } else {
-            $indentation = '';
-            $linebreak = '';
-        }
-
-        $xml .= $indentation . '<' . $key;
+        $xml = '<' . $key;
 
         if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]) && is_array($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']])) {
             foreach ($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
@@ -310,29 +285,74 @@ class XmlUtility
         }
 
         if (is_array($value) || $value instanceof XmlElementInterface) {
-            $xml .= $linebreak . self::convertToXml($value, $wellFormatted, ++$indentationLevel) . $indentation;
+            $xml .= self::buildXml($value);
         } else {
             $xml .= $value;
         }
 
         if ('' === $value) {
             $xml = rtrim($xml, '>');
-            $xml .= ' />' . $linebreak;
+            $xml .= ' />';
         } else {
-            $xml .= '</' . $key . '>' . $linebreak;
+            $xml .= '</' . $key . '>';
         }
 
         return $xml;
     }
 
     /**
-     * @param int $indentationLevel
+     * @param array|XmlElementInterface $data
      *
      * @return string
      */
-    private static function createIndentation(int $indentationLevel): string
+    private static function buildXml(array|XmlElementInterface $data)
     {
-        return str_repeat(self::INDENTATION, $indentationLevel);
+        $xml = '';
+        $siblings = [];
+
+        if ($data instanceof XmlElementInterface) {
+            $data = [$data::getTagName() => $data->toArray()];
+        }
+
+        foreach ($data as $key => $value) {
+            if (false === $value) {
+                continue;
+            }
+
+            if ($value instanceof XmlElementInterface) {
+                $value = $value->toArray();
+            }
+
+            if (is_array($value) && !ArrayUtility::isAssociative($value)) {
+                foreach ($value as $sibling) {
+                    if ($sibling instanceof XmlElementInterface) {
+                        $sibling = $sibling->toArray();
+                    }
+
+                    $siblings[] = [
+                        'tagName'  => $key,
+                        'tagValue' => $sibling,
+                    ];
+                }
+            } else {
+                $siblings[] = [
+                    'tagName'  => $key,
+                    'tagValue' => $value,
+                ];
+            }
+        }
+
+        $siblings = self::sortSiblings($siblings);
+
+        foreach ($siblings as $value) {
+            if (isset($value['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']])) {
+                unset($value['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']]);
+            }
+
+            $xml .= self::buildTag($value['tagName'], $value['tagValue']);
+        }
+
+        return $xml;
     }
 
     /**

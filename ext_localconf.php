@@ -8,14 +8,21 @@ use PSB\PsbFoundation\Service\GlobalVariableProviders\EarlyAccessConstantsProvid
 use PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider;
 use PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider;
 use PSB\PsbFoundation\Service\GlobalVariableService;
+use PSB\PsbFoundation\Service\Typo3\LanguageServiceFactory;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\FileUtility;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory as Typo3LanguageServiceFactory;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 defined('TYPO3') or die();
 
 (static function () {
+    // Overwrite LanguageServiceFactory to implement usage of plural forms in translations.
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][Typo3LanguageServiceFactory::class] = [
+        'className' => LanguageServiceFactory::class,
+    ];
+
     GlobalVariableService::registerGlobalVariableProvider(EarlyAccessConstantsProvider::class);
     GlobalVariableService::registerGlobalVariableProvider(RequestParameterProvider::class);
     GlobalVariableService::registerGlobalVariableProvider(SiteConfigurationProvider::class);
@@ -29,12 +36,15 @@ defined('TYPO3') or die();
         $pageTypeService->addToDragArea($extensionInformation);
         $pluginService->configurePlugins($extensionInformation);
 
-        $userTSconfigFilename = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/TSconfig/User/User.tsconfig';
+        foreach ([
+             'user',
+             'User',
+         ] as $filename) {
+            $userTSconfigFilename = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/' . $filename . '.tsconfig';
 
-        if (FileUtility::fileExists($userTSconfigFilename)) {
-            ExtensionManagementUtility::addUserTSConfig('
-             @import \'' . $userTSconfigFilename . '\'
-        ');
+            if (FileUtility::fileExists($userTSconfigFilename)) {
+                ExtensionManagementUtility::addUserTSConfig('@import \'' . $userTSconfigFilename . '\'');
+            }
         }
     }
 })();

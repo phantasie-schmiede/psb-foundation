@@ -57,8 +57,10 @@ Breaking changes
         ));
     }
     ```
-- Removed automatic inclusion of PageTS as this is done by the core now. ([Feature #96614](https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96614-AutomaticInclusionOfPageTsConfigOfExtensions.html))
+- Removed automatic inclusion of PageTSconfig as this is done by the core now. ([Feature #96614](https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96614-AutomaticInclusionOfPageTsConfigOfExtensions.html))
   - You might have to rename your TSconfig files.
+- Changed required location of UserTSconfig files for automatic inclusion (following the core):
+  - from `EXT:your_extension/Configuration/TSconfig/User/User.tsconfig` to `EXT:your_extension/Configuration/User.tsconfig` (You can use a lowercase filename, too.)
 - Removed property injection traits!
   - Use constructor injection instead.
 - Removed obsolete functions from StringUtility. Replace them with native php functions.
@@ -73,12 +75,14 @@ Features
 
 - Add attributes for new TCA types introduced in v12.
 - Add more properties and getters for TCA attributes.
+- New attribute for TranslateViewHelper
+  - excludedLanguages: matching language keys will return null (bypasses fallbacks)
 - Add new helper functions to FileUtility.
   - `getMimeType()` // based on finfo
   - `resolveFileName()` // resolves `EXT:`, but leaves invalid paths untouched (in contrast to `GeneralUtility::getFileAbsFileName()`)
   - `write()` // wrapper for file_put_contents which creates the file if it does not exist (including directories) and assures correct access rights
 - Allow fallbacks for GlobalVariableService::get().
-  - The method no longer throws an exception if a path does not exist and a fallback is given as second parameter.
+  - The method no longer throws an exception if a path does not exist and strict mode is set to false. The fallback value can be overridden.
 - Support convenient placeholders in language files.
 
 Bugfixes
