@@ -329,9 +329,9 @@ class TcaService
     public function getConfigurationForPropertyOfDomainModel(AbstractEntity $domainModel, string $property): array
     {
         $tableName = $this->convertClassNameToTableName(get_class($domainModel));
-        $property = $this->convertPropertyNameToColumnName($property);
+        $column = $this->convertPropertyNameToColumnName($property);
 
-        return $GLOBALS['TCA'][$tableName]['columns'][$property] ?? throw new RuntimeException(__CLASS__ . ': "' . $property . '" is not defined for table "' . $tableName . '"!',
+        return $GLOBALS['TCA'][$tableName]['columns'][$column] ?? throw new RuntimeException(__CLASS__ . ': "' . $column . '" is not defined for table "' . $tableName . '"!',
             1660914340);
     }
 

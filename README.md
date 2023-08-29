@@ -16,7 +16,7 @@ See [CHANGELOG.md](CHANGELOG.md) for upgrading from v1 to v2!
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
   - [FlexForms](#flexforms)
   - [Content element wizard](#content-element-wizard)
-  - [custom page types for single actions](#custom-page-types-for-single-actions)
+  - [custom page types for single plugins](#custom-page-types-for-single-plugins)
 - [Registering and configuring modules](#registering-and-configuring-modules)
 - [Registering custom page types](#registering-custom-page-types)
 - [Auto-registration of TypoScript-files](#auto-registration-of-typoscript-files)
@@ -28,6 +28,7 @@ See [CHANGELOG.md](CHANGELOG.md) for upgrading from v1 to v2!
   - [GlobalVariableService](#globalvariableservice)
   - [StringUtility](#stringutility)
   - [TypoScriptProviderService](#typoscriptproviderservice)
+  - [UploadService](#uploadservice)
 
 ### What does it do?
 This extension
@@ -609,3 +610,47 @@ The values returned by this service have been converted to the correct type alre
 If you set `displayOptions.showPreview = 1` the last example will return an integer.
 If you set `displayOptions.showPreview = true` it will return a boolean.
 Not set constants will be returned as `null` instead of `{$...}`.
+
+#### UploadService
+This service provides one method that should be called from a controller action which handles a form submit:
+```php
+public function fromRequest(AbstractEntity $domainModel, Request $request): void
+```
+This method receives a domain model instance to associate the uploaded files with and an Extbase request object.
+It does not have a return value, but will throw an exception if something goes wrong.
+You will have to handle those cases in your code!
+
+>The requirement for the processing of uploaded files is that the name of the file input fields of the form match the corresponding properties' name!
+
+By default the files will be stored in fileadmin/user_upload/ by their original name as sent by the client (all special characters being removed).
+This can be changed via TCA:
+```php
+#[File(
+    allowed: [
+        'jpeg',
+        'jpg',
+    ],
+    maxItems: 1,
+    uploadDuplicationBehaviour: DuplicationBehavior::REPLACE,
+    uploadFileNameGeneratorPartSeparator: '_',
+    uploadFileNameGeneratorPrefix: 'myDomainModel',
+    uploadFileNameGeneratorProperties: ['uid'],
+    uploadFileNameGeneratorSuffix: 'image',
+    uploadTargetFolder: 'user_upload/my_extension',
+)]
+protected ?FileReference $image = null;
+
+#[File(
+    allowed: [
+        'pdf',
+    ],
+    uploadFileNameGeneratorAppendHash: true,
+    uploadFileNameGeneratorProperties: ['category.name', 'title'],
+    uploadFileNameGeneratorReplacements: [
+        ' ' => '_',
+    ],
+    uploadTargetFolder: '2:my_extension/my_domain_model/documents',
+)]
+protected ObjectStorage $documents;
+```
+See comments in class constructor for more information on certain options.

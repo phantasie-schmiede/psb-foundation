@@ -15,9 +15,13 @@ use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\ContextUtility;
 use PSB\PsbFoundation\Utility\FileUtility;
+use PSB\PsbFoundation\Utility\StringUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use ReflectionClass;
+use ReflectionException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\File\Exception\IniSizeFileException;
-use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Http\UploadedFile;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\FileInterface;
@@ -31,7 +35,7 @@ use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 use function in_array;
 
 /**
- * Class FileService
+ * Class UploadService
  *
  * @package PSB\PsbFoundation\Service
  */
@@ -39,27 +43,33 @@ class UploadService
 {
     public const DEFAULT_UPLOAD_DIRECTORY = 'user_upload';
 
-    private array $fieldConfiguration = [];
+    private array $uploadConfiguration = [];
 
     /**
-     * @param StorageRepository $storageRepository
-     * @param TcaService        $tcaService
+     * @param FileReferenceService $fileReferenceService
+     * @param StorageRepository    $storageRepository
+     * @param TcaService           $tcaService
      */
     public function __construct(
+        protected readonly FileReferenceService $fileReferenceService,
         protected readonly StorageRepository $storageRepository,
         protected readonly TcaService $tcaService,
     ) {
     }
 
     /**
-     * The name of the upload form fields have to be identical with the properties' names!
+     * Stores uploaded files of an extbase request and maps them to domain model properties. The name of the upload form
+     * fields have to be identical with the properties' names!
      *
      * @param AbstractEntity $domainModel
      * @param Request        $request
      *
      * @return void
+     * @throws ContainerExceptionInterface
      * @throws MisconfiguredTcaException
+     * @throws NotFoundExceptionInterface
      * @throws PropertyNotAccessibleException
+     * @throws ReflectionException
      */
     public function fromRequest(AbstractEntity $domainModel, Request $request): void
     {
@@ -70,17 +80,21 @@ class UploadService
         }
 
         // Preparation
-        $properties = array_keys($uploadedFilesCollection);
-        $this->collectFieldConfigurations($domainModel, $properties);
+        $domainModelReflection = new ReflectionClass($domainModel);
+        $uploadedFilesCollection = array_filter($uploadedFilesCollection,
+            static function ($property) use ($domainModelReflection) {
+                return $domainModelReflection->hasProperty($property);
+            }, ARRAY_FILTER_USE_KEY);
+        $this->collectFieldConfigurations($domainModel, array_keys($uploadedFilesCollection));
         $this->validateUploadedFiles($uploadedFilesCollection);
-        $this->provideTargetFolders($properties);
+        $this->provideTargetFolders();
 
         // Execution
         foreach ($uploadedFilesCollection as $property => $uploadedFiles) {
             foreach ($uploadedFiles as $uploadedFile) {
                 $targetFileName = $this->buildTargetFileName($domainModel, $property, $uploadedFile);
                 $file = $this->moveUploadedFileToFileStorage($property, $targetFileName, $uploadedFile);
-                $this->createFileReference($domainModel, $file, $property);
+                $this->fileReferenceService->create($domainModel, $file, $property);
             }
         }
     }
@@ -98,11 +112,7 @@ class UploadService
         string $property,
         UploadedFile $uploadedFile
     ): ?string {
-        $fileNameGeneratorConfiguration = $this->fieldConfiguration[$property]['upload']['fileNameGenerator'];
-
-        if (empty($fileNameGeneratorConfiguration['properties'] ?? [])) {
-            return null;
-        }
+        $fileNameGeneratorConfiguration = $this->uploadConfiguration[$property]['fileNameGenerator'] ?? [];
 
         $nameParts = [];
 
@@ -110,50 +120,58 @@ class UploadService
             $nameParts[] = $fileNameGeneratorConfiguration['prefix'];
         }
 
-        foreach ($fileNameGeneratorConfiguration['properties'] as $fileNameProperty) {
-            $propertyValue = ObjectAccess::getProperty($domainModel, $fileNameProperty);
-
-            if (!empty($fileNameGeneratorConfiguration['replacements'] ?? [])) {
-                $propertyValue = str_replace(array_keys($fileNameGeneratorConfiguration['replacements']),
-                    array_values($fileNameGeneratorConfiguration['replacements']), $propertyValue);
+        if (!empty($fileNameGeneratorConfiguration['properties'] ?? [])) {
+            foreach ($fileNameGeneratorConfiguration['properties'] as $fileNameProperty) {
+                $nameParts[] = ObjectAccess::getProperty($domainModel, $fileNameProperty);
             }
-
-            $nameParts[] = $propertyValue;
+        } elseif (!empty($uploadedFile->getClientFilename())) {
+            $nameParts[] = StringUtility::removeSpecialChars($uploadedFile->getClientFilename());
         }
 
         if ('' !== ($fileNameGeneratorConfiguration['suffix'] ?? '')) {
             $nameParts[] = $fileNameGeneratorConfiguration['suffix'];
         }
 
+        if (!empty($fileNameGeneratorConfiguration['replacements'] ?? [])) {
+            array_walk($nameParts, static function (&$namePart) use ($fileNameGeneratorConfiguration) {
+                $namePart = str_replace(array_keys($fileNameGeneratorConfiguration['replacements']),
+                    array_values($fileNameGeneratorConfiguration['replacements']), $namePart);
+            });
+        }
+
         if (true === $fileNameGeneratorConfiguration['appendHash']) {
             $nameParts[] = hash_file('crc32', $uploadedFile->getTemporaryFileName());
         }
 
-        return implode($fileNameGeneratorConfiguration['propertySeparator'],
-                $nameParts) . '.' . $this->fieldConfiguration[$property]['fileExtension'];
+        if (empty($nameParts)) {
+            return null;
+        }
+
+        return implode($fileNameGeneratorConfiguration['partSeparator'],
+                $nameParts) . '.' . $this->getFileExtensionByMimeType($uploadedFile);
     }
 
     /**
-     * @param UploadedFile $file
+     * @param UploadedFile $uploadedFile
      * @param string       $property
      *
      * @return void
      */
-    private function checkFileSize(UploadedFile $file, string $property): void
+    private function checkFileSize(UploadedFile $uploadedFile, string $property): void
     {
-        if (isset($this->fieldConfiguration[$property]['upload']['maxSize']) && (int)$this->fieldConfiguration[$property]['upload']['maxSize'] < $file->getSize()) {
+        if (isset($this->uploadConfiguration[$property]['maxSize']) && (int)$this->uploadConfiguration[$property]['maxSize'] < $uploadedFile->getSize()) {
             throw new RuntimeException('Too large!');
         }
     }
 
     /**
-     * @param UploadedFile $file
+     * @param UploadedFile $uploadedFile
      *
      * @return void
      */
-    private function checkForError(UploadedFile $file): void
+    private function checkForError(UploadedFile $uploadedFile): void
     {
-        switch ($file->getError()) {
+        switch ($uploadedFile->getError()) {
             case UPLOAD_ERR_OK:
                 break;
             case UPLOAD_ERR_NO_FILE:
@@ -167,22 +185,21 @@ class UploadService
     }
 
     /**
-     * @param UploadedFile $file
+     * @param UploadedFile $uploadedFile
      * @param string       $property
      *
      * @return void
      */
-    private function checkMimeType(UploadedFile $file, string $property): void
+    private function checkMimeType(UploadedFile $uploadedFile, string $property): void
     {
-        $mimeType = FileUtility::getMimeType($file->getTemporaryFileName());
+        $mimeType = FileUtility::getMimeType($uploadedFile->getTemporaryFileName());
 
-        if ($file->getClientMediaType() !== $mimeType) {
+        if ($uploadedFile->getClientMediaType() !== $mimeType) {
             throw new RuntimeException(__CLASS__ . ': Transmitted and actual file type diverge!', 1678280985);
         }
 
-        $allowedFileExtensions = $this->fieldConfiguration[$property]['allowed'] ?? null;
-        $fileExtension = GeneralUtility::trimExplode('/', $mimeType)[1];
-        $this->fieldConfiguration[$property]['fileExtension'] = $fileExtension;
+        $allowedFileExtensions = $this->uploadConfiguration[$property]['allowed'] ?? null;
+        $fileExtension = $this->getFileExtensionByMimeType($uploadedFile);
 
         if (null !== $allowedFileExtensions && !in_array($fileExtension, $allowedFileExtensions, true)) {
             throw new RuntimeException(__CLASS__ . ': File type not allowed (has to be one of: ' . implode(', ',
@@ -191,56 +208,35 @@ class UploadService
     }
 
     /**
-     * Get processing information from TCA.
-     *
      * @param AbstractEntity $domainModel
      * @param array          $properties
      *
      * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     private function collectFieldConfigurations(AbstractEntity $domainModel, array $properties): void
     {
+        $this->uploadConfiguration = [];
+
         foreach ($properties as $property) {
-            $this->fieldConfiguration[$property] = $this->tcaService->getConfigurationForPropertyOfDomainModel($domainModel,
-                $property);
+            $fieldConfiguration = $this->tcaService->getConfigurationForPropertyOfDomainModel($domainModel, $property);
+            $this->uploadConfiguration[$property] = $fieldConfiguration[$property]['EXT']['psb_foundation']['upload'] ?? [];
+            $this->uploadConfiguration[$property]['allowed'] = $fieldConfiguration[$property]['allowed'] ?? null;
         }
     }
 
     /**
-     * @param AbstractEntity $domainModel
-     * @param FileInterface  $file
-     * @param string         $property
+     * @param UploadedFile $uploadedFile
      *
-     * @return void
+     * @return string
      */
-    private function createFileReference(AbstractEntity $domainModel, FileInterface $file, string $property): void
+    private function getFileExtensionByMimeType(UploadedFile $uploadedFile): string
     {
-        $fieldName = $this->tcaService->convertPropertyNameToColumnName($property);
-        $tableName = $this->tcaService->convertClassNameToTableName($domainModel::class);
+        $mimeType = FileUtility::getMimeType($uploadedFile->getTemporaryFileName());
 
-        // Assemble DataHandler data.
-        $newId = 'NEW1234'; // This will be replaced during DataHandler processing.
-        $data = [];
-        $data['sys_file_reference'][$newId] = [
-            'fieldname'   => $fieldName,
-            'pid'         => $domainModel->getPid(),
-            'table_local' => 'sys_file',
-            'tablenames'  => $tableName,
-            'uid_foreign' => $domainModel->getUid(),
-            'uid_local'   => $file->getUid(),
-        ];
-        $data[$tableName][$domainModel->getUid()] = [
-            $fieldName => $newId,
-        ];
-
-        // Get an instance of the DataHandler and process the data.
-        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
-        $dataHandler->start($data, []);
-        $dataHandler->process_datamap();
-
-        if (0 < count($dataHandler->errorLog)) {
-            throw new RuntimeException(__CLASS__ . ': An error occurred during file reference creation!', 1678280936);
-        }
+        return GeneralUtility::trimExplode('/', $mimeType)[1];
     }
 
     /**
@@ -255,19 +251,18 @@ class UploadService
         string $targetFileName,
         UploadedFile $uploadedFile
     ): FileInterface {
-        return $this->fieldConfiguration[$property]['storage']->addUploadedFile($uploadedFile,
-            $this->fieldConfiguration[$property]['targetFolder'], $targetFileName, DuplicationBehavior::RENAME);
+        return $this->uploadConfiguration[$property]['storage']->addUploadedFile($uploadedFile,
+            $this->uploadConfiguration[$property]['targetFolder'], $targetFileName,
+            $this->uploadConfiguration[$property]['duplicationBehaviour'] ?? DuplicationBehavior::RENAME);
     }
 
     /**
-     * @param array $properties
-     *
      * @return void
      * @throws MisconfiguredTcaException
      */
-    private function provideTargetFolders(array $properties): void
+    private function provideTargetFolders(): void
     {
-        foreach ($properties as $property) {
+        foreach (array_keys($this->uploadConfiguration) as $property) {
             $this->setStorageAndTargetFolder($property);
         }
     }
@@ -283,8 +278,8 @@ class UploadService
         $storage = $this->storageRepository->getDefaultStorage();
 
         // get upload target
-        if (isset($this->fieldConfiguration[$property]['upload']['targetFolder']) && !empty($this->fieldConfiguration[$property]['upload']['targetFolder'])) {
-            $targetFolder = $this->fieldConfiguration[$property]['upload']['targetFolder'];
+        if (!empty($this->uploadConfiguration[$property]['targetFolder'])) {
+            $targetFolder = $this->uploadConfiguration[$property]['targetFolder'];
 
             if (str_contains($targetFolder, ':')) {
                 $parts = GeneralUtility::trimExplode(':', $targetFolder);
@@ -307,8 +302,8 @@ class UploadService
 
         $parentFolder = $storage->getRootLevelFolder();
 
-        $this->fieldConfiguration[$property]['storage'] = $storage;
-        $this->fieldConfiguration[$property]['targetFolder'] = $parentFolder->hasFolder($targetFolder) ? $parentFolder->getSubfolder($targetFolder) : $parentFolder->createFolder($targetFolder);
+        $this->uploadConfiguration[$property]['storage'] = $storage;
+        $this->uploadConfiguration[$property]['targetFolder'] = $parentFolder->hasFolder($targetFolder) ? $parentFolder->getSubfolder($targetFolder) : $parentFolder->createFolder($targetFolder);
     }
 
     /**
@@ -321,12 +316,12 @@ class UploadService
     private function validateUploadedFiles(array &$uploadedFilesCollection): void
     {
         foreach ($uploadedFilesCollection as $property => &$uploadedFiles) {
-            $uploadedFiles = ArrayUtility::guaranteeArrayType($uploadedFiles);
+            $uploadedFiles = ArrayUtility::guaranteeArrayType($uploadedFilesCollection[$property]);
 
-            foreach ($uploadedFiles as $file) {
-                $this->checkForError($file);
-                $this->checkFileSize($file, $property);
-                $this->checkMimeType($file, $property);
+            foreach ($uploadedFiles as $uploadedFile) {
+                $this->checkForError($uploadedFile);
+                $this->checkFileSize($uploadedFile, $property);
+                $this->checkMimeType($uploadedFile, $property);
             }
         }
     }

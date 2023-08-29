@@ -121,8 +121,7 @@ class StringUtility
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
                     } catch (Exception) {
                         throw new RuntimeException(__CLASS__ . ': Path "[' . implode('][',
-                                $pathSegments) . ']" does not exist in array!',
-                            1548170593);
+                                $pathSegments) . ']" does not exist in array!', 1548170593);
                     }
                 }
 
@@ -143,8 +142,7 @@ class StringUtility
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
                     } catch (Exception) {
                         throw new RuntimeException('Path "' . implode('.',
-                                $pathSegments) . '" does not exist in array!',
-                            1589385393);
+                                $pathSegments) . '" does not exist in array!', 1589385393);
                     }
                 }
 
@@ -313,6 +311,18 @@ class StringUtility
     public static function getNumberFormatter(int $style = NumberFormatter::DEFAULT_STYLE): NumberFormatter
     {
         return NumberFormatter::create(ContextUtility::getCurrentLocale(), $style);
+    }
+
+    /**
+     * Removes all characters which are not -, _, [, ], (, ), ., a space, a digit or a letter in the range a-zA-Z.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function removeSpecialChars(string $string): string
+    {
+        return mb_ereg_replace('/([^\w\ \d\-_\[\]\(\).])/', '', $string);
     }
 
     /**
