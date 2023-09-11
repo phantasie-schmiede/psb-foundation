@@ -439,22 +439,30 @@ Look into the configuration classes to see all available options and their defau
 - Classes/Controller/YourModuleController.php
   ```php
   use PSB\PsbFoundation\Annotation\ModuleAction;
+  use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 
-  class YourModuleController extends ActionController
+  class YourModuleController extends AbstractModuleController
   {
       #[ModuleAction(default: true)]
       public function mainAction(): ResponseInterface
       {
           ...
+  
+          return $this->htmlResponse();
       }
   
       #[ModuleAction]
       public function simpleAction(): ResponseInterface
       {
           ...
+  
+          return $this->htmlResponse();
       }
   }
   ```
+
+The AbstractModuleController class contains some basic template preparations which allow you to render your template in
+the same way as in plugin controllers: `return $this->htmlResponse()`!
 
 Modules need to provide three labels:
 
@@ -562,7 +570,7 @@ Examples:
 // get SiteConfiguration
 GlobalVariableService::get(SiteConfigurationProvider::class);
 
-// get request parameters
+// get all request parameters
 GlobalVariableService::get(RequestParameterProvider::class);
 
 // get specific request parameter

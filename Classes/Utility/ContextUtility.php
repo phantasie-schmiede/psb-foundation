@@ -14,6 +14,7 @@ use PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider;
 use PSB\PsbFoundation\Service\GlobalVariableService;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Http\ApplicationType;
@@ -73,7 +74,9 @@ class ContextUtility
         }
 
         if (self::isFrontend()) {
-            return self::getCurrentFrontendLanguage()->getLocale()->getName();
+            return self::getCurrentFrontendLanguage()
+                ->getLocale()
+                ->getName();
         }
 
         return self::DEFAULT_LANGUAGE_KEY;
@@ -90,11 +93,22 @@ class ContextUtility
     }
 
     /**
+     * @return ServerRequestInterface|null
+     */
+    public static function getRequest(): ?ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'] ?? null;
+    }
+
+    /**
      * @return bool
      */
     public static function isBackend(): bool
     {
-        return isset($GLOBALS['TYPO3_REQUEST']) && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend();
+        $request = self::getRequest();
+
+        return null !== $request && ApplicationType::fromRequest($request)
+                ->isBackend();
     }
 
     /**
@@ -104,7 +118,8 @@ class ContextUtility
      */
     public static function isBootProcessRunning(): bool
     {
-        return !GeneralUtility::getContainer()->get('boot.state')->complete;
+        return !GeneralUtility::getContainer()
+            ->get('boot.state')->complete;
     }
 
     /**
@@ -112,7 +127,9 @@ class ContextUtility
      */
     public static function isFrontend(): bool
     {
-        return isset($GLOBALS['TYPO3_REQUEST']) && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])
+        $request = self::getRequest();
+
+        return null !== $request && ApplicationType::fromRequest($request)
                 ->isFrontend();
     }
 

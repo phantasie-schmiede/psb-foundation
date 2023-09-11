@@ -66,6 +66,15 @@ Breaking changes
 - Removed obsolete functions from StringUtility. Replace them with native php functions.
   - `StringUtility::beginsWith()` becomes `str_starts_with()`
   - `StringUtility::endsWith()` becomes `str_ends_with()`
+- Removed static functions from RequestParameterProvider (getRequestParameter, getRequestParameters). 
+  Use GlobalVariableService instead:
+  ```php
+  // get all request parameters
+  GlobalVariableService::get(RequestParameterProvider::class);
+  
+  // get specific request parameter
+  GlobalVariableService::get(RequestParameterProvider::class . '.formData.hiddenInput');
+  ```
 - Use new TCA-option `['ctrl']['security']['ignorePageTypeRestriction']` for allowing records on standard pages.
   - You can use the property `ignorePageTypeRestriction` of the Ctrl-attribute.
 - Renamed directory TsConfig to TSconfig! This applies to default lookup directories in your extension, too.
