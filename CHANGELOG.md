@@ -60,7 +60,7 @@ Breaking changes
 - Removed automatic inclusion of PageTSconfig as this is done by the core now. ([Feature #96614](https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96614-AutomaticInclusionOfPageTsConfigOfExtensions.html))
   - You might have to rename your TSconfig files.
 - Changed required location of UserTSconfig files for automatic inclusion (following the core):
-  - from `EXT:your_extension/Configuration/TSconfig/User/User.tsconfig` to `EXT:your_extension/Configuration/User.tsconfig` (You can use a lowercase filename, too.)
+  - from `EXT:your_extension/Configuration/TsConfig/User/User.tsconfig` to `EXT:your_extension/Configuration/User.tsconfig` (You can use a lowercase filename, too.)
 - Removed property injection traits!
   - Use constructor injection instead.
 - Removed obsolete functions from StringUtility. Replace them with native php functions.
@@ -77,7 +77,6 @@ Breaking changes
   ```
 - Use new TCA-option `['ctrl']['security']['ignorePageTypeRestriction']` for allowing records on standard pages.
   - You can use the property `ignorePageTypeRestriction` of the Ctrl-attribute.
-- Renamed directory TsConfig to TSconfig! This applies to default lookup directories in your extension, too.
 
 Features
 --------

@@ -37,13 +37,13 @@ defined('TYPO3') or die();
         $pluginService->configurePlugins($extensionInformation);
 
         foreach ([
-             'user',
-             'User',
-         ] as $filename) {
-            $userTSconfigFilename = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/' . $filename . '.tsconfig';
+            'user',
+            'User',
+        ] as $filename) {
+            $userTsConfigFilename = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/' . $filename . '.tsconfig';
 
-            if (FileUtility::fileExists($userTSconfigFilename)) {
-                ExtensionManagementUtility::addUserTSConfig('@import \'' . $userTSconfigFilename . '\'');
+            if (FileUtility::fileExists($userTsConfigFilename)) {
+                ExtensionManagementUtility::addUserTSConfig('@import \'' . $userTsConfigFilename . '\'');
             }
         }
     }

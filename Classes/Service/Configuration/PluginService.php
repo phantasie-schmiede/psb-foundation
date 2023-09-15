@@ -42,9 +42,8 @@ use function is_int;
 class PluginService
 {
     /**
-     * This static variable is used to keep track of already registered wizard groups and is pre-filled with TYPO3's
-     * default groups as defined in
-     * typo3\sysext\backend\Configuration\TSconfig\Page\Mod\Wizards\NewContentElement.tsconfig
+     * This variable is used to keep track of already registered wizard groups and is pre-filled with TYPO3's default
+     * groups as defined in typo3\cms-backend\Configuration\page.tsconfig
      *
      * @var string[]
      */
@@ -93,7 +92,7 @@ class PluginService
         $group = $pluginConfiguration->getGroup() ?: mb_strtolower($extensionInformation->getVendorName());
         $iconIdentifier = $pluginConfiguration->getIconIdentifier() ?: $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
                 GeneralUtility::camelCaseToLowerCaseUnderscored($pluginConfiguration->getName()));
-        $ll = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/Mod/Wizards/newContentElement.xlf:' . $group . '.elements.' . lcfirst($pluginConfiguration->getName());
+        $ll = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:' . $group . '.elements.' . lcfirst($pluginConfiguration->getName());
         $description = $ll . '.description';
         $title = $ll . '.title';
         $listType = str_replace('_', '', $extensionInformation->getExtensionKey()) . '_' . mb_strtolower($pluginConfiguration->getName());
@@ -207,7 +206,7 @@ class PluginService
      */
     private function addElementWizardGroup(string $extensionKey, string $key): void
     {
-        $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TSconfig/Page/Mod/Wizards/newContentElement.xlf:' . $key . '.header';
+        $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:' . $key . '.header';
         GeneralUtility::makeInstance(LocalizationService::class)->translationExists($header);
         $pageTS['mod']['wizards']['newContentElement']['wizardItems'][$key] = [
             'header' => $header,
