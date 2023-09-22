@@ -44,7 +44,7 @@ class ExtensionInformationService
      */
     public function __construct(
         protected readonly ExtensionConfiguration $extensionConfiguration,
-        protected readonly PackageManager $packageManager,
+        protected readonly PackageManager         $packageManager,
     ) {
     }
 
@@ -58,14 +58,15 @@ class ExtensionInformationService
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
 
         if (2 > count($classNameParts)) {
-            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-                1547120513);
+            throw new InvalidArgumentException(
+                __CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!', 1547120513
+            );
         }
 
         return [
-            'extensionKey'  => GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]),
+            'extensionKey' => GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]),
             'extensionName' => $classNameParts[1],
-            'vendorName'    => $classNameParts[0],
+            'vendorName' => $classNameParts[0],
         ];
     }
 
@@ -119,7 +120,7 @@ class ExtensionInformationService
      */
     public function getConfiguration(
         ExtensionInformationInterface $extensionInformation,
-        string $path = ''
+        string                        $path = '',
     ): mixed {
         $path = str_replace('.', '/', $path);
         $extensionConfiguration = $this->extensionConfiguration->get($extensionInformation->getExtensionKey(), $path);
@@ -144,7 +145,11 @@ class ExtensionInformationService
         try {
             $finder = Finder::create()
                 ->files()
-                ->in(ExtensionManagementUtility::extPath($extensionInformation->getExtensionKey()) . 'Classes/Domain/Model')
+                ->in(
+                    ExtensionManagementUtility::extPath(
+                        $extensionInformation->getExtensionKey()
+                    ) . 'Classes/Domain/Model'
+                )
                 ->name('*.php');
 
             /** @var SplFileInfo $fileInfo */
@@ -178,8 +183,9 @@ class ExtensionInformationService
     {
         $instances = $this->getAllExtensionInformation();
 
-        return $instances[$extensionKey] ?? throw new ImplementationException(__CLASS__ . ': There is no ExtensionInformation registered for ' . $extensionKey . '!',
-            1683560687);
+        return $instances[$extensionKey] ?? throw new ImplementationException(
+            __CLASS__ . ': There is no ExtensionInformation registered for ' . $extensionKey . '!', 1683560687
+        );
     }
 
     /**
@@ -209,8 +215,10 @@ class ExtensionInformationService
 
                 if (class_exists($className)) {
                     if (!in_array(ExtensionInformationInterface::class, class_implements($className), true)) {
-                        throw new ImplementationException(__CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
-                            1568738348);
+                        throw new ImplementationException(
+                            __CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
+                            1568738348
+                        );
                     }
 
                     $this->extensionInformationInstances[$extensionKey] = GeneralUtility::makeInstance($className);

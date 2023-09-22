@@ -30,6 +30,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 use function array_slice;
+use function is_string;
 
 /**
  * Class LocalizationService
@@ -96,8 +97,10 @@ class LocalizationService
                 $quantity = $arguments[self::QUANTITY_ARGUMENT];
             }
 
-            $pluralForm = PluralFormUtility::getPluralForm($languageKey ?? ContextUtility::getCurrentLocale(),
-                $quantity);
+            $pluralForm = PluralFormUtility::getPluralForm(
+                $languageKey ?? ContextUtility::getCurrentLocale(),
+                $quantity
+            );
             $key .= self::PLURAL_FORM_MARKERS['BEGIN'] . $pluralForm . self::PLURAL_FORM_MARKERS['END'];
         }
 
@@ -264,22 +267,41 @@ class LocalizationService
      */
     private function logMissingLanguageLabels(string $key, bool $keyExists): void
     {
-        if ($this->extensionInformationService->getConfiguration($this->extensionInformation,
-            'debug.logMissingLanguageLabels')) {
+        if ($this->extensionInformationService->getConfiguration(
+            $this->extensionInformation,
+            'debug.logMissingLanguageLabels'
+        )) {
             if (ContextUtility::isBootProcessRunning()) {
                 /*
                  * The TCA is not loaded yet. That means the ConnectionPool is not available and the logging has to be
                  * postponed.
                  */
-                FileUtility::write($this->logFilePath, json_encode([$key, $keyExists], JSON_THROW_ON_ERROR) . LF, true);
+                FileUtility::write(
+                    $this->logFilePath,
+                    json_encode(
+                        [
+                            $key,
+                            $keyExists,
+                        ],
+                        JSON_THROW_ON_ERROR
+                    ) . LF,
+                    true
+                );
             } else {
                 // Check for postponed log entries.
                 if (file_exists($this->logFilePath) && $logContent = file_get_contents($this->logFilePath)) {
                     $postponedEntries = StringUtility::explodeByLineBreaks($logContent);
 
                     foreach (array_filter($postponedEntries) as $postponedEntry) {
-                        [$postponedKey, $postponedKeyExists] = json_decode($postponedEntry, false, 512,
-                            JSON_THROW_ON_ERROR);
+                        [
+                            $postponedKey,
+                            $postponedKeyExists,
+                        ] = json_decode(
+                            $postponedEntry,
+                            false,
+                            512,
+                            JSON_THROW_ON_ERROR
+                        );
                         $this->writeLogToDatabase($postponedKey, $postponedKeyExists);
                     }
 

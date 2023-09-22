@@ -1,4 +1,20 @@
+# customcategory=frontendVariables=LLL:EXT:psb_foundation/Resources/Private/Language/Backend/extensionConfiguration.xlf:category.frontendVariables
+# customsubcategory=settings=LLL:EXT:psb_foundation/Resources/Private/Language/Backend/extensionConfiguration.xlf:subCategory.settings
+
 debug {
     # cat=debugging/enable; type=boolean; label=LLL:EXT:psb_foundation/Resources/Private/Language/Backend/extensionConfiguration.xlf:debug.logMissingLanguageLabels
     logMissingLanguageLabels =
+}
+
+features {
+    frontendVariables {
+        # cat=frontendVariables/enable; type=boolean; label=LLL:EXT:psb_foundation/Resources/Private/Language/Backend/extensionConfiguration.xlf:features.frontendVariables.enabled
+        enabled =
+
+        # cat=frontendVariables/settings; type=boolean; label=LLL:EXT:psb_foundation/Resources/Private/Language/Backend/extensionConfiguration.xlf:features.frontendVariables.markerBegin
+        markerBegin = {{
+
+        # cat=frontendVariables/settings; type=boolean; label=LLL:EXT:psb_foundation/Resources/Private/Language/Backend/extensionConfiguration.xlf:features.frontendVariables.markerEnd
+        markerEnd = }}
+    }
 }

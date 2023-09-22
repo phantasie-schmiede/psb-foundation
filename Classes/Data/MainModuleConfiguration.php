@@ -28,12 +28,12 @@ class MainModuleConfiguration
      * @param string|null $workspaces          https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ExtensionArchitecture/HowTo/BackendModule/ModuleConfiguration.html#confval-appearance.renderInModuleMenu
      */
     public function __construct(
-        protected string $key,
+        protected string  $key,
         protected ?string $iconIdentifier = null,
         protected ?string $labels = null,
         protected ?string $navigationComponent = null,
-        protected ?array $position = null,
-        protected bool $renderInModuleMenu = true,
+        protected ?array  $position = null,
+        protected bool    $renderInModuleMenu = true,
         protected ?string $workspaces = null,
     ) {
     }

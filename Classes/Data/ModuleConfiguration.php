@@ -31,15 +31,15 @@ class ModuleConfiguration extends MainModuleConfiguration
      * @param string|null $workspaces          https://docs.typo3.org/m/typo3/reference-coreapi/main/en-us/ExtensionArchitecture/HowTo/BackendModule/ModuleConfiguration.html#confval-workspaces
      */
     public function __construct(
-        protected string $key,
-        protected string $access = 'group, user',
-        protected array $controllers = [],
+        protected string  $key,
+        protected string  $access = 'group, user',
+        protected array   $controllers = [],
         protected ?string $iconIdentifier = null,
         protected ?string $labels = null,
         protected ?string $navigationComponent = null,
-        protected string $parentModule = 'web',
-        protected ?array $position = null,
-        protected bool $renderInModuleMenu = true,
+        protected string  $parentModule = 'web',
+        protected ?array  $position = null,
+        protected bool    $renderInModuleMenu = true,
         protected ?string $workspaces = null,
     ) {
     }
