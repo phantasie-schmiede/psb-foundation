@@ -21,6 +21,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use function is_int;
 
 /**
  * Class FrontendVariableController
@@ -50,7 +51,9 @@ class FrontendVariableController extends AbstractModuleController
         // Get selected page from page tree
         $pid = GlobalVariableService::get(RequestParameterProvider::class . '.id');
 
-        if (is_int($pid)) {
+        if (!$this->frontendVariableService->isEnabled()) {
+            $this->view->assign('disabled', true);
+        } elseif (is_int($pid)) {
             $this->view->assign('variables', $this->frontendVariableService->getVariablesForRootline($pid));
         }
 

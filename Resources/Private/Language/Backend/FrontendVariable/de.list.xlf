@@ -8,6 +8,10 @@
         target-language="de">
         <header />
         <body>
+            <trans-unit id="featureDisabled">
+                <source>This feature is disabled. It can be activated in extension settings.</source>
+                <target>Dieses Feature ist deaktiviert. Es kann in den Extension-Einstellungen aktiviert werden.</target>
+            </trans-unit>
             <trans-unit id="header">
                 <source>Defined variables</source>
                 <target>Definierte Variablen</target>

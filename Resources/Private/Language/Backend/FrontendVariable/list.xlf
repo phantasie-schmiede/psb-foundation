@@ -6,6 +6,22 @@
         product-name="psb_foundation"
         source-language="en">
         <header />
-        <body></body>
+        <body>
+            <trans-unit id="featureDisabled">
+                <source>This feature is disabled. It can be activated in extension settings.</source>
+            </trans-unit>
+            <trans-unit id="header">
+                <source>Defined variables</source>
+            </trans-unit>
+            <trans-unit id="name">
+                <source>Name</source>
+            </trans-unit>
+            <trans-unit id="noVariablesFound">
+                <source>No variables found</source>
+            </trans-unit>
+            <trans-unit id="value">
+                <source>Value</source>
+            </trans-unit>
+        </body>
     </file>
 </xliff>

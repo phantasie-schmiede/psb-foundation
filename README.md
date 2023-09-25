@@ -23,10 +23,13 @@ See [CHANGELOG.md](CHANGELOG.md) for upgrading from v1 to v2!
 - [Auto-registration of TSconfig-files](#auto-registration-of-tsconfig-files)
 - [Auto-registration of icons](#auto-registration-of-icons)
 - [Extension settings](#extension-settings)
+- [Special features](#special-features)
+  - [Frontend variables](#frontend-variables)
 - [Helper classes](#helper-classes)
   - [ContextUtility](#contextutility)
   - [GlobalVariableService](#globalvariableservice)
   - [StringUtility](#stringutility)
+  - [TranslateViewHelper](#translateviewhelper)
   - [TypoScriptProviderService](#typoscriptproviderservice)
   - [UploadService](#uploadservice)
 
@@ -36,7 +39,10 @@ This extension
 - offers autocompletion for TCA by constructor properties of attribute classes
 - generates database definitions for your domain models
 - simplifies the registration of modules, plugins and page types
-- auto-registers existing FlexForms, TypoScript and icons
+- automatically registers existing FlexForms, TypoScript and icons
+- provides an easy-to-use frontend file upload with automatic reference creation to given domain models
+- provides an optimized TranslateViewHelper with additional options (e.g. plural forms and better variable syntax)
+- allows the definition of frontend variables which can be used all over the site (e.g. IBAN or telephone numbers) 
 - provides convenient ways to access often used core-functionalities
 
 #### IMPORTANT
@@ -51,13 +57,6 @@ The goal of this extension is to
 - allow code completion for TCA-settings
 - reduce duplicated code
 - reduce number of hard-coded string identifiers and keys, and therefore the likelihood of errors due to typos
-
-The stronger use of convention over configuration simplifies the adaptation to breaking changes in those parts this
-extension handles.
-Think about the updated registration of icons (`Configuration/Icons.php`) or the way plugin configuration has changed
-(remove vendor, add full qualified controller classname) in TYPO3 v11.
-You wouldn't have had to refactor each and every extension of yours. Some small changes in psb_foundation and you are
-ready to go.
 
 ### Getting started
 Create the following file: `EXT:your_extension/Classes/Data/ExtensionInformation.php`. Define the class and make
@@ -417,6 +416,8 @@ If you defined a typeNum, you can add more specific information for that page ty
 
 ### Registering and configuring modules
 This process is very similar to the way plugins are registered.
+You only have to add a special registration file for modules, which is required by the core.
+The content of this file can always be almost identical (see example below) - just adapt the namespace to your ExtensionInformation class.
 Look into the configuration classes to see all available options and their default values.
 
 - Classes/Data/ExtensionInformation.php
@@ -434,6 +435,20 @@ Look into the configuration classes to see all available options and their defau
             parent: 'my_main_module'
         ));
     }
+  ```
+
+- Configuration/Backend/Modules.php
+  ```php
+  <?php
+  declare(strict_types=1);
+  
+  use PSB\PsbFoundation\Data\ExtensionInformation; // <-- Change this to your namespace!
+  use PSB\PsbFoundation\Service\Configuration\ModuleService;
+  use TYPO3\CMS\Core\Utility\GeneralUtility;
+  
+  return GeneralUtility::makeInstance(ModuleService::class)
+  ->buildModuleConfiguration(GeneralUtility::makeInstance(ExtensionInformation::class));
+
   ```
 
 - Classes/Controller/YourModuleController.php
@@ -543,6 +558,29 @@ All missing default labels (e.g. plugin title or field label) will be listed thi
 Fixed entries get removed on next check (every time the cache is cleared).<br>
 It's recommended to check this table during extension development.
 
+### Special features
+#### Frontend variables
+Common use cases include bank account and contact information, strings that are often used in a lot of different contexts.
+The use of frontend variables:
+- ensures consistent formatting
+- simplifies changes a lot: just change a single value in the backend instead of extensive research, hard editorial work or database queries
+
+You can define frontend variables on all pages including root (ID: 0).
+Just create a new record on that page (New record -> PSbits | Foundation -> Frontend variable).
+Variables are inherited by subpages.
+Variables defined on subpages overwrite variables of the same name from parent pages.
+If a variable value starts with `TS:` the corresponding TypoScript path will be used as output value.
+You can even refer to class constants like `\Your\Namespace\To\Your\Class::CONSTANT_NAME`.
+Array constants can be handled, too: `\Your\Namespace\To\Your\Class::CONSTANT_ARRAY['level1']['level2']`.
+
+The appliance of these variables can be enabled via the extension settings.
+You also can specify the marker syntax with which variables can be used (default is two curly braces like `{{variable}}`).
+A backend module (PSB Foundation -> Frontend variables) lists all available variables on a selected page.
+
+You can use variables in any content, from input and text fields to language labels.
+The replacement takes place in AfterCacheableContentIsGeneratedEvent.
+Since the variables are inserted into the final HTML content, their output value always is of type string!
+
 ### Helper classes
 #### ContextUtility
 `PSB\PsbFoundation\Utility\ContextUtility` offers short and easy access to basic information.
@@ -595,6 +633,49 @@ GlobalVariableService::get(RequestParameterProvider::class . '.formData.hiddenIn
   - returns the string if no other format could be identified
 - explodeByLineBreaks: can be used to get the lines of a file or text field as array
 - getNumberFormatter: returns a NumberFormatter based on the current locale
+
+#### TranslateViewHelper
+`PSB\PsbFoundation\ViewHelpers\TranslateViewHelper` is an extended clone of the core's TranslateViewHelper.
+
+Additional features:
+- Logging of missing language labels via `\PSB\PsbFoundation\Service\LocalizationService`
+- Support of plural forms in language files;
+  <trans-unit>-tags in xlf-files can be grouped like this to define plural forms of a translation:
+  ```xml
+  <group id=“day” restype=“x-gettext-plurals”>
+    <trans-unit id=“day[0]”>
+      <source>{0} day</source>
+    </trans-unit>
+    <trans-unit id=“day[1]”>
+      <source>{0} days</source>
+    </trans-unit>
+  </group>
+  ```
+  The number in [] defines the plural form as defined here:
+  http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html
+  See `\PSB\PsbFoundation\Utility\Localization\PluralFormUtility` for more information.
+  In order to use the plural forms defined in your language files, you have to transfer an argument named 'quantity':<br>
+  `<psb:translate arguments="{quantity: 1}" id="..." />`<br>
+  This argument can be combined with others (see support of named arguments below).
+- Named arguments: a more convenient way to pass variables into translations<br>
+  Instead of:
+  ```html
+  <!-- Template file -->
+  <f:translate arguments="{0: 'myVar', 1: 123}" id="myLabel" />
+  <!-- Language file -->
+  <source>My two variables are %1$s and %2$s.</source>
+  ```
+  you can use:
+  ```html
+  <!-- Template file -->
+  <psb:translate arguments="{myVar: 'myVar', anotherVar: 123} id="myLabel" />
+  <!-- Language file -->
+  <source>My two variables are {myVar} and {anotherVar}.</source>
+  ```
+  If a variable is not passed, the marker will remain untouched!
+- New attribute "excludedLanguages"<br>
+  matching language keys will return null (bypasses fallbacks!)
+  This way you can remove texts from certain site languages without additional condition wrappers in your template.
 
 #### TypoScriptProviderService
 `PSB\PsbFoundation\Service\TypoScriptProviderService` offers a convenient way to retrieve specific TypoScript-settings.

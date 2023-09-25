@@ -39,16 +39,34 @@ use function is_array;
 /**
  * Class TranslateViewHelper
  *
- * Extended clone of the core ViewHelper in order to use \PSB\PsbFoundation\Service\LocalizationService which is able
- * to log missing language labels.
- * Additionally, it provides a more convenient way to pass variables into translations:
- * Instead of:
- * <f:translate arguments="{0: 'myVar', 1: 123} id="myLabel" />
- * <source>My two variables are %1$s and %2$s.</source>
- * you can use:
- * <psb:translate arguments="{myVar: 'myVar', anotherVar: 123} id="myLabel" />
- * <source>My two variables are {myVar} and {anotherVar}.</source>
- * If a variable is not passed, the marker will remain untouched!
+ * Extended clone of the core ViewHelper.
+ * - uses \PSB\PsbFoundation\Service\LocalizationService to log missing language labels
+ * - supports plural forms in language files:
+ *   <trans-unit>-tags in xlf-files can be grouped like this to define plural forms of a translation:
+ *       <group id=“day” restype=“x-gettext-plurals”>
+ *           <trans-unit id=“day[0]”>
+ *               <source>{0} day</source>
+ *           </trans-unit>
+ *           <trans-unit id=“day[1]”>
+ *               <source>{0} days</source>
+ *           </trans-unit>
+ *       </group>
+ *   The number in [] defines the plural form as defined here:
+ *   http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html
+ *   See \PSB\PsbFoundation\Utility\Localization\PluralFormUtility for more information.
+ *   In order to use the plural forms defined in your language files, you have to transfer an argument named 'quantity':
+ *   <psb:translate arguments="{quantity: 1}" id="..." />
+ *   This argument can be combined with others (see support of named arguments below).
+ * - provides a more convenient way to pass variables into translations:
+ *   Instead of:
+ *   <f:translate arguments="{0: 'myVar', 1: 123} id="myLabel" />
+ *   <source>My two variables are %1$s and %2$s.</source>
+ *   you can use:
+ *   <psb:translate arguments="{myVar: 'myVar', anotherVar: 123} id="myLabel" />
+ *   <source>My two variables are {myVar} and {anotherVar}.</source>
+ *   If a variable is not passed, the marker will remain untouched!
+ * - adds the attribute "excludedLanguages": matching language keys will return null (bypasses fallbacks!)
+ *   This way you can remove texts from certain site languages without additional condition wrappers in your template.
  *
  * @package PSB\PsbFoundation\ViewHelpers
  */
@@ -112,9 +130,11 @@ class TranslateViewHelper extends AbstractViewHelper
             $request = $renderingContext->getRequest();
 
             if (is_array($excludedLanguages)) {
-                $locale = $request?->getAttribute('language')->getLocale()->getName();
+                $locale = $request?->getAttribute('language')
+                    ->getLocale()
+                    ->getName();
 
-                array_walk($excludedLanguages, static function (&$languageKey) {
+                array_walk($excludedLanguages, static function(&$languageKey) {
                     $languageKey = str_replace('_', '-', $languageKey);
                 });
 
@@ -197,7 +217,9 @@ class TranslateViewHelper extends AbstractViewHelper
      */
     private static function buildIdFromRequest(string $id, Request $request): string
     {
-        $path = 'LLL:EXT:' . GeneralUtility::camelCaseToLowerCaseUnderscored($request->getControllerExtensionName()) . '/Resources/Private/Language/';
+        $path = 'LLL:EXT:' . GeneralUtility::camelCaseToLowerCaseUnderscored(
+                $request->getControllerExtensionName()
+            ) . '/Resources/Private/Language/';
 
         if (ContextUtility::isFrontend()) {
             $path .= 'Frontend';
@@ -222,10 +244,15 @@ class TranslateViewHelper extends AbstractViewHelper
      *
      * @return false|string
      */
-    private static function checkRegisteredLanguageFiles(string $id, RenderingContextInterface $renderingContext): bool|string
-    {
+    private static function checkRegisteredLanguageFiles(
+        string                    $id,
+        RenderingContextInterface $renderingContext,
+    ): bool|string {
         if (0 < mb_strpos($id, ':')) {
-            [$alias, $id] = GeneralUtility::trimExplode(':', $id);
+            [
+                $alias,
+                $id,
+            ] = GeneralUtility::trimExplode(':', $id);
             $templateVariableContainer = $renderingContext->getVariableProvider();
 
             if ($templateVariableContainer->exists(RegisterLanguageFileViewHelper::VARIABLE_NAME)) {
@@ -243,13 +270,19 @@ class TranslateViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         $this->registerArgument('arguments', 'array', 'Arguments to be replaced in the resulting string', false, []);
-        $this->registerArgument('default', 'string',
-            'If the given locallang key could not be found, this value is used. If this argument is not set, child nodes will be used to render the default');
+        $this->registerArgument(
+            'default',
+            'string',
+            'If the given locallang key could not be found, this value is used. If this argument is not set, child nodes will be used to render the default'
+        );
         $this->registerArgument('excludedLanguages', 'array', 'List of language keys that should return null');
         $this->registerArgument('extensionName', 'string', 'UpperCamelCased extension key (for example BlogExample)');
         $this->registerArgument('id', 'string', 'Translation ID. Same as key.');
         $this->registerArgument('key', 'string', 'Translation Key');
-        $this->registerArgument('languageKey', 'string',
-            'Language key ("dk" for example) or "default" to use. If empty, use current language. Ignored in non-extbase context.');
+        $this->registerArgument(
+            'languageKey',
+            'string',
+            'Language key ("dk" for example) or "default" to use. If empty, use current language. Ignored in non-extbase context.'
+        );
     }
 }

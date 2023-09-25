@@ -49,9 +49,9 @@ class FrontendVariable extends AbstractEntity
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    public function getValue(): mixed
+    public function getValue(): string
     {
-        return StringUtility::convertString($this->value);
+        return (string)StringUtility::convertString($this->value);
     }
 
     public function setName(string $name): void

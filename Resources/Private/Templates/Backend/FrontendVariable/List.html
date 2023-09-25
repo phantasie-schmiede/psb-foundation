@@ -9,37 +9,44 @@
         <psb:translate id="header" />
     </h1>
 
-    <f:if condition="{variables}">
+    <f:if condition="{disabled}">
         <f:then>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>
-                        <psb:translate id="name" />
-                    </th>
-                    <th>
-                        <psb:translate id="value" />
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <f:for
-                    as="variable"
-                    each="{variables}">
-                    <tr>
-                        <td>
-                            {variable.name}
-                        </td>
-                        <td>
-                            {variable.rawValue}
-                        </td>
-                    </tr>
-                </f:for>
-                </tbody>
-            </table>
+            <psb:translate id="featureDisabled" />
         </f:then>
         <f:else>
-            <psb:translate id="noVariablesFound" />
+            <f:if condition="{variables}">
+                <f:then>
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>
+                                <psb:translate id="name" />
+                            </th>
+                            <th>
+                                <psb:translate id="value" />
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <f:for
+                            as="variable"
+                            each="{variables}">
+                            <tr>
+                                <td>
+                                    {variable.name}
+                                </td>
+                                <td>
+                                    {variable.rawValue}
+                                </td>
+                            </tr>
+                        </f:for>
+                        </tbody>
+                    </table>
+                </f:then>
+                <f:else>
+                    <psb:translate id="noVariablesFound" />
+                </f:else>
+            </f:if>
         </f:else>
     </f:if>
 </f:section>

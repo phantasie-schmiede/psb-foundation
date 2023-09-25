@@ -15,9 +15,12 @@ namespace PSB\PsbFoundation\Utility\Localization;
  *
  * Calculates the plural form for a given quantity in a given language.
  *
- * Sources:
+ * Source for calculation:
  * http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html
+ *
+ * Other resources:
  * https://www.unicode.org/cldr/charts/43/supplemental/language_plural_rules.html
+ * https://cldr.unicode.org/index/cldr-spec/plural-rules
  *
  * @package PSB\PsbFoundation\Utility\Localization
  */
