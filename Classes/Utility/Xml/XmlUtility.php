@@ -78,8 +78,8 @@ class XmlUtility
      */
     public static function convertFromXml(
         SimpleXMLElement|string $xml,
-        bool $sortAlphabetically = false,
-        array $mapping = []
+        bool                    $sortAlphabetically = false,
+        array                   $mapping = [],
     ): object|array|string {
         if (is_string($xml)) {
             /** @noinspection CallableParameterUseCaseInTypeContextInspection */
@@ -101,7 +101,7 @@ class XmlUtility
      */
     public static function convertToXml(
         array|XmlElementInterface $data,
-        bool $wellFormatted = true,
+        bool                      $wellFormatted = true,
     ): string {
         $xml = self::buildXml($data);
 
@@ -180,10 +180,10 @@ class XmlUtility
      * @throws NotFoundExceptionInterface
      */
     private static function buildFromXml(
-        bool $sortAlphabetically,
+        bool                    $sortAlphabetically,
         SimpleXMLElement|string $xml,
-        array $mapping,
-        bool $rootLevel = true
+        array                   $mapping,
+        bool                    $rootLevel = true,
     ): object|array|string {
         if (is_string($xml)) {
             return $xml;
@@ -199,11 +199,11 @@ class XmlUtility
             $array[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$attributeName] = $value;
         }
 
-        $namespaces = $xml->getDocNamespaces() ? : [];
+        $namespaces = $xml->getDocNamespaces() ?: [];
         $namespaces[] = '';
 
         foreach ($namespaces as $prefix => $namespace) {
-            if (0 === $prefix) {
+            if (empty($prefix)) {
                 $prefix = '';
             } else {
                 $prefix .= ':';
@@ -270,7 +270,9 @@ class XmlUtility
     {
         $xml = '<' . $key;
 
-        if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]) && is_array($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']])) {
+        if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]) && is_array(
+                $value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]
+            )) {
             foreach ($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
                 $xml .= ' ' . $attributeName . '="' . $attributeValue . '"';
             }
@@ -368,7 +370,9 @@ class XmlUtility
     {
         if (count($node->attributes())) {
             foreach ($node->attributes() as $attributeName => $value) {
-                $parsedNode[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$attributeName] = StringUtility::convertString(trim((string)$value));
+                $parsedNode[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$attributeName] = StringUtility::convertString(
+                    trim((string)$value)
+                );
             }
         }
 
@@ -384,7 +388,7 @@ class XmlUtility
      */
     private static function sortSiblings(array $siblings): array
     {
-        uasort($siblings, static function ($a, $b) {
+        uasort($siblings, static function($a, $b) {
             $positionA = 0;
             $positionB = 0;
 
