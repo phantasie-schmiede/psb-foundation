@@ -12,7 +12,6 @@ namespace PSB\PsbFoundation\Service\Configuration;
 
 use JsonException;
 use PSB\PsbFoundation\Attribute\TCA\Column;
-use PSB\PsbFoundation\Attribute\TCA\ColumnType\AbstractColumnTypeWithItems;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeInterface;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\ColumnTypeWithItemsInterface;
 use PSB\PsbFoundation\Attribute\TCA\Ctrl;
@@ -453,6 +452,14 @@ class TcaService
                 $property) ?? GeneralUtility::makeInstance(Column::class);
 
             $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
+
+            if (empty($columnAttribute->getDescription())) {
+                $label = $this->defaultLabelPath . $property->getName() . '.description';
+
+                if ($this->localizationService->translationExists($label, false)) {
+                    $columnAttribute->setDescription($label);
+                }
+            }
 
             if ('' === $columnAttribute->getLabel()) {
                 $label = $this->defaultLabelPath . $property->getName();

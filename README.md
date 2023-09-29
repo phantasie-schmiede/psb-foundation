@@ -287,13 +287,14 @@ leave out the brackets. The default values of the annotation class will have no 
 These language labels will be tried if you don't provide a custom value for them.
 The path always is `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[modelName].xlf`.
 
-| Configuration value  | Default language label           |
-|----------------------|----------------------------------|
-| ctrl->title          | ctrl.title                       |
-| property->label      | [propertyName]                   |
-| palette->description | palette.[identifier].description |
-| palette->label       | palette.[identifier].label       |
-| tab->label           | tab.[identifier].label           |
+| Configuration value   | Default language label           |
+|-----------------------|----------------------------------|
+| ctrl->title           | ctrl.title                       |
+| property->label       | [propertyName]                   |
+| property->description | [propertyName].description       |
+| palette->description  | palette.[identifier].description |
+| palette->label        | palette.[identifier].label       |
+| tab->label            | tab.[identifier].label           |
 
 When you use the items-property for a select field, you may provide a simple associative array.
 It will be transformed into the required multi-level format.

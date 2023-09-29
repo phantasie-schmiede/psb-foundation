@@ -100,72 +100,47 @@ class Column extends AbstractTcaAttribute
         parent::__construct();
     }
 
-    /**
-     * @return ColumnTypeInterface
-     */
     public function getConfiguration(): ColumnTypeInterface
     {
         return $this->configuration;
     }
 
-    /**
-     * @return mixed
-     */
     public function getDefault(): mixed
     {
         return $this->default;
     }
 
-    /**
-     * @return string|null
-     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @return array|string|null
-     */
     public function getDisplayCond(): array|string|null
     {
         return $this->displayCond;
     }
 
-    /**
-     * @return string|null
-     */
     public function getL10nDisplay(): ?string
     {
         return $this->l10nDisplay;
     }
 
-    /**
-     * @return string|null
-     */
     public function getL10nMode(): ?string
     {
         return $this->l10nMode;
     }
 
-    /**
-     * @return string
-     */
     public function getLabel(): string
     {
         return $this->label;
     }
 
-    /**
-     * @return string|null
-     */
     public function getOnChange(): ?string
     {
         return $this->onChange;
     }
 
     /**
-     * @return string
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -176,7 +151,10 @@ class Column extends AbstractTcaAttribute
             return '';
         }
 
-        [$key, $location] = GeneralUtility::trimExplode(':', $this->position, false, 2);
+        [
+            $key,
+            $location,
+        ] = GeneralUtility::trimExplode(':', $this->position, false, 2);
 
         // Check if $location is NOT a palette name.
         if (!str_contains($location, '-')) {
@@ -186,64 +164,47 @@ class Column extends AbstractTcaAttribute
         return $key . ':' . $location;
     }
 
-    /**
-     * @return string
-     */
     public function getTypeList(): string
     {
         return $this->typeList;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isExclude(): ?bool
     {
         return $this->exclude;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isNullable(): ?bool
     {
         return $this->nullable;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isReadOnly(): ?bool
     {
         return $this->readOnly;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isRequired(): ?bool
     {
         return $this->required;
     }
 
-    /**
-     * @param ColumnTypeInterface $configuration
-     */
     public function setConfiguration(ColumnTypeInterface $configuration): void
     {
         $this->configuration = $configuration;
     }
 
-    /**
-     * @param string $label
-     */
+    public function setDescription(?string $description): void
+    {
+        $this->description = $description;
+    }
+
     public function setLabel(string $label): void
     {
         $this->label = $label;
     }
 
     /**
-     * @return array
      * @throws ReflectionException
      */
     public function toArray(): array
@@ -257,8 +218,10 @@ class Column extends AbstractTcaAttribute
             }
         }
 
-        $config = $this->getConfiguration()->toArray();
-        $databaseDefinition = $this->databaseDefinition ?? $this->getConfiguration()->getDatabaseDefinition();
+        $config = $this->getConfiguration()
+            ->toArray();
+        $databaseDefinition = $this->databaseDefinition ?? $this->getConfiguration()
+            ->getDatabaseDefinition();
 
         foreach ($config as $key => $value) {
             $configuration['config'][TcaUtility::convertKey($key)] = $value;

@@ -86,6 +86,7 @@ Features
   - configurable via TCA
 - Attributes for new TCA types introduced in v12
 - More properties and getters for TCA attributes
+- Auto-registration of description in TCA if appropriate language label exists
 - Support of plural forms in language files
 - Support of convenient placeholders in language files
 - New attribute for TranslateViewHelper
