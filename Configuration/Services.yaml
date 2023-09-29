@@ -12,11 +12,6 @@ services:
       - identifier: 'psbFoundation_databaseEnricher'
         name: event.listener
 
-  PSB\PsbFoundation\EventListener\InsertFrontendVariables:
-    tags:
-      - identifier: 'psbFoundation_insertFrontendVariables'
-        name: event.listener
-
   PSB\PsbFoundation\Service\Configuration\ModuleService:
     public: true
 
@@ -30,9 +25,6 @@ services:
     public: true
 
   PSB\PsbFoundation\Service\ExtensionInformationService:
-    public: true
-
-  PSB\PsbFoundation\Service\FrontendVariableService:
     public: true
 
   PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider:

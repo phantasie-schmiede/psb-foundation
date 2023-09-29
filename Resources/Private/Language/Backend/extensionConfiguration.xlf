@@ -7,23 +7,8 @@
         source-language="en">
         <header />
         <body>
-            <trans-unit id="category.frontendVariables">
-                <source>Frontend variables</source>
-            </trans-unit>
             <trans-unit id="debug.logMissingLanguageLabels">
                 <source>Log missing language labels</source>
-            </trans-unit>
-            <trans-unit id="features.frontendVariables.enabled">
-                <source>Enable frontend variables</source>
-            </trans-unit>
-            <trans-unit id="features.frontendVariables.markerBegin">
-                <source>Beginning marker for frontend variables</source>
-            </trans-unit>
-            <trans-unit id="features.frontendVariables.markerEnd">
-                <source>Ending marker for frontend variables</source>
-            </trans-unit>
-            <trans-unit id="subCategory.settings">
-                <source>Settings</source>
             </trans-unit>
         </body>
     </file>

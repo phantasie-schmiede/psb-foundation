@@ -23,8 +23,6 @@ See [CHANGELOG.md](CHANGELOG.md) for upgrading from v1 to v2!
 - [Auto-registration of TSconfig-files](#auto-registration-of-tsconfig-files)
 - [Auto-registration of icons](#auto-registration-of-icons)
 - [Extension settings](#extension-settings)
-- [Special features](#special-features)
-  - [Frontend variables](#frontend-variables)
 - [Helper classes](#helper-classes)
   - [ContextUtility](#contextutility)
   - [GlobalVariableService](#globalvariableservice)
@@ -557,29 +555,6 @@ This is restricted to `PSB\PsbFoundation\Service\LocalizationService` which exte
 All missing default labels (e.g. plugin title or field label) will be listed this way if you didn't provide a custom label.
 Fixed entries get removed on next check (every time the cache is cleared).<br>
 It's recommended to check this table during extension development.
-
-### Special features
-#### Frontend variables
-Common use cases include bank account and contact information, strings that are often used in a lot of different contexts.
-The use of frontend variables:
-- ensures consistent formatting
-- simplifies changes a lot: just change a single value in the backend instead of extensive research, hard editorial work or database queries
-
-You can define frontend variables on all pages including root (ID: 0).
-Just create a new record on that page (New record -> PSbits | Foundation -> Frontend variable).
-Variables are inherited by subpages.
-Variables defined on subpages overwrite variables of the same name from parent pages.
-If a variable value starts with `TS:` the corresponding TypoScript path will be used as output value.
-You can even refer to class constants like `\Your\Namespace\To\Your\Class::CONSTANT_NAME`.
-Array constants can be handled, too: `\Your\Namespace\To\Your\Class::CONSTANT_ARRAY['level1']['level2']`.
-
-The appliance of these variables can be enabled via the extension settings.
-You also can specify the marker syntax with which variables can be used (default is two curly braces like `{{variable}}`).
-A backend module (PSB Foundation -> Frontend variables) lists all available variables on a selected page.
-
-You can use variables in any content, from input and text fields to language labels.
-The replacement takes place in AfterCacheableContentIsGeneratedEvent.
-Since the variables are inserted into the final HTML content, their output value always is of type string!
 
 ### Helper classes
 #### ContextUtility

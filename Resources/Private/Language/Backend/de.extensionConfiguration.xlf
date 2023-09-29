@@ -8,29 +8,9 @@
         target-language="de">
         <header />
         <body>
-            <trans-unit id="category.frontendVariables">
-                <source>Frontend variables</source>
-                <target>Frontend-Variablen</target>
-            </trans-unit>
             <trans-unit id="debug.logMissingLanguageLabels">
                 <source>Log missing language labels</source>
                 <target>Fehlende "Language labels" loggen</target>
-            </trans-unit>
-            <trans-unit id="features.frontendVariables.enabled">
-                <source>Enable frontend variables</source>
-                <target>Frontend-Variablen aktivieren</target>
-            </trans-unit>
-            <trans-unit id="features.frontendVariables.markerBegin">
-                <source>Beginning marker for frontend variables</source>
-                <target>Anfangsmarker für Frontend-Variablen</target>
-            </trans-unit>
-            <trans-unit id="features.frontendVariables.markerEnd">
-                <source>Ending marker for frontend variables</source>
-                <target>Endmarker für Frontend-Variablen</target>
-            </trans-unit>
-            <trans-unit id="subCategory.settings">
-                <source>Settings</source>
-                <target>Einstellungen</target>
             </trans-unit>
         </body>
     </file>

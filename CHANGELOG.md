@@ -84,8 +84,6 @@ Features
 - Service for file uploads in frontend
   - uploads files and creates references to a given domain model record
   - configurable via TCA
-- Frontend variables which can be used anywhere (RTE, language labels, etc.)
-  - for often used strings like IBAN, telephone numbers, ...
 - Attributes for new TCA types introduced in v12
 - More properties and getters for TCA attributes
 - Support of plural forms in language files
