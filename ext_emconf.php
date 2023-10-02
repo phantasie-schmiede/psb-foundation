@@ -6,14 +6,12 @@ $EM_CONF[$_EXTKEY] = [
     'category'         => 'misc',
     'clearCacheOnLoad' => true,
     'constraints'      => [
-        'conflicts' => [
-        ],
+        'conflicts' => [],
         'depends'   => [
             'php'   => '8.1',
-            'typo3' => '11.5.5-11.5.99',
+            'typo3' => '12.4.0-12.4.99',
         ],
-        'suggests'  => [
-        ],
+        'suggests'  => [],
     ],
     'description'      => 'Configuration framework for TYPO3 extension development',
     'state'            => 'stable',
