@@ -15,12 +15,13 @@ Breaking changes
 - Raised minimum required versions - no backwards compatibility!
   - php version from 7.4 to 8.1
   - TYPO3 version from 11 to 12
-- Method signature from ArrayUtility::inArrayRecursive() changed.
+- Method signature from `ArrayUtility::inArrayRecursive()` changed.
   - Argument `$returnIndex` is removed.
   - New argument `$searchKey` which allows to search for array keys instead of values.
   - Method always returns an array of paths with all occurences of the search value.
   - If nothing is found an empty array is returned.
   - New signature: `inArrayRecursive(array $haystack, mixed $needle, bool  $searchKey = false, bool  $searchForSubstring = false): array`
+- `FileUtility::formatFileSize()` adds a non-breaking space (&nbsp;) between value and unit!
 - FilePathUtility broke when using symlinks. Method signature and name of getLanguageFilePath() were changed with this
   refactoring!
   - changed to `getLanguageFilePathForCurrentFile(ExtensionInformationInterface $extensionInformation, string $filename = null)`

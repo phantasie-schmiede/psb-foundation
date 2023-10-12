@@ -95,7 +95,7 @@ class FileUtility
         $numberFormatter = StringUtility::getNumberFormatter();
         $numberFormatter->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, $decimals);
 
-        return $numberFormatter->format($bytes) . ' ' . $unitString;
+        return $numberFormatter->format($bytes) . '&nbsp;' . $unitString;
     }
 
     /**
