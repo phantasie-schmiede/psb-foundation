@@ -20,7 +20,6 @@ use SimpleXMLElement;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
-use function count;
 use function is_array;
 use function is_string;
 
@@ -33,15 +32,19 @@ class XmlUtility
 {
     public const SPECIAL_ARRAY_KEYS = [
         'ATTRIBUTES' => '@attributes',
+        'NAMESPACES' => '@namespaces',
         'NODE_VALUE' => '@nodeValue',
         'POSITION'   => '@position',
     ];
 
     public const SPECIAL_XML_KEYS = [
         '_attributes',
+        '_namespaces',
         '_nodeValue',
         '_position',
     ];
+
+    public const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
 
     /**
      * @param string $xml
@@ -53,7 +56,7 @@ class XmlUtility
     {
         $dom = new DOMDocument();
         $dom->preserveWhiteSpace = false;
-        $dom->loadXML($xml);
+        $dom->loadXML($xml, LIBXML_PARSEHUGE | LIBXML_NOCDATA);
         $dom->formatOutput = true;
         $formattedXml = $dom->saveXML();
 
@@ -90,20 +93,30 @@ class XmlUtility
             }
         }
 
-        return self::buildFromXml($sortAlphabetically, $xml, $mapping);
+        $namespaces = $xml->getDocNamespaces(true) ?: [];
+
+        if (!isset($namespaces[''])) {
+            $namespaces[''] = '';
+        }
+
+        ksort($namespaces);
+
+        return self::buildFromXml($sortAlphabetically, $xml, $mapping, $namespaces);
     }
 
     /**
      * @param array|XmlElementInterface $data
+     * @param string                    $xmlHeader
      * @param bool                      $wellFormatted
      *
      * @return string
      */
     public static function convertToXml(
         array|XmlElementInterface $data,
+        string                    $xmlHeader = self::XML_HEADER,
         bool                      $wellFormatted = true,
     ): string {
-        $xml = self::buildXml($data);
+        $xml = $xmlHeader . self::buildXml($data);
 
         if ($wellFormatted) {
             $xml = self::beautifyXml($xml);
@@ -168,10 +181,11 @@ class XmlUtility
     }
 
     /**
-     * @param bool                    $sortAlphabetically
-     * @param SimpleXMLElement|string $xml
-     * @param array                   $mapping
-     * @param bool                    $rootLevel This is an internal parameter only to be set from within this function.
+     * @param bool             $sortAlphabetically
+     * @param SimpleXMLElement $xml
+     * @param array            $mapping
+     * @param array            $namespaces
+     * @param bool             $rootLevel This is an internal parameter only to be set from within this function.
      *
      * @return array|object|string
      * @throws ContainerExceptionInterface
@@ -180,45 +194,44 @@ class XmlUtility
      * @throws NotFoundExceptionInterface
      */
     private static function buildFromXml(
-        bool                    $sortAlphabetically,
-        SimpleXMLElement|string $xml,
-        array                   $mapping,
-        bool                    $rootLevel = true,
+        bool             $sortAlphabetically,
+        SimpleXMLElement $xml,
+        array            $mapping,
+        array            $namespaces = [],
+        bool             $rootLevel = true,
     ): object|array|string {
-        if (is_string($xml)) {
-            return $xml;
-        }
-
         $array = [];
 
-        foreach ($xml->attributes() as $attributeName => $value) {
-            if ('version' !== $attributeName) {
-                $value = StringUtility::convertString(trim((string)$value));
+        foreach ($xml->getDocNamespaces(false, false) as $prefix => $namespace) {
+            if (!empty($namespace)) {
+                $array[self::SPECIAL_ARRAY_KEYS['NAMESPACES']][$prefix] = $namespace;
             }
-
-            $array[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$attributeName] = $value;
         }
 
-        $namespaces = $xml->getDocNamespaces() ?: [];
-        $namespaces[] = '';
+        $positionOnThisLevel = 0;
 
         foreach ($namespaces as $prefix => $namespace) {
-            if (empty($prefix)) {
-                $prefix = '';
-            } else {
-                $prefix .= ':';
+            $prependPrefix = '';
+
+            if (!empty($prefix)) {
+                $prependPrefix = $prefix . ':';
             }
 
-            $positionOnThisLevel = 0;
-
-            foreach ($xml->children($namespace) as $childTagName => $child) {
-                $childTagName = $prefix . $childTagName;
-
-                if (0 < $child->count()) {
-                    $parsedChild = self::buildFromXml($sortAlphabetically, $child, $mapping, false);
-                } else {
-                    $parsedChild = self::parseTextNode($child);
+            foreach ($xml->attributes($prefix, true) as $attributeName => $value) {
+                if ('version' !== $attributeName) {
+                    $value = StringUtility::convertString(trim((string)$value));
                 }
+
+                $array[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$prependPrefix . $attributeName] = $value;
+            }
+
+            if (0 === $xml->count()) {
+                continue;
+            }
+
+            foreach ($xml->children($prefix, true) as $childTagName => $child) {
+                $childTagName = $prependPrefix . $childTagName;
+                $parsedChild = self::buildFromXml($sortAlphabetically, $child, $mapping, $namespaces, false);
 
                 if (isset($mapping[$childTagName])) {
                     $parsedChild = GeneralUtility::makeInstance($mapping[$childTagName], $parsedChild);
@@ -241,6 +254,12 @@ class XmlUtility
                     ];
                 }
             }
+        }
+
+        if (0 === $xml->count()) {
+            $array[self::SPECIAL_ARRAY_KEYS['NODE_VALUE']] = StringUtility::convertString(trim((string)$xml));
+
+            return $array;
         }
 
         if (true === $sortAlphabetically) {
@@ -269,6 +288,16 @@ class XmlUtility
     private static function buildTag(string $key, $value): string
     {
         $xml = '<' . $key;
+
+        if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['NAMESPACES']]) && is_array(
+                $value[self::SPECIAL_ARRAY_KEYS['NAMESPACES']]
+            )) {
+            foreach ($value[self::SPECIAL_ARRAY_KEYS['NAMESPACES']] as $prefix => $namespace) {
+                $xml .= ' xmlns' . ($prefix ? (':' . $prefix) : '') . '="' . $namespace . '"';
+            }
+
+            unset($value[self::SPECIAL_ARRAY_KEYS['NAMESPACES']]);
+        }
 
         if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]) && is_array(
                 $value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]
@@ -355,30 +384,6 @@ class XmlUtility
         }
 
         return $xml;
-    }
-
-    /**
-     * @param SimpleXMLElement $node
-     *
-     * @return array
-     * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
-     * @throws JsonException
-     * @throws NotFoundExceptionInterface
-     */
-    private static function parseTextNode(SimpleXMLElement $node): array
-    {
-        if (count($node->attributes())) {
-            foreach ($node->attributes() as $attributeName => $value) {
-                $parsedNode[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$attributeName] = StringUtility::convertString(
-                    trim((string)$value)
-                );
-            }
-        }
-
-        $parsedNode[self::SPECIAL_ARRAY_KEYS['NODE_VALUE']] = StringUtility::convertString(trim((string)$node));
-
-        return $parsedNode;
     }
 
     /**
