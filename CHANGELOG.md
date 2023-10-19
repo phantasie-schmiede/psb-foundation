@@ -9,12 +9,34 @@ features. Version 1 won't be supported anymore. The following list will guide yo
 I will try to support two major versions in the future.
 Thank you for using psb_foundation! ❤
 
-Breaking changes
-----------------
+New features
+------------
+
+- Auto-generation of database definitions
+- Service for file uploads in frontend
+  - uploads files and creates references to a given domain model record
+  - configurable via TCA
+- Attributes for new TCA types introduced in v12
+- More properties and getters for TCA attributes
+- Auto-registration of description in TCA if appropriate language label exists
+- Support of plural forms in language files
+- Support of convenient placeholders in language files
+- New attribute for TranslateViewHelper
+  - excludedLanguages: matching language keys will return null (bypasses fallbacks)
+- New helper functions to FileUtility
+  - `getMimeType()` // based on finfo
+  - `resolveFileName()` // resolves `EXT:`, but leaves invalid paths untouched (in contrast to `GeneralUtility::getFileAbsFileName()`)
+  - `write()` // wrapper for file_put_contents which creates the file if it does not exist (including directories) and assures correct access rights
+- Fallbacks for GlobalVariableService::get()
+  - The method no longer throws an exception if a path does not exist and strict mode is set to false.
+  - The fallback value can be overridden.
+
+Breaking changes!
+-----------------
 
 - Raised minimum required versions - no backwards compatibility!
-  - php version from 7.4 to 8.1
-  - TYPO3 version from 11 to 12
+  - php version: 7.4 -> 8.1
+  - TYPO3 version: 11.5 -> 12.4
 - Method signature from `ArrayUtility::inArrayRecursive()` changed.
   - Argument `$returnIndex` is removed.
   - New argument `$searchKey` which allows to search for array keys instead of values.
@@ -78,27 +100,6 @@ Breaking changes
   ```
 - Use new TCA-option `['ctrl']['security']['ignorePageTypeRestriction']` for allowing records on standard pages.
   - You can use the property `ignorePageTypeRestriction` of the Ctrl-attribute.
-
-Features
---------
-
-- Service for file uploads in frontend
-  - uploads files and creates references to a given domain model record
-  - configurable via TCA
-- Attributes for new TCA types introduced in v12
-- More properties and getters for TCA attributes
-- Auto-registration of description in TCA if appropriate language label exists
-- Support of plural forms in language files
-- Support of convenient placeholders in language files
-- New attribute for TranslateViewHelper
-  - excludedLanguages: matching language keys will return null (bypasses fallbacks)
-- New helper functions to FileUtility
-  - `getMimeType()` // based on finfo
-  - `resolveFileName()` // resolves `EXT:`, but leaves invalid paths untouched (in contrast to `GeneralUtility::getFileAbsFileName()`)
-  - `write()` // wrapper for file_put_contents which creates the file if it does not exist (including directories) and assures correct access rights
-- Fallbacks for GlobalVariableService::get()
-  - The method no longer throws an exception if a path does not exist and strict mode is set to false.
-  - The fallback value can be overridden.
 
 Bugfixes
 --------
