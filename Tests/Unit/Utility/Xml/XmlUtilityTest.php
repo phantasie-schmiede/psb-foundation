@@ -26,24 +26,35 @@ class XmlUtilityTest extends UnitTestCase
 {
     public static function convertFromAndToXmlDataProvider(): Generator
     {
-        yield 'complex xml' => [
+        yield 'complex XML' => [
             file_get_contents(__DIR__ . '/Data/ComplexXml.xml'),
+        ];
+        yield 'simple XML' => [
+            file_get_contents(__DIR__ . '/Data/SimpleXml.xml'),
         ];
     }
 
     public static function convertFromXmlDataProvider(): Generator
     {
-        yield 'complex xml' => [
+        yield 'complex XML' => [
             include __DIR__ . '/Data/ComplexXml.php',
             file_get_contents(__DIR__ . '/Data/ComplexXml.xml'),
+        ];
+        yield 'simple XML' => [
+            include __DIR__ . '/Data/SimpleXml.php',
+            file_get_contents(__DIR__ . '/Data/SimpleXml.xml'),
         ];
     }
 
     public static function convertToXmlDataProvider(): Generator
     {
-        yield 'empty array' => [
-            [],
-            0,
+        yield 'complex XML' => [
+            include __DIR__ . '/Data/ComplexXml.php',
+            file_get_contents(__DIR__ . '/Data/ComplexXml.xml'),
+        ];
+        yield 'simple XML' => [
+            include __DIR__ . '/Data/SimpleXml.php',
+            file_get_contents(__DIR__ . '/Data/SimpleXml.xml'),
         ];
     }
 
