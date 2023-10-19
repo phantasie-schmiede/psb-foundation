@@ -21,23 +21,6 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 class ArrayUtilityTest extends UnitTestCase
 {
     /**
-     * @test
-     * @dataProvider countRecursiveDataProvider
-     *
-     * @param array $array
-     * @param int   $expectedResult
-     *
-     * @return void
-     */
-    public function countRecursive(array $array, int $expectedResult): void
-    {
-        self::assertEquals(
-            $expectedResult,
-            ArrayUtility::countRecursive($array)
-        );
-    }
-
-    /**
      * @return Generator
      */
     public static function countRecursiveDataProvider(): Generator
@@ -70,5 +53,22 @@ class ArrayUtilityTest extends UnitTestCase
             ],
             5,
         ];
+    }
+
+    /**
+     * @test
+     * @dataProvider countRecursiveDataProvider
+     *
+     * @param array $array
+     * @param int   $expectedResult
+     *
+     * @return void
+     */
+    public function countRecursive(array $array, int $expectedResult): void
+    {
+        self::assertEquals(
+            $expectedResult,
+            ArrayUtility::countRecursive($array)
+        );
     }
 }

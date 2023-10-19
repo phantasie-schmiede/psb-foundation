@@ -30,27 +30,6 @@ class StringUtilityTest extends UnitTestCase
     ];
 
     /**
-     * @test
-     * @dataProvider convertStringDataProvider
-     *
-     * @param string $string
-     * @param        $expectedResult
-     *
-     * @return void
-     * @throws JsonException
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws InvalidConfigurationTypeException
-     */
-    public function convertString(string $string, $expectedResult): void
-    {
-        self::assertEquals(
-            $expectedResult,
-            StringUtility::convertString($string)
-        );
-    }
-
-    /**
      * @return Generator
      */
     public static function convertStringDataProvider(): Generator
@@ -97,11 +76,19 @@ class StringUtilityTest extends UnitTestCase
         ];
         yield 'JSON array' => [
             '[1,2,3]',
-            [1, 2, 3],
+            [
+                1,
+                2,
+                3,
+            ],
         ];
         yield 'JSON object' => [
             '{"1":1,"2":2,"3":3}',
-            [1 => 1, 2 => 2, 3 => 3],
+            [
+                1 => 1,
+                2 => 2,
+                3 => 3,
+            ],
         ];
         yield 'constant' => [
             '\PSB\PsbFoundation\Utility\StringUtilityTest::TEST_CONSTANT',
@@ -116,5 +103,26 @@ class StringUtilityTest extends UnitTestCase
             self::TEST_CONSTANT_ARRAY['INDEX'],
         ];
         // @TODO: test TypoScript ('TS:...')!
+    }
+
+    /**
+     * @test
+     * @dataProvider convertStringDataProvider
+     *
+     * @param string $string
+     * @param        $expectedResult
+     *
+     * @return void
+     * @throws JsonException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws InvalidConfigurationTypeException
+     */
+    public function convertString(string $string, $expectedResult): void
+    {
+        self::assertEquals(
+            $expectedResult,
+            StringUtility::convertString($string)
+        );
     }
 }

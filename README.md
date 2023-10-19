@@ -11,6 +11,7 @@ See [CHANGELOG.md](CHANGELOG.md) for upgrading from v1 to v2!
 - [Getting started](#getting-started)
 - [TCA generation](#tca-generation)
   - [Tabs and palettes](#tabs-and-palettes)
+  - [Database definitions](#database-definitions)
   - [Extending domain models](#extending-domain-models)
   - [Default language label paths](#default-language-label-paths)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
@@ -88,12 +89,13 @@ account during automated configuration processes, e.g. during TCA generation or 
 ### TCA generation
 You don't need to create a special file for your domain model in `Configuration/TCA` anymore!
 psb_foundation will scan your `Classes/Domain/Model`-directory for all classes (skipping abstract ones) that have an
-annotation of type `PSB\PsbFoundation\Annotation\TCA\Ctrl` in their PHPDoc-comment. The script checks if your model
+attribute of type `PSB\PsbFoundation\Attribute\TCA\Ctrl` in their PHPDoc-comment. The script checks if your model
 relates to an existing table in the database and detects if it extends another model from a different extension and
 manipulates the TCA accordingly.
 
 You can provide configuration options via attributes.
-Available attributes with default values can be found in `psb_foundation/Classes/Attribute/TCA`.
+The attribute `PSB\PsbFoundation\Attribute\TCA\Column` provides general configuration fields for all TCA types, e. g. required, displayCond and nullable.
+Additional attributes with default values for specific types can be found in `psb_foundation/Classes/Attribute/TCA/ColumnType/`.
 
 Simple example:
 
@@ -147,11 +149,11 @@ These will be converted to column names.
 Extended example:
 
 ```php
-use PSB\PsbFoundation\Annotation\TCA\Column;
-use PSB\PsbFoundation\Annotation\TCA\ColumnType\Inline;
-use PSB\PsbFoundation\Annotation\TCA\ColumnType\Select;
-use PSB\PsbFoundation\Annotation\TCA\ColumnType\Text;
-use PSB\PsbFoundation\Annotation\TCA\Ctrl;
+use PSB\PsbFoundation\Attribute\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Inline;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Text;
+use PSB\PsbFoundation\Attribute\TCA\Ctrl;
 
 #[Ctrl(
     hideTable: true,
@@ -267,21 +269,30 @@ If a property references a field inside a palette there are two more special pre
 These will insert an additional `--linebreak--` between those fields.
 
 The label of tabs and palettes is determined in the following way:
-1. Use the annotation attribute if given. (can be a LLL-reference)
+1. Use the attribute if given. (can be a LLL-reference)
 2. Use the default language label if existent.
    (see [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options))
 3. Use the identifier.
 
 The behaviour for the description of palettes is similar:
-1. Use the annotation attribute if given. (can be a LLL-reference)
+1. Use the attribute if given. (can be a LLL-reference)
 2. Use the default language label if existent.
    (see [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options))
 3. Leave empty.
 
+#### Database definitions
+Database definitions are added automatically based on the TCA-attributes used for your properties.
+You can override the auto-generated definition by defining the field in the `ext_tables.sql` by yourself or by using the property `databaseDefinition` of attribute `PSB\PsbFoundation\Attribute\TCA\Column`.
+
+Priority order:
+1. ext_tables.sql
+2. #[Column(databaseDefinition: '...')]
+3. default of ColumnType attribute
+
 #### Extending domain models
 When you are extending domain models (even from extensions that don't make use of psb_foundation) you have to add the
 @TCA\Ctrl-attribute! You have the possibility to override ctrl-settings. If you don't want to override anything: just
-leave out the brackets. The default values of the annotation class will have no effect in this case.
+leave out the brackets. The default values of the attribute class will have no effect in this case.
 
 #### Default language label paths
 These language labels will be tried if you don't provide a custom value for them.
@@ -329,8 +340,7 @@ The labels will be build this way:<br>
 
 - Classes/Controller/YourController.php
   ```php
-  use PSB\PsbFoundation\Annotation\PluginAction;
-  use PSB\PsbFoundation\Annotation\PluginConfig;
+  use PSB\PsbFoundation\Attribute\PluginAction;
 
   class YourController extends ActionController
   {
@@ -452,7 +462,7 @@ Look into the configuration classes to see all available options and their defau
 
 - Classes/Controller/YourModuleController.php
   ```php
-  use PSB\PsbFoundation\Annotation\ModuleAction;
+  use PSB\PsbFoundation\Attribute\ModuleAction;
   use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 
   class YourModuleController extends AbstractModuleController
