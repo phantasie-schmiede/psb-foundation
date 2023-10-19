@@ -3,7 +3,7 @@ PSB Foundation 2.0
 
 When I started this project, I promised that TYPO3 upgrades will become easier because the abstraction layer this
 extension offers will remain and all core changes will be tackled under the hood so that you won't have to worry.
-Guess what: As the developers of TYPO3 introduced a ton of breaking changes in v12.0 (which I love!) - and with php 8.1
+Guess what: As the developers of TYPO3 introduced a lot of interesting (but also breaking) changes in v12.0 (which I love!) - and with php 8.1
 at hand - I decided to go for a big refactoring. Sorry for that! But I hope that you will love the new structure and
 features. Version 1 won't be supported anymore. The following list will guide you through all necessary steps.
 I will try to support two major versions in the future.
@@ -50,7 +50,7 @@ Breaking changes!
 - Migrated annotation classes to php attributes.
   - Example: `/** @Column\Input(eval="trim") */` becomes `#[Column\Input(eval: 'trim')]`
   - Changed class name(!): Checkbox is now Check according to the underlying TCA type.
-    - Render type of Check defaults to "default" now! (Old default was checkboxToggle.)
+    - Render type of Check defaults to "default" now! (Old default was "checkboxToggle".)
 - Moved ajax page type configuration from action to plugin level (configuring a specific action is not supported by TYPO3
   anymore).
   - All actions, that need to be called via typeNum, have to be default actions. This might require the configuration of new plugins.
@@ -106,11 +106,11 @@ Bugfixes
 
 - Default action was not respected for the order of uncached actions in plugin configuration.
 - Handle missing attributes correctly.
-- Remove backslash from generated TypoScript object name when controller is inside additional subdirectories.
-- Remove CacheManager dependencies from early used services.
+- Removed backslash from generated TypoScript object name when controller is inside additional subdirectories.
+- Removed CacheManager dependencies from early used services.
 
 Important
 ---------
 - Custom TranslateViewHelper no longer extends original (which is final now).
-- Remove CSH-registration (has also been removed from TYPO3 core).
+- Removed CSH-registration (has also been removed from TYPO3 core).
   - All CSH-files can be deleted. You may want to transfer helpful texts to the 'description' field in TCA.
