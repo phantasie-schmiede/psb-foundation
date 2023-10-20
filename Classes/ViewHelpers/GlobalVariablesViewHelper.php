@@ -33,7 +33,7 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
         array $arguments,
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ) {
+    ): mixed {
         return GlobalVariableService::get($arguments['path']);
     }
 

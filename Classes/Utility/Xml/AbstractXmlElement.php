@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility\Xml;
 
 use PSB\PsbFoundation\Traits\AutoFillPropertiesTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\ObjectServiceTrait;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use ReflectionClass;
 use ReflectionException;
@@ -25,7 +24,6 @@ use function is_array;
 class AbstractXmlElement implements XmlElementInterface
 {
     use AutoFillPropertiesTrait;
-    use ObjectServiceTrait;
 
     /**
      * @var array
@@ -52,31 +50,31 @@ class AbstractXmlElement implements XmlElementInterface
     {
         foreach ($childData as $childKey => $childValues) {
             if (is_array($childValues)) {
-                if (isset($childValues[XmlUtility::SPECIAL_KEYS['POSITION']])) {
-                    $this->_setPosition($childValues[XmlUtility::SPECIAL_KEYS['POSITION']]);
-                    unset ($childValues[XmlUtility::SPECIAL_KEYS['POSITION']]);
+                if (isset($childValues[XmlUtility::SPECIAL_ARRAY_KEYS['POSITION']])) {
+                    $this->_setPosition($childValues[XmlUtility::SPECIAL_ARRAY_KEYS['POSITION']]);
+                    unset ($childValues[XmlUtility::SPECIAL_ARRAY_KEYS['POSITION']]);
                 }
 
                 $onlyNodeValue = true;
 
                 foreach ($childValues as $childValueKey => $childValue) {
-                    if ($childValueKey !== XmlUtility::SPECIAL_KEYS['NODE_VALUE']) {
+                    if ($childValueKey !== XmlUtility::SPECIAL_ARRAY_KEYS['NODE_VALUE']) {
                         $onlyNodeValue = false;
                     }
                 }
 
                 if ($onlyNodeValue) {
-                    $childData[$childKey] = $childValues[XmlUtility::SPECIAL_KEYS['NODE_VALUE']];
+                    $childData[$childKey] = $childValues[XmlUtility::SPECIAL_ARRAY_KEYS['NODE_VALUE']];
                 }
             }
         }
 
-        if (isset($childData[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']])) {
-            $this->_setAttributes($childData[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']]);
+        if (isset($childData[XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']])) {
+            $this->_setAttributes($childData[XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]);
         }
 
-        if (isset($childData[XmlUtility::SPECIAL_KEYS['NODE_VALUE']])) {
-            $this->_setNodeValue($childData[XmlUtility::SPECIAL_KEYS['NODE_VALUE']]);
+        if (isset($childData[XmlUtility::SPECIAL_ARRAY_KEYS['NODE_VALUE']])) {
+            $this->_setNodeValue($childData[XmlUtility::SPECIAL_ARRAY_KEYS['NODE_VALUE']]);
         }
 
         $this->fillProperties($childData);
@@ -101,7 +99,7 @@ class AbstractXmlElement implements XmlElementInterface
     /**
      * @return mixed|null
      */
-    public function _getNodeValue()
+    public function _getNodeValue(): mixed
     {
         return $this->_nodeValue[0] ?? null;
     }
@@ -154,19 +152,21 @@ class AbstractXmlElement implements XmlElementInterface
         $array = [];
 
         foreach ($propertiesArray as $key => $value) {
-            $array[XmlUtility::sanitizeTagName($key)] = $value;
+            if (!in_array($key, XmlUtility::SPECIAL_XML_KEYS, true)) {
+                $array[XmlUtility::sanitizeTagName($key)] = $value;
+            }
         }
 
         if (!empty($this->_getAttributes())) {
-            $array[XmlUtility::SPECIAL_KEYS['ATTRIBUTES']] = $this->_getAttributes();
+            $array[XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']] = $this->_getAttributes();
         }
 
         if (null !== $this->_getNodeValue()) {
-            $array[XmlUtility::SPECIAL_KEYS['NODE_VALUE']] = $this->_getNodeValue();
+            $array[XmlUtility::SPECIAL_ARRAY_KEYS['NODE_VALUE']] = $this->_getNodeValue();
         }
 
         if (null !== $this->_getPosition()) {
-            $array[XmlUtility::SPECIAL_KEYS['POSITION']] = $this->_getPosition();
+            $array[XmlUtility::SPECIAL_ARRAY_KEYS['POSITION']] = $this->_getPosition();
         }
 
         return $array;

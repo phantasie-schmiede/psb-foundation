@@ -14,12 +14,14 @@ use PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider;
 use PSB\PsbFoundation\Service\GlobalVariableService;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Request;
 
 /**
  * Class ContextUtility
@@ -30,6 +32,9 @@ class ContextUtility
 {
     public const DEFAULT_LANGUAGE_KEY = 'en';
 
+    /**
+     * @return string
+     */
     public static function getCurrentBackendLanguage(): string
     {
         ValidationUtility::requiresBackendContext();
@@ -69,10 +74,30 @@ class ContextUtility
         }
 
         if (self::isFrontend()) {
-            return self::getCurrentFrontendLanguage()->getLocale();
+            return self::getCurrentFrontendLanguage()
+                ->getLocale()
+                ->getName();
         }
 
         return self::DEFAULT_LANGUAGE_KEY;
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return string
+     */
+    public static function getPluginSignatureFromRequest(Request $request): string
+    {
+        return strtolower('tx_' . $request->getControllerExtensionName() . '_' . $request->getPluginName());
+    }
+
+    /**
+     * @return ServerRequestInterface|null
+     */
+    public static function getRequest(): ?ServerRequestInterface
+    {
+        return $GLOBALS['TYPO3_REQUEST'] ?? null;
     }
 
     /**
@@ -80,7 +105,10 @@ class ContextUtility
      */
     public static function isBackend(): bool
     {
-        return isset($GLOBALS['TYPO3_REQUEST']) && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend();
+        $request = self::getRequest();
+
+        return null !== $request && ApplicationType::fromRequest($request)
+                ->isBackend();
     }
 
     /**
@@ -90,7 +118,8 @@ class ContextUtility
      */
     public static function isBootProcessRunning(): bool
     {
-        return !GeneralUtility::getContainer()->get('boot.state')->done;
+        return !GeneralUtility::getContainer()
+            ->get('boot.state')->complete;
     }
 
     /**
@@ -98,7 +127,9 @@ class ContextUtility
      */
     public static function isFrontend(): bool
     {
-        return isset($GLOBALS['TYPO3_REQUEST']) && ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])
+        $request = self::getRequest();
+
+        return null !== $request && ApplicationType::fromRequest($request)
                 ->isFrontend();
     }
 

@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
 use Symfony\Component\Yaml\Yaml;
 use TYPO3\CMS\Core\Core\Environment;
@@ -55,7 +56,7 @@ class EarlyAccessConstantsProvider extends AbstractProvider
     {
         $mergedConstants = [];
         $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
-        $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+        $allExtensionInformation = $extensionInformationService->getAllExtensionInformation();
 
         // This builds the path for a context-specific file with a lowercase filename.
         /** @var array $contextParts */
@@ -65,7 +66,7 @@ class EarlyAccessConstantsProvider extends AbstractProvider
         $contextSpecificFilePath = self::DIRECTORY . implode('/', $contextParts) . '.yaml';
 
         foreach ($allExtensionInformation as $extensionInformation) {
-            $basePath = 'EXT:' . $extensionInformation->getExtensionKey();
+            $basePath = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey();
             $yamlFiles = [
                 GeneralUtility::getFileAbsFileName($basePath . self::DIRECTORY . 'constants.yaml'),
                 GeneralUtility::getFileAbsFileName($basePath . $contextSpecificFilePath),

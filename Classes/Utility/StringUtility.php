@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility;
 
+use DateTime;
 use Exception;
 use JsonException;
 use NumberFormatter;
@@ -32,23 +33,6 @@ use function strlen;
  */
 class StringUtility
 {
-    /**
-     * mb_strrpos() is used for performance reasons here. mb_strpos() would search the whole string if the needle isn't
-     * found right at the beginning. The combination of a reversed search and the negative offset ensure that only the
-     * relevant part of the string is searched. Additionally mb_strrpos has a better performance than mb_substr().
-     *
-     * @TODO: Replace with str_starts_with() when switching to php 8!
-     *
-     * @param string $string
-     * @param string $beginning
-     *
-     * @return bool
-     */
-    public static function beginsWith(string $string, string $beginning): bool
-    {
-        return 0 === mb_strrpos($string, $beginning, -mb_strlen($string));
-    }
-
     /**
      * @param $url
      *
@@ -73,18 +57,18 @@ class StringUtility
     public static function convertString(
         ?string $variable,
         bool $convertEmptyStringToNull = false,
-        array $namespaces = []
-    ) {
+        array $namespaces = [],
+    ): mixed {
         if (null === $variable || ($convertEmptyStringToNull && '' === $variable)) {
             return null;
         }
 
-        if ('' === $variable || false !== mb_strpos($variable, '{#')) {
+        if ('' === $variable || str_contains($variable, '{#')) {
             // string is either empty or contains quoted query parameter
             return $variable;
         }
 
-        if (1 === strlen($variable) || !self::beginsWith($variable, '0') || in_array($variable[1], ['.', ','], true)) {
+        if (1 === strlen($variable) || !str_starts_with($variable, '0') || in_array($variable[1], ['.', ','], true)) {
             $intRepresentation = filter_var($variable, FILTER_VALIDATE_INT);
 
             if (false !== $intRepresentation) {
@@ -98,12 +82,12 @@ class StringUtility
             }
         }
 
-        if (self::beginsWith($variable, 'TS:') && !ContextUtility::isBootProcessRunning()) {
-            $typoscriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
+        if (str_starts_with($variable, 'TS:') && !ContextUtility::isBootProcessRunning()) {
+            $typoScriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
             [, $path] = GeneralUtility::trimExplode(':', $variable);
 
-            if ($typoscriptProviderService->has($path)) {
-                return $typoscriptProviderService->get($path);
+            if ($typoScriptProviderService->has($path)) {
+                return $typoScriptProviderService->get($path);
             }
         }
 
@@ -135,15 +119,14 @@ class StringUtility
                     try {
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
-                    } catch (Exception $exception) {
-                        throw new RuntimeException('Path "[' . implode('][',
-                                $pathSegments) . ']" does not exist in array!',
-                            1548170593);
+                    } catch (Exception) {
+                        throw new RuntimeException(__CLASS__ . ': Path "[' . implode('][',
+                                $pathSegments) . ']" does not exist in array!', 1548170593);
                     }
                 }
 
                 // check for dot-notation of array path
-                if (false !== mb_strpos($constantName, '.')) {
+                if (str_contains($constantName, '.')) {
                     $pathSegments = explode('.', $constantName);
                     $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
                         return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
@@ -157,10 +140,9 @@ class StringUtility
                     try {
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
-                    } catch (Exception $exception) {
+                    } catch (Exception) {
                         throw new RuntimeException('Path "' . implode('.',
-                                $pathSegments) . '" does not exist in array!',
-                            1589385393);
+                                $pathSegments) . '" does not exist in array!', 1589385393);
                     }
                 }
 
@@ -176,19 +158,32 @@ class StringUtility
                 if (null !== $decodedString) {
                     return $decodedString;
                 }
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 // The string is not valid JSON. Just continue.
             }
         }
 
-        switch ($variable) {
-            case 'true':
-                return true;
-            case 'false':
-                return false;
-            default:
-                return $variable;
+        return match ($variable) {
+            'true' => true,
+            'false' => false,
+            default => $variable,
+        };
+    }
+
+    /**
+     * @param string $dateTimeString
+     *
+     * @return DateTime
+     */
+    public static function convertToDateTime(string $dateTimeString): DateTime
+    {
+        $timestamp = strtotime($dateTimeString);
+
+        if (false === $timestamp) {
+            throw new RuntimeException(__CLASS__ . ': String cannot be converted to DateTime!', 1664888951);
         }
+
+        return (new DateTime())->setTimestamp($timestamp);
     }
 
     /**
@@ -215,7 +210,7 @@ class StringUtility
         int $length,
         string $appendix = '…',
         bool $respectWordBoundaries = true,
-        bool $respectHtml = true
+        bool $respectHtml = true,
     ): string {
         if (mb_strlen($string) <= $length) {
             return $string;
@@ -286,32 +281,25 @@ class StringUtility
     }
 
     /**
-     * @TODO: Replace with str_ends_with() when switching to php 8!
-     *
      * @param string $string
-     * @param string $ending
      *
-     * @return bool
+     * @return array
      */
-    public static function endsWith(string $string, string $ending): bool
+    public static function explodeByLineBreaks(string $string): array
     {
-        $offset = mb_strlen($ending);
-
-        if ($offset > mb_strlen($string)) {
-            return false;
-        }
-
-        return mb_strpos($string, $ending, -$offset) === mb_strlen($string) - $offset;
+        return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string) ? : [];
     }
 
     /**
-     * @param string $string
+     * @param string $sentence
      *
-     * @return array[]|false|string[]
+     * @return string
      */
-    public static function explodeByLineBreaks(string $string)
+    public static function getFirstWord(string $sentence): string
     {
-        return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string);
+        $words = GeneralUtility::trimExplode(' ', $sentence, true);
+
+        return $words[0];
     }
 
     /**
@@ -323,6 +311,18 @@ class StringUtility
     public static function getNumberFormatter(int $style = NumberFormatter::DEFAULT_STYLE): NumberFormatter
     {
         return NumberFormatter::create(ContextUtility::getCurrentLocale(), $style);
+    }
+
+    /**
+     * Removes all characters which are not -, _, [, ], (, ), ., a space, a digit or a letter in the range a-zA-Z.
+     *
+     * @param string $string
+     *
+     * @return string
+     */
+    public static function removeSpecialChars(string $string): string
+    {
+        return mb_ereg_replace('/([^\w\ \d\-_\[\]\(\).])/', '', $string);
     }
 
     /**

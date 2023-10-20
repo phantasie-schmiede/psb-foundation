@@ -18,30 +18,18 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 /**
  * Class AbstractModuleController
  *
- * Extend this class with your backend module controller to simplify backend rendering. Just call the render-function
- * at the end of each of your actions which have a corresponding fluid-template.
- *
  * @package PSB\PsbFoundation\Controller\Backend
  */
 abstract class AbstractModuleController extends ActionController
 {
-    /**
-     * @param ModuleTemplate $moduleTemplate
-     */
     protected ModuleTemplate $moduleTemplate;
-
-    /**
-     * @var ModuleTemplateFactory
-     */
-    protected ModuleTemplateFactory $moduleTemplateFactory;
 
     /**
      * @param ModuleTemplateFactory $moduleTemplateFactory
      */
     public function __construct(
-        ModuleTemplateFactory $moduleTemplateFactory
+        protected readonly ModuleTemplateFactory $moduleTemplateFactory,
     ) {
-        $this->moduleTemplateFactory = $moduleTemplateFactory;
     }
 
     /**
@@ -53,12 +41,12 @@ abstract class AbstractModuleController extends ActionController
     }
 
     /**
-     * @return ResponseInterface
+     * Returns a response object with the rendered module template.
+     *
+     * @param string|null $html
      */
-    protected function render(): ResponseInterface
+    protected function htmlResponse(string $html = null): ResponseInterface
     {
-        $this->moduleTemplate->setContent($this->view->render());
-
-        return $this->htmlResponse($this->moduleTemplate->renderContent());
+        return $this->moduleTemplate->renderResponse();
     }
 }

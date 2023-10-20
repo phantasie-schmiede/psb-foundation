@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file datatype="plaintext"
+        date="2023-09-21T19:33:00+01:00"
+        original="messages"
+        product-name="psb_foundation"
+        source-language="en"
+        target-language="de">
+        <header />
+        <body>
+            <trans-unit id="debug.logMissingLanguageLabels">
+                <source>Log missing language labels</source>
+                <target>Fehlende "Language labels" loggen</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

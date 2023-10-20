@@ -10,14 +10,15 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;
-use PSB\PsbFoundation\Annotation\TCA\Column\Mm;
-use PSB\PsbFoundation\Traits\PropertyInjection\ConnectionPoolTrait;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Mm;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
+use PSB\PsbFoundation\Utility\ReflectionUtility;
 use ReflectionClass;
 use RuntimeException;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
+use function get_class;
 
 /**
  * Class ObjectService
@@ -26,7 +27,13 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
  */
 class ObjectService
 {
-    use ConnectionPoolTrait;
+    /**
+     * @param ConnectionPool $connectionPool
+     */
+    public function __construct(
+        protected readonly ConnectionPool $connectionPool,
+    ) {
+    }
 
     /**
      * If you have a select field in TCA with 'multiple' set to true, Extbase still returns each selected record only
@@ -41,20 +48,21 @@ class ObjectService
     public function resolveMultipleMmRelation(AbstractDomainObject $object, string $property): array
     {
         // Store each ObjectStorage element by uid.
-        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $object);
+        $reflectionClass = new ReflectionClass($object);
         $reflectionProperty = $reflectionClass->getProperty($property);
 
-        $annotationReader = new AnnotationReader();
+        $selectConfiguration = ReflectionUtility::getAttributeInstance(Select::class, $reflectionProperty);
 
-        /** @var Mm|null $mm */
-        $mm = $annotationReader->getPropertyAnnotation($reflectionProperty, Mm::class);
-
-        if (null === $mm) {
-            throw new RuntimeException(__CLASS__ . ': The property "' . $property . '" of object "' . get_class($object) . '" is not of TCA type mm!',
+        if (!$selectConfiguration instanceof Select) {
+            throw new RuntimeException(__CLASS__ . ': The property "' . $property . '" of object "' . get_class($object) . '" is not of TCA type select!',
                 1584867595);
         }
 
-        $reflectionProperty->setAccessible(true);
+        if (empty($selectConfiguration->getMm())) {
+            throw new RuntimeException(__CLASS__ . ': The select attribute of the property "' . $property . '" of object "' . get_class($object) . '" does not define a mm-table!',
+                                       1687382027);
+        }
+
         $objectStorageElements = $reflectionProperty->getValue($object);
         $objectStorageElementsByUid = [];
 
@@ -64,22 +72,19 @@ class ObjectService
         }
 
         // Get all mm-relation entries.
-        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($mm->getMm());
-        $statement = $queryBuilder
-            ->select('uid_foreign')
-            ->from($mm->getMm())
-            ->where(
-                $queryBuilder->expr()
-                    ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid()))
-            )
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable($selectConfiguration->getMm());
+        $statement = $queryBuilder->select('uid_foreign')
+            ->from($selectConfiguration->getMm())
+            ->where($queryBuilder->expr()
+                ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid())))
             ->orderBy('sorting')
-            ->execute();
+            ->executeQuery();
 
         // Create a complete collection by using the ordered items of the mm-table by replacing the foreign uid with the
         // concrete object.
         $completeElements = [];
 
-        while ($row = $statement->fetch()) {
+        while ($row = $statement->fetchAssociative()) {
             $completeElements[] = $objectStorageElementsByUid[$row['uid_foreign']];
         }
 

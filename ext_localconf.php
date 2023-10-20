@@ -1,33 +1,50 @@
 <?php
-/** @noinspection PhpFullyQualifiedNameUsageInspection */
-defined('TYPO3_MODE') or die();
+declare(strict_types=1);
+
+use PSB\PsbFoundation\Service\Configuration\PageTypeService;
+use PSB\PsbFoundation\Service\Configuration\PluginService;
+use PSB\PsbFoundation\Service\ExtensionInformationService;
+use PSB\PsbFoundation\Service\GlobalVariableProviders\EarlyAccessConstantsProvider;
+use PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider;
+use PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider;
+use PSB\PsbFoundation\Service\GlobalVariableService;
+use PSB\PsbFoundation\Service\Typo3\LanguageServiceFactory;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
+use PSB\PsbFoundation\Utility\FileUtility;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory as Typo3LanguageServiceFactory;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
+defined('TYPO3') or die();
 
 (static function () {
-    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider(\PSB\PsbFoundation\Service\GlobalVariableProviders\EarlyAccessConstantsProvider::class);
-    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider(\PSB\PsbFoundation\Service\GlobalVariableProviders\RequestParameterProvider::class);
-    \PSB\PsbFoundation\Service\GlobalVariableService::registerGlobalVariableProvider(\PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider::class);
+    // Overwrite LanguageServiceFactory to implement usage of plural forms in translations.
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][Typo3LanguageServiceFactory::class] = [
+        'className' => LanguageServiceFactory::class,
+    ];
+
+    GlobalVariableService::registerGlobalVariableProvider(EarlyAccessConstantsProvider::class);
+    GlobalVariableService::registerGlobalVariableProvider(RequestParameterProvider::class);
+    GlobalVariableService::registerGlobalVariableProvider(SiteConfigurationProvider::class);
 
     // configure all plugins of those extensions which provide an ExtensionInformation-class and add TypoScript if missing
-    $extensionInformationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\ExtensionInformationService::class);
-    $registrationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\RegistrationService::class);
-    $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+    $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
+    $pageTypeService = GeneralUtility::makeInstance(PageTypeService::class);
+    $pluginService = GeneralUtility::makeInstance(PluginService::class);
 
-    foreach ($allExtensionInformation as $extensionInformation) {
-        $registrationService->configurePlugins($extensionInformation);
-        $pageTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TsConfig/Page/Page.tsconfig';
+    foreach ($extensionInformationService->getAllExtensionInformation() as $extensionInformation) {
+        $pageTypeService->addToDragArea($extensionInformation);
+        $pluginService->configurePlugins($extensionInformation);
 
-        if (\PSB\PsbFoundation\Utility\FileUtility::fileExists($pageTsConfigFilename)) {
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
-             @import \'' . $pageTsConfigFilename . '\'
-        ');
-        }
+        foreach ([
+            'user',
+            'User',
+        ] as $filename) {
+            $userTsConfigFilename = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/' . $filename . '.tsconfig';
 
-        $userTsConfigFilename = 'EXT:' . $extensionInformation->getExtensionKey() . '/Configuration/TsConfig/User/User.tsconfig';
-
-        if (\PSB\PsbFoundation\Utility\FileUtility::fileExists($userTsConfigFilename)) {
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addUserTSConfig('
-             @import \'' . $userTsConfigFilename . '\'
-        ');
+            if (FileUtility::fileExists($userTsConfigFilename)) {
+                ExtensionManagementUtility::addUserTSConfig('@import \'' . $userTsConfigFilename . '\'');
+            }
         }
     }
 })();

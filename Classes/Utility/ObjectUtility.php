@@ -30,7 +30,7 @@ class ObjectUtility
      *
      * @return bool|string
      */
-    public static function getFullQualifiedClassName(string $className, array $namespaces)
+    public static function getFullQualifiedClassName(string $className, array $namespaces): bool|string
     {
         if (class_exists($className)) {
             return $className;
@@ -62,11 +62,10 @@ class ObjectUtility
     public static function toArray(object $object): array
     {
         $arrayRepresentation = [];
-        $reflectionClass = GeneralUtility::makeInstance(ReflectionClass::class, $object);
+        $reflectionClass = new ReflectionClass($object);
         $properties = $reflectionClass->getProperties();
 
         foreach ($properties as $property) {
-            $property->setAccessible(true);
             $getterMethodName = 'get' . GeneralUtility::underscoredToUpperCamelCase($property->getName());
 
             if (!$reflectionClass->hasMethod($getterMethodName)) {

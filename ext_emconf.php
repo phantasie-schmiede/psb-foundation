@@ -6,17 +6,15 @@ $EM_CONF[$_EXTKEY] = [
     'category'         => 'misc',
     'clearCacheOnLoad' => true,
     'constraints'      => [
-        'conflicts' => [
-        ],
+        'conflicts' => [],
         'depends'   => [
-            'php'   => '7.4-8.1',
-            'typo3' => '11.5.5-11.5.99',
+            'php'   => '8.1',
+            'typo3' => '12.4.0-12.4.99',
         ],
-        'suggests'  => [
-        ],
+        'suggests'  => [],
     ],
     'description'      => 'Configuration framework for TYPO3 extension development',
     'state'            => 'stable',
     'title'            => 'PSbits | Foundation',
-    'version'          => '1.2.4',
+    'version'          => '2.0.0',
 ];

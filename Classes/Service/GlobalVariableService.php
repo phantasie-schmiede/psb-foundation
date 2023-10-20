@@ -36,17 +36,20 @@ class GlobalVariableService
     protected static array $globalVariableProviders = [];
 
     /**
-     * @param string $path
+     * @param string     $path
+     * @param bool       $strict
+     * @param mixed|null $fallback
      *
      * @return mixed
+     * @throws Exception
      */
-    public static function get(string $path)
+    public static function get(string $path, bool $strict = true, mixed $fallback = null): mixed
     {
         $globalVariables = self::$cachedVariables;
 
         try {
             return VariableUtility::getValueByPath($globalVariables, $path);
-        } catch (Exception $e) {
+        } catch (Exception) {
             // Do nothing.
         }
 
@@ -54,9 +57,13 @@ class GlobalVariableService
         $key = array_shift($pathElements);
 
         if (!isset(self::$globalVariableProviders[$key])) {
-            throw new RuntimeException(__CLASS__ . ': Key "' . $key . '" is not registered! Available keys are: ' . implode(', ',
-                    array_keys(self::$globalVariableProviders)) . '.',
-                1622575130);
+            throw new RuntimeException(
+                __CLASS__ . ': Key "' . $key . '" is not registered! Available keys are: ' . implode(
+                    ', ',
+                    array_keys(self::$globalVariableProviders),
+                ) . '.',
+                1622575130
+            );
         }
 
         if (!self::$globalVariableProviders[$key] instanceof GlobalVariableProviderInterface) {
@@ -70,7 +77,15 @@ class GlobalVariableService
             self::$cachedVariables = $globalVariables;
         }
 
-        return VariableUtility::getValueByPath($globalVariables, $path);
+        try {
+            return VariableUtility::getValueByPath($globalVariables, $path);
+        } catch (Exception $exception) {
+            if (!$strict) {
+                return $fallback;
+            }
+
+            throw $exception;
+        }
     }
 
     /**
@@ -84,7 +99,7 @@ class GlobalVariableService
             self::get($path);
 
             return true;
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -99,8 +114,10 @@ class GlobalVariableService
     public static function registerGlobalVariableProvider(string $className): void
     {
         if (!in_array(GlobalVariableProviderInterface::class, class_implements($className), true)) {
-            throw new RuntimeException(__CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!',
-                1612426722);
+            throw new RuntimeException(
+                __CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!',
+                1612426722
+            );
         }
 
         // The value is just a placeholder for the instance which might be instantiated.

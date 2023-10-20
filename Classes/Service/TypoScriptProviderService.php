@@ -12,13 +12,12 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use JsonException;
-use PSB\PsbFoundation\Traits\PropertyInjection\ConfigurationManagerTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\TypoScriptServiceTrait;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\ValidationUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
@@ -31,15 +30,17 @@ use function is_string;
  */
 class TypoScriptProviderService
 {
-    use ConfigurationManagerTrait;
-    use TypoScriptServiceTrait;
-
     /**
+     * @param ConfigurationManagerInterface $configurationManager
+     * @param TypoScriptService             $typoScriptService
+     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function __construct()
-    {
+    public function __construct(
+        protected readonly ConfigurationManagerInterface $configurationManager,
+        protected readonly TypoScriptService             $typoScriptService,
+    ) {
         ValidationUtility::requiresTypoScriptLoaded();
     }
 
@@ -66,14 +67,14 @@ class TypoScriptProviderService
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
         string $extensionName = null,
         string $pluginName = null
-    ) {
+    ): mixed {
         $typoScript = $this->configurationManager->getConfiguration($configurationType, $extensionName, $pluginName);
         $typoScript = $this->typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
 
         array_walk_recursive($typoScript, static function (&$item) {
             if (is_string($item)) {
                 // if constants are not set
-                if (StringUtility::beginsWith($item, '{$')) {
+                if (str_starts_with($item, '{$')) {
                     $item = null;
                 } else {
                     $item = StringUtility::convertString($item);
@@ -91,6 +92,8 @@ class TypoScriptProviderService
      * @param string|null $pluginName
      *
      * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function has(
         string $path,
@@ -102,7 +105,7 @@ class TypoScriptProviderService
             $this->get($path, $configurationType, $extensionName, $pluginName);
 
             return true;
-        } catch (Exception $exception) {
+        } catch (Exception) {
             return false;
         }
     }
@@ -113,12 +116,12 @@ class TypoScriptProviderService
      *
      * @return mixed
      */
-    private function getDemandedTypoScript(array $typoScript, string $path = null)
+    private function getDemandedTypoScript(array $typoScript, string $path = null): mixed
     {
         if (null !== $path) {
             try {
                 return ArrayUtility::getValueByPath($typoScript, $path, '.');
-            } catch (Exception $exception) {
+            } catch (Exception) {
                 throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array', 1562225431);
             }
         }

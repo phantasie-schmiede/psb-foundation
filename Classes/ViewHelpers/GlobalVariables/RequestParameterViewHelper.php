@@ -32,7 +32,7 @@ class RequestParameterViewHelper extends AbstractGlobalVariablesViewHelper
         array $arguments,
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ) {
+    ): mixed {
         return parent::getVariable(RequestParameterProvider::class, $arguments);
     }
 }

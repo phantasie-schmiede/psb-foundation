@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-	<file datatype="plaintext" date="2019-10-16T20:35:00+01:00" original="messages" product-name="psb_foundation" source-language="en">
-		<header />
-		<body>
-			<trans-unit id="debug.logMissingLanguageLabels">
-				<source>Log missing language labels</source>
-			</trans-unit>
-		</body>
-	</file>
+    <file datatype="plaintext"
+        date="2019-10-16T20:35:00+01:00"
+        original="messages"
+        product-name="psb_foundation"
+        source-language="en">
+        <header />
+        <body>
+            <trans-unit id="debug.logMissingLanguageLabels">
+                <source>Log missing language labels</source>
+            </trans-unit>
+        </body>
+    </file>
 </xliff>

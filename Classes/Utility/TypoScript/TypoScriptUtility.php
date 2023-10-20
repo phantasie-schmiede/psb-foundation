@@ -65,7 +65,7 @@ class TypoScriptUtility
      */
     public static function convertArrayToTypoScript(array $array): string
     {
-        if (Environment::getContext()->isDevelopment()) {
+        if (Environment::getContext()->isDevelopment() || Environment::getContext()->isTesting()) {
             $backtrace = debug_backtrace();
             $debugInformation = [
                 'class'    => $backtrace[1]['class'],
@@ -98,23 +98,13 @@ class TypoScriptUtility
         }
 
         if ('' !== $pageTypeConfiguration->getUserFunc()) {
-            $contentConfiguration = array_merge(
-                [
-                    'userFunc' => $pageTypeConfiguration->getUserFunc(),
-                ],
-                $pageTypeConfiguration->getUserFuncParameters(),
-            );
+            $contentConfiguration = array_merge([
+                'userFunc' => $pageTypeConfiguration->getUserFunc(),
+            ], $pageTypeConfiguration->getUserFuncParameters());
         } else {
             $contentConfiguration = [
-                'action'                      => $pageTypeConfiguration->getAction(),
-                'controller'                  => $pageTypeConfiguration->getController(),
                 'extensionName'               => $pageTypeConfiguration->getExtensionName(),
                 'pluginName'                  => $pageTypeConfiguration->getPluginName(),
-                'switchableControllerActions' => [
-                    $pageTypeConfiguration->getController() => [
-                        1 => $pageTypeConfiguration->getAction(),
-                    ],
-                ],
                 'userFunc'                    => 'TYPO3\CMS\Extbase\Core\Bootstrap->run',
                 'vendorName'                  => $pageTypeConfiguration->getVendorName(),
             ];
@@ -127,14 +117,13 @@ class TypoScriptUtility
         $contentConfiguration[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']] = $internalContentType;
 
         $typoScript = [
-            self::TYPO_SCRIPT_KEYS['CONDITION']               => $pageTypeConfiguration->getTypeNum() . ' == traverse(request.getQueryParams(), \'type\')',
             $pageTypeConfiguration->getTypoScriptObjectName() => [
                 self::TYPO_SCRIPT_KEYS['OBJECT_TYPE'] => 'PAGE',
                 10                                    => $contentConfiguration,
                 'config'                              => [
                     'additionalHeaders'    => [
                         10 => [
-                            'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType(),
+                            'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType()->value . '; charset=utf-8',
                         ],
                     ],
                     'admPanel'             => false,
@@ -220,8 +209,7 @@ class TypoScriptUtility
                     } elseif (1 === count($value)) {
                         self::resetLineBreaks();
                         self::$objectPath .= $key . '.';
-                        $typoScript .= self::buildTypoScriptFromArray($value,
-                            $indentationLevel);
+                        $typoScript .= self::buildTypoScriptFromArray($value, $indentationLevel);
                     } else {
                         $typoScript .= self::$lineBreakBeforeCurlyBracketOpen . $indentation . self::$objectPath . $key . ' {' . LF;
                         self::resetLineBreaks();
@@ -259,7 +247,7 @@ class TypoScriptUtility
      *
      * @return string
      */
-    private static function processRemainingArray(int $indentationLevel, $key, array $value): string
+    private static function processRemainingArray(int $indentationLevel, int|string $key, array $value): string
     {
         $typoScript = '';
 

@@ -1,13 +1,24 @@
 services:
   _defaults:
-    autowire: true
     autoconfigure: true
+    autowire: true
     public: false
 
   PSB\PsbFoundation\:
     resource: '../Classes/*'
 
-  PSB\PsbFoundation\Service\Configuration\RegistrationService:
+  PSB\PsbFoundation\EventListener\DatabaseEnricher:
+    tags:
+      - identifier: 'psbFoundation_databaseEnricher'
+        name: event.listener
+
+  PSB\PsbFoundation\Service\Configuration\ModuleService:
+    public: true
+
+  PSB\PsbFoundation\Service\Configuration\PageTypeService:
+    public: true
+
+  PSB\PsbFoundation\Service\Configuration\PluginService:
     public: true
 
   PSB\PsbFoundation\Service\Configuration\TcaService:
@@ -17,6 +28,9 @@ services:
     public: true
 
   PSB\PsbFoundation\Service\GlobalVariableProviders\SiteConfigurationProvider:
+    public: true
+
+  PSB\PsbFoundation\Service\LocalizationService:
     public: true
 
   PSB\PsbFoundation\Service\ObjectService:

@@ -10,13 +10,18 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\Xml;
 
+use DOMDocument;
 use JsonException;
 use PSB\PsbFoundation\Utility\StringUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use SimpleXMLElement;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use function is_array;
+use function is_string;
 
 /**
  * Class XmlUtility
@@ -25,91 +30,96 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
  */
 class XmlUtility
 {
-    public const INDENTATION = '    ';
-
-    public const SPECIAL_KEYS = [
+    public const SPECIAL_ARRAY_KEYS = [
         'ATTRIBUTES' => '@attributes',
+        'NAMESPACES' => '@namespaces',
         'NODE_VALUE' => '@nodeValue',
         'POSITION'   => '@position',
     ];
+
+    public const SPECIAL_XML_KEYS = [
+        '_attributes',
+        '_namespaces',
+        '_nodeValue',
+        '_position',
+    ];
+
+    public const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
+
+    /**
+     * @param string $xml
+     * @param bool   $forceNoWrap
+     *
+     * @return string
+     */
+    public static function beautifyXml(string $xml, bool $forceNoWrap = false): string
+    {
+        $dom = new DOMDocument();
+        $dom->preserveWhiteSpace = false;
+        $dom->loadXML($xml, LIBXML_PARSEHUGE | LIBXML_NOCDATA);
+        $dom->formatOutput = true;
+        $formattedXml = $dom->saveXML();
+
+        if ($forceNoWrap) {
+            // Replace spaces with non-breaking spaces to enforce correct indentation in frontend.
+            $formattedXml = str_replace(' ', "\xc2\xa0", $formattedXml);
+        }
+
+        return $formattedXml;
+    }
 
     /**
      * @param SimpleXMLElement|string $xml
      * @param bool                    $sortAlphabetically Sort tags on same level alphabetically by tag name.
      * @param array                   $mapping
      *
-     * @return array|object
+     * @return object|array|string
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
-    public static function convertFromXml($xml, bool $sortAlphabetically = false, array $mapping = [])
-    {
+    public static function convertFromXml(
+        SimpleXMLElement|string $xml,
+        bool                    $sortAlphabetically = false,
+        array                   $mapping = [],
+    ): object|array|string {
         if (is_string($xml)) {
+            /** @noinspection CallableParameterUseCaseInTypeContextInspection */
             $xml = simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_PARSEHUGE | LIBXML_NOCDATA);
+
+            if (!$xml instanceof SimpleXMLElement) {
+                throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
+            }
         }
 
-        if (!$xml instanceof SimpleXMLElement) {
-            throw new RuntimeException(__CLASS__ . ': No valid XML provided!');
+        $namespaces = $xml->getDocNamespaces(true) ?: [];
+
+        if (!isset($namespaces[''])) {
+            $namespaces[''] = '';
         }
 
-        return self::buildFromXml($sortAlphabetically, $xml, $mapping);
+        ksort($namespaces);
+
+        return self::buildFromXml($sortAlphabetically, $xml, $mapping, $namespaces);
     }
 
     /**
      * @param array|XmlElementInterface $data
+     * @param string                    $xmlHeader
      * @param bool                      $wellFormatted
-     * @param int                       $indentationLevel
      *
      * @return string
      */
     public static function convertToXml(
-        $data,
-        bool $wellFormatted = true,
-        int $indentationLevel = 0
+        array|XmlElementInterface $data,
+        string                    $xmlHeader = self::XML_HEADER,
+        bool                      $wellFormatted = true,
     ): string {
-        $xml = '';
-        $siblings = [];
+        $xml = $xmlHeader . self::buildXml($data);
 
-        if ($data instanceof XmlElementInterface) {
-            $data = [$data->getTagName() => $data->toArray()];
-        }
-
-        foreach ($data as $key => $value) {
-            if (false === $value) {
-                continue;
-            }
-
-            if ($value instanceof XmlElementInterface) {
-                $value = $value->toArray();
-            }
-
-            if (is_array($value) && !ArrayUtility::isAssociative($value)) {
-                foreach ($value as $sibling) {
-                    if ($sibling instanceof XmlElementInterface) {
-                        $sibling = $sibling->toArray();
-                    }
-
-                    $siblings[] = [
-                        'tagName'  => $key,
-                        'tagValue' => $sibling,
-                    ];
-                }
-            } else {
-                $siblings[] = [
-                    'tagName'  => $key,
-                    'tagValue' => $value,
-                ];
-            }
-        }
-
-        $siblings = self::sortSiblings($siblings);
-
-        foreach ($siblings as $value) {
-            if (isset($value['tagValue'][self::SPECIAL_KEYS['POSITION']])) {
-                unset($value['tagValue'][self::SPECIAL_KEYS['POSITION']]);
-            }
-
-            $xml .= self::buildTag($value['tagName'], $value['tagValue'], $wellFormatted, $indentationLevel);
+        if ($wellFormatted) {
+            $xml = self::beautifyXml($xml);
         }
 
         return $xml;
@@ -122,9 +132,9 @@ class XmlUtility
      *
      * @return mixed
      */
-    public static function getNodeValue(array $array, string $path, bool $strict = true)
+    public static function getNodeValue(array $array, string $path, bool $strict = true): mixed
     {
-        $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
+        $path .= '.' . self::SPECIAL_ARRAY_KEYS['NODE_VALUE'];
 
         if (false === $strict && !ArrayUtility::isValidPath($array, $path, '.')) {
             return null;
@@ -164,58 +174,64 @@ class XmlUtility
      * @param string $path
      * @param mixed  $value
      */
-    public static function setNodeValue(array &$array, string $path, $value): void
+    public static function setNodeValue(array &$array, string $path, mixed $value): void
     {
-        $path .= '.' . self::SPECIAL_KEYS['NODE_VALUE'];
+        $path .= '.' . self::SPECIAL_ARRAY_KEYS['NODE_VALUE'];
         $array = ArrayUtility::setValueByPath($array, $path, $value, '.');
     }
 
     /**
-     * @param bool                    $sortAlphabetically
-     * @param SimpleXMLElement|string $xml
-     * @param array                   $mapping
-     * @param bool                    $rootLevel This is an internal parameter only to be set from within this function.
+     * @param bool             $sortAlphabetically
+     * @param SimpleXMLElement $xml
+     * @param array            $mapping
+     * @param array            $namespaces
+     * @param bool             $rootLevel This is an internal parameter only to be set from within this function.
      *
      * @return array|object|string
+     * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
+     * @throws NotFoundExceptionInterface
      */
-    private static function buildFromXml(bool $sortAlphabetically, $xml, array $mapping, bool $rootLevel = true)
-    {
-        if (is_string($xml)) {
-            return $xml;
-        }
-
+    private static function buildFromXml(
+        bool             $sortAlphabetically,
+        SimpleXMLElement $xml,
+        array            $mapping,
+        array            $namespaces = [],
+        bool             $rootLevel = true,
+    ): object|array|string {
         $array = [];
 
-        foreach ($xml->attributes() as $attributeName => $value) {
-            if ('version' !== $attributeName) {
-                $value = StringUtility::convertString(trim((string)$value));
+        foreach ($xml->getDocNamespaces(false, false) as $prefix => $namespace) {
+            if (!empty($namespace)) {
+                $array[self::SPECIAL_ARRAY_KEYS['NAMESPACES']][$prefix] = $namespace;
             }
-
-            $array[self::SPECIAL_KEYS['ATTRIBUTES']][$attributeName] = $value;
         }
 
-        $namespaces = $xml->getDocNamespaces();
-        $namespaces[] = '';
+        $positionOnThisLevel = 0;
 
         foreach ($namespaces as $prefix => $namespace) {
-            if (0 === $prefix) {
-                $prefix = '';
-            } else {
-                $prefix .= ':';
+            $prependPrefix = '';
+
+            if (!empty($prefix)) {
+                $prependPrefix = $prefix . ':';
             }
 
-            $positionOnThisLevel = 0;
-
-            foreach ($xml->children($namespace) as $childTagName => $child) {
-                $childTagName = $prefix . $childTagName;
-
-                if (0 < $child->count()) {
-                    $parsedChild = self::buildFromXml($sortAlphabetically, $child, $mapping, false);
-                } else {
-                    $parsedChild = self::parseTextNode($child);
+            foreach ($xml->attributes($prefix, true) as $attributeName => $value) {
+                if ('version' !== $attributeName) {
+                    $value = StringUtility::convertString(trim((string)$value));
                 }
+
+                $array[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']][$prependPrefix . $attributeName] = $value;
+            }
+
+            if (0 === $xml->count()) {
+                continue;
+            }
+
+            foreach ($xml->children($prefix, true) as $childTagName => $child) {
+                $childTagName = $prependPrefix . $childTagName;
+                $parsedChild = self::buildFromXml($sortAlphabetically, $child, $mapping, $namespaces, false);
 
                 if (isset($mapping[$childTagName])) {
                     $parsedChild = GeneralUtility::makeInstance($mapping[$childTagName], $parsedChild);
@@ -224,7 +240,7 @@ class XmlUtility
                 if ($parsedChild instanceof XmlElementInterface) {
                     $parsedChild->_setPosition($positionOnThisLevel++);
                 } else {
-                    $parsedChild[self::SPECIAL_KEYS['POSITION']] = $positionOnThisLevel++;
+                    $parsedChild[self::SPECIAL_ARRAY_KEYS['POSITION']] = $positionOnThisLevel++;
                 }
 
                 if (!isset($array[$childTagName])) {
@@ -238,6 +254,12 @@ class XmlUtility
                     ];
                 }
             }
+        }
+
+        if (0 === $xml->count()) {
+            $array[self::SPECIAL_ARRAY_KEYS['NODE_VALUE']] = StringUtility::convertString(trim((string)$xml));
+
+            return $array;
         }
 
         if (true === $sortAlphabetically) {
@@ -260,83 +282,108 @@ class XmlUtility
     /**
      * @param string $key
      * @param        $value
-     * @param bool   $wellFormatted
-     * @param int    $indentationLevel
      *
      * @return string
      */
-    private static function buildTag(string $key, $value, bool $wellFormatted, int $indentationLevel): string
+    private static function buildTag(string $key, $value): string
     {
-        $xml = '';
+        $xml = '<' . $key;
 
-        if (true === $wellFormatted) {
-            $indentation = self::createIndentation($indentationLevel);
-            $linebreak = LF;
-        } else {
-            $indentation = '';
-            $linebreak = '';
+        if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['NAMESPACES']]) && is_array(
+                $value[self::SPECIAL_ARRAY_KEYS['NAMESPACES']]
+            )) {
+            foreach ($value[self::SPECIAL_ARRAY_KEYS['NAMESPACES']] as $prefix => $namespace) {
+                $xml .= ' xmlns' . ($prefix ? (':' . $prefix) : '') . '="' . $namespace . '"';
+            }
+
+            unset($value[self::SPECIAL_ARRAY_KEYS['NAMESPACES']]);
         }
 
-        $xml .= $indentation . '<' . $key;
-
-        if (is_array($value) && isset($value[self::SPECIAL_KEYS['ATTRIBUTES']]) && is_array($value[self::SPECIAL_KEYS['ATTRIBUTES']])) {
-            foreach ($value[self::SPECIAL_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
+        if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]) && is_array(
+                $value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]
+            )) {
+            foreach ($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']] as $attributeName => $attributeValue) {
                 $xml .= ' ' . $attributeName . '="' . $attributeValue . '"';
             }
 
-            unset($value[self::SPECIAL_KEYS['ATTRIBUTES']]);
+            unset($value[self::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]);
         }
 
         $xml .= '>';
 
-        if (is_array($value) && isset($value[self::SPECIAL_KEYS['NODE_VALUE']])) {
-            $value = $value[self::SPECIAL_KEYS['NODE_VALUE']];
+        if (is_array($value) && isset($value[self::SPECIAL_ARRAY_KEYS['NODE_VALUE']])) {
+            $value = $value[self::SPECIAL_ARRAY_KEYS['NODE_VALUE']];
         }
 
         if (is_array($value) || $value instanceof XmlElementInterface) {
-            $xml .= $linebreak . self::convertToXml($value, $wellFormatted, ++$indentationLevel) . $indentation;
+            $xml .= self::buildXml($value);
         } else {
             $xml .= $value;
         }
 
         if ('' === $value) {
             $xml = rtrim($xml, '>');
-            $xml .= ' />' . $linebreak;
+            $xml .= ' />';
         } else {
-            $xml .= '</' . $key . '>' . $linebreak;
+            $xml .= '</' . $key . '>';
         }
 
         return $xml;
     }
 
     /**
-     * @param int $indentationLevel
+     * @param array|XmlElementInterface $data
      *
      * @return string
      */
-    private static function createIndentation(int $indentationLevel): string
+    private static function buildXml(array|XmlElementInterface $data)
     {
-        return str_repeat(self::INDENTATION, $indentationLevel);
-    }
+        $xml = '';
+        $siblings = [];
 
-    /**
-     * @param SimpleXMLElement $node
-     *
-     * @return array
-     * @throws InvalidConfigurationTypeException
-     * @throws JsonException
-     */
-    private static function parseTextNode(SimpleXMLElement $node): array
-    {
-        if (count($node->attributes())) {
-            foreach ($node->attributes() as $attributeName => $value) {
-                $parsedNode[self::SPECIAL_KEYS['ATTRIBUTES']][$attributeName] = StringUtility::convertString(trim((string)$value));
+        if ($data instanceof XmlElementInterface) {
+            $data = [$data::getTagName() => $data->toArray()];
+        }
+
+        foreach ($data as $key => $value) {
+            if (false === $value) {
+                continue;
+            }
+
+            if ($value instanceof XmlElementInterface) {
+                $value = $value->toArray();
+            }
+
+            if (is_array($value) && !ArrayUtility::isAssociative($value)) {
+                foreach ($value as $sibling) {
+                    if ($sibling instanceof XmlElementInterface) {
+                        $sibling = $sibling->toArray();
+                    }
+
+                    $siblings[] = [
+                        'tagName'  => $key,
+                        'tagValue' => $sibling,
+                    ];
+                }
+            } else {
+                $siblings[] = [
+                    'tagName'  => $key,
+                    'tagValue' => $value,
+                ];
             }
         }
 
-        $parsedNode[self::SPECIAL_KEYS['NODE_VALUE']] = StringUtility::convertString(trim((string)$node));
+        $siblings = self::sortSiblings($siblings);
 
-        return $parsedNode;
+        foreach ($siblings as $value) {
+            if (isset($value['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']])) {
+                unset($value['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']]);
+            }
+
+            $xml .= self::buildTag($value['tagName'], $value['tagValue']);
+        }
+
+        return $xml;
     }
 
     /**
@@ -346,23 +393,23 @@ class XmlUtility
      */
     private static function sortSiblings(array $siblings): array
     {
-        uasort($siblings, static function ($a, $b) {
+        uasort($siblings, static function($a, $b) {
             $positionA = 0;
             $positionB = 0;
 
             if ($a['tagValue'] instanceof XmlElementInterface) {
                 $positionA = $a['tagValue']->_getPosition();
             } elseif (is_array($a['tagValue'])) {
-                $positionA = $a['tagValue'][self::SPECIAL_KEYS['POSITION']] ?? 0;
+                $positionA = $a['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']] ?? 0;
             }
 
             if ($b['tagValue'] instanceof XmlElementInterface) {
                 $positionB = $b['tagValue']->_getPosition();
             } elseif (is_array($b['tagValue'])) {
-                $positionB = $b['tagValue'][self::SPECIAL_KEYS['POSITION']] ?? 0;
+                $positionB = $b['tagValue'][self::SPECIAL_ARRAY_KEYS['POSITION']] ?? 0;
             }
 
-            return $positionA > $positionB;
+            return $positionA - $positionB;
         });
 
         return $siblings;

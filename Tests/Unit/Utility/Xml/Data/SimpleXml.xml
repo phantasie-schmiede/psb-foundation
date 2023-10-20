@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+  <sheet>
+    <paragraph/>
+    <paragraph>text</paragraph>
+  </sheet>
+  <sheet>
+    <paragraph>text</paragraph>
+    <paragraph/>
+  </sheet>
+</document>

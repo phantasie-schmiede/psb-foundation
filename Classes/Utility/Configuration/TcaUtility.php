@@ -10,12 +10,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\Configuration;
 
-use PSB\PsbFoundation\Data\ExtensionInformationInterface;
-use PSB\PsbFoundation\Utility\FileUtility;
-use PSB\PsbFoundation\Utility\StringUtility;
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use function in_array;
-
 /**
  * Class TcaUtility
  *
@@ -41,24 +35,35 @@ class TcaUtility
      * kept unchanged.
      */
     private const PROPERTY_KEY_MAPPING = [
-        'defaultSortBy'      => 'default_sortby',
-        'enableRichText'     => 'enableRichtext',
-        'foreignField'       => 'foreign_field',
-        'foreignMatchFields' => 'foreign_match_fields',
-        'foreignSortBy'      => 'foreign_sortby',
-        'foreignTable'       => 'foreign_table',
-        'foreignTableWhere'  => 'foreign_table_where',
-        'internalType'       => 'internal_type',
-        'l10nDisplay'        => 'l10n_display',
-        'l10nMode'           => 'l10n_mode',
-        'maxItems'           => 'maxitems',
-        'minItems'           => 'minitems',
-        'mm'                 => 'MM',
-        'mmHasUidField'      => 'MM_hasUidField',
-        'mmInsertFields'     => 'MM_insert_fields',
-        'mmMatchFields'      => 'MM_match_fields',
-        'mmOppositeField'    => 'MM_opposite_field',
-        'sortBy'             => 'sortby',
+        'defaultSortBy'                 => 'default_sortby',
+        'editLock'                      => 'editlock',
+        'enableColumns'                 => 'enablecolumns',
+        'enableRichText'                => 'enableRichtext',
+        'foreignField'                  => 'foreign_field',
+        'foreignMatchFields'            => 'foreign_match_fields',
+        'foreignSortBy'                 => 'foreign_sortby',
+        'foreignTable'                  => 'foreign_table',
+        'foreignTableWhere'             => 'foreign_table_where',
+        'formattedLabelUserFunc'        => 'formattedLabel_userFunc',
+        'formattedLabelUserFuncOptions' => 'formattedLabel_userFunc_options',
+        'iconFile'                      => 'iconfile',
+        'isStatic'                      => 'is_static',
+        'l10nDisplay'                   => 'l10n_display',
+        'l10nMode'                      => 'l10n_mode',
+        'labelAlt'                      => 'label_alt',
+        'labelAltForce'                 => 'label_alt_force',
+        'labelUserFunc'                 => 'label_userFunc',
+        'maxItems'                      => 'maxitems',
+        'minItems'                      => 'minitems',
+        'mm'                            => 'MM',
+        'mmHasUidField'                 => 'MM_hasUidField',
+        'mmInsertFields'                => 'MM_insert_fields',
+        'mmMatchFields'                 => 'MM_match_fields',
+        'mmOppositeField'               => 'MM_opposite_field',
+        'selIconField'                  => 'selicon_field',
+        'sortBy'                        => 'sortby',
+        'typeIconClasses'               => 'typeicon_classes',
+        'typeIconColumn'                => 'typeicon_column',
     ];
 
     /**
@@ -80,7 +85,7 @@ class TcaUtility
             'config'  => [
                 'items'      => [
                     [
-                        0                    => '',
+                        'label'              => '',
                         'invertStateDisplay' => true,
                     ],
                 ],
@@ -103,12 +108,10 @@ class TcaUtility
                     'allowLanguageSynchronization' => true,
                 ],
                 'default'    => 0,
-                'eval'       => 'datetime, int',
                 'range'      => [
-                    'upper' => mktime(0, 0, 0, 1, 1, 2038),
+                    'upper' => gmmktime(0, 0, 0, 1, 1, 2038),
                 ],
-                'renderType' => 'inputDateTime',
-                'type'       => 'input',
+                'type'       => 'datetime',
             ],
             'exclude' => true,
             'label'   => self::CORE_FIELD_LABELS['END_TIME'],
@@ -140,9 +143,7 @@ class TcaUtility
                     'allowLanguageSynchronization' => true,
                 ],
                 'default'    => 0,
-                'eval'       => 'datetime, int',
-                'renderType' => 'inputDateTime',
-                'type'       => 'input',
+                'type'       => 'datetime',
             ],
             'exclude' => true,
             'label'   => self::CORE_FIELD_LABELS['START_TIME'],
@@ -176,8 +177,8 @@ class TcaUtility
                 'foreign_table_where' => 'AND {#' . $tableName . '}.{#pid}=###CURRENT_PID### AND {#' . $tableName . '}.{#sys_language_uid} IN (-1,0)',
                 'items'               => [
                     [
-                        '',
-                        0,
+                        'label' => '',
+                        'value' => 0,
                     ],
                 ],
                 'renderType'          => 'selectSingle',
@@ -198,43 +199,5 @@ class TcaUtility
                 'type' => 'passthrough',
             ],
         ];
-    }
-
-    /**
-     * For usage in ext_tables.php
-     *
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return void
-     */
-    public static function registerNewTablesInGlobalTca(ExtensionInformationInterface $extensionInformation): void
-    {
-        /*
-         * The "Check for Broken Extensions" function in the upgrade module doesn't load the TCA. This breaks the
-         * following code and would raise an exception if we didn't exit here in this case.
-         * @see TYPO3\CMS\Install\Controller\UpgradeController::extensionCompatTesterLoadExtTablesAction()
-         */
-        if (null === $GLOBALS['TCA']) {
-            return;
-        }
-
-        $identifier = 'tx_' . mb_strtolower($extensionInformation->getExtensionName()) . '_domain_model_';
-        $newTables = array_filter(array_keys($GLOBALS['TCA']), static function ($key) use ($identifier) {
-            return StringUtility::beginsWith($key, $identifier);
-        });
-
-        foreach ($newTables as $tableName) {
-            if (true === ($GLOBALS['TCA'][$tableName]['ctrl']['allowTableOnStandardPages'] ?? null)) {
-                ExtensionManagementUtility::allowTableOnStandardPages($tableName);
-            }
-
-            $cshFilePath = 'EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/CSH/' . $tableName . '.xlf';
-
-            if (!in_array($cshFilePath, $GLOBALS['TCA_DESCR'][$tableName]['refs'] ?? [], true)
-                && FileUtility::fileExists($cshFilePath)
-            ) {
-                ExtensionManagementUtility::addLLrefForTCAdescr($tableName, $cshFilePath);
-            }
-        }
     }
 }

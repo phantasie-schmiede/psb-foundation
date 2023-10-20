@@ -1,18 +1,23 @@
 # PSB Foundation
 ## Enhanced extension programming in Extbase
 
+---
+**IMPORTANT**
+See [CHANGELOG.md](CHANGELOG.md) for upgrading from v1 to v2!
+---
+
 - [What does it do?](#what-does-it-do)
 - [Why should you use it?](#why-should-you-use-it)
 - [Getting started](#getting-started)
 - [TCA generation](#tca-generation)
   - [Tabs and palettes](#tabs-and-palettes)
+  - [Database definitions](#database-definitions)
   - [Extending domain models](#extending-domain-models)
   - [Default language label paths](#default-language-label-paths)
-  - [Additional configuration options](#additional-configuration-options)
 - [Registering and configuring plugins](#registering-and-configuring-plugins)
   - [FlexForms](#flexforms)
   - [Content element wizard](#content-element-wizard)
-  - [custom page types for single actions](#custom-page-types-for-single-actions)
+  - [custom page types for single plugins](#custom-page-types-for-single-plugins)
 - [Registering and configuring modules](#registering-and-configuring-modules)
 - [Registering custom page types](#registering-custom-page-types)
 - [Auto-registration of TypoScript-files](#auto-registration-of-typoscript-files)
@@ -23,15 +28,20 @@
   - [ContextUtility](#contextutility)
   - [GlobalVariableService](#globalvariableservice)
   - [StringUtility](#stringutility)
+  - [TranslateViewHelper](#translateviewhelper)
   - [TypoScriptProviderService](#typoscriptproviderservice)
+  - [UploadService](#uploadservice)
 
 ### What does it do?
 This extension
-- generates the TCA for your domain models by reading their PHPDoc-annotations
-- autocompletion for TCA by annotation classes
-- configures and registers modules and plugins based on PHPDoc-annotations in your controllers
-- registers custom page types
-- auto-registers existing FlexForms, TypoScript, TSconfig, CSH language files and icons
+- generates the TCA for your domain models by reading their php attributes
+- offers autocompletion for TCA by constructor properties of attribute classes
+- generates database definitions for your domain models
+- simplifies the registration of modules, plugins and page types
+- automatically registers existing FlexForms, TypoScript and icons
+- provides an easy-to-use frontend file upload with automatic reference creation to given domain models
+- provides an optimized TranslateViewHelper with additional options (e.g. plural forms and better variable syntax)
+- allows the definition of frontend variables which can be used all over the site (e.g. IBAN or telephone numbers) 
 - provides convenient ways to access often used core-functionalities
 
 #### IMPORTANT
@@ -46,10 +56,6 @@ The goal of this extension is to
 - allow code completion for TCA-settings
 - reduce duplicated code
 - reduce number of hard-coded string identifiers and keys, and therefore the likelihood of errors due to typos
-
-The stronger use of convention over configuration simplifies the adaptation to breaking changes in those parts this extension handles.
-Think about the updated registration of icons (`Configuration/Icons.php`) or the way plugin configuration has changed (remove vendor, add full qualified controller classname) in TYPO3 v11.
-You wouldn't have had to refactor each and every extension of yours. Some small changes in psb_foundation and you are ready to go.
 
 ### Getting started
 Create the following file: `EXT:your_extension/Classes/Data/ExtensionInformation.php`. Define the class and make
@@ -83,63 +89,43 @@ account during automated configuration processes, e.g. during TCA generation or 
 ### TCA generation
 You don't need to create a special file for your domain model in `Configuration/TCA` anymore!
 psb_foundation will scan your `Classes/Domain/Model`-directory for all classes (skipping abstract ones) that have an
-annotation of type `PSB\PsbFoundation\Annotation\TCA\Ctrl` in their PHPDoc-comment. The script checks if your model
+attribute of type `PSB\PsbFoundation\Attribute\TCA\Ctrl` in their PHPDoc-comment. The script checks if your model
 relates to an existing table in the database and detects if it extends another model from a different extension and
 manipulates the TCA accordingly.
 
-You can provide configuration options via PHPDoc-annotations.
-Available annotations with default values can be found in `psb_foundation/Classes/Annotations/TCA`.
-The available annotation properties also include onChange, label, position, etc.
-There are more annotations than unique field types.
-This extension offers different presets, e.g.
-
-- type: input
-  - Date
-  - DateTime
-  - Input
-  - Integer
-  - Link
-- type: inline (FileReference)
-  - Document
-  - Image
-- type: select
-  - Inline
-  - MM
+You can provide configuration options via attributes.
+The attribute `PSB\PsbFoundation\Attribute\TCA\Column` provides general configuration fields for all TCA types, e. g. required, displayCond and nullable.
+Additional attributes with default values for specific types can be found in `psb_foundation/Classes/Attribute/TCA/ColumnType/`.
 
 Simple example:
 
 ```php
-use PSB\PsbFoundation\Annotation\TCA\Column;
-use PSB\PsbFoundation\Annotation\TCA\Ctrl;
+use PSB\PsbFoundation\Attribute\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Input;
+use PSB\PsbFoundation\Attribute\TCA\Ctrl;
 
-/**
- * @Ctrl(label="name", searchFields="description, name")
- */
+#[Ctrl(label: 'name', searchFields: ['description', 'name')]
 class YourClass
 {
-    /**
-     * @Column\Input(eval="trim, required")
-     */
+    #[Column(required: true)]
+    #[Input(eval: 'trim')]
     protected string $name = '';
 
-    /**
-     * You can leave out the brackets if you are fine with the default values.
-     *
-     * @Column\Input
-     */
+    // You can leave out the brackets if you are fine with the default values.
+    #[Input]
     protected string $inputUsingTheDefaultValues = '';
 
-    /**
-     * @Column\Checkbox(exclude=1)
-     */
+    #[Column(exclude: true)]
+    #[Check]
     protected bool $adminOnly = true;
 
     ...
 }
 ```
 
-Properties without TCA\[...]-annotation will not be considered in TCA-generation.
-Some configurations will be added automatically if specific fields are defined in the ctrl-section:
+Properties without TCA\[...]-attribute will not be considered in TCA-generation.
+Some configurations will be added automatically if specific fields are defined in the CTRL attribute
+(which they are by default):
 
 | Property                  | Default value    |
 |---------------------------|------------------|
@@ -151,9 +137,9 @@ Some configurations will be added automatically if specific fields are defined i
 | transOrigPointerField     | l10n_parent      |
 | translationSource         | l10n_source      |
 
-Most of these properties will be added in additional tabs at the end of `showitems` for all types.
+The fields for enableColumns will be added in additional tabs at the end of `showitems` for all types.
 
-The relational types `inline`, `mm` and `select` have a special property named `linkedModel`.
+The relational types `inline` and `select` have a special property named `linkedModel`.
 Instead of using `foreign_table` you can specify the class name of the related domain model and psb_foundation will
 insert the corresponding table name into the TCA.
 
@@ -163,16 +149,26 @@ These will be converted to column names.
 Extended example:
 
 ```php
-use PSB\PsbFoundation\Annotation\TCA\Column;
-use PSB\PsbFoundation\Annotation\TCA\Ctrl;
+use PSB\PsbFoundation\Attribute\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Inline;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
+use PSB\PsbFoundation\Attribute\TCA\ColumnType\Text;
+use PSB\PsbFoundation\Attribute\TCA\Ctrl;
 
-/**
- * @Ctrl(hideTable=true, label="richText", labelAlt="someProperty, anotherProperty",
- *       labelAltForce=true, sortBy="customSortField", type="myType")
- */
+#[Ctrl(
+    hideTable: true,
+    label: 'richText',
+    labelAlt: [
+        'someProperty',
+        'anotherProperty',
+    ],
+    labelAltForce: true,
+    sortBy: 'customSortField',
+    type: 'myType',
+)]
 class YourModel
 {
-    /**
+    /*
      * This constant is used as value for TCA-property "items". The keys will be used as label identifiers - converted
      * to lowerCamelCase:
      * EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[modelName].xlf:myType.default
@@ -183,32 +179,38 @@ class YourModel
         'RECORD_WITH_IMAGE' => 'recordWithImage',
     ];
 
-    /**
-     * @Column\Select(items=self::TYPES)
-     */
+    #[Select(items: self::TYPES)]
     protected string $myType = self::TYPES['DEFAULT'];
 
-    /**
-     * @Column\Text(cols=40, enableRichtext=true, rows=10)
-     */
+    #[Text(
+        cols: 40,
+        enableRichtext: true,
+        rows: 10,
+    )]
     protected string $richText = '';
 
     /**
      * @var ObjectStorage<AnotherModel>
-     * @Column\Inline(linkedModel=AnotherModel::class, foreignField="yourModel")
      */
+    #[Inline(
+        linkedModel: AnotherModel::class,
+        foreignField: 'yourModel',
+    )]
     protected ObjectStorage $inlineRelation;
 
-    /**
-     * @Column\Select(linkedModel=AnotherModel::class, position="before:propertyName2")
-     */
+    #[Column(position: 'before:propertyName2')]
+    #[Select(linkedModel: AnotherModel::class)]
     protected ?AnotherModel $simpleSelectField = null;
 
-    /**
-     * This field is only added to the types 'interview' and 'profile'.
-     *
-     * @Column\Image(allowedFileTypes="jpeg, jpg", maxItems=1, typeList="interview, profile")
-     */
+    // This field is only added to the types 'interview' and 'profile'.
+    #[Column(typeList: 'interview, profile')]
+    #[File(
+        allowed: [
+            'jpeg',
+            'jpg',
+        ],
+        maxItems: 1,
+    )]
     protected ?FileReference $image = null;
 
     ...
@@ -219,14 +221,10 @@ The argument position allows you to assign a field to a specific tab or palette.
 
 Example:
 ```php
-/**
- * @Column\Input(position="palette:my_palette")
- */
+#[Column(position: 'palette:my_palette')]
 protected string $description = '';
 
-/**
- * @Column\Input(position="tab:my_tab")
- */
+#[Column(position: 'tab:my_tab')]
 protected string $note = '';
 ```
 Without further configuration, tab and palette will be registered with the given identifier and added to the
@@ -234,24 +232,30 @@ end of the showitems-list. But you can add additional information for tabs and p
 For now, the identifiers of palettes and tabs have to be written in snake_case!
 
 ```php
-use PSB\PsbFoundation\Annotation\TCA;
-use PSB\PsbFoundation\Annotation\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\Column;
+use PSB\PsbFoundation\Attribute\TCA\Palette;
+use PSB\PsbFoundation\Attribute\TCA\Tab;
 
 /**
- * @TCA\Ctrl()
- * @TCA\Palette(description="LLL:EXT:[...]", identifier="my_palette", position="before:someProperty")
  * @TCA\Tab(identifier="my_tab", label="Custom label", position="after:someProperty")
  */
+#[Ctrl]
+#[Palette(
+    description: 'LLL:EXT:[...]',
+    identifier: 'my_palette',
+    position: 'before:someProperty'
+)]
+#[Tab(
+    identifier: 'my_tab',
+    label: 'Custom label',
+    position: 'after:someProperty'
+)]
 class YourModel
 {
-    /**
-     * @Column\Input(position="palette:my_palette")
-     */
+    #[Column(position: 'palette:my_palette')]
     protected string $description = '';
 
-    /**
-     * @Column\Input(position="tab:my_tab")
-     */
+    #[Column(position: 'tab:my_tab')]
     protected string $note = '';
 
     ...
@@ -265,124 +269,117 @@ If a property references a field inside a palette there are two more special pre
 These will insert an additional `--linebreak--` between those fields.
 
 The label of tabs and palettes is determined in the following way:
-1. Use the annotation attribute if given. (can be a LLL-reference)
+1. Use the attribute if given. (can be a LLL-reference)
 2. Use the default language label if existent.
    (see [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options))
 3. Use the identifier.
 
 The behaviour for the description of palettes is similar:
-1. Use the annotation attribute if given. (can be a LLL-reference)
+1. Use the attribute if given. (can be a LLL-reference)
 2. Use the default language label if existent.
    (see [Default language label paths and additional configuration options](#default-language-label-paths-and-additional-configuration-options))
 3. Leave empty.
 
+#### Database definitions
+Database definitions are added automatically based on the TCA-attributes used for your properties.
+You can override the auto-generated definition by defining the field in the `ext_tables.sql` by yourself or by using the property `databaseDefinition` of attribute `PSB\PsbFoundation\Attribute\TCA\Column`.
+
+Priority order:
+1. ext_tables.sql
+2. #[Column(databaseDefinition: '...')]
+3. default of ColumnType attribute
+
 #### Extending domain models
 When you are extending domain models (even from extensions that don't make use of psb_foundation) you have to add the
-@TCA\Ctrl-annotation. You have the possibility to override ctrl-settings. If you don't want to override anything: just
-leave out the brackets. The default values of the annotation class will have no effect in this case.
+@TCA\Ctrl-attribute! You have the possibility to override ctrl-settings. If you don't want to override anything: just
+leave out the brackets. The default values of the attribute class will have no effect in this case.
 
 #### Default language label paths
 These language labels will be tried if you don't provide a custom value for them.
 The path always is `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/(Overrides/)[modelName].xlf`.
 
-| Configuration value  | Default language label           |
-|----------------------|----------------------------------|
-| ctrl->title          | ctrl.title                       |
-| property->label      | [propertyName]                   |
-| palette->description | palette.[identifier].description |
-| palette->label       | palette.[identifier].label       |
-| tab->label           | tab.[identifier].label           |
+| Configuration value   | Default language label           |
+|-----------------------|----------------------------------|
+| ctrl->title           | ctrl.title                       |
+| property->label       | [propertyName]                   |
+| property->description | [propertyName].description       |
+| palette->description  | palette.[identifier].description |
+| palette->label        | palette.[identifier].label       |
+| tab->label            | tab.[identifier].label           |
 
 When you use the items-property for a select field, you may provide a simple associative array.
 It will be transformed into the required multi-level format.
 The labels will be build this way:<br>
 `[propertyName].[arrayKeyTransformedToLowerCamelCase]`
 
-If you provide the file `EXT:your_extension_name/Resources/Private/Language/Backend/CSH/[tabelName].xlf`
-it will be registered automatically.
-
-#### Additional configuration options
-A special property has been added to the Ctrl annotation:
-
-| Property                  | Description                                                                                               |
-|---------------------------|-----------------------------------------------------------------------------------------------------------|
-| allowTableOnStandardPages | If set to true, you can insert records of a table on standard content pages (instead of SysFolders only). |
-
 ### Registering and configuring plugins
 - Classes/Data/ExtensionInformation.php
   ```php
-  public const PLUGINS = [
-      'PluginName' => [
-          \Your\Extension\Controller\YourController::class,
-      ],
-      'AnotherPluginWithMultipleControllers' => [
-          \Your\Extension\Controller\AnotherController::class,
-          \Your\Extension\Controller\ExtraController::class,
-          ...
-      ],
-      'AnotherPluginWhichDoesNotUseAllActionsInController' => [
-          \Your\Extension\Controller\YourController::class,
-          \Your\Extension\Controller\AnotherController::class => [
-              'actionName1', // This is not necessarily the default action!
-              'actionName2',
-              ...
-          ],
-          ...
-      ],
-      ...
-  ];
+  public function __construct()
+    {
+        parent::__construct();
+        $this->addPlugin(GeneralUtility::makeInstance(PluginConfiguration::class,
+            controllers: [MyController::class],
+            name: 'MyPlugin',
+        ));
+        $this->addPlugin(GeneralUtility::makeInstance(PluginConfiguration::class,
+            controllers: [
+                MyController::class => [
+                    'specificAction',
+                ],
+                AnotherController::class => [
+                    'specificAction', // This is not necessarily the default action!
+                    'anotherSpecificAction',
+                ],
+            ]],
+            group: 'customTabInContentElementWizard'
+            name: 'AnotherPlugin',
+        ));
+    }
   ```
 
 - Classes/Controller/YourController.php
   ```php
-  use PSB\PsbFoundation\Annotation\PluginAction;
-  use PSB\PsbFoundation\Annotation\PluginConfig;
+  use PSB\PsbFoundation\Attribute\PluginAction;
 
-  /**
-   * @PluginConfig(iconIdentifier="special-icon")
-   */
   class YourController extends ActionController
   {
-      /**
-       * @PluginAction
-       */
-      public function simpleAction(): void
+      #[PluginAction]
+      public function simpleAction(): ResponseInterface
       {
+          ...
       }
 
-      /**
-       * @PluginAction(default=true)
-       */
-      public function mainAction(): void
+      #[PluginAction(default: true)]
+      public function mainAction(): ResponseInterface
       {
+          ...
       }
 
-      /**
-       * @PluginAction(uncached=true)
-       */
-      public function uncachedAction(): void
+      #[PluginAction(uncached: true)]
+      public function uncachedAction(): ResponseInterface
       {
+          ...
       }
   }
   ```
 
-The `PluginConfig`-annotation is not mandatory. You only need to set it, when additional configuration is desired (e.g.
-setting a custom icon identifier).
-Actions without the `PluginAction`-annotation won't be registered though -
+Actions without the `PluginAction`-attribute won't be registered -
 even if mentioned in the optional action list in `ExtensionInformation.php`!<br>
-If no action list is provided, all actions annotated with `PluginAction` will be registered.
-Which action will be used as default action and which actions should not be cached is determined by the annotation values only.
-Check the default values and comments in `EXT:psb_foundation/Classes/Annotation/`.
+If no action list is provided, all actions with the `PluginAction`-attribute will be registered.
+Which action will be used as default action and which actions should not be cached is determined by the attributes
+property values only.
+Check the default values and comments in `EXT:psb_foundation/Classes/Attribute/`.
 
 #### FlexForms
 If there is a file named `EXT:your_extension/Configuration/FlexForms/[PluginName].xml` it will be registered
-automatically. You can override this default by setting the `flexForm`-property of the `PluginConfig`-annotation. You
-can either provide a filename if your XML-file is located inside the `Configuration/FlexForms/`-directory or a full file
-path beginning with `EXT:`.
+automatically. You can override this default by passing a value for the `flexForm`-property to the
+`PluginConfiguration`-constructor. You can either provide a filename if your XML-file is located inside the
+`Configuration/FlexForms/`-directory or a full file path beginning with `EXT:`.
 
 #### Content element wizard
 Plugins will be added to the wizard automatically. There will be a tab for each vendor. You can override the location of
-your wizard entry by setting the `group`-property of the `PluginConfig`-annotation. The following language labels are
+your wizard entry by setting the `group`-property of `PluginConfiguration`. The following language labels are
 taken into account automatically if defined:
 
 - `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:`
@@ -391,109 +388,105 @@ taken into account automatically if defined:
 
 If the label for title does not exist, this label will be tried:
 `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.[pluginName].title`<br>
-This label is also used for the select box item.
+This label is also used for the select box item (CType)`.
 If it doesn't exist either, the plugin name will be used as fallback.
 
-`[group]` defaults to the vendor name (lowercase) if not set within `PluginConfig`-annotation. That also defines the tab
-of the content element wizard. If a new tab is created, its label will be fetched from
-here: `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:[group].header`
+`[group]` defaults to the vendor name (lowercase) if not set within `PluginConfiguration`. That also defines the tab
+of the content element wizard. If a new tab is created, its label will be fetched from here:
+`EXT:your_extension/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:[group].header`
 
-#### Custom page types for single actions
+#### Custom page types for single plugins
+You can add a custom page type that renders a specific plugin only.
+Simply define a typeNum in your PluginConfiguration: 
+
+Classes/Data/ExtensionInformation.php
 ```php
-use PSB\PsbFoundation\Annotation\PageType;
-use PSB\PsbFoundation\Annotation\PluginAction;
-
-...
-
-/**
- * @PluginAction(uncached=true)
- * @PageType(contentType=PageObjectConfiguration::CONTENT_TYPE_HTML, disableAllHeaderCode=false, typeNum=1589385441)
- */
-public function specialPageTypeAction()
+public function __construct()
 {
+    parent::__construct();
+    $this->addPlugin(GeneralUtility::makeInstance(PluginConfiguration::class,
+        controllers: [
+            MyController::class
+        ],
+        name: 'MyPlugin',
+        typeNum: 1589385441,
+    ));
 }
 ```
 
-psb_foundation will create the necessary TypoScript so that this action can be called directly with the request parameter `type=1589385441`.
+psb_foundation will create the necessary TypoScript so that this plugin can be called directly with the request parameter `type=1589385441`.
+If you defined a typeNum, you can add more specific information for that page type:
+
+| Option                      | Type               | Description                                                                | Default   |
+|-----------------------------|--------------------|----------------------------------------------------------------------------|-----------|
+| typeNumCacheable            | boolean            | whether the output should be cached?                                       | false     |
+| typeNumContentType          | ContentType (Enum) | defines the information about the content sent in header                   | text/html |
+| typeNumDisableAllHeaderCode | boolean            | whether the plugin output should not be wrapped inside the page's template | true      |
 
 ### Registering and configuring modules
 This process is very similar to the way plugins are registered.
+You only have to add a special registration file for modules, which is required by the core.
+The content of this file can always be almost identical (see example below) - just adapt the namespace to your ExtensionInformation class.
+Look into the configuration classes to see all available options and their default values.
 
 - Classes/Data/ExtensionInformation.php
   ```php
-  public const MAIN_MODULES = [
-      'mainModuleName',
-      'mainModuleWithCustomConfiguration' => [
-          'iconIdentifier' => '...', // optional
-          'labels'         => '...', // optional
-          'position'       => '...', // optional
-          'routeTarget'    => '...', // optional
-      ],
-      ...
-  ];
+  public function __construct()
+    {
+        parent::__construct();
+        $this->addMainModule(GeneralUtility::makeInstance(MainModuleConfiguration::class,
+            key: 'my_main_module',
+            position: ['after' => 'web']
+        ));
+        $this->addModule(GeneralUtility::makeInstance(ModuleConfiguration::class,
+            controllers: [MyController::class],
+            key: 'my_module',
+            parent: 'my_main_module'
+        ));
+    }
+  ```
 
-  public const MODULES = [
-      'ModuleName' => [
-          \Your\Extension\Controller\YourModuleController::class,
-          \Your\Extension\Controller\AnotherModuleController::class,
-      ],
-      ...
-  ];
+- Configuration/Backend/Modules.php
+  ```php
+  <?php
+  declare(strict_types=1);
+  
+  use PSB\PsbFoundation\Data\ExtensionInformation; // <-- Change this to your namespace!
+  use PSB\PsbFoundation\Service\Configuration\ModuleService;
+  use TYPO3\CMS\Core\Utility\GeneralUtility;
+  
+  return GeneralUtility::makeInstance(ModuleService::class)
+  ->buildModuleConfiguration(GeneralUtility::makeInstance(ExtensionInformation::class));
+
   ```
 
 - Classes/Controller/YourModuleController.php
   ```php
-  use PSB\PsbFoundation\Annotation\ModuleAction;
-  use PSB\PsbFoundation\Annotation\ModuleConfig;
+  use PSB\PsbFoundation\Attribute\ModuleAction;
+  use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
 
-  /**
-   * @ModuleConfig(iconIdentifier="special-icon", mainModuleName="web", position="after:list")
-   */
-  class YourModuleController extends ActionController
+  class YourModuleController extends AbstractModuleController
   {
-      /**
-       * @ModuleAction()
-       * @return ResponseInterface
-       */
-      public function simpleAction(): ResponseInterface
-      {
-      }
-
-      /**
-       * @ModuleAction(default=true)
-       * @return ResponseInterface
-       */
+      #[ModuleAction(default: true)]
       public function mainAction(): ResponseInterface
       {
+          ...
+  
+          return $this->htmlResponse();
+      }
+  
+      #[ModuleAction]
+      public function simpleAction(): ResponseInterface
+      {
+          ...
+  
+          return $this->htmlResponse();
       }
   }
   ```
 
-Instead of `ActionController` you can extend `PSB\PsbFoundation\Controller\Backend\AbstractModuleController`.
-This class provides the required `ModuleTemplateFactory`.
-You can access the ModuleTemplate via `$this->moduleTemplate`, e.g. to add FlashMessages.
-At the end of your actions you can just call `$this->render()` and your corresponding fluid-template will be returned.
-
-```php
-use PSB\PsbFoundation\Annotation\ModuleAction;
-use PSB\PsbFoundation\Annotation\ModuleConfig;
-use PSB\PsbFoundation\Controller\Backend\AbstractModuleController;
-
-/**
-* @ModuleConfig(iconIdentifier="special-icon", mainModuleName="web", position="after:list")
-*/
-class YourModuleController extends AbstractModuleController
-{
-   /**
-     * @ModuleAction(default=true)
-     * @return ResponseInterface
-     */
-    public function simpleAction(): ResponseInterface
-    {
-        return $this->render();
-    }
-}
-```
+The AbstractModuleController class contains some basic template preparations which allow you to render your template in
+the same way as in plugin controllers: `return $this->htmlResponse()`!
 
 Modules need to provide three labels:
 
@@ -511,22 +504,23 @@ Fallbacks regarding submodules only:
 - access: `group, user`
 - main module: `web`
 
-Check the other configuration options and comments in `EXT:psb_foundation/Classes/Annotation/`.
+Check the other configuration options and comments in `EXT:psb_foundation/Classes/Attributes/`.
 
 ### Registering custom page types
 Classes/Data/ExtensionInformation.php
-  ```php
-  public const PAGE_TYPES = [
-      123 => [ // doktype serves as key
-          'allowedTables'  => ['*'],
-          'iconIdentifier' => 'page-type-your-page-type-name'
-          'label'          => 'Your page type name'
-          'name'           => 'yourPageTypeName',
-          'type'           => 'web',
-      ],
-      ...
-  ];
-  ```
+```php
+public function __construct()
+{
+    parent::__construct();
+    $this->addPageType(GeneralUtility::makeInstance(PageTypeConfiguration::class,
+        allowedTables: ['*'],
+        iconIdentifier: 'page-type-your-page-type-name',
+        label: 'Your page type name',
+        name: 'yourPageTypeName',
+        doktype: 1691492222,
+    ));
+}
+```
 
 The keys (doktype) have to be of type integer. `name` is the only mandatory value.
 If you don't provide an icon identifier this default identifier will be used: `page-type-your-page-type-name`.
@@ -541,7 +535,7 @@ Example (`'name' => 'custom'`):
 You don't have to provide all these icons. The icons for regular pages will be used as fallback.
 Your SVG-files should to be located in this directory: `EXT:your_extension/Resources/Public/Icons/`
 All icons in that directory will be registered by their name automatically.
-Unless `label` is defined, `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/pages.xlf:pageType.yourPageTypeName` will be used.
+Unless `label` is defined, `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.yourPageTypeName` will be used.
 If that key doesn't exist, `name` will be transformed from "yourPageTypeName" to "Your page type name".
 
 ### Auto-registration of TypoScript-files
@@ -550,9 +544,12 @@ You can provide a custom title for the select item in the template module with `
 defaults to `'Main configuration'`.
 
 ### Auto-registration of TSconfig-files
-If these files exist, they will be included automatically:
-- `EXT:your_extension/Configuration/TSconfig/Page.tsconfig`
-- `EXT:your_extension/Configuration/TSconfig/User.tsconfig`
+If this file exists, it will be included automatically:
+- `EXT:your_extension/Configuration/User.tsconfig` (You can use 'User' or 'user')
+
+The core already handles the inclusion of
+- `EXT:your_extension/Configuration/Page.tsconfig` (You can use 'Page' or 'page')
+https://docs.typo3.org/c/typo3/cms-core/main/en-us/Changelog/12.0/Feature-96614-AutomaticInclusionOfPageTsConfigOfExtensions.htm
 
 ### Auto-registration of icons
 All PNG- and SVG-files located in `EXT:your_extension/Resources/Public/Icons` will be registered automatically.
@@ -564,10 +561,10 @@ Examples (filename => icon identifier):
 
 ### Extension settings
 #### Log missing language labels
-If activated, missing language labels will be stored in `tx_psbfoundation_missing_language_labels`. This is restricted
-to `PSB\PsbFoundation\Service\LocalizationService` which extends the LocalizationService of the TYPO3 core. All missing
-default labels (e.g. plugin title or field label) will be listed this way if you didn't provide a custom label. Fixed
-entries get removed on next check (every time the cache is cleared).<br>
+If activated, missing language labels will be stored in `tx_psbfoundation_missing_language_labels`.
+This is restricted to `PSB\PsbFoundation\Service\LocalizationService` which extends the LocalizationService of the TYPO3 core.
+All missing default labels (e.g. plugin title or field label) will be listed this way if you didn't provide a custom label.
+Fixed entries get removed on next check (every time the cache is cleared).<br>
 It's recommended to check this table during extension development.
 
 ### Helper classes
@@ -597,7 +594,7 @@ Examples:
 // get SiteConfiguration
 GlobalVariableService::get(SiteConfigurationProvider::class);
 
-// get request parameters
+// get all request parameters
 GlobalVariableService::get(RequestParameterProvider::class);
 
 // get specific request parameter
@@ -623,6 +620,49 @@ GlobalVariableService::get(RequestParameterProvider::class . '.formData.hiddenIn
 - explodeByLineBreaks: can be used to get the lines of a file or text field as array
 - getNumberFormatter: returns a NumberFormatter based on the current locale
 
+#### TranslateViewHelper
+`PSB\PsbFoundation\ViewHelpers\TranslateViewHelper` is an extended clone of the core's TranslateViewHelper.
+
+Additional features:
+- Logging of missing language labels via `\PSB\PsbFoundation\Service\LocalizationService`
+- Support of plural forms in language files;
+  <trans-unit>-tags in xlf-files can be grouped like this to define plural forms of a translation:
+  ```xml
+  <group id=“day” restype=“x-gettext-plurals”>
+    <trans-unit id=“day[0]”>
+      <source>{0} day</source>
+    </trans-unit>
+    <trans-unit id=“day[1]”>
+      <source>{0} days</source>
+    </trans-unit>
+  </group>
+  ```
+  The number in [] defines the plural form as defined here:
+  http://docs.translatehouse.org/projects/localization-guide/en/latest/l10n/pluralforms.html
+  See `\PSB\PsbFoundation\Utility\Localization\PluralFormUtility` for more information.
+  In order to use the plural forms defined in your language files, you have to transfer an argument named 'quantity':<br>
+  `<psb:translate arguments="{quantity: 1}" id="..." />`<br>
+  This argument can be combined with others (see support of named arguments below).
+- Named arguments: a more convenient way to pass variables into translations<br>
+  Instead of:
+  ```html
+  <!-- Template file -->
+  <f:translate arguments="{0: 'myVar', 1: 123}" id="myLabel" />
+  <!-- Language file -->
+  <source>My two variables are %1$s and %2$s.</source>
+  ```
+  you can use:
+  ```html
+  <!-- Template file -->
+  <psb:translate arguments="{myVar: 'myVar', anotherVar: 123} id="myLabel" />
+  <!-- Language file -->
+  <source>My two variables are {myVar} and {anotherVar}.</source>
+  ```
+  If a variable is not passed, the marker will remain untouched!
+- New attribute "excludedLanguages"<br>
+  matching language keys will return null (bypasses fallbacks!)
+  This way you can remove texts from certain site languages without additional condition wrappers in your template.
+
 #### TypoScriptProviderService
 `PSB\PsbFoundation\Service\TypoScriptProviderService` offers a convenient way to retrieve specific TypoScript-settings.
 As first argument you can provide the array path you want to access. The following arguments are the same as for the ConfigurationManager known from Extbase.
@@ -645,3 +685,47 @@ The values returned by this service have been converted to the correct type alre
 If you set `displayOptions.showPreview = 1` the last example will return an integer.
 If you set `displayOptions.showPreview = true` it will return a boolean.
 Not set constants will be returned as `null` instead of `{$...}`.
+
+#### UploadService
+This service provides one method that should be called from a controller action which handles a form submit:
+```php
+public function fromRequest(AbstractEntity $domainModel, Request $request): void
+```
+This method receives a domain model instance to associate the uploaded files with and an Extbase request object.
+It does not have a return value, but will throw an exception if something goes wrong.
+You will have to handle those cases in your code!
+
+>The requirement for the processing of uploaded files is that the name of the file input fields of the form match the corresponding properties' name!
+
+By default the files will be stored in fileadmin/user_upload/ by their original name as sent by the client (all special characters being removed).
+This can be changed via TCA:
+```php
+#[File(
+    allowed: [
+        'jpeg',
+        'jpg',
+    ],
+    maxItems: 1,
+    uploadDuplicationBehaviour: DuplicationBehavior::REPLACE,
+    uploadFileNameGeneratorPartSeparator: '_',
+    uploadFileNameGeneratorPrefix: 'myDomainModel',
+    uploadFileNameGeneratorProperties: ['uid'],
+    uploadFileNameGeneratorSuffix: 'image',
+    uploadTargetFolder: 'user_upload/my_extension',
+)]
+protected ?FileReference $image = null;
+
+#[File(
+    allowed: [
+        'pdf',
+    ],
+    uploadFileNameGeneratorAppendHash: true,
+    uploadFileNameGeneratorProperties: ['category.name', 'title'],
+    uploadFileNameGeneratorReplacements: [
+        ' ' => '_',
+    ],
+    uploadTargetFolder: '2:my_extension/my_domain_model/documents',
+)]
+protected ObjectStorage $documents;
+```
+See comments in class constructor for more information on certain options.

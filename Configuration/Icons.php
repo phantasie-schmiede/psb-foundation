@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use PSB\PsbFoundation\Service\ExtensionInformationService;
+use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider;
@@ -12,10 +13,10 @@ return call_user_func(
     static function () {
         $icons = [];
         $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
-        $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+        $allExtensionInformation = $extensionInformationService->getAllExtensionInformation();
 
         foreach ($allExtensionInformation as $extensionInformation) {
-            $path = GeneralUtility::getFileAbsFileName('EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Public/Icons');
+            $path = GeneralUtility::getFileAbsFileName(FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Resources/Public/Icons');
 
             if (!is_dir($path)) {
                 continue;

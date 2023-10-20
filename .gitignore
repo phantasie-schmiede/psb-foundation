@@ -1,4 +1,5 @@
 .Build/
 .idea/
 Build/testing-docker/.env
+composer.json.testing
 composer.lock

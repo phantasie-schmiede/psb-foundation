@@ -1,17 +1,17 @@
 <?php
-/** @noinspection PhpFullyQualifiedNameUsageInspection */
-defined('TYPO3_MODE') or die();
+declare(strict_types=1);
+
+use PSB\PsbFoundation\Service\Configuration\PageTypeService;
+use PSB\PsbFoundation\Service\ExtensionInformationService;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
+defined('TYPO3') or die();
 
 (static function () {
-    // register all modules and domain model tables of those extensions which provide an ExtensionInformation-class
-    $extensionInformationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\ExtensionInformationService::class);
-    $registrationService = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\PSB\PsbFoundation\Service\Configuration\RegistrationService::class);
-    $allExtensionInformation = $extensionInformationService->getExtensionInformation();
+    $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
+    $pageTypeService = GeneralUtility::makeInstance(PageTypeService::class);
 
-    foreach ($allExtensionInformation as $extensionInformation) {
-        $registrationService->registerModules($extensionInformation);
-        $registrationService->registerPageTypes($extensionInformation,
-            $registrationService::PAGE_TYPE_REGISTRATION_MODES['EXT_TABLES']);
-        \PSB\PsbFoundation\Utility\Configuration\TcaUtility::registerNewTablesInGlobalTca($extensionInformation);
+    foreach ($extensionInformationService->getAllExtensionInformation() as $extensionInformation) {
+        $pageTypeService->addToRegistry($extensionInformation);
     }
 })();

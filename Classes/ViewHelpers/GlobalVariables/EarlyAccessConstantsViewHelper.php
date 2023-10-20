@@ -32,7 +32,7 @@ class EarlyAccessConstantsViewHelper extends AbstractGlobalVariablesViewHelper
         array $arguments,
         Closure $renderChildrenClosure,
         RenderingContextInterface $renderingContext
-    ) {
+    ): mixed {
         return parent::getVariable(EarlyAccessConstantsProvider::class, $arguments);
     }
 }

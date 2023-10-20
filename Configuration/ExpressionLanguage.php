@@ -1,7 +1,10 @@
 <?php
-/** @noinspection PhpFullyQualifiedNameUsageInspection */
+declare(strict_types=1);
+
+use PSB\PsbFoundation\ExpressionLanguage\TypoScriptConditionProvider;
+
 return [
     'typoscript' => [
-        \PSB\PsbFoundation\ExpressionLanguage\TypoScriptConditionProvider::class,
+        TypoScriptConditionProvider::class,
     ],
 ];

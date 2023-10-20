@@ -13,13 +13,14 @@ namespace PSB\PsbFoundation\Service;
 use InvalidArgumentException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
-use PSB\PsbFoundation\Traits\PropertyInjection\ExtensionConfigurationTrait;
-use PSB\PsbFoundation\Traits\PropertyInjection\PackageManagerTrait;
-use PSB\PsbFoundation\Utility\StringUtility;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
-use TYPO3\CMS\Core\Package\Exception\UnknownPackageException;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
+use TYPO3\CMS\Core\Package\PackageManager;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function count;
 use function in_array;
@@ -32,13 +33,20 @@ use function is_array;
  */
 class ExtensionInformationService
 {
-    use ExtensionConfigurationTrait;
-    use PackageManagerTrait;
-
     /**
      * @var ExtensionInformationInterface[]
      */
     protected array $extensionInformationInstances = [];
+
+    /**
+     * @param ExtensionConfiguration $extensionConfiguration
+     * @param PackageManager         $packageManager
+     */
+    public function __construct(
+        protected readonly ExtensionConfiguration $extensionConfiguration,
+        protected readonly PackageManager         $packageManager,
+    ) {
+    }
 
     /**
      * @param string $className
@@ -50,14 +58,15 @@ class ExtensionInformationService
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
 
         if (2 > count($classNameParts)) {
-            throw new InvalidArgumentException(__CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!',
-                1547120513);
+            throw new InvalidArgumentException(
+                __CLASS__ . ': ' . $className . ' is not a full qualified (namespaced) class name!', 1547120513
+            );
         }
 
         return [
-            'extensionKey'  => GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]),
+            'extensionKey' => GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]),
             'extensionName' => $classNameParts[1],
-            'vendorName'    => $classNameParts[0],
+            'vendorName' => $classNameParts[0],
         ];
     }
 
@@ -74,7 +83,7 @@ class ExtensionInformationService
             $file = fopen($fileName, 'rb');
 
             while ($line = fgets($file)) {
-                if (StringUtility::beginsWith($line, 'namespace ')) {
+                if (str_starts_with($line, 'namespace ')) {
                     $namespace = rtrim(GeneralUtility::trimExplode(' ', $line)[1], ';');
                     $vendorName = explode('\\', $namespace)[0];
                     break;
@@ -83,6 +92,19 @@ class ExtensionInformationService
         }
 
         return $vendorName;
+    }
+
+    /**
+     * @return ExtensionInformationInterface[]
+     * @throws ImplementationException
+     */
+    public function getAllExtensionInformation(): array
+    {
+        if (empty($this->extensionInformationInstances)) {
+            $this->register();
+        }
+
+        return $this->extensionInformationInstances;
     }
 
     /**
@@ -98,8 +120,8 @@ class ExtensionInformationService
      */
     public function getConfiguration(
         ExtensionInformationInterface $extensionInformation,
-        string $path = ''
-    ) {
+        string                        $path = '',
+    ): mixed {
         $path = str_replace('.', '/', $path);
         $extensionConfiguration = $this->extensionConfiguration->get($extensionInformation->getExtensionKey(), $path);
 
@@ -112,41 +134,58 @@ class ExtensionInformationService
     }
 
     /**
-     * @return ExtensionInformationInterface[]
-     * @throws ImplementationException
+     * @param ExtensionInformationInterface $extensionInformation
+     *
+     * @return array
      */
-    public function getExtensionInformation(): array
+    public function getDomainModelClassNames(ExtensionInformationInterface $extensionInformation): array
     {
-        if (empty($this->extensionInformationInstances)) {
-            $this->register();
+        $classNames = [];
+
+        try {
+            $finder = Finder::create()
+                ->files()
+                ->in(
+                    ExtensionManagementUtility::extPath(
+                        $extensionInformation->getExtensionKey()
+                    ) . 'Classes/Domain/Model'
+                )
+                ->name('*.php');
+
+            /** @var SplFileInfo $fileInfo */
+            foreach ($finder as $fileInfo) {
+                $classNameComponents = array_merge([
+                    $extensionInformation->getVendorName(),
+                    $extensionInformation->getExtensionName(),
+                    'Domain\Model',
+                ], explode('/', substr($fileInfo->getRelativePathname(), 0, -4)));
+
+                $fullQualifiedClassName = implode('\\', $classNameComponents);
+
+                if (class_exists($fullQualifiedClassName)) {
+                    $classNames[] = $fullQualifiedClassName;
+                }
+            }
+        } catch (InvalidArgumentException) {
+            // No such directory in this extension
         }
 
-        return $this->extensionInformationInstances;
+        return $classNames;
     }
 
     /**
-     * @param ExtensionInformationInterface $extensionInformation
+     * @param string $extensionKey
      *
-     * @return string
-     * @throws UnknownPackageException
+     * @return ExtensionInformationInterface
+     * @throws ImplementationException
      */
-    public function getLanguageFilePath(ExtensionInformationInterface $extensionInformation): string
+    public function getExtensionInformation(string $extensionKey): ExtensionInformationInterface
     {
-        return $this->getResourcePath($extensionInformation) . 'Private/Language/';
-    }
+        $instances = $this->getAllExtensionInformation();
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return string
-     * @throws UnknownPackageException
-     */
-    public function getResourcePath(ExtensionInformationInterface $extensionInformation): string
-    {
-        $subDirectoryPath = '/' . $extensionInformation->getExtensionKey() . '/Resources/';
-
-        return $this->packageManager->getPackage($extensionInformation->getExtensionKey())
-                ->getPackagePath() . $subDirectoryPath;
+        return $instances[$extensionKey] ?? throw new ImplementationException(
+            __CLASS__ . ': There is no ExtensionInformation registered for ' . $extensionKey . '!', 1683560687
+        );
     }
 
     /**
@@ -176,8 +215,10 @@ class ExtensionInformationService
 
                 if (class_exists($className)) {
                     if (!in_array(ExtensionInformationInterface::class, class_implements($className), true)) {
-                        throw new ImplementationException(__CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
-                            1568738348);
+                        throw new ImplementationException(
+                            __CLASS__ . ': ' . $className . ' has to implement ExtensionInformationInterface!',
+                            1568738348
+                        );
                     }
 
                     $this->extensionInformationInstances[$extensionKey] = GeneralUtility::makeInstance($className);

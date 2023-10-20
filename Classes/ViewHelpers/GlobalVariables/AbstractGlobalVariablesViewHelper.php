@@ -26,7 +26,7 @@ abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
      *
      * @return mixed
      */
-    protected static function getVariable(string $baseKey, array $arguments)
+    protected static function getVariable(string $baseKey, array $arguments): mixed
     {
         if (!empty($arguments['path'])) {
             $baseKey .= '.' . $arguments['path'];
@@ -47,7 +47,7 @@ abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
     /**
      * @return mixed
      */
-    public function render()
+    public function render(): mixed
     {
         return static::renderStatic($this->arguments, $this->buildRenderChildrenClosure(), $this->renderingContext);
     }
