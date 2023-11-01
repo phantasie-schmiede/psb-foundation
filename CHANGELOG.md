@@ -114,3 +114,93 @@ Important
 - Custom TranslateViewHelper no longer extends original (which is final now).
 - Removed CSH-registration (has also been removed from TYPO3 core).
   - All CSH-files can be deleted. You may want to transfer helpful texts to the 'description' field in TCA.
+
+Full list of changes
+--------------------
+- [FEATURE] Accept array for labelAlt property of Ctrl.
+- [FEATURE] Add argument "excludedLanguages" to TranslateViewHelper that allows to omit text in certain languages.
+- [FEATURE] Add auto-registration for TCA-description of columns.
+- [FEATURE] Add mapping attributes and auto configuration for classes which make use of them.
+- [FEATURE] Add new TCA types introduced in v12.
+- [FEATURE] Add new helper functions to FileUtility.
+- [FEATURE] Add possibility to hide plugins from element wizard.
+- [FEATURE] Add possibility to override database definition in TCA attribute Column.
+- [FEATURE] Add public method to beautify XML and simplify conversion to XML.
+- [FEATURE] Add service for simple file uploads in frontend.
+- [FEATURE] Add shortcut methods for resource paths of extensions.
+- [FEATURE] Add support for defining database index keys in TCA attributes.
+- [FEATURE] Add the properties "default" and "required" to Column attribute (available for all fields).
+- [FEATURE] Allow fallbacks for GlobalVariableService::get().
+- [FEATURE] Automatically create missing sql definitions for domain model properties.
+- [FEATURE] Provide abstract module controller which simplifies rendering of action templates.
+- [FEATURE] RequestParameterProvider includes $_POST (takes precedence over $_GET).
+- [FEATURE] Support convenient placeholders in language files.
+- [FEATURE] Support plural forms in language files.
+
+
+- [TASK] Add content types for plain text and rss feeds.
+- [TASK] Add missing exception annotations.
+- [TASK] Add missing properties and getters for TCA attributes.
+- [TASK] Add more code quality tools.
+- [TASK] Add non-breaking space (&nbsp;) between value and unit in FileUtility.
+- [TASK] Add unit tests and typo3/testing-framework.
+- [TASK] Allow integer value for recordType in Mapping/Table.
+- [TASK] Apply CGL to Ctrl property names.
+- [TASK] Change default render type of Check.
+- [TASK] Clean up code.
+- [TASK] Fix missing upperCamelCase spelling of properties.
+- [TASK] Fix spelling of properties (editLock, enableColumns, iconFile, selIconField, typeIconClasses, typeIconColumn) in Ctrl.
+- [TASK] Improve determination of fallback label for select items.
+- [TASK] Improve logging of missing language labels.
+- [TASK] Integrate updated TCA rules from TYPO3:
+  - remove cruserId
+  - use datetime as type for starttime and endtime
+  - use associative arrays for select items
+- [TASK] Migrate TCA annotations to php attributes.
+- [TASK] Move User.tsconfig to new position to be included automatically.
+- [TASK] Move ajax page type configuration from action to plugin level (configuring a specific action is not supported by TYPO3 anymore).
+- [TASK] Move custom TCA configuration to ['EXT']['psb_foundation'] to avoid conflicts with future changes in the core or other extensions.
+- [TASK] Optimize code based on inspections for php 8.1.
+- [TASK] Raise php version from 7.4 to 8.1!
+- [TASK] Raise version to 2.0.0.
+- [TASK] Refactor registration of modules, page types and plugins.
+- [TASK] Remove CSH-registration.
+- [TASK] Remove deprecated argument "alternativeLanguageKeys" from LocalizationService.
+- [TASK] Remove property injection traits. Use constructor injection instead!
+- [TASK] Remove static methods from RequestParameterProvider to streamline access.
+- [TASK] Remove unnecessary TypoScript condition from page type configuration.
+- [TASK] Rename Checkbox to Check.
+- [TASK] Rename TsConfig to TSconfig.
+- [TASK] Replace deprecated constants and class names.
+- [TASK] Replace obsolete functions from StringUtility with native php functions.
+- [TASK] Set charset to utf-8 for all content types.
+- [TASK] Set default value of $ajaxDisableAllHeaderCode in PluginConfiguration to true.
+- [TASK] Update .editorconfig.
+- [TASK] Update documentation.
+- [TASK] Update meta files.
+- [TASK] Upgrade to TYPO3 v12.
+- [TASK] Upgrade to php v8.1.
+- [TASK] Use namespace imports in ext_localconf.php.
+- [TASK] Use new PageDoktypeRegistry.
+- [TASK] Use new TCA-option for allowing records on standard pages.
+- [TASK] Use new way of module registration.
+- [TASK] Use path prefix constants.
+
+
+- [BUGFIX] Add fallback values if $_GET or $_POST is empty.
+- [BUGFIX] Add missing array initialization.
+- [BUGFIX] Add missing default values.
+- [BUGFIX] Build correct language labels for items in TCA.
+- [BUGFIX] Check language file registration outside of extbase context, too.
+- [BUGFIX] Convert keys of Ctrl to expected format.
+- [BUGFIX] Default action was not respected for the order of uncached actions in plugin configuration.
+- [BUGFIX] Don't build default labels for tabs when identifier is a language label already.
+- [BUGFIX] Don't use format as fallback for dbType in Datetime attribute.
+- [BUGFIX] FilePathUtility broke when using symlinks. Method signature and name were changed with this refactoring!
+- [BUGFIX] Fix handling of special XML nodes in conversion to array.
+- [BUGFIX] Fix processing of select items in TCA.
+- [BUGFIX] Fix spelling of Ctrl property "sortby".
+- [BUGFIX] Improve namespace handling of XmlUtility.
+- [BUGFIX] Integrate parts of ClassesConfigurationFactory to avoid problems with dependency injection.
+- [BUGFIX] Remove CacheManager dependencies from early used services.
+- [BUGFIX] Remove backslash from generated TypoScript object name when controller is inside additional subdirectories.
