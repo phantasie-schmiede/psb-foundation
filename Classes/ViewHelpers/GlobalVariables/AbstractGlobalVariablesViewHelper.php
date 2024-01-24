@@ -10,21 +10,23 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\ViewHelpers\GlobalVariables;
 
+use Exception;
 use PSB\PsbFoundation\Service\GlobalVariableService;
-use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
+use PSB\PsbFoundation\ViewHelpers\GlobalVariablesViewHelper;
 
 /**
  * Class AbstractGlobalVariablesViewHelper
  *
  * @package PSB\PsbFoundation\ViewHelpers\GlobalVariables
  */
-abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
+abstract class AbstractGlobalVariablesViewHelper extends GlobalVariablesViewHelper
 {
     /**
      * @param string $baseKey
      * @param array  $arguments
      *
      * @return mixed
+     * @throws Exception
      */
     protected static function getVariable(string $baseKey, array $arguments): mixed
     {
@@ -32,7 +34,7 @@ abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
             $baseKey .= '.' . $arguments['path'];
         }
 
-        return GlobalVariableService::get($baseKey);
+        return GlobalVariableService::get($baseKey, $arguments['strict'], $arguments['fallback']);
     }
 
     /**
@@ -41,14 +43,8 @@ abstract class AbstractGlobalVariablesViewHelper extends AbstractViewHelper
     public function initializeArguments(): void
     {
         parent::initializeArguments();
-        $this->registerArgument('path', 'string', 'array path separated with dots');
-    }
 
-    /**
-     * @return mixed
-     */
-    public function render(): mixed
-    {
-        return static::renderStatic($this->arguments, $this->buildRenderChildrenClosure(), $this->renderingContext);
+        // Overwrite this argument to make it optional as the extending ViewHelpers define a base path.
+        $this->registerArgument('path', 'string', 'path segments must be separated by dots');
     }
 }

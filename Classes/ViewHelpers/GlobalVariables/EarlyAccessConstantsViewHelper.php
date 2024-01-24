@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\ViewHelpers\GlobalVariables;
 
 use Closure;
+use Exception;
 use PSB\PsbFoundation\Service\GlobalVariableProviders\EarlyAccessConstantsProvider;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
@@ -27,11 +28,12 @@ class EarlyAccessConstantsViewHelper extends AbstractGlobalVariablesViewHelper
      * @param RenderingContextInterface $renderingContext
      *
      * @return mixed
+     * @throws Exception
      */
     public static function renderStatic(
-        array $arguments,
-        Closure $renderChildrenClosure,
-        RenderingContextInterface $renderingContext
+        array                     $arguments,
+        Closure                   $renderChildrenClosure,
+        RenderingContextInterface $renderingContext,
     ): mixed {
         return parent::getVariable(EarlyAccessConstantsProvider::class, $arguments);
     }
