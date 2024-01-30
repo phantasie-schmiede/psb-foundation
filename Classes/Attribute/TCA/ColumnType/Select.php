@@ -27,6 +27,9 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotCon
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use function is_float;
+use function is_int;
+use function is_string;
 
 /**
  * Class Select
@@ -37,7 +40,10 @@ use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
 {
     public const EMPTY_DEFAULT_ITEM = [
-        'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose' => 0,
+        [
+            'label' => 'LLL:EXT:psb_foundation/Resources/Private/Language/Backend/Classes/Attribute/TCA/select.xlf:pleaseChoose',
+            'value' => 0,
+        ],
     ];
 
     /**
@@ -189,11 +195,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         }
 
         if ($hasStringValues) {
-            if (
-                1 < $this->maxItems
-                || !empty($this->foreignTable)
-                || !empty($this->linkedModel)
-            ) {
+            if (1 < $this->maxItems || !empty($this->foreignTable) || !empty($this->linkedModel)) {
                 $maxStringLength = 255;
             }
 
@@ -470,11 +472,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         $selectItems = [];
 
         foreach ($this->items as $key => $value) {
-            if (!is_string($key)
-                && (is_string($value)
-                    || is_numeric($value)
-                )
-            ) {
+            if (!is_string($key) && (is_string($value) || is_numeric($value))) {
                 $label = (string)$value;
             } else {
                 $label = (string)$key;
