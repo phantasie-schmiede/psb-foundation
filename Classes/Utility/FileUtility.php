@@ -64,8 +64,8 @@ class FileUtility
      */
     public static function formatFileSize(
         int|string $input,
-        int $unit = null,
-        int $decimals = 2
+        int        $unit = null,
+        int        $decimals = 2,
     ): string {
         switch (true) {
             case is_int($input):
@@ -76,8 +76,9 @@ class FileUtility
                 $bytes = filesize($input);
                 break;
             default:
-                throw new RuntimeException(__CLASS__ . ': Argument 1 of formatFileSize() has to be integer or string!',
-                    1614368333);
+                throw new RuntimeException(
+                    __CLASS__ . ': Argument 1 of formatFileSize() has to be integer or string!', 1614368333
+                );
         }
 
         if ($unit) {
@@ -113,13 +114,15 @@ class FileUtility
     }
 
     /**
+     * Converts relative to absolute paths.
+     *
      * @param string $fileName
      *
-     * @return string
+     * @return string returns an empty string if $fileName could not be resolved to a valid path
      */
     public static function resolveFileName(string $fileName): string
     {
-        return GeneralUtility::getFileAbsFileName($fileName) ? : $fileName;
+        return GeneralUtility::getFileAbsFileName($fileName) ?: realpath($fileName) ?: '';
     }
 
     /**
