@@ -12,8 +12,10 @@ namespace PSB\PsbFoundation\Utility\Configuration;
 
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\Utility\PathUtility;
+use function array_slice;
 
 /**
  * Class FilePathUtility
@@ -51,12 +53,21 @@ class FilePathUtility
      */
     public static function getLanguageFilePathForCurrentFile(
         ExtensionInformationInterface $extensionInformation,
-        string                        $filename = null
+        string                        $filename = null,
     ): string {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
         $callingFilePathElements = explode('/', $trace[0]['file']);
-        $indexOfExtensionKey = ArrayUtility::findLastOccurrence($extensionInformation->getExtensionKey(),
-            $callingFilePathElements);
+
+        // @TODO: Move composer check to abstract ExtensionInformation class (potentially breaking change)!
+        $searchKey = Environment::isComposerMode() ? str_replace(
+            '_',
+            '-',
+            $extensionInformation->getExtensionKey()
+        ) : $extensionInformation->getExtensionKey();
+        $indexOfExtensionKey = ArrayUtility::findLastOccurrence(
+            $searchKey,
+            $callingFilePathElements
+        );
 
         // Retrieve all array items AFTER the extension key.
         $relativeFilePathElements = array_slice($callingFilePathElements, $indexOfExtensionKey + 1);
@@ -67,8 +78,10 @@ class FilePathUtility
             $filename .= self::LANGUAGE_FILE_EXTENSION;
         }
 
-        return self::getLanguageFilePath($extensionInformation) . 'Backend/' . implode('/',
-                $relativeFilePathElements) . '/' . lcfirst($filename) . ':';
+        return self::getLanguageFilePath($extensionInformation) . 'Backend/' . implode(
+                '/',
+                $relativeFilePathElements
+            ) . '/' . lcfirst($filename) . ':';
     }
 
     /**
@@ -77,8 +90,10 @@ class FilePathUtility
      *
      * @return string
      */
-    public static function getPrivateResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
-    {
+    public static function getPrivateResourcePath(
+        ExtensionInformationInterface $extensionInformation,
+        string                        $subdirectory = '',
+    ): string {
         return self::getResourcePath($extensionInformation, 'Private/' . ltrim($subdirectory, '/'));
     }
 
@@ -88,8 +103,10 @@ class FilePathUtility
      *
      * @return string
      */
-    public static function getPublicResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
-    {
+    public static function getPublicResourcePath(
+        ExtensionInformationInterface $extensionInformation,
+        string                        $subdirectory = '',
+    ): string {
         return self::getResourcePath($extensionInformation, 'Public/' . ltrim($subdirectory, '/'));
     }
 
@@ -100,8 +117,10 @@ class FilePathUtility
      * @return string
      * @throws InvalidFileException
      */
-    public static function getPublicResourceWebPath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
-    {
+    public static function getPublicResourceWebPath(
+        ExtensionInformationInterface $extensionInformation,
+        string                        $subdirectory = '',
+    ): string {
         $directoryPath = self::getPublicResourcePath($extensionInformation, $subdirectory);
 
         return PathUtility::getPublicResourceWebPath($directoryPath);
@@ -113,8 +132,10 @@ class FilePathUtility
      *
      * @return string
      */
-    public static function getResourcePath(ExtensionInformationInterface $extensionInformation, string $subdirectory = ''): string
-    {
+    public static function getResourcePath(
+        ExtensionInformationInterface $extensionInformation,
+        string                        $subdirectory = '',
+    ): string {
         $directoryPath = $extensionInformation->getExtensionKey() . '/Resources/' . ltrim($subdirectory, '/');
 
         return self::EXTENSION_DIRECTORY_PREFIX . $directoryPath;

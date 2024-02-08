@@ -14,8 +14,7 @@ use PSB\PsbFoundation\Service\Configuration\TcaService;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
-use RuntimeException;
-use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Resource\FileInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
@@ -27,6 +26,8 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  */
 class FileReferenceService
 {
+    public const TABLE_NAME = 'sys_file_reference';
+
     /**
      * @param TcaService $tcaService
      */
@@ -40,41 +41,36 @@ class FileReferenceService
      * @param FileInterface  $file
      * @param string         $property
      *
-     * @return void
+     * @return int
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
     public function create(
         AbstractEntity $domainModel,
-        FileInterface $file,
-        string $property,
-    ): void {
+        FileInterface  $file,
+        string         $property,
+    ): int {
         $fieldName = $this->tcaService->convertPropertyNameToColumnName($property);
         $tableName = $this->tcaService->convertClassNameToTableName($domainModel::class);
 
-        // Assemble DataHandler data.
-        $newId = 'NEW1234'; // This will be replaced during DataHandler processing.
-        $data = [];
-        $data['sys_file_reference'][$newId] = [
+        $data = [
+            'crdate'      => time(),
             'fieldname'   => $fieldName,
             'pid'         => $domainModel->getPid(),
-            'table_local' => 'sys_file',
             'tablenames'  => $tableName,
+            'tstamp'      => time(),
             'uid_foreign' => $domainModel->getUid(),
             'uid_local'   => $file->getUid(),
         ];
-        $data[$tableName][$domainModel->getUid()] = [
-            $fieldName => $newId,
-        ];
 
-        // Get an instance of the DataHandler and process the data.
-        $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
-        $dataHandler->start($data, []);
-        $dataHandler->process_datamap();
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getConnectionForTable(self::TABLE_NAME);
+        $queryBuilder = $connection->createQueryBuilder();
+        $queryBuilder->insert(self::TABLE_NAME)
+            ->values($data);
+        $queryBuilder->executeStatement();
 
-        if (0 < count($dataHandler->errorLog)) {
-            throw new RuntimeException(__CLASS__ . ': An error occured during file reference creation!', 1678275024);
-        }
+        return (int)$connection->lastInsertId($tableName);
     }
 }
