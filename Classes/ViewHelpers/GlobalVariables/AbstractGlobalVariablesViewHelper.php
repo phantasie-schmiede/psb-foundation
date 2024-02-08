@@ -44,7 +44,7 @@ abstract class AbstractGlobalVariablesViewHelper extends GlobalVariablesViewHelp
     {
         parent::initializeArguments();
 
-        // Overwrite this argument to make it optional as the extending ViewHelpers define a base path.
-        $this->registerArgument('path', 'string', 'path segments must be separated by dots');
+        // Override this argument to make it optional as the extending ViewHelpers define a base path.
+        $this->overrideArgument('path', 'string', 'path segments must be separated by dots');
     }
 }
