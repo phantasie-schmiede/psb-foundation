@@ -12,7 +12,6 @@ namespace PSB\PsbFoundation\Utility\Configuration;
 
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Utility\ArrayUtility;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use function array_slice;
@@ -58,14 +57,16 @@ class FilePathUtility
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
         $callingFilePathElements = explode('/', $trace[0]['file']);
 
-        // @TODO: Move composer check to abstract ExtensionInformation class (potentially breaking change)!
-        $searchKey = Environment::isComposerMode() ? str_replace(
-            '_',
-            '-',
-            $extensionInformation->getExtensionKey()
-        ) : $extensionInformation->getExtensionKey();
+        // Search for extension_key in file path. If not found, search for package-key.
         $indexOfExtensionKey = ArrayUtility::findLastOccurrence(
-            $searchKey,
+            $extensionInformation->getExtensionKey(),
+            $callingFilePathElements
+        ) ?: ArrayUtility::findLastOccurrence(
+            str_replace(
+                '_',
+                '-',
+                $extensionInformation->getExtensionKey()
+            ),
             $callingFilePathElements
         );
 
