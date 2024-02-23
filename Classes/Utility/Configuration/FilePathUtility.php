@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Utility\Configuration;
 
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use function array_slice;
@@ -23,9 +24,10 @@ use function array_slice;
  */
 class FilePathUtility
 {
-    public const EXTENSION_DIRECTORY_PREFIX = 'EXT:';
-    public const LANGUAGE_FILE_EXTENSION    = '.xlf';
-    public const LANGUAGE_LABEL_PREFIX      = 'LLL:';
+    public const EXTENSION_DIRECTORY_PREFIX    = 'EXT:';
+    public const LANGUAGE_FILE_EXTENSION       = '.xlf';
+    public const LANGUAGE_LABEL_LOG_FILES_PATH = 'log/psb_foundation/language_labels/';
+    public const LANGUAGE_LABEL_PREFIX         = 'LLL:';
 
     /**
      * @param ExtensionInformationInterface $extensionInformation
@@ -83,6 +85,14 @@ class FilePathUtility
                 '/',
                 $relativeFilePathElements
             ) . '/' . lcfirst($filename) . ':';
+    }
+
+    public static function getLanguageLabelLogFilesPath(): string
+    {
+        return rtrim(
+                Environment::getVarPath(),
+                '/'
+            ) . '/' . self::LANGUAGE_LABEL_LOG_FILES_PATH;
     }
 
     /**

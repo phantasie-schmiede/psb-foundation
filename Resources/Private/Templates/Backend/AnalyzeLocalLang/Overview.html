@@ -1,0 +1,29 @@
+<html data-namespace-typo3-fluid="true"
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:psb="http://typo3.org/ns/PSB/PsbFoundation/ViewHelpers">
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <div class="row">
+        <div class="col">
+            <h1>
+                Overview
+            </h1>
+
+            <h2>Missing language labels</h2>
+            <ul class="list-group">
+                <f:for as="missingLabel" each="{missingLabelsLogData}">
+                    <li>{missingLabel}</li>
+                </f:for>
+            </ul>
+
+            <h2>Access log summary</h2>
+            <ul class="list-group">
+                <f:for as="logData" each="{labelAccessLogData}" key="key">
+                    <li>{key}: {logData.hitCount}</li>
+                </f:for>
+            </ul>
+        </div>
+    </div>
+</f:section>
+</html>

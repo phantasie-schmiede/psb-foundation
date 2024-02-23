@@ -23,7 +23,6 @@ use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
-use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -39,20 +38,23 @@ use function is_string;
  */
 class LocalizationService
 {
-    public const  PLURAL_FORM_MARKERS           = [
+    public const LOG_FILES                     = [
+        'ACCESS'  => 'access.log',
+        'MISSING' => 'missing.log',
+    ];
+    public const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
+    public const PLURAL_FORM_MARKERS           = [
         'BEGIN' => '[',
         'END'   => ']',
     ];
-    public const  QUANTITY_ARGUMENT             = 'quantity';
-    private const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
-    private const TEMP_LOG_FILE                 = 'log/psb_foundation/postponed_language_labels.log';
+    public const QUANTITY_ARGUMENT             = 'quantity';
 
     /*
      * Temporary indicator for missing plural form that will be reset after each translation. The clean way of
      * integrating this LocalizationService into TYPO3's LanguageService would cause too much overhead!
      */
     public static ?bool $pluralFormMissing = null;
-    protected string    $logFilePath;
+    protected string    $logFilesPath;
 
     /**
      * @param ExtensionInformationService $extensionInformationService
@@ -62,7 +64,34 @@ class LocalizationService
         protected readonly ExtensionInformationService $extensionInformationService,
         protected readonly ExtensionInformation        $extensionInformation,
     ) {
-        $this->logFilePath = rtrim(Environment::getVarPath(), '/') . '/' . self::TEMP_LOG_FILE;
+        $this->logFilesPath = FilePathUtility::getLanguageLabelLogFilesPath();
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function checkPostponedLogEntries(): void
+    {
+        $logFile = $this->logFilesPath . self::LOG_FILES['MISSING'];
+
+        if (file_exists($logFile) && $logContent = file_get_contents($logFile)) {
+            $postponedEntries = StringUtility::explodeByLineBreaks($logContent);
+
+            foreach (array_filter($postponedEntries) as $postponedEntry) {
+                [
+                    $postponedKey,
+                    $postponedKeyExists,
+                ] = json_decode(
+                    $postponedEntry,
+                    false,
+                    512,
+                    JSON_THROW_ON_ERROR
+                );
+                $this->writeLogToDatabase($postponedKey, $postponedKeyExists);
+            }
+
+            unlink($logFile);
+        }
     }
 
     /**
@@ -105,6 +134,7 @@ class LocalizationService
         }
 
         $translation = LocalizationUtility::translate($key, $extensionName, $arguments, $languageKey);
+        $this->logLanguageLabelAccess($key);
         $this->logMissingLanguageLabels($key, (null !== $translation && !self::$pluralFormMissing));
         self::$pluralFormMissing = null;
 
@@ -255,10 +285,33 @@ class LocalizationService
     }
 
     /**
-     * @param string $key
-     * @param bool   $keyExists
-     *
-     * @return void
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
+     */
+    private function logLanguageLabelAccess(string $key): void
+    {
+        if (!$this->extensionInformationService->getConfiguration(
+            $this->extensionInformation,
+            'debug.logLanguageLabelAccess'
+        )) {
+            return;
+        }
+
+        FileUtility::write(
+            $this->logFilesPath . self::LOG_FILES['ACCESS'],
+            json_encode(
+                [
+                    time(),
+                    $key,
+                ],
+                JSON_THROW_ON_ERROR
+            ) . LF,
+            true
+        );
+    }
+
+    /**
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -267,49 +320,35 @@ class LocalizationService
      */
     private function logMissingLanguageLabels(string $key, bool $keyExists): void
     {
-        if ($this->extensionInformationService->getConfiguration(
+        if (!$this->extensionInformationService->getConfiguration(
             $this->extensionInformation,
             'debug.logMissingLanguageLabels'
         )) {
-            if (ContextUtility::isBootProcessRunning()) {
-                /*
-                 * The TCA is not loaded yet. That means the ConnectionPool is not available and the logging has to be
-                 * postponed.
-                 */
-                FileUtility::write(
-                    $this->logFilePath,
-                    json_encode(
-                        [
-                            $key,
-                            $keyExists,
-                        ],
-                        JSON_THROW_ON_ERROR
-                    ) . LF,
-                    true
-                );
-            } else {
-                // Check for postponed log entries.
-                if (file_exists($this->logFilePath) && $logContent = file_get_contents($this->logFilePath)) {
-                    $postponedEntries = StringUtility::explodeByLineBreaks($logContent);
+            return;
+        }
 
-                    foreach (array_filter($postponedEntries) as $postponedEntry) {
-                        [
-                            $postponedKey,
-                            $postponedKeyExists,
-                        ] = json_decode(
-                            $postponedEntry,
-                            false,
-                            512,
-                            JSON_THROW_ON_ERROR
-                        );
-                        $this->writeLogToDatabase($postponedKey, $postponedKeyExists);
-                    }
+        $logFile = $this->logFilesPath . self::LOG_FILES['MISSING'];
 
-                    unlink($this->logFilePath);
-                }
-
-                $this->writeLogToDatabase($key, $keyExists);
-            }
+        if (ContextUtility::isBootProcessRunning()) {
+            /*
+             * The TCA is not loaded yet. That means the ConnectionPool is not available and the logging has to be
+             * postponed.
+             */
+            FileUtility::write(
+                $logFile,
+                json_encode(
+                    [
+                        $key,
+                        $keyExists,
+                    ],
+                    JSON_THROW_ON_ERROR
+                ) . LF,
+                true
+            );
+        } else {
+            // Check for postponed log entries.
+            $this->checkPostponedLogEntries();
+            $this->writeLogToDatabase($key, $keyExists);
         }
     }
 

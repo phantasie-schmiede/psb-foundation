@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Data;
 
+use PSB\PsbFoundation\Controller\Backend\AnalyzeLocalLangController;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 /**
  * Class ExtensionInformation
  *
@@ -17,4 +20,25 @@ namespace PSB\PsbFoundation\Data;
  */
 class ExtensionInformation extends AbstractExtensionInformation
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $mainModuleKey = $this->buildModuleKeyPrefix() . 'main';
+        $this->addMainModule(
+            GeneralUtility::makeInstance(
+                MainModuleConfiguration::class, key: $mainModuleKey, position: [
+                'after'  => 'tools',
+                'before' => 'system',
+            ]
+            )
+        );
+        $this->addModule(
+            GeneralUtility::makeInstance(
+                ModuleConfiguration::class,
+                controllers : [AnalyzeLocalLangController::class],
+                key         : $this->buildModuleKeyPrefix() . 'analyzelocallang',
+                parentModule: $mainModuleKey
+            )
+        );
+    }
 }
