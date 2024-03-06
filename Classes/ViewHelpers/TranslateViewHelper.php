@@ -74,9 +74,6 @@ class TranslateViewHelper extends AbstractViewHelper
 {
     use CompileWithRenderStatic;
 
-    public const MARKER_AFTER  = '}';
-    public const MARKER_BEFORE = '{';
-
     /**
      * Output is escaped already. We must not escape children, to avoid double encoding.
      *
@@ -167,16 +164,6 @@ class TranslateViewHelper extends AbstractViewHelper
             if (null !== $value && !empty($translateArguments)) {
                 $value = vsprintf($value, $translateArguments);
             }
-        }
-
-        if (!empty($translateArguments) && ArrayUtility::isAssociative($translateArguments)) {
-            $markerReplacements = [];
-
-            foreach ($translateArguments as $marker => $replacement) {
-                $markerReplacements[self::MARKER_BEFORE . $marker . self::MARKER_AFTER] = $replacement;
-            }
-
-            $value = str_replace(array_keys($markerReplacements), array_values($markerReplacements), $value);
         }
 
         return $value;

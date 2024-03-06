@@ -43,6 +43,10 @@ class LocalizationService
         'MISSING' => 'missing.log',
     ];
     public const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
+    public const PLACEHOLDER_MARKERS           = [
+        'BEGIN' => '{',
+        'END'   => '}',
+    ];
     public const PLURAL_FORM_MARKERS           = [
         'BEGIN' => '[',
         'END'   => ']',
@@ -54,7 +58,13 @@ class LocalizationService
      * integrating this LocalizationService into TYPO3's LanguageService would cause too much overhead!
      */
     public static ?bool $pluralFormMissing = null;
-    protected string    $logFilesPath;
+
+    /*
+     * Store extension configuration settings in static variables to avoid recurrent lookup. It's a mini cache.
+     */
+    private static ?bool $logLanguageLabelAccess   = null;
+    private static ?bool $logMissingLanguageLabels = null;
+    protected string     $logFilesPath;
 
     /**
      * @param ExtensionInformationService $extensionInformationService
@@ -137,6 +147,21 @@ class LocalizationService
         $this->logLanguageLabelAccess($key);
         $this->logMissingLanguageLabels($key, (null !== $translation && !self::$pluralFormMissing));
         self::$pluralFormMissing = null;
+
+        // Insert translation arguments into placeholders:
+        if (is_string($translation) && !empty($arguments) && ArrayUtility::isAssociative($arguments)) {
+            $placeholderReplacements = [];
+
+            foreach ($arguments as $placeholder => $replacement) {
+                $placeholderReplacements[self::PLACEHOLDER_MARKERS['BEGIN'] . $placeholder . self::PLACEHOLDER_MARKERS['END']] = $replacement;
+            }
+
+            $translation = str_replace(
+                array_keys($placeholderReplacements),
+                array_values($placeholderReplacements),
+                $translation
+            );
+        }
 
         return $translation;
     }
@@ -291,10 +316,14 @@ class LocalizationService
      */
     private function logLanguageLabelAccess(string $key): void
     {
-        if (!$this->extensionInformationService->getConfiguration(
-            $this->extensionInformation,
-            'debug.logLanguageLabelAccess'
-        )) {
+        if (null === self::$logLanguageLabelAccess) {
+            self::$logLanguageLabelAccess = (bool)$this->extensionInformationService->getConfiguration(
+                $this->extensionInformation,
+                'debug.logLanguageLabelAccess'
+            );
+        }
+
+        if (!self::$logLanguageLabelAccess) {
             return;
         }
 
@@ -320,10 +349,14 @@ class LocalizationService
      */
     private function logMissingLanguageLabels(string $key, bool $keyExists): void
     {
-        if (!$this->extensionInformationService->getConfiguration(
-            $this->extensionInformation,
-            'debug.logMissingLanguageLabels'
-        )) {
+        if (null === self::$logMissingLanguageLabels) {
+            self::$logMissingLanguageLabels = (bool)$this->extensionInformationService->getConfiguration(
+                $this->extensionInformation,
+                'debug.logMissingLanguageLabels'
+            );
+        }
+
+        if (!self::$logMissingLanguageLabels) {
             return;
         }
 
