@@ -14,8 +14,8 @@ use JsonException;
 use PSB\PsbFoundation\Attribute\PluginAction;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Data\PluginConfiguration;
-use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use PSB\PsbFoundation\Utility\TypoScript\PageObjectConfiguration;
 use PSB\PsbFoundation\Utility\TypoScript\TypoScriptUtility;
@@ -55,28 +55,16 @@ class PluginService
         'special',
     ];
 
-    /**
-     * @param FlexFormService $flexFormService
-     * @param IconRegistry $iconRegistry
-     * @param LocalizationService $localizationService
-     * @param PageDoktypeRegistry $pageDoktypeRegistry
-     */
     public function __construct(
         protected FlexFormService     $flexFormService,
         protected IconRegistry        $iconRegistry,
-        protected LocalizationService $localizationService,
         protected PageDoktypeRegistry $pageDoktypeRegistry,
-    )
-    {
+    ) {
     }
 
     /**
      * For use in ext_localconf.php files
      *
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param PluginConfiguration $pluginConfiguration
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -87,34 +75,44 @@ class PluginService
     public function addPluginToElementWizard(
         ExtensionInformationInterface $extensionInformation,
         PluginConfiguration           $pluginConfiguration,
-    ): void
-    {
+    ): void {
         $group = $pluginConfiguration->getGroup() ?: mb_strtolower($extensionInformation->getVendorName());
-        $iconIdentifier = $pluginConfiguration->getIconIdentifier() ?: $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
-                GeneralUtility::camelCaseToLowerCaseUnderscored($pluginConfiguration->getName()));
-        $ll = 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:' . $group . '.elements.' . lcfirst($pluginConfiguration->getName());
+        $iconIdentifier = $pluginConfiguration->getIconIdentifier() ?: $extensionInformation->getExtensionKey(
+            ) . '-' . str_replace(
+                '_',
+                '-',
+                GeneralUtility::camelCaseToLowerCaseUnderscored($pluginConfiguration->getName())
+            );
+        $ll = 'LLL:EXT:' . $extensionInformation->getExtensionKey(
+            ) . '/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:' . $group . '.elements.' . lcfirst(
+                $pluginConfiguration->getName()
+            );
         $description = $ll . '.description';
         $title = $ll . '.title';
-        $listType = str_replace('_', '', $extensionInformation->getExtensionKey()) . '_' . mb_strtolower($pluginConfiguration->getName());
+        $listType = str_replace('_', '', $extensionInformation->getExtensionKey()) . '_' . mb_strtolower(
+                $pluginConfiguration->getName()
+            );
 
-        if (false === $this->localizationService->translationExists($description)) {
+        if (false === LocalizationUtility::translationExists($description)) {
             $description = '';
         }
 
-        if (false === $this->localizationService->translationExists($title, false)) {
+        if (false === LocalizationUtility::translationExists($title, false)) {
             $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $pluginConfiguration->getName());
 
-            if (false === $this->localizationService->translationExists($title)) {
+            if (false === LocalizationUtility::translationExists($title)) {
                 $title = $pluginConfiguration->getName();
             }
         }
 
         $configuration = [
-            'description' => $description,
-            'iconIdentifier' => $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin',
-            'title' => $title,
+            'description'          => $description,
+            'iconIdentifier'       => $this->iconRegistry->isRegistered(
+                $iconIdentifier
+            ) ? $iconIdentifier : 'content-plugin',
+            'title'                => $title,
             'tt_content_defValues' => [
-                'CType' => 'list',
+                'CType'     => 'list',
                 'list_type' => $listType,
             ],
         ];
@@ -125,9 +123,6 @@ class PluginService
     /**
      * For use in ext_localconf.php files
      *
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -144,8 +139,12 @@ class PluginService
                 $controllersAndUncachedActions,
             ] = $this->collectActionsAndConfiguration($configuration);
 
-            ExtensionUtility::configurePlugin($extensionInformation->getExtensionName(), $configuration->getName(),
-                $controllersAndCachedActions, $controllersAndUncachedActions);
+            ExtensionUtility::configurePlugin(
+                $extensionInformation->getExtensionName(),
+                $configuration->getName(),
+                $controllersAndCachedActions,
+                $controllersAndUncachedActions
+            );
 
             if (0 < $configuration->getTypeNum()) {
                 $this->registerPageTypeForPlugin($configuration, $extensionInformation);
@@ -160,9 +159,6 @@ class PluginService
     /**
      * For use in Configuration/TCA/Overrides/tt_content.php files
      *
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -178,25 +174,28 @@ class PluginService
             if (empty($title)) {
                 $title = $this->getDefaultLabelPathForPlugin($extensionInformation, $configuration->getName());
 
-                if (false === $this->localizationService->translationExists($title)) {
+                if (false === LocalizationUtility::translationExists($title)) {
                     $title = $configuration->getName();
                 }
             }
 
-            $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace('_', '-',
-                    GeneralUtility::camelCaseToLowerCaseUnderscored($configuration->getName()));
+            $iconIdentifier = $extensionInformation->getExtensionKey() . '-' . str_replace(
+                    '_',
+                    '-',
+                    GeneralUtility::camelCaseToLowerCaseUnderscored($configuration->getName())
+                );
 
-            $pluginSignature = ExtensionUtility::registerPlugin($extensionInformation->getExtensionName(), $configuration->getName(), $title,
-                $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin');
+            $pluginSignature = ExtensionUtility::registerPlugin(
+                $extensionInformation->getExtensionName(),
+                $configuration->getName(),
+                $title,
+                $this->iconRegistry->isRegistered($iconIdentifier) ? $iconIdentifier : 'content-plugin'
+            );
             $this->registerFlexFormForPlugin($extensionInformation, $configuration, $pluginSignature);
         }
     }
 
     /**
-     * @param string $extensionKey
-     * @param string $key
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -207,10 +206,10 @@ class PluginService
     private function addElementWizardGroup(string $extensionKey, string $key): void
     {
         $header = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TsConfig/Page/Mod/Wizards/newContentElement.xlf:' . $key . '.header';
-        GeneralUtility::makeInstance(LocalizationService::class)->translationExists($header);
+        LocalizationUtility::translationExists($header);
         $pageTS['mod']['wizards']['newContentElement']['wizardItems'][$key] = [
             'header' => $header,
-            'show' => '*',
+            'show'   => '*',
         ];
 
         ExtensionManagementUtility::addPageTSConfig(TypoScriptUtility::convertArrayToTypoScript($pageTS));
@@ -218,12 +217,6 @@ class PluginService
     }
 
     /**
-     * @param array $configuration
-     * @param string $extensionKey
-     * @param string $group
-     * @param string $key
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -236,8 +229,7 @@ class PluginService
         string $extensionKey,
         string $group,
         string $key,
-    ): void
-    {
+    ): void {
         if (!in_array($group, $this->contentElementWizardGroups, true)) {
             $this->addElementWizardGroup($extensionKey, $group);
         }
@@ -254,8 +246,7 @@ class PluginService
      */
     private function collectActionsAndConfiguration(
         PluginConfiguration $configuration,
-    ): array
-    {
+    ): array {
         $controllersAndCachedActions = [];
         $controllersAndUncachedActions = [];
 
@@ -304,11 +295,11 @@ class PluginService
             unset($specifiedActions);
         }
 
-        array_walk($controllersAndCachedActions, static function (&$value) {
+        array_walk($controllersAndCachedActions, static function(&$value) {
             $value = implode(', ', $value);
         });
 
-        array_walk($controllersAndUncachedActions, static function (&$value) {
+        array_walk($controllersAndUncachedActions, static function(&$value) {
             $value = implode(', ', $value);
         });
 
@@ -318,28 +309,21 @@ class PluginService
         ];
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string $pluginName
-     *
-     * @return string
-     */
     private function getDefaultLabelPathForPlugin(
         ExtensionInformationInterface $extensionInformation,
         string                        $pluginName,
-    ): string
-    {
-        return 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . lcfirst($pluginName) . '.title';
+    ): string {
+        return 'LLL:EXT:' . $extensionInformation->getExtensionKey(
+            ) . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/tt_content.xlf:plugin.' . lcfirst(
+                $pluginName
+            ) . '.title';
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param PluginConfiguration $configuration
-     * @param string $pluginSignature
-     * @return void
-     */
-    private function registerFlexFormForPlugin(ExtensionInformationInterface $extensionInformation, PluginConfiguration $configuration, string $pluginSignature): void
-    {
+    private function registerFlexFormForPlugin(
+        ExtensionInformationInterface $extensionInformation,
+        PluginConfiguration           $configuration,
+        string                        $pluginSignature,
+    ): void {
         if (!empty($configuration->getFlexForm())) {
             if (!str_contains($configuration->getFlexForm(), '/')) {
                 $fileName = $configuration->getFlexForm();
@@ -349,7 +333,8 @@ class PluginService
         }
 
         if (isset($fileName)) {
-            $flexFormFilePath = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey() . '/Configuration/FlexForms/' . $fileName . '.xml';
+            $flexFormFilePath = FilePathUtility::EXTENSION_DIRECTORY_PREFIX . $extensionInformation->getExtensionKey(
+                ) . '/Configuration/FlexForms/' . $fileName . '.xml';
         } else {
             $flexFormFilePath = $configuration->getFlexForm();
         }
@@ -361,16 +346,10 @@ class PluginService
         }
     }
 
-    /**
-     * @param PluginConfiguration $pluginConfiguration
-     * @param ExtensionInformationInterface $extensionInformation
-     * @return void
-     */
     private function registerPageTypeForPlugin(
         PluginConfiguration           $pluginConfiguration,
-        ExtensionInformationInterface $extensionInformation
-    ): void
-    {
+        ExtensionInformationInterface $extensionInformation,
+    ): void {
         $pageObjectConfiguration = GeneralUtility::makeInstance(PageObjectConfiguration::class);
         $pageObjectConfiguration->setCacheable($pluginConfiguration->isTypeNumCacheable());
         $pageObjectConfiguration->setContentType($pluginConfiguration->getTypeNumContentType());
@@ -378,11 +357,13 @@ class PluginService
         $pageObjectConfiguration->setExtensionName($extensionInformation->getExtensionName());
         $pageObjectConfiguration->setPluginName($pluginConfiguration->getName());
         $pageObjectConfiguration->setTypeNum($pluginConfiguration->getTypeNum());
-        $typoScriptObjectName = strtolower(implode('_', [
-            $extensionInformation->getVendorName(),
-            $extensionInformation->getExtensionName(),
-            $pluginConfiguration->getName(),
-        ]));
+        $typoScriptObjectName = strtolower(
+            implode('_', [
+                $extensionInformation->getVendorName(),
+                $extensionInformation->getExtensionName(),
+                $pluginConfiguration->getName(),
+            ])
+        );
         $pageObjectConfiguration->setTypoScriptObjectName($typoScriptObjectName);
         $pageObjectConfiguration->setVendorName($extensionInformation->getVendorName());
         TypoScriptUtility::registerPageType($pageObjectConfiguration);

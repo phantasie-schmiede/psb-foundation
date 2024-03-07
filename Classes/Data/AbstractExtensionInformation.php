@@ -26,14 +26,8 @@ use function get_class;
  */
 abstract class AbstractExtensionInformation implements ExtensionInformationInterface
 {
-    /**
-     * @var string
-     */
     private string $extensionKey;
 
-    /**
-     * @var string
-     */
     private string $extensionName;
 
     /**
@@ -56,28 +50,22 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
      */
     private array $plugins = [];
 
-    /**
-     * @var string
-     */
     private string $vendorName;
 
     public function __construct()
     {
-        [$this->vendorName, $this->extensionName] = explode('\\', get_class($this));
+        [
+            $this->vendorName,
+            $this->extensionName,
+        ] = explode('\\', get_class($this));
         $this->extensionKey = GeneralUtility::camelCaseToLowerCaseUnderscored($this->extensionName);
     }
 
-    /**
-     * @return string
-     */
     public function getExtensionKey(): string
     {
         return $this->extensionKey;
     }
 
-    /**
-     * @return string
-     */
     public function getExtensionName(): string
     {
         return $this->extensionName;
@@ -115,19 +103,11 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
         return $this->plugins;
     }
 
-    /**
-     * @return string
-     */
     public function getVendorName(): string
     {
         return $this->vendorName;
     }
 
-    /**
-     * @param MainModuleConfiguration $configuration
-     *
-     * @return $this
-     */
     protected function addMainModule(MainModuleConfiguration $configuration): static
     {
         $this->mainModules[] = $configuration;
@@ -135,11 +115,6 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
         return $this;
     }
 
-    /**
-     * @param ModuleConfiguration $configuration
-     *
-     * @return $this
-     */
     protected function addModule(ModuleConfiguration $configuration): static
     {
         $this->modules[] = $configuration;
@@ -147,11 +122,6 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
         return $this;
     }
 
-    /**
-     * @param PageTypeConfiguration $configuration
-     *
-     * @return $this
-     */
     protected function addPageType(PageTypeConfiguration $configuration): static
     {
         $this->pageTypes[] = $configuration;
@@ -159,11 +129,6 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
         return $this;
     }
 
-    /**
-     * @param PluginConfiguration $configuration
-     *
-     * @return $this
-     */
     protected function addPlugin(PluginConfiguration $configuration): static
     {
         $this->plugins[] = $configuration;
@@ -171,9 +136,6 @@ abstract class AbstractExtensionInformation implements ExtensionInformationInter
         return $this;
     }
 
-    /**
-     * @return string
-     */
     protected function buildModuleKeyPrefix(): string
     {
         return strtolower(str_replace('_', '', $this->extensionKey)) . '_';

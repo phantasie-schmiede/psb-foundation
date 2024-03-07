@@ -24,11 +24,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::IS_REPEATABLE | Attribute::TARGET_CLASS)]
 class Tab extends AbstractTcaAttribute
 {
-    /**
-     * @param string $identifier
-     * @param string $label
-     * @param string $position
-     */
     public function __construct(
         protected string $identifier = '',
         protected string $label = '',
@@ -41,24 +36,17 @@ class Tab extends AbstractTcaAttribute
         parent::__construct();
     }
 
-    /**
-     * @return string
-     */
     public function getIdentifier(): string
     {
         return $this->identifier;
     }
 
-    /**
-     * @return string
-     */
     public function getLabel(): string
     {
         return $this->label;
     }
 
     /**
-     * @return string
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -69,7 +57,10 @@ class Tab extends AbstractTcaAttribute
             return '';
         }
 
-        [$key, $location] = GeneralUtility::trimExplode(':', $this->position, false, 2);
+        [
+            $key,
+            $location,
+        ] = GeneralUtility::trimExplode(':', $this->position, false, 2);
 
         // Check if $location is NOT a palette name.
         if (!str_contains($location, '-')) {

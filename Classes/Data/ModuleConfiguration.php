@@ -44,25 +44,16 @@ class ModuleConfiguration extends MainModuleConfiguration
     ) {
     }
 
-    /**
-     * @return string
-     */
     public function getAccess(): string
     {
         return $this->access;
     }
 
-    /**
-     * @return array
-     */
     public function getControllers(): array
     {
         return $this->controllers;
     }
 
-    /**
-     * @return string
-     */
     public function getParentModule(): string
     {
         return $this->parentModule;

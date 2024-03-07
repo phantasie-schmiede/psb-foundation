@@ -26,9 +26,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Group extends AbstractColumnType
 {
-    /**
-     * @var TcaService
-     */
     protected TcaService $tcaService;
 
     /**
@@ -57,17 +54,11 @@ class Group extends AbstractColumnType
         }
     }
 
-    /**
-     * @return string|null
-     */
     public function getAllowed(): ?string
     {
         return $this->allowed;
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         if (empty($this->mm)) {
@@ -77,25 +68,16 @@ class Group extends AbstractColumnType
         return DefinitionUtility::int(unsigned: true);
     }
 
-    /**
-     * @return array|null
-     */
     public function getElementBrowserEntryPoints(): ?array
     {
         return $this->elementBrowserEntryPoints;
     }
 
-    /**
-     * @return string|null
-     */
     public function getForeignTable(): ?string
     {
         return $this->foreignTable;
     }
 
-    /**
-     * @return int|null
-     */
     public function getMaxItems(): ?int
     {
         return $this->maxItems;

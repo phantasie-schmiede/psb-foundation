@@ -29,11 +29,6 @@ class FilePathUtility
     public const LANGUAGE_LABEL_LOG_FILES_PATH = 'log/psb_foundation/language_labels/';
     public const LANGUAGE_LABEL_PREFIX         = 'LLL:';
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return string
-     */
     public static function getLanguageFilePath(ExtensionInformationInterface $extensionInformation): string
     {
         return self::LANGUAGE_LABEL_PREFIX . self::getResourcePath($extensionInformation) . 'Private/Language/';
@@ -95,12 +90,6 @@ class FilePathUtility
             ) . '/' . self::LANGUAGE_LABEL_LOG_FILES_PATH;
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $subdirectory
-     *
-     * @return string
-     */
     public static function getPrivateResourcePath(
         ExtensionInformationInterface $extensionInformation,
         string                        $subdirectory = '',
@@ -108,12 +97,6 @@ class FilePathUtility
         return self::getResourcePath($extensionInformation, 'Private/' . ltrim($subdirectory, '/'));
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $subdirectory
-     *
-     * @return string
-     */
     public static function getPublicResourcePath(
         ExtensionInformationInterface $extensionInformation,
         string                        $subdirectory = '',
@@ -122,10 +105,6 @@ class FilePathUtility
     }
 
     /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $subdirectory
-     *
-     * @return string
      * @throws InvalidFileException
      */
     public static function getPublicResourceWebPath(
@@ -137,12 +116,6 @@ class FilePathUtility
         return PathUtility::getPublicResourceWebPath($directoryPath);
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $subdirectory
-     *
-     * @return string
-     */
     public static function getResourcePath(
         ExtensionInformationInterface $extensionInformation,
         string                        $subdirectory = '',

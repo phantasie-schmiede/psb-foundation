@@ -22,8 +22,8 @@ use PSB\PsbFoundation\Attribute\TCA\Tab;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
-use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -53,34 +53,31 @@ use function is_array;
  */
 class TcaService
 {
+    public const    PALETTE_IDENTIFIERS      = [
+        'LANGUAGE'         => 'language',
+        'TIME_RESTRICTION' => 'timeRestriction',
+    ];
+    public const    UNSET_KEYWORD            = 'UNSET';
     protected const CLASS_TABLE_MAPPING_KEYS = [
         'TCA_OVERRIDES' => 'tcaOverrides',
         'TCA'           => 'tca',
     ];
-
-    public const PALETTE_IDENTIFIERS = [
-        'LANGUAGE'         => 'language',
-        'TIME_RESTRICTION' => 'timeRestriction',
-    ];
-
-    protected const PROTECTED_COLUMNS = [
+    protected const PROTECTED_COLUMNS        = [
         'crdate',
         'pid',
         'tstamp',
         'uid',
     ];
 
-    public const UNSET_KEYWORD = 'UNSET';
-
-    protected static bool $allowCaching = true;
-    protected static array $classTableMapping = [];
+    protected static bool           $allowCaching         = true;
+    protected static array          $classTableMapping    = [];
     protected ?ClassesConfiguration $classesConfiguration = null;
-    protected string $defaultLabelPath = '';
+    protected string                $defaultLabelPath     = '';
 
     /**
      * @var Palette[]
      */
-    protected array $palettes = [];
+    protected array  $palettes  = [];
     protected string $tableName = '';
 
     /**
@@ -88,43 +85,27 @@ class TcaService
      */
     protected array $tabs = [];
 
-    /**
-     * @param ExtensionInformationService $extensionInformationService
-     * @param LocalizationService         $localizationService
-     * @param PackageManager              $packageManager
-     */
     public function __construct(
         protected readonly ExtensionInformationService $extensionInformationService,
-        protected readonly LocalizationService         $localizationService,
         protected readonly PackageManager              $packageManager,
     ) {
     }
 
-    /**
-     * @param string $columnName
-     * @param array  $columnConfiguration
-     *
-     * @return void
-     */
     public function addColumnConfiguration(string $columnName, array $columnConfiguration): void
     {
         $this->checkIfTableNameIsSet();
         ExtensionManagementUtility::addTCAcolumns($this->tableName, [$columnName => $columnConfiguration]);
     }
 
-    /**
-     * @param string $identifier
-     * @param array  $fieldNames
-     * @param string $position
-     *
-     * @return void
-     */
     public function addToPalette(string $identifier, array $fieldNames, string $position = ''): void
     {
         $this->checkIfTableNameIsSet();
 
         if ('' !== $position && str_contains($position, ':')) {
-            [$keyword, $referenceField] = GeneralUtility::trimExplode(':', $position);
+            [
+                $keyword,
+                $referenceField,
+            ] = GeneralUtility::trimExplode(':', $position);
 
             switch ($keyword) {
                 case Palette::SPECIAL_POSITIONS['NEW_LINE_AFTER']:
@@ -138,8 +119,12 @@ class TcaService
             }
         }
 
-        ExtensionManagementUtility::addFieldsToPalette($this->tableName, $identifier, implode(', ', $fieldNames),
-            $position);
+        ExtensionManagementUtility::addFieldsToPalette(
+            $this->tableName,
+            $identifier,
+            implode(', ', $fieldNames),
+            $position
+        );
     }
 
     /**
@@ -184,9 +169,6 @@ class TcaService
         }
     }
 
-    /**
-     * @return void
-     */
     public function checkIfTableNameIsSet(): void
     {
         if ('' === $this->tableName) {
@@ -199,9 +181,6 @@ class TcaService
      * value from mapping attributes is returned. As last fallback, the class name is converted according to the
      * naming convention.
      *
-     * @param string $className
-     *
-     * @return string
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -239,10 +218,6 @@ class TcaService
      * value from mapping attributes is returned. As last fallback, the property name is converted according to the
      * naming convention.
      *
-     * @param string      $propertyName
-     * @param string|null $className
-     *
-     * @return string
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -272,11 +247,6 @@ class TcaService
     /**
      * An existing palette with given identifier would be overwritten!
      *
-     * @param string $identifier
-     * @param string $label
-     * @param string $description
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -290,24 +260,24 @@ class TcaService
         $paletteConfiguration = [];
 
         if ('' !== $label) {
-            if (true === $this->localizationService->validateLabel($label)) {
+            if (true === LocalizationUtility::validateLabel($label)) {
                 $paletteConfiguration['label'] = $label;
             } else {
                 $defaultLabel = $this->defaultLabelPath . 'palette.' . $identifier . '.label';
 
-                if ($this->localizationService->translationExists($defaultLabel)) {
+                if (LocalizationUtility::translationExists($defaultLabel)) {
                     $paletteConfiguration['label'] = $defaultLabel;
                 }
             }
         }
 
         if ('' !== $description) {
-            if (true === $this->localizationService->validateLabel($description)) {
+            if (true === LocalizationUtility::validateLabel($description)) {
                 $paletteConfiguration['description'] = $description;
             } else {
                 $defaultDescription = $this->defaultLabelPath . 'palette.' . $identifier . '.description';
 
-                if ($this->localizationService->translationExists($defaultDescription)) {
+                if (LocalizationUtility::translationExists($defaultDescription)) {
                     $paletteConfiguration['description'] = $defaultDescription;
                 }
             }
@@ -317,10 +287,6 @@ class TcaService
     }
 
     /**
-     * @param AbstractEntity $domainModel
-     * @param string         $property
-     *
-     * @return array
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -330,14 +296,12 @@ class TcaService
         $tableName = $this->convertClassNameToTableName(get_class($domainModel));
         $column = $this->convertPropertyNameToColumnName($property);
 
-        return $GLOBALS['TCA'][$tableName]['columns'][$column] ?? throw new RuntimeException(__CLASS__ . ': "' . $column . '" is not defined for table "' . $tableName . '"!',
-            1660914340);
+        return $GLOBALS['TCA'][$tableName]['columns'][$column] ?? throw new RuntimeException(
+            __CLASS__ . ': "' . $column . '" is not defined for table "' . $tableName . '"!', 1660914340
+        );
     }
 
     /**
-     * @param string $classOrTableName
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -352,7 +316,6 @@ class TcaService
     }
 
     /**
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ImplementationException
      * @throws NotFoundExceptionInterface
@@ -385,10 +348,6 @@ class TcaService
     }
 
     /**
-     * @param string $className
-     * @param bool   $overrideMode
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -410,7 +369,9 @@ class TcaService
             return;
         }
 
-        $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName($className)['extensionKey'];
+        $extensionKey = $this->extensionInformationService->extractExtensionInformationFromClassName(
+            $className
+        )['extensionKey'];
         $this->defaultLabelPath = 'LLL:EXT:' . $extensionKey . '/Resources/Private/Language/Backend/Configuration/TCA/';
 
         if (isset($GLOBALS['TCA'][$this->tableName])) {
@@ -448,28 +409,29 @@ class TcaService
                 continue;
             }
 
-            $columnAttribute = ReflectionUtility::getAttributeInstance(Column::class,
-                $property) ?? GeneralUtility::makeInstance(Column::class);
+            $columnAttribute = ReflectionUtility::getAttributeInstance(
+                Column::class,
+                $property
+            ) ?? GeneralUtility::makeInstance(Column::class);
 
             $columnName = $this->convertPropertyNameToColumnName($property->getName(), $className);
 
             if (empty($columnAttribute->getDescription())) {
                 $label = $this->defaultLabelPath . $property->getName() . '.description';
 
-                if ($this->localizationService->translationExists($label, false)) {
+                if (LocalizationUtility::translationExists($label, false)) {
                     $columnAttribute->setDescription($label);
                 }
             }
 
             if ('' === $columnAttribute->getLabel()) {
                 $label = $this->defaultLabelPath . $property->getName();
-                $this->localizationService->translationExists($label);
+                LocalizationUtility::translationExists($label);
                 $columnAttribute->setLabel($label);
             }
 
             if ($columnTypeAttribute instanceof ColumnTypeWithItemsInterface) {
                 $columnTypeAttribute->processItems(
-                    $this->localizationService,
                     $this->defaultLabelPath . $property->getName() . '.'
                 );
             }
@@ -488,7 +450,7 @@ class TcaService
 
             // default title may be overwritten by Ctrl-attribute in next block
             $title = $this->defaultLabelPath . 'ctrl.title';
-            $this->localizationService->translationExists($title);
+            LocalizationUtility::translationExists($title);
             $GLOBALS['TCA'][$this->tableName]['ctrl']['title'] = $title;
         }
 
@@ -530,8 +492,12 @@ class TcaService
             }
 
             if (false === $newColumnAddedToTypes) {
-                throw new RuntimeException(__CLASS__ . ': Position relations create a loop! Please remove unnecessary specifications. The combination fieldA:position="before:fieldB" and fieldB:position="after:fieldA" would cause this error. The unresolved fields are: ' . implode(', ',
-                        array_keys($columnConfigurations)), 1646995607);
+                throw new RuntimeException(
+                    __CLASS__ . ': Position relations create a loop! Please remove unnecessary specifications. The combination fieldA:position="before:fieldB" and fieldB:position="after:fieldA" would cause this error. The unresolved fields are: ' . implode(
+                        ', ',
+                        array_keys($columnConfigurations)
+                    ), 1646995607
+                );
             }
         }
 
@@ -597,13 +563,17 @@ class TcaService
         if ('' === $position) {
             $fieldCanBeAdded = true;
         } else {
-            [$keyword, $referenceField] = GeneralUtility::trimExplode(':', $attribute->getPosition());
+            [
+                $keyword,
+                $referenceField,
+            ] = GeneralUtility::trimExplode(':', $attribute->getPosition());
 
             switch ($keyword) {
                 case Column::POSITIONS['PALETTE']:
                     $newPaletteIdentifier = $referenceField;
 
-                    if (!isset($this->palettes[$referenceField]) || '' === $this->palettes[$referenceField]->getPosition()) {
+                    if (!isset($this->palettes[$referenceField]) || '' === $this->palettes[$referenceField]->getPosition(
+                        )) {
                         // Palette has no specified position: field and palette can be added without problems.
                         if (!isset($GLOBALS['TCA'][$this->tableName]['palettes'][$referenceField])) {
                             $this->createPalette($referenceField);
@@ -613,20 +583,31 @@ class TcaService
                         break;
                     }
 
-                    [$paletteKeyword, $referenceField] = GeneralUtility::trimExplode(':',
-                        $this->palettes[$referenceField]->getPosition());
+                    [
+                        $paletteKeyword,
+                        $referenceField,
+                    ] = GeneralUtility::trimExplode(
+                        ':',
+                        $this->palettes[$referenceField]->getPosition()
+                    );
 
                     if (Column::POSITIONS['TAB'] === $paletteKeyword) {
                         $newTabIdentifier = $referenceField;
 
-                        if (!isset($this->tabs[$referenceField]) || '' === $this->tabs[$referenceField]->getPosition()) {
+                        if (!isset($this->tabs[$referenceField]) || '' === $this->tabs[$referenceField]->getPosition(
+                            )) {
                             // Tab has no specified position: palette and tab can be added without problems.
                             $fieldCanBeAdded = true;
                             break;
                         }
 
-                        [, $referenceField] = GeneralUtility::trimExplode(':',
-                            $this->tabs[$referenceField]->getPosition());
+                        [
+                            ,
+                            $referenceField,
+                        ] = GeneralUtility::trimExplode(
+                            ':',
+                            $this->tabs[$referenceField]->getPosition()
+                        );
                     }
 
                     break;
@@ -639,7 +620,10 @@ class TcaService
                         break;
                     }
 
-                    [, $referenceField] = GeneralUtility::trimExplode(':', $this->tabs[$referenceField]->getPosition());
+                    [
+                        ,
+                        $referenceField,
+                    ] = GeneralUtility::trimExplode(':', $this->tabs[$referenceField]->getPosition());
                     break;
                 case Palette::SPECIAL_POSITIONS['NEW_LINE_AFTER']:
                     $position = Column::POSITIONS['AFTER'] . ':' . $referenceField;
@@ -695,8 +679,12 @@ class TcaService
                 $this->addToPalette($newPaletteIdentifier, [$columnName]);
                 $this->addPaletteToShowItems($newPaletteIdentifier, $attribute->getTypeList());
             } else {
-                ExtensionManagementUtility::addToAllTCAtypes($this->tableName, $columnName, $attribute->getTypeList(),
-                    $position);
+                ExtensionManagementUtility::addToAllTCAtypes(
+                    $this->tableName,
+                    $columnName,
+                    $attribute->getTypeList(),
+                    $position
+                );
             }
         }
 
@@ -704,10 +692,6 @@ class TcaService
     }
 
     /**
-     * @param string $paletteIdentifier
-     * @param string $typeList
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -718,15 +702,15 @@ class TcaService
             $palettePosition = $this->palettes[$paletteIdentifier]->getPosition();
         }
 
-        ExtensionManagementUtility::addToAllTCAtypes($this->tableName, '--palette--;;' . $paletteIdentifier, $typeList,
-            $palettePosition ?? '');
+        ExtensionManagementUtility::addToAllTCAtypes(
+            $this->tableName,
+            '--palette--;;' . $paletteIdentifier,
+            $typeList,
+            $palettePosition ?? ''
+        );
     }
 
     /**
-     * @param string $identifier
-     * @param string $typeList
-     *
-     * @return string
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -742,10 +726,10 @@ class TcaService
             $tabPosition = $this->tabs[$identifier]->getPosition();
         }
 
-        if (false === $this->localizationService->validateLabel($label ?? $identifier)) {
+        if (false === LocalizationUtility::validateLabel($label ?? $identifier)) {
             $defaultLabel = $this->defaultLabelPath . 'tab.' . $identifier . '.label';
 
-            if ($this->localizationService->translationExists($defaultLabel)) {
+            if (LocalizationUtility::translationExists($defaultLabel)) {
                 $label = $defaultLabel;
             } else {
                 $label = $identifier;
@@ -759,7 +743,6 @@ class TcaService
     }
 
     /**
-     * @return bool
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -773,7 +756,8 @@ class TcaService
             $classes = [];
 
             foreach ($this->packageManager->getActivePackages() as $activePackage) {
-                $persistenceClassesFile = $activePackage->getPackagePath() . 'Configuration/Extbase/Persistence/Classes.php';
+                $persistenceClassesFile = $activePackage->getPackagePath(
+                    ) . 'Configuration/Extbase/Persistence/Classes.php';
 
                 if (file_exists($persistenceClassesFile)) {
                     $definedClasses = require $persistenceClassesFile;
@@ -790,7 +774,7 @@ class TcaService
             }
 
             $classes = $this->inheritPropertiesFromParentClasses($classes);
-            $this->classesConfiguration =  GeneralUtility::makeInstance(ClassesConfiguration::class, $classes);
+            $this->classesConfiguration = GeneralUtility::makeInstance(ClassesConfiguration::class, $classes);
         }
 
         return $this->classesConfiguration instanceof ClassesConfiguration;
@@ -799,10 +783,6 @@ class TcaService
     /**
      * Copied from TYPO3\CMS\Extbase\Persistence\ClassesConfigurationFactory because instantiation of that class would
      * throw an exception (e. g. CacheManager not available, dependency injection not ready).
-     *
-     * @param array $classes
-     *
-     * @return array
      */
     private function inheritPropertiesFromParentClasses(array $classes): array
     {
@@ -820,7 +800,14 @@ class TcaService
             $relevantParentClasses = [];
             $parentClasses = class_parents($className) ?: [];
             while (null !== $parentClass = array_shift($parentClasses)) {
-                if (in_array($parentClass, [AbstractEntity::class, AbstractValueObject::class], true)) {
+                if (in_array(
+                    $parentClass,
+                    [
+                        AbstractEntity::class,
+                        AbstractValueObject::class,
+                    ],
+                    true
+                )) {
                     break;
                 }
 
@@ -839,19 +826,16 @@ class TcaService
                 }
 
                 // Merge new properties over existing ones.
-                $classes[$className]['properties'] = array_replace_recursive($properties, $classes[$className]['properties'] ?? []);
+                $classes[$className]['properties'] = array_replace_recursive(
+                    $properties,
+                    $classes[$className]['properties'] ?? []
+                );
             }
         }
 
         return $classes;
     }
 
-    /**
-     * @param Ctrl   $ctrl
-     * @param string $tableName
-     *
-     * @return void
-     */
     private function initializeDummyConfiguration(Ctrl $ctrl, string $tableName): void
     {
         $GLOBALS['TCA'][$this->tableName] = [
@@ -862,66 +846,76 @@ class TcaService
             'columns'  => [],
         ];
 
-        $enableColumns = $ctrl->getEnablecolumns();
+        $enableColumns = $ctrl->getEnableColumns();
 
         if (is_array($enableColumns)) {
             if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']])) {
-                $this->addColumnConfiguration($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']],
-                    TcaUtility::getDefaultConfigurationForDisabledField());
+                $this->addColumnConfiguration(
+                    $enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['DISABLED']],
+                    TcaUtility::getDefaultConfigurationForDisabledField()
+                );
             }
 
             if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']])) {
-                $this->addColumnConfiguration($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']],
-                    TcaUtility::getDefaultConfigurationForStartTimeField());
-                $this->addToPalette(self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'],
-                    [$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']]]);
+                $this->addColumnConfiguration(
+                    $enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']],
+                    TcaUtility::getDefaultConfigurationForStartTimeField()
+                );
+                $this->addToPalette(
+                    self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'],
+                    [$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['STARTTIME']]]
+                );
             }
 
             if (isset($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']])) {
-                $this->addColumnConfiguration($enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']],
-                    TcaUtility::getDefaultConfigurationForEndTimeField());
-                $this->addToPalette(self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'],
-                    [$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']]]);
+                $this->addColumnConfiguration(
+                    $enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']],
+                    TcaUtility::getDefaultConfigurationForEndTimeField()
+                );
+                $this->addToPalette(
+                    self::PALETTE_IDENTIFIERS['TIME_RESTRICTION'],
+                    [$enableColumns[Ctrl::ENABLE_COLUMN_IDENTIFIERS['ENDTIME']]]
+                );
             }
         }
 
         if (!empty($ctrl->getLanguageField())) {
-            $this->addColumnConfiguration($ctrl->getLanguageField(),
-                TcaUtility::getDefaultConfigurationForLanguageField());
+            $this->addColumnConfiguration(
+                $ctrl->getLanguageField(),
+                TcaUtility::getDefaultConfigurationForLanguageField()
+            );
             $this->addToPalette(self::PALETTE_IDENTIFIERS['LANGUAGE'], [$ctrl->getLanguageField()]);
         }
 
         if (!empty($ctrl->getTransOrigPointerField())) {
-            $this->addColumnConfiguration($ctrl->getTransOrigPointerField(),
-                TcaUtility::getDefaultConfigurationForTransOrigPointerField($tableName));
+            $this->addColumnConfiguration(
+                $ctrl->getTransOrigPointerField(),
+                TcaUtility::getDefaultConfigurationForTransOrigPointerField($tableName)
+            );
             $this->addToPalette(self::PALETTE_IDENTIFIERS['LANGUAGE'], [$ctrl->getTransOrigPointerField()]);
         }
 
         if (!empty($ctrl->getTransOrigDiffSourceField())) {
-            $this->addColumnConfiguration($ctrl->getTransOrigDiffSourceField(),
-                TcaUtility::getDefaultConfigurationForTransOrigDiffSourceField());
+            $this->addColumnConfiguration(
+                $ctrl->getTransOrigDiffSourceField(),
+                TcaUtility::getDefaultConfigurationForTransOrigDiffSourceField()
+            );
         }
 
         if (!empty($ctrl->getTranslationSource())) {
-            $this->addColumnConfiguration($ctrl->getTranslationSource(),
-                TcaUtility::getDefaultConfigurationForTranslationSourceField());
+            $this->addColumnConfiguration(
+                $ctrl->getTranslationSource(),
+                TcaUtility::getDefaultConfigurationForTranslationSourceField()
+            );
         }
     }
 
-    /**
-     * @param string $identifier
-     *
-     * @return bool
-     */
     private function paletteExists(string $identifier): bool
     {
         return isset($GLOBALS['TCA'][$this->tableName]['palettes'][$identifier]);
     }
 
     /**
-     * @param string $tableName
-     *
-     * @return void
      * @throws MisconfiguredTcaException
      */
     private function validateConfiguration(string $tableName): void
@@ -930,13 +924,17 @@ class TcaService
 
         if (isset($configuration['ctrl']['sortby'])) {
             if (isset($configuration['ctrl']['default_sortby'])) {
-                throw new MisconfiguredTcaException($tableName . ': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.',
-                    1541107594);
+                throw new MisconfiguredTcaException(
+                    $tableName . ': You have to decide whether to use sortby or default_sortby. Your current configuration defines both of them.',
+                    1541107594
+                );
             }
 
             if (in_array($configuration['ctrl']['sortby'], self::PROTECTED_COLUMNS, true)) {
-                throw new MisconfiguredTcaException($tableName . ': Your current configuration would overwrite a reserved system column with sorting values!',
-                    1541107601);
+                throw new MisconfiguredTcaException(
+                    $tableName . ': Your current configuration would overwrite a reserved system column with sorting values!',
+                    1541107601
+                );
             }
         }
     }

@@ -22,9 +22,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class ConditionFunctionsProvider implements ExpressionFunctionProviderInterface
 {
-    /**
-     * @return array
-     */
     public function getFunctions(): array
     {
         return [
@@ -33,26 +30,20 @@ class ConditionFunctionsProvider implements ExpressionFunctionProviderInterface
         ];
     }
 
-    /**
-     * @return ExpressionFunction
-     */
     protected function getExtensionLoadedCondition(): ExpressionFunction
     {
-        return new ExpressionFunction('extensionLoaded', static function () {
+        return new ExpressionFunction('extensionLoaded', static function() {
             // Not implemented, we only use the evaluator
-        }, static function ($variables, $extensionKey) {
+        }, static function($variables, $extensionKey) {
             return ExtensionManagementUtility::isLoaded($extensionKey);
         });
     }
 
-    /**
-     * @return ExpressionFunction
-     */
     protected function getFileExistsCondition(): ExpressionFunction
     {
-        return new ExpressionFunction('fileExists', static function () {
+        return new ExpressionFunction('fileExists', static function() {
             // Not implemented, we only use the evaluator
-        }, static function ($variables, $filePath) {
+        }, static function($variables, $filePath) {
             $filePath = GeneralUtility::getFileAbsFileName($filePath);
 
             return file_exists($filePath);

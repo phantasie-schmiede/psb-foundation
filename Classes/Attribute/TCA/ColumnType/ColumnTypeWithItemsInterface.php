@@ -10,8 +10,6 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
-use PSB\PsbFoundation\Service\LocalizationService;
-
 /**
  * Interface ColumnTypeWithItemsInterface
  *
@@ -19,11 +17,5 @@ use PSB\PsbFoundation\Service\LocalizationService;
  */
 interface ColumnTypeWithItemsInterface extends ColumnTypeInterface
 {
-    /**
-     * @param LocalizationService $localizationService
-     * @param string              $labelPath
-     *
-     * @return void
-     */
-    public function processItems(LocalizationService $localizationService, string $labelPath = ''): void;
+    public function processItems(string $labelPath = ''): void;
 }

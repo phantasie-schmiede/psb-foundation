@@ -54,32 +54,22 @@ class Palette extends AbstractTcaAttribute
         parent::__construct();
     }
 
-    /**
-     * @return string|null
-     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
-    /**
-     * @return string
-     */
     public function getIdentifier(): string
     {
         return $this->identifier;
     }
 
-    /**
-     * @return string|null
-     */
     public function getLabel(): ?string
     {
         return $this->label;
     }
 
     /**
-     * @return string
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -90,7 +80,10 @@ class Palette extends AbstractTcaAttribute
             return '';
         }
 
-        [$key, $location] = GeneralUtility::trimExplode(':', $this->position, false, 2);
+        [
+            $key,
+            $location,
+        ] = GeneralUtility::trimExplode(':', $this->position, false, 2);
 
         // Check if $location is NOT a palette name.
         if (!str_contains($location, '-')) {

@@ -21,10 +21,6 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class User extends AbstractColumnType
 {
-    /**
-     * @param array|null $parameters
-     * @param string     $renderType
-     */
     public function __construct(
         protected ?array $parameters = null,
         protected string $renderType = '',
@@ -40,17 +36,11 @@ class User extends AbstractColumnType
         return '';
     }
 
-    /**
-     * @return array|null
-     */
     public function getParameters(): ?array
     {
         return $this->parameters;
     }
 
-    /**
-     * @return string
-     */
     public function getRenderType(): string
     {
         return $this->renderType;

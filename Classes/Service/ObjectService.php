@@ -27,9 +27,6 @@ use function get_class;
  */
 class ObjectService
 {
-    /**
-     * @param ConnectionPool $connectionPool
-     */
     public function __construct(
         protected readonly ConnectionPool $connectionPool,
     ) {
@@ -39,10 +36,6 @@ class ObjectService
      * If you have a select field in TCA with 'multiple' set to true, Extbase still returns each selected record only
      * once. This method returns the whole selected set sorted as in backend.
      *
-     * @param AbstractDomainObject $object
-     * @param string               $property
-     *
-     * @return array
      * @throws Exception
      */
     public function resolveMultipleMmRelation(AbstractDomainObject $object, string $property): array
@@ -54,13 +47,19 @@ class ObjectService
         $selectConfiguration = ReflectionUtility::getAttributeInstance(Select::class, $reflectionProperty);
 
         if (!$selectConfiguration instanceof Select) {
-            throw new RuntimeException(__CLASS__ . ': The property "' . $property . '" of object "' . get_class($object) . '" is not of TCA type select!',
-                1584867595);
+            throw new RuntimeException(
+                __CLASS__ . ': The property "' . $property . '" of object "' . get_class(
+                    $object
+                ) . '" is not of TCA type select!', 1584867595
+            );
         }
 
         if (empty($selectConfiguration->getMm())) {
-            throw new RuntimeException(__CLASS__ . ': The select attribute of the property "' . $property . '" of object "' . get_class($object) . '" does not define a mm-table!',
-                                       1687382027);
+            throw new RuntimeException(
+                __CLASS__ . ': The select attribute of the property "' . $property . '" of object "' . get_class(
+                    $object
+                ) . '" does not define a mm-table!', 1687382027
+            );
         }
 
         $objectStorageElements = $reflectionProperty->getValue($object);
@@ -75,8 +74,10 @@ class ObjectService
         $queryBuilder = $this->connectionPool->getQueryBuilderForTable($selectConfiguration->getMm());
         $statement = $queryBuilder->select('uid_foreign')
             ->from($selectConfiguration->getMm())
-            ->where($queryBuilder->expr()
-                ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid())))
+            ->where(
+                $queryBuilder->expr()
+                    ->eq('uid_local', $queryBuilder->createNamedParameter($object->getUid()))
+            )
             ->orderBy('sorting')
             ->executeQuery();
 

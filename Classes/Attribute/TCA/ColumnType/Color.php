@@ -12,16 +12,17 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
 use JsonException;
-use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use function is_array;
 
 /**
  * Class Color
@@ -41,27 +42,17 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
     ) {
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         return DefinitionUtility::char(7);
     }
 
-    /**
-     * @return array
-     */
     public function getValuePicker(): array
     {
         return array_merge($this->valuePicker, ['items' => $this->items]);
     }
 
     /**
-     * @param LocalizationService $localizationService
-     * @param string              $labelPath
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -69,7 +60,7 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
+    public function processItems(string $labelPath = ''): void
     {
         if (!is_array($this->items)) {
             return;
@@ -77,18 +68,14 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
 
         // $items already has TCA format
         if (ArrayUtility::isMultiDimensionalArray($this->items)) {
-            $this->processTcaFormat($localizationService);
+            $this->processTcaFormat();
         }
 
         // $items has to be transformed into TCA format
-        $this->processSimpleFormat($localizationService, $labelPath);
+        $this->processSimpleFormat($labelPath);
     }
 
     /**
-     * @param LocalizationService $localizationService
-     * @param string              $labelPath
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -96,16 +83,12 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    private function processSimpleFormat(LocalizationService $localizationService, string $labelPath = ''): void
+    private function processSimpleFormat(string $labelPath = ''): void
     {
         $selectItems = [];
 
         foreach ($this->items as $key => $value) {
-            if (!is_string($key)
-                && (is_string($value)
-                    || is_numeric($value)
-                )
-            ) {
+            if (!is_string($key) && (is_string($value) || is_numeric($value))) {
                 $label = (string)$value;
             } else {
                 $label = (string)$key;
@@ -116,7 +99,7 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
             }
 
             if (str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
-                $localizationService->translationExists($label);
+                LocalizationUtility::translationExists($label);
             }
 
             $selectItems[] = [
@@ -129,9 +112,6 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
     }
 
     /**
-     * @param LocalizationService $localizationService
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -139,13 +119,13 @@ class Color extends AbstractColumnType implements ColumnTypeWithItemsInterface
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    private function processTcaFormat(LocalizationService $localizationService): void
+    private function processTcaFormat(): void
     {
         foreach ($this->items as $item) {
             $label = $item[0];
 
             if (str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
-                $localizationService->translationExists($label);
+                LocalizationUtility::translationExists($label);
             }
         }
     }

@@ -37,49 +37,31 @@ class Input extends AbstractColumnType
     ) {
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         return DefinitionUtility::varchar($this->max);
     }
 
-    /**
-     * @return string
-     */
     public function getEval(): string
     {
         return $this->eval;
     }
 
-    /**
-     * @return int
-     */
     public function getMax(): int
     {
         return $this->max;
     }
 
-    /**
-     * @return int|null
-     */
     public function getMin(): ?int
     {
         return $this->min;
     }
 
-    /**
-     * @return int
-     */
     public function getSize(): int
     {
         return $this->size;
     }
 
-    /**
-     * @return array|null
-     */
     public function getValuePicker(): ?array
     {
         return $this->valuePicker;

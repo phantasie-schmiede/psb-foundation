@@ -22,11 +22,6 @@ use function is_string;
  */
 class ArrayUtility
 {
-    /**
-     * @param array $array
-     *
-     * @return int
-     */
     public static function countRecursive(array $array): int
     {
         $count = 0;
@@ -53,12 +48,7 @@ class ArrayUtility
         return array_search($needle, array_reverse($array, true), true);
     }
 
-    /**
-     * @param $variable
-     *
-     * @return array
-     */
-    public static function guaranteeArrayType($variable): array
+    public static function guaranteeArrayType(mixed $variable): array
     {
         if (!is_array($variable)) {
             $variable = [$variable];
@@ -67,14 +57,6 @@ class ArrayUtility
         return $variable;
     }
 
-    /**
-     * @param array $haystack
-     * @param mixed $needle
-     * @param bool  $searchKey
-     * @param bool  $searchForSubstring
-     *
-     * @return array
-     */
     public static function inArrayRecursive(
         array $haystack,
         mixed $needle,
@@ -86,8 +68,10 @@ class ArrayUtility
         foreach ($haystack as $key => $value) {
             $comparedVariable = $searchKey ? $key : $value;
 
-            if ($comparedVariable === $needle || ($searchForSubstring && is_string($comparedVariable) && str_contains($comparedVariable,
-                        $needle))) {
+            if ($comparedVariable === $needle || ($searchForSubstring && is_string($comparedVariable) && str_contains(
+                        $comparedVariable,
+                        $needle
+                    ))) {
                 $results[] = $key;
             }
 
@@ -105,13 +89,6 @@ class ArrayUtility
         return $results;
     }
 
-    /**
-     * @param array $array
-     * @param array $elements
-     * @param int   $index
-     *
-     * @return array
-     */
     public static function insertIntoArray(array $array, array $elements, int $index): array
     {
         if (!Typo3ArrayUtility::isAssociative($array)) {
@@ -124,11 +101,6 @@ class ArrayUtility
         return array_slice($array, 0, $index, true) + $elements + array_slice($array, $index, null, true);
     }
 
-    /**
-     * @param array $array
-     *
-     * @return bool
-     */
     public static function isMultiDimensionalArray(array $array): bool
     {
         foreach ($array as $value) {
@@ -142,11 +114,6 @@ class ArrayUtility
 
     /**
      * This function shuffles associative arrays and those with integer keys - even multidimensional ones if desired.
-     *
-     * @param array $array
-     * @param bool  $recursive
-     *
-     * @return void
      */
     public static function shuffle(array &$array, bool $recursive = false): void
     {

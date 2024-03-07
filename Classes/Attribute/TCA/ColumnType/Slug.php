@@ -29,7 +29,10 @@ class Slug extends AbstractColumnType
         protected string $eval = 'uniqueInSite',
         protected string $fallbackCharacter = '-',
         protected array  $generatorOptions = [
-            'fields'               => ['title', 'nav_title'],
+            'fields'               => [
+                'title',
+                'nav_title',
+            ],
             'fieldSeparator'       => '/',
             'prefixParentPageSlug' => true,
             'replacements'         => [
@@ -41,33 +44,22 @@ class Slug extends AbstractColumnType
 
     /**
      * Database field for type datetime is added by TYPO3 automatically.
-     *
-     * @return string
      */
     public function getDatabaseDefinition(): string
     {
         return '';
     }
 
-    /**
-     * @return string
-     */
     public function getEval(): string
     {
         return $this->eval;
     }
 
-    /**
-     * @return string
-     */
     public function getFallbackCharacter(): string
     {
         return $this->fallbackCharacter;
     }
 
-    /**
-     * @return array
-     */
     public function getGeneratorOptions(): array
     {
         return $this->generatorOptions;

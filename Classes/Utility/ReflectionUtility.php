@@ -15,6 +15,7 @@ use ReflectionClass;
 use ReflectionException;
 use Reflector;
 use function count;
+use function is_string;
 
 /**
  * Class ReflectionUtility
@@ -31,7 +32,7 @@ class ReflectionUtility
      * @throws ReflectionException
      */
     public static function getAttributeInstance(
-        string $attributeClass,
+        string           $attributeClass,
         Reflector|string $reflection,
     ): ?object {
         if (is_string($reflection)) {

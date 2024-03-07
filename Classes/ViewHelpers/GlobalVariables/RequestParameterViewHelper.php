@@ -23,11 +23,6 @@ use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 class RequestParameterViewHelper extends AbstractGlobalVariablesViewHelper
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
-     * @return mixed
      * @throws Exception
      */
     public static function renderStatic(

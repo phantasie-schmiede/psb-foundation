@@ -25,7 +25,7 @@ use TYPO3\CMS\Core\Localization\Locale;
  * Overwrites the original class to load custom LanguageService.
  *
  * @package PSB\PsbFoundation\Service\Typo3
- * @TODO: Check original file on TYPO3 update!
+ * @TODO    Check original file on TYPO3 update!
  */
 class LanguageServiceFactory extends Typo3LanguageServiceFactoryAlias
 {
@@ -38,6 +38,7 @@ class LanguageServiceFactory extends Typo3LanguageServiceFactoryAlias
     {
         $obj = new LanguageService($this->locales, $this->localizationFactory, $this->runtimeCache);
         $obj->init($locale instanceof Locale ? $locale : $this->locales->createLocale($locale));
+
         return $obj;
     }
 }

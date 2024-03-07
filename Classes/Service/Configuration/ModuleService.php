@@ -15,7 +15,7 @@ use PSB\PsbFoundation\Attribute\ModuleAction;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Data\MainModuleConfiguration;
 use PSB\PsbFoundation\Data\ModuleConfiguration;
-use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -38,33 +38,25 @@ class ModuleService
 {
     public const  ICON_SUFFIXES = [
         'CONTENT_FROM_PID' => '-contentFromPid',
-        'ROOT' => '-root',
-        'HIDE_IN_MENU' => '-hideinmenu',
+        'ROOT'             => '-root',
+        'HIDE_IN_MENU'     => '-hideinmenu',
     ];
 
-    /**
-     * @param IconRegistry $iconRegistry
-     * @param LocalizationService $localizationService
-     */
     public function __construct(
-        protected IconRegistry        $iconRegistry,
-        protected LocalizationService $localizationService,
-    )
-    {
+        protected IconRegistry $iconRegistry,
+    ) {
     }
 
     /**
      * For use in ext_tables.php files
      *
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return array
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function buildModuleConfiguration(ExtensionInformationInterface $extensionInformation): array
     {
@@ -91,10 +83,6 @@ class ModuleService
     }
 
     /**
-     * @param MainModuleConfiguration $configuration
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return array
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -104,17 +92,18 @@ class ModuleService
      */
     private function buildBasicConfiguration(
         MainModuleConfiguration       $configuration,
-        ExtensionInformationInterface $extensionInformation
-    ): array
-    {
+        ExtensionInformationInterface $extensionInformation,
+    ): array {
         $moduleKey = $configuration->getKey();
         $moduleConfiguration = [
-            'appearance' => [
+            'appearance'     => [
                 'renderInModuleMenu' => $configuration->getRenderInModuleMenu(),
             ],
             'iconIdentifier' => $this->determineIconIdentifier($configuration, $extensionInformation),
-            'labels' => $configuration->getLabels() ?? $this->getDefaultLabelPath($extensionInformation,
-                    $moduleKey),
+            'labels'         => $configuration->getLabels() ?? $this->getDefaultLabelPath(
+                    $extensionInformation,
+                    $moduleKey
+                ),
         ];
 
         if (!empty($configuration->getNavigationComponent())) {
@@ -135,9 +124,6 @@ class ModuleService
     }
 
     /**
-     * @param string $filePath
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -152,20 +138,16 @@ class ModuleService
                      'mlang_labels_tablabel',
                      'mlang_tabs_tab',
                  ] as $label) {
-            $this->localizationService->translationExists($filePath . ':' . $label);
+            LocalizationUtility::translationExists($filePath . ':' . $label);
         }
     }
 
     /**
-     * @param array $controllersCollection
-     *
-     * @return array
      * @throws ReflectionException
      */
     private function collectActions(
         array $controllersCollection,
-    ): array
-    {
+    ): array {
         $controllersAndActions = [];
 
         foreach ($controllersCollection as $key => $value) {
@@ -206,15 +188,19 @@ class ModuleService
         return $controllersAndActions;
     }
 
-    /**
-     * @param MainModuleConfiguration $configuration
-     * @param ExtensionInformationInterface $extensionInformation
-     * @return string
-     */
-    private function determineIconIdentifier(MainModuleConfiguration $configuration, ExtensionInformationInterface $extensionInformation): string
-    {
-        $iconIdentifier = $configuration->getIconIdentifier() ?? str_replace('_', '-', $extensionInformation->getExtensionKey()) . '-module-' . str_replace('_', '-',
-            GeneralUtility::camelCaseToLowerCaseUnderscored($configuration->getKey()));
+    private function determineIconIdentifier(
+        MainModuleConfiguration       $configuration,
+        ExtensionInformationInterface $extensionInformation,
+    ): string {
+        $iconIdentifier = $configuration->getIconIdentifier() ?? str_replace(
+            '_',
+            '-',
+            $extensionInformation->getExtensionKey()
+        ) . '-module-' . str_replace(
+            '_',
+            '-',
+            GeneralUtility::camelCaseToLowerCaseUnderscored($configuration->getKey())
+        );
 
         if ($this->iconRegistry->isRegistered($iconIdentifier)) {
             return $iconIdentifier;
@@ -228,17 +214,11 @@ class ModuleService
         return 'modulegroup-help';
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string $moduleKey
-     *
-     * @return string
-     */
     private function getDefaultLabelPath(
         ExtensionInformationInterface $extensionInformation,
         string                        $moduleKey,
-    ): string
-    {
-        return 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Modules/' . lcfirst($moduleKey) . '.xlf';
+    ): string {
+        return 'LLL:EXT:' . $extensionInformation->getExtensionKey(
+            ) . '/Resources/Private/Language/Backend/Modules/' . lcfirst($moduleKey) . '.xlf';
     }
 }

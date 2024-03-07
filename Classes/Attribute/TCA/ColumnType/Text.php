@@ -35,41 +35,26 @@ class Text extends AbstractColumnType
     ) {
     }
 
-    /**
-     * @return int
-     */
     public function getCols(): int
     {
         return $this->cols;
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         return DefinitionUtility::text();
     }
 
-    /**
-     * @return string
-     */
     public function getEval(): string
     {
         return $this->eval;
     }
 
-    /**
-     * @return int
-     */
     public function getRows(): int
     {
         return $this->rows;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isEnableRichText(): ?bool
     {
         return $this->enableRichText;

@@ -27,9 +27,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Category extends AbstractColumnType
 {
-    /**
-     * @var TcaService
-     */
     protected TcaService $tcaService;
 
     /**
@@ -63,32 +60,22 @@ class Category extends AbstractColumnType
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         return DefinitionUtility::int(unsigned: true);
     }
 
-    /**
-     * @return string|null
-     */
     public function getExclusiveKeys(): ?string
     {
         return $this->exclusiveKeys ? implode(', ', $this->exclusiveKeys) : null;
     }
 
-    /**
-     * @return string
-     */
     public function getRelationship(): string
     {
         return $this->relationship->value;
     }
 
     /**
-     * @return array|null
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -112,7 +99,9 @@ class Category extends AbstractColumnType
         }
 
         if (null !== $this->treeConfigChildrenField) {
-            $configuration['childrenField'] = $this->tcaService->convertPropertyNameToColumnName($this->treeConfigChildrenField);
+            $configuration['childrenField'] = $this->tcaService->convertPropertyNameToColumnName(
+                $this->treeConfigChildrenField
+            );
         }
 
         if (null !== $this->treeConfigDataProvider) {
@@ -120,7 +109,9 @@ class Category extends AbstractColumnType
         }
 
         if (null !== $this->treeConfigParentField) {
-            $configuration['parentField'] = $this->tcaService->convertPropertyNameToColumnName($this->treeConfigParentField);
+            $configuration['parentField'] = $this->tcaService->convertPropertyNameToColumnName(
+                $this->treeConfigParentField
+            );
         }
 
         if (!empty($this->treeConfigStartingPoints)) {

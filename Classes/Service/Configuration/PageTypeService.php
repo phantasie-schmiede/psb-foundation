@@ -12,7 +12,7 @@ namespace PSB\PsbFoundation\Service\Configuration;
 
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
-use PSB\PsbFoundation\Service\LocalizationService;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
@@ -41,37 +41,24 @@ class PageTypeService
         'TCA_OVERRIDE' => 'tca_override',
     ];
 
-    /**
-     * @param IconRegistry        $iconRegistry
-     * @param LocalizationService $localizationService
-     * @param PageDoktypeRegistry $pageDoktypeRegistry
-     */
     public function __construct(
-        protected IconRegistry $iconRegistry,
-        protected LocalizationService $localizationService,
+        protected IconRegistry        $iconRegistry,
         protected PageDoktypeRegistry $pageDoktypeRegistry,
     ) {
     }
 
     /**
      * Allow backend users to drag and drop the new page types.
-     *
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return void
      */
     public function addToDragArea(ExtensionInformationInterface $extensionInformation): void
     {
         foreach ($extensionInformation->getPageTypes() as $configuration) {
-            ExtensionManagementUtility::addUserTSConfig('options.pageTree.doktypesToShowInNewPageDragArea := addToList(' . $configuration->getDoktype() . ')');
+            ExtensionManagementUtility::addUserTSConfig(
+                'options.pageTree.doktypesToShowInNewPageDragArea := addToList(' . $configuration->getDoktype() . ')'
+            );
         }
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return void
-     */
     public function addToRegistry(ExtensionInformationInterface $extensionInformation): void
     {
         foreach ($extensionInformation->getPageTypes() as $configuration) {
@@ -87,9 +74,6 @@ class PageTypeService
     /**
      * Add new page types to the TCA of 'pages' (select box).
      *
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -98,14 +82,15 @@ class PageTypeService
      * @throws NotFoundExceptionInterface
      */
     public function addToSelectBox(
-        ExtensionInformationInterface $extensionInformation
+        ExtensionInformationInterface $extensionInformation,
     ): void {
         $table = 'pages';
 
         foreach ($extensionInformation->getPageTypes() as $configuration) {
             $doktype = $configuration->getDoktype();
-            $label = $configuration['label'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey() . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.' . $doktype;
-            $this->localizationService->translationExists($label);
+            $label = $configuration['label'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey(
+            ) . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.' . $doktype;
+            LocalizationUtility::translationExists($label);
 
             ExtensionManagementUtility::addTcaSelectItem($table, 'doktype', [
                 $label,

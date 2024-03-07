@@ -31,9 +31,15 @@ class QueryBuilderUtility
         $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
 
         // $queryBuilder must be cloned, as it changes state during execution and may therefore only be used once!
-        $itemsToProcess = (clone $queryBuilder)->count('*')->executeQuery()->fetchOne();
-        $queryBuilder->setMaxResults(0 < $queryBuilder->getMaxResults() ? min($queryBuilder->getMaxResults(),
-            $chunkSize) : $chunkSize);
+        $itemsToProcess = (clone $queryBuilder)->count('*')
+            ->executeQuery()
+            ->fetchOne();
+        $queryBuilder->setMaxResults(
+            0 < $queryBuilder->getMaxResults() ? min(
+                $queryBuilder->getMaxResults(),
+                $chunkSize
+            ) : $chunkSize
+        );
 
         while (0 < $itemsToProcess) {
             yield (clone $queryBuilder)->executeQuery();

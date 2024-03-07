@@ -50,41 +50,27 @@ class Datetime extends AbstractColumnType
 
     /**
      * Database field for type datetime is added by TYPO3 automatically.
-     *
-     * @return string
      */
     public function getDatabaseDefinition(): string
     {
         return '';
     }
 
-    /**
-     * @return string|null
-     */
     public function getDbType(): ?string
     {
         return $this->dbType?->value;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getDisableAgeDisplay(): ?bool
     {
         return $this->disableAgeDisplay;
     }
 
-    /**
-     * @return string
-     */
     public function getFormat(): string
     {
         return $this->format->value;
     }
 
-    /**
-     * @return array|null
-     */
     public function getRange(): ?array
     {
         if (null !== $this->rangeLower) {

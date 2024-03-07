@@ -15,9 +15,9 @@ use JsonException;
 use PSB\PsbFoundation\Attribute\ModuleAction;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
-use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\FileUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\StringUtility;
 use PSB\PsbFoundation\Utility\Xml\XmlUtility;
 use Psr\Container\ContainerExceptionInterface;
@@ -42,7 +42,6 @@ class AnalyzeLocalLangController extends AbstractModuleController
     public function __construct(
         protected readonly ExtensionInformationService $extensionInformationService,
         ModuleTemplateFactory                          $moduleTemplateFactory,
-        protected readonly LocalizationService         $localizationService,
     ) {
         parent::__construct($moduleTemplateFactory);
     }
@@ -112,7 +111,6 @@ class AnalyzeLocalLangController extends AbstractModuleController
     }
 
     /**
-     * @return array
      * @throws ContainerExceptionInterface
      * @throws ImplementationException
      * @throws InvalidConfigurationTypeException
@@ -122,7 +120,7 @@ class AnalyzeLocalLangController extends AbstractModuleController
     private function fetchLabelAccessLogData(): array
     {
         $languageLabels = $this->collectAllLanguageLabels();
-        $logFile = FilePathUtility::getLanguageLabelLogFilesPath() . LocalizationService::LOG_FILES['ACCESS'];
+        $logFile = FilePathUtility::getLanguageLabelLogFilesPath() . LocalizationUtility::LOG_FILES['ACCESS'];
 
         if (!FileUtility::fileExists($logFile)) {
             return $languageLabels;
@@ -167,12 +165,12 @@ class AnalyzeLocalLangController extends AbstractModuleController
      */
     private function fetchMissingLabelsLogData(): array
     {
-        $this->localizationService->checkPostponedLogEntries();
+        LocalizationUtility::checkPostponedLogEntries();
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable(LocalizationService::MISSING_LANGUAGE_LABELS_TABLE);
+            ->getQueryBuilderForTable(LocalizationUtility::MISSING_LANGUAGE_LABELS_TABLE);
 
         $logData = $queryBuilder->select('*')
-            ->from(LocalizationService::MISSING_LANGUAGE_LABELS_TABLE)
+            ->from(LocalizationUtility::MISSING_LANGUAGE_LABELS_TABLE)
             ->executeQuery()
             ->fetchFirstColumn();
         sort($logData);

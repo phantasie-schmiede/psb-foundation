@@ -38,57 +38,36 @@ class MainModuleConfiguration
     ) {
     }
 
-    /**
-     * @return string|null
-     */
     public function getIconIdentifier(): ?string
     {
         return $this->iconIdentifier;
     }
 
-    /**
-     * @return string
-     */
     public function getKey(): string
     {
         return $this->key;
     }
 
-    /**
-     * @return string|null
-     */
     public function getLabels(): ?string
     {
         return $this->labels;
     }
 
-    /**
-     * @return string|null
-     */
     public function getNavigationComponent(): ?string
     {
         return $this->navigationComponent;
     }
 
-    /**
-     * @return array|null
-     */
     public function getPosition(): ?array
     {
         return $this->position;
     }
 
-    /**
-     * @return bool
-     */
     public function getRenderInModuleMenu(): bool
     {
         return $this->renderInModuleMenu;
     }
 
-    /**
-     * @return string|null
-     */
     public function getWorkspaces(): ?string
     {
         return $this->workspaces;

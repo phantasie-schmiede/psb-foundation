@@ -36,25 +36,16 @@ class Table
     ) {
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string|null
-     */
     public function getParentClass(): ?string
     {
         return $this->parentClass;
     }
 
-    /**
-     * @return int|string|null
-     */
     public function getRecordType(): int|string|null
     {
         return $this->recordType;

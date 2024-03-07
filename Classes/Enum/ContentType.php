@@ -17,9 +17,9 @@ namespace PSB\PsbFoundation\Enum;
  */
 enum ContentType: string
 {
-    case HTML = 'text/html';
-    case JSON = 'application/json';
+    case HTML  = 'text/html';
+    case JSON  = 'application/json';
     case PLAIN = 'text/plain';
-    case RSS = 'application/rss+xml';
-    case XML = 'text/xml';
+    case RSS   = 'application/rss+xml';
+    case XML   = 'text/xml';
 }

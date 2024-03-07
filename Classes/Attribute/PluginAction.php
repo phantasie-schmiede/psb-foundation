@@ -22,10 +22,6 @@ use Attribute;
 #[Attribute(Attribute::TARGET_METHOD)]
 class PluginAction extends AbstractAttribute
 {
-    /**
-     * @param bool $default
-     * @param bool $uncached
-     */
     public function __construct(
         /** Marks the default action of the controller (executed, when no specific action is given in a request). */
         protected bool $default = false,
@@ -34,17 +30,11 @@ class PluginAction extends AbstractAttribute
     ) {
     }
 
-    /**
-     * @return bool
-     */
     public function isDefault(): bool
     {
         return $this->default;
     }
 
-    /**
-     * @return bool
-     */
     public function isUncached(): bool
     {
         return $this->uncached;

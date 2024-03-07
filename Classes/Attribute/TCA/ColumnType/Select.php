@@ -16,10 +16,10 @@ use PSB\PsbFoundation\Enum\SelectRenderType;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
-use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
@@ -27,6 +27,7 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotCon
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
+use function is_array;
 use function is_float;
 use function is_int;
 use function is_string;
@@ -46,15 +47,8 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         ],
     ];
 
-    /**
-     * @var ExtensionInformationService
-     */
     protected ExtensionInformationService $extensionInformationService;
-
-    /**
-     * @var TcaService
-     */
-    protected TcaService $tcaService;
+    protected TcaService                  $tcaService;
 
     /**
      * @param bool|null        $allowNonIdValues        https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Select/Properties/AllowNonIdValues.html
@@ -159,17 +153,11 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         }
     }
 
-    /**
-     * @return int|null
-     */
     public function getAutoSizeMax(): ?int
     {
         return $this->autoSizeMax;
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         $hasFloatValues = false;
@@ -209,17 +197,11 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         return DefinitionUtility::int(unsigned: !$hasNegativeValues);
     }
 
-    /**
-     * @return string|null
-     */
     public function getEval(): ?string
     {
         return $this->eval;
     }
 
-    /**
-     * @return array|null
-     */
     public function getFieldControl(): ?array
     {
         $fieldControl = $this->fieldControl;
@@ -239,25 +221,16 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         return $fieldControl;
     }
 
-    /**
-     * @return string|null
-     */
     public function getForeignTable(): ?string
     {
         return $this->foreignTable;
     }
 
-    /**
-     * @return string|null
-     */
     public function getForeignTableWhere(): ?string
     {
         return $this->foreignTableWhere;
     }
 
-    /**
-     * @return array|null
-     */
     public function getItems(): ?array
     {
         if (null === $this->items && null === $this->prependItem) {
@@ -270,64 +243,45 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         return $this->items;
     }
 
-    /**
-     * @return string|null
-     */
     public function getItemsProcFunc(): ?string
     {
         return $this->itemsProcFunc;
     }
 
-    /**
-     * @return int|null
-     */
     public function getMaxItems(): ?int
     {
         return $this->maxItems;
     }
 
-    /**
-     * @return int|null
-     */
     public function getMinItems(): ?int
     {
         return $this->minItems;
     }
 
-    /**
-     * @return string|null
-     */
     public function getMm(): ?string
     {
         return $this->mm;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getMmHasUidField(): ?bool
     {
         return $this->mmHasUidField;
     }
 
-    /**
-     * @return array|null
-     */
     public function getMmInsertFields(): ?array
     {
         return $this->mmInsertFields;
     }
 
-    /**
-     * @return array|null
-     */
     public function getMmMatchFields(): ?array
     {
         return $this->mmMatchFields;
     }
 
     /**
-     * @return string|null
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function getMmOppositeField(): ?string
     {
@@ -338,25 +292,21 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         return $this->tcaService->convertPropertyNameToColumnName($this->mmOppositeField);
     }
 
-    /**
-     * @return string
-     */
     public function getRenderType(): string
     {
         return $this->renderType->value;
     }
 
-    /**
-     * @return int|null
-     */
     public function getSize(): ?int
     {
         return $this->size;
     }
 
     /**
-     * @return array|null
+     * @throws ContainerExceptionInterface
      * @throws MisconfiguredTcaException
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      */
     public function getTreeConfig(): ?array
     {
@@ -410,27 +360,17 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
         return $configuration;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isAllowNonIdValues(): ?bool
     {
         return $this->allowNonIdValues;
     }
 
-    /**
-     * @return bool|null
-     */
     public function isMultiple(): ?bool
     {
         return $this->multiple;
     }
 
     /**
-     * @param LocalizationService $localizationService
-     * @param string              $labelPath
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -438,7 +378,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    public function processItems(LocalizationService $localizationService, string $labelPath = ''): void
+    public function processItems(string $labelPath = ''): void
     {
         if (!is_array($this->items)) {
             return;
@@ -446,20 +386,16 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
 
         // $items already has TCA format
         if (ArrayUtility::isMultiDimensionalArray($this->items)) {
-            $this->processTcaFormat($localizationService);
+            $this->processTcaFormat();
 
             return;
         }
 
         // $items has to be transformed into TCA format
-        $this->processSimpleFormat($localizationService, $labelPath);
+        $this->processSimpleFormat($labelPath);
     }
 
     /**
-     * @param LocalizationService $localizationService
-     * @param string              $labelPath
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -467,7 +403,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    private function processSimpleFormat(LocalizationService $localizationService, string $labelPath = ''): void
+    private function processSimpleFormat(string $labelPath = ''): void
     {
         $selectItems = [];
 
@@ -483,7 +419,7 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
             }
 
             if (str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
-                $localizationService->translationExists($label);
+                LocalizationUtility::translationExists($label);
             }
 
             $selectItems[] = [
@@ -496,9 +432,6 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
     }
 
     /**
-     * @param LocalizationService $localizationService
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
@@ -506,13 +439,13 @@ class Select extends AbstractColumnType implements ColumnTypeWithItemsInterface
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
-    private function processTcaFormat(LocalizationService $localizationService): void
+    private function processTcaFormat(): void
     {
         foreach ($this->items as $item) {
             $label = $item['label'] ?? '';
 
             if (str_starts_with($label, FilePathUtility::LANGUAGE_LABEL_PREFIX)) {
-                $localizationService->translationExists($label);
+                LocalizationUtility::translationExists($label);
             }
         }
     }

@@ -66,19 +66,11 @@ class TcaUtility
         'typeIconColumn'                => 'typeicon_column',
     ];
 
-    /**
-     * @param string $key
-     *
-     * @return string
-     */
     public static function convertKey(string $key): string
     {
         return self::PROPERTY_KEY_MAPPING[$key] ?? $key;
     }
 
-    /**
-     * @return array
-     */
     public static function getDefaultConfigurationForDisabledField(): array
     {
         return [
@@ -97,30 +89,24 @@ class TcaUtility
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getDefaultConfigurationForEndTimeField(): array
     {
         return [
             'config'  => [
-                'behaviour'  => [
+                'behaviour' => [
                     'allowLanguageSynchronization' => true,
                 ],
-                'default'    => 0,
-                'range'      => [
+                'default'   => 0,
+                'range'     => [
                     'upper' => gmmktime(0, 0, 0, 1, 1, 2038),
                 ],
-                'type'       => 'datetime',
+                'type'      => 'datetime',
             ],
             'exclude' => true,
             'label'   => self::CORE_FIELD_LABELS['END_TIME'],
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getDefaultConfigurationForLanguageField(): array
     {
         return [
@@ -132,18 +118,15 @@ class TcaUtility
         ];
     }
 
-    /**
-     * @return array
-     */
     public static function getDefaultConfigurationForStartTimeField(): array
     {
         return [
             'config'  => [
-                'behaviour'  => [
+                'behaviour' => [
                     'allowLanguageSynchronization' => true,
                 ],
-                'default'    => 0,
-                'type'       => 'datetime',
+                'default'   => 0,
+                'type'      => 'datetime',
             ],
             'exclude' => true,
             'label'   => self::CORE_FIELD_LABELS['START_TIME'],
@@ -163,11 +146,6 @@ class TcaUtility
         ];
     }
 
-    /**
-     * @param string $tableName
-     *
-     * @return array
-     */
     public static function getDefaultConfigurationForTransOrigPointerField(string $tableName): array
     {
         return [

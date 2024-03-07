@@ -23,12 +23,6 @@ use function in_array;
  */
 class ValidationUtility
 {
-    /**
-     * @param array $constant
-     * @param array $keys
-     *
-     * @return void
-     */
     public static function checkArrayAgainstConstantKeys(array $constant, array $keys): void
     {
         foreach ($keys as $key) {
@@ -36,12 +30,6 @@ class ValidationUtility
         }
     }
 
-    /**
-     * @param array $constant
-     * @param array $values
-     *
-     * @return void
-     */
     public static function checkArrayAgainstConstantValues(array $constant, array $values): void
     {
         foreach ($values as $value) {
@@ -49,37 +37,24 @@ class ValidationUtility
         }
     }
 
-    /**
-     * @param array  $constant
-     * @param string $key
-     *
-     * @return void
-     */
     public static function checkKeyAgainstConstant(array $constant, string $key): void
     {
         if (!isset($constant[$key])) {
-            throw new InvalidArgumentException(__CLASS__ . ': Key "' . $key . '" is not present in constant!',
-                1564122378);
+            throw new InvalidArgumentException(
+                __CLASS__ . ': Key "' . $key . '" is not present in constant!', 1564122378
+            );
         }
     }
 
-    /**
-     * @param array $constant
-     * @param       $value
-     *
-     * @return void
-     */
-    public static function checkValueAgainstConstant(array $constant, $value): void
+    public static function checkValueAgainstConstant(array $constant, mixed $value): void
     {
         if (!in_array($value, $constant, true)) {
-            throw new InvalidArgumentException(__CLASS__ . ': Value "' . $value . '" is not present in constant!',
-                1564068237);
+            throw new InvalidArgumentException(
+                __CLASS__ . ': Value "' . $value . '" is not present in constant!', 1564068237
+            );
         }
     }
 
-    /**
-     * @return void
-     */
     public static function requiresBackendContext(): void
     {
         if (!ContextUtility::isBackend()) {
@@ -87,9 +62,6 @@ class ValidationUtility
         }
     }
 
-    /**
-     * @return void
-     */
     public static function requiresFrontendContext(): void
     {
         if (!ContextUtility::isFrontend()) {
@@ -98,15 +70,16 @@ class ValidationUtility
     }
 
     /**
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
     public static function requiresTypoScriptLoaded(): void
     {
         if (!ContextUtility::isTypoScriptAvailable()) {
-            throw new RuntimeException(__CLASS__ . ': This method is not allowed during the bootstrap process of TYPO3! Do not call it within or from ext_localconf.php',
-                1614416275);
+            throw new RuntimeException(
+                __CLASS__ . ': This method is not allowed during the bootstrap process of TYPO3! Do not call it within or from ext_localconf.php',
+                1614416275
+            );
         }
     }
 }

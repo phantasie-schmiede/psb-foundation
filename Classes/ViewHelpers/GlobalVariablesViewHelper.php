@@ -24,11 +24,6 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 class GlobalVariablesViewHelper extends AbstractViewHelper
 {
     /**
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
-     * @return mixed
      * @throws Exception
      */
     public static function renderStatic(
@@ -39,9 +34,6 @@ class GlobalVariablesViewHelper extends AbstractViewHelper
         return GlobalVariableService::get($arguments['path'], $arguments['strict'], $arguments['fallback']);
     }
 
-    /**
-     * @return void
-     */
     public function initializeArguments(): void
     {
         parent::initializeArguments();

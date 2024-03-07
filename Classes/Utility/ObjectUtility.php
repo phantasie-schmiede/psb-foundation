@@ -24,19 +24,16 @@ class ObjectUtility
 {
     public const NAMESPACE_FALLBACK_KEY = '__fallback';
 
-    /**
-     * @param string $className
-     * @param array  $namespaces
-     *
-     * @return bool|string
-     */
     public static function getFullQualifiedClassName(string $className, array $namespaces): bool|string
     {
         if (class_exists($className)) {
             return $className;
         }
 
-        [$alias, $appendix] = GeneralUtility::trimExplode('\\', $className, true, 2);
+        [
+            $alias,
+            $appendix,
+        ] = GeneralUtility::trimExplode('\\', $className, true, 2);
 
         if (isset($namespaces[$alias])) {
             return $namespaces[$alias] . ($appendix ? ('\\' . $appendix) : '');
@@ -54,9 +51,6 @@ class ObjectUtility
     }
 
     /**
-     * @param object $object
-     *
-     * @return array
      * @throws ReflectionException
      */
     public static function toArray(object $object): array

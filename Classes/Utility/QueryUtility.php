@@ -32,7 +32,9 @@ class QueryUtility
         $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
         $convertedQuery = GeneralUtility::makeInstance(Typo3DbQueryParser::class)
             ->convertQueryToDoctrineQueryBuilder($query);
-        $itemsToProcess = $convertedQuery->count('*')->executeQuery()->fetchOne();
+        $itemsToProcess = $convertedQuery->count('*')
+            ->executeQuery()
+            ->fetchOne();
         $query->setLimit(0 < $query->getLimit() ? min($query->getLimit(), $chunkSize) : $chunkSize);
 
         while (0 < $itemsToProcess) {

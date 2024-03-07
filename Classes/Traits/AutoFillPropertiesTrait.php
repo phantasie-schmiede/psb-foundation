@@ -24,9 +24,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 trait AutoFillPropertiesTrait
 {
     /**
-     * @param array $properties
-     *
-     * @return void
      * @throws ReflectionException
      */
     public function fillProperties(array $properties): void
