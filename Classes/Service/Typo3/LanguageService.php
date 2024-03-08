@@ -16,7 +16,14 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Service\Typo3;
 
+use Doctrine\DBAL\Exception;
+use JsonException;
+use PSB\PsbFoundation\Utility\Localization\LoggingUtility;
 use PSB\PsbFoundation\Utility\LocalizationUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
+use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Localization\LanguageService as Typo3LanguageService;
 use function is_string;
 use function strlen;
@@ -24,15 +31,40 @@ use function strlen;
 /**
  * Class LanguageService
  *
- * Overwrites the original function in order to respect plural forms.
- * To hand over the correct index value in the clean way (as method parameter), you would have to override and copy(!)
- * a lot more functions that are used on the way here. Therefore, this is done by a static property.
+ * Overwrites the original functions in order to respect plural forms and support logging.
  *
  * @package PSB\PsbFoundation\Service\Typo3
  * @TODO    Check original file on TYPO3 update!
  */
 class LanguageService extends Typo3LanguageService
 {
+    private static bool $pluralFormMissing = false;
+
+    /**
+     * Overwrites the function to support logging.
+     *
+     * @throws ContainerExceptionInterface
+     * @throws Exception
+     * @throws ExtensionConfigurationExtensionNotConfiguredException
+     * @throws ExtensionConfigurationPathDoesNotExistException
+     * @throws JsonException
+     * @throws NotFoundExceptionInterface
+     */
+    public function sL($input): string
+    {
+        $input = (string)$input;
+        $output = parent::sL($input);
+
+        if ('' !== $input) {
+            LoggingUtility::logLanguageLabelAccess($input);
+            LoggingUtility::logMissingLanguageLabels($input, '' !== $output && !self::$pluralFormMissing);
+        }
+
+        self::$pluralFormMissing = false;
+
+        return $output;
+    }
+
     /**
      * Returns the label with key $index from the $LOCAL_LANG array used as the second argument respecting possible
      * plural forms (falls back to plural form 0 if other plural form is given but not defined in language file).
@@ -71,7 +103,7 @@ class LanguageService extends Typo3LanguageService
                 $value = $localLanguage[$languageKey][$index][$pluralFormIndex]['target'];
             } else {
                 // Set static property for logging
-                LocalizationUtility::$pluralFormMissing = true;
+                self::$pluralFormMissing = true;
                 $value = $localLanguage[$languageKey][$index][0]['target'];
             }
         }

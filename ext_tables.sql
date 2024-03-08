@@ -1,20 +1,10 @@
 #
-# Table structure for table 'cache_psbfoundation'
+# Table structure for table 'tx_psbfoundation_accessed_language_labels'
 #
-CREATE TABLE cache_psbfoundation
+CREATE TABLE tx_psbfoundation_accessed_language_labels
 (
-	checksum   varchar(255) DEFAULT '' NOT NULL,
-	content    text                    NOT NULL,
-	identifier varchar(255) DEFAULT '' NOT NULL
-);
-
-#
-# Table structure for table 'cache_psbfoundation_tags'
-#
-CREATE TABLE cache_psbfoundation_tags
-(
-	identifier varchar(255) DEFAULT '' NOT NULL,
-	tag        varchar(255) DEFAULT '' NOT NULL
+	hit_count int unsigned DEFAULT '0' NOT NULL,
+	locallang_key varchar(255) DEFAULT '' NOT NULL
 );
 
 #

@@ -11,9 +11,8 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility;
 
 use JsonException;
-use PSB\PsbFoundation\Data\ExtensionInformation;
-use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
+use PSB\PsbFoundation\Utility\Localization\LoggingUtility;
 use PSB\PsbFoundation\Utility\Localization\PluralFormUtility;
 use PSB\PsbFoundation\Utility\Xml\XmlUtility;
 use Psr\Container\ContainerExceptionInterface;
@@ -21,7 +20,6 @@ use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
@@ -36,59 +34,15 @@ use function is_string;
  */
 class LocalizationUtility
 {
-    public const LOG_FILES                     = [
-        'ACCESS'  => 'access.log',
-        'MISSING' => 'missing.log',
-    ];
-    public const MISSING_LANGUAGE_LABELS_TABLE = 'tx_psbfoundation_missing_language_labels';
-    public const PLACEHOLDER_MARKERS           = [
+    public const PLACEHOLDER_MARKERS = [
         'BEGIN' => '{',
         'END'   => '}',
     ];
-    public const PLURAL_FORM_MARKERS           = [
+    public const PLURAL_FORM_MARKERS = [
         'BEGIN' => '[',
         'END'   => ']',
     ];
-    public const QUANTITY_ARGUMENT             = 'quantity';
-
-    /*
-     * Temporary indicator for logging missing plural forms that will be reset after each translation. It is set in
-     * \PSB\PsbFoundation\Service\Typo3\LanguageService.
-     */
-    public static ?bool $pluralFormMissing = null;
-
-    /*
-     * Store extension configuration settings in static variables to avoid recurrent lookup. It's a mini cache.
-     */
-    private static ?bool $logLanguageLabelAccess   = null;
-    private static ?bool $logMissingLanguageLabels = null;
-
-    /**
-     * @throws JsonException
-     */
-    public static function checkPostponedLogEntries(): void
-    {
-        $logFile = FilePathUtility::getLanguageLabelLogFilesPath() . self::LOG_FILES['MISSING'];
-
-        if (file_exists($logFile) && $logContent = file_get_contents($logFile)) {
-            $postponedEntries = StringUtility::explodeByLineBreaks($logContent);
-
-            foreach (array_filter($postponedEntries) as $postponedEntry) {
-                [
-                    $postponedKey,
-                    $postponedKeyExists,
-                ] = json_decode(
-                    $postponedEntry,
-                    false,
-                    512,
-                    JSON_THROW_ON_ERROR
-                );
-                self::writeLogToDatabase($postponedKey, $postponedKeyExists);
-            }
-
-            unlink($logFile);
-        }
-    }
+    public const QUANTITY_ARGUMENT   = 'quantity';
 
     /**
      * Returns the localized label of the LOCAL_LANG key, $key.
@@ -102,8 +56,6 @@ class LocalizationUtility
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
      * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
@@ -135,9 +87,6 @@ class LocalizationUtility
             $arguments,
             $languageKey
         );
-        self::logLanguageLabelAccess($key);
-        self::logMissingLanguageLabels($key, (null !== $translation && !self::$pluralFormMissing));
-        self::$pluralFormMissing = null;
 
         // Insert translation arguments into placeholders:
         if (is_string($translation) && !empty($arguments) && ArrayUtility::isAssociative($arguments)) {
@@ -166,8 +115,6 @@ class LocalizationUtility
      * @return string
      * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
@@ -189,8 +136,6 @@ class LocalizationUtility
     /**
      * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
@@ -252,7 +197,7 @@ class LocalizationUtility
                         $transUnitTagAttributes = $transUnit[XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']];
 
                         if ($id === $transUnitTagAttributes['id']) {
-                            self::logMissingLanguageLabels($key, true);
+                            LoggingUtility::logMissingLanguageLabels($key, true);
 
                             return true;
                         }
@@ -262,7 +207,7 @@ class LocalizationUtility
         }
 
         if ($logMissingTranslation) {
-            self::logMissingLanguageLabels($key, false);
+            LoggingUtility::logMissingLanguageLabels($key, false);
         }
 
         return false;
@@ -287,111 +232,5 @@ class LocalizationUtility
         }
 
         return self::translationExists($label);
-    }
-
-    /**
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     */
-    private static function getExtensionConfigurationSetting(string $key): mixed
-    {
-        $extensionInformation = GeneralUtility::makeInstance(ExtensionInformation::class);
-        $extensionInformationService = GeneralUtility::makeInstance(ExtensionInformationService::class);
-
-        return $extensionInformationService->getConfiguration(
-            $extensionInformation,
-            $key
-        );
-    }
-
-    /**
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws JsonException
-     */
-    private static function logLanguageLabelAccess(string $key): void
-    {
-        if (null === self::$logLanguageLabelAccess) {
-            self::$logLanguageLabelAccess = (bool)self::getExtensionConfigurationSetting(
-                'debug.logLanguageLabelAccess'
-            );
-        }
-
-        if (!self::$logLanguageLabelAccess) {
-            return;
-        }
-
-        FileUtility::write(
-            FilePathUtility::getLanguageLabelLogFilesPath() . self::LOG_FILES['ACCESS'],
-            json_encode(
-                [
-                    time(),
-                    $key,
-                ],
-                JSON_THROW_ON_ERROR
-            ) . LF,
-            true
-        );
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws JsonException
-     * @throws NotFoundExceptionInterface
-     */
-    private static function logMissingLanguageLabels(string $key, bool $keyExists): void
-    {
-        if (null === self::$logMissingLanguageLabels) {
-            self::$logMissingLanguageLabels = (bool)self::getExtensionConfigurationSetting(
-                'debug.logMissingLanguageLabels'
-            );
-        }
-
-        if (!self::$logMissingLanguageLabels) {
-            return;
-        }
-
-        $logFile = FilePathUtility::getLanguageLabelLogFilesPath() . self::LOG_FILES['MISSING'];
-
-        if (ContextUtility::isBootProcessRunning()) {
-            /*
-             * The TCA is not loaded yet. That means the ConnectionPool is not available and the logging has to be
-             * postponed.
-             */
-            FileUtility::write(
-                $logFile,
-                json_encode(
-                    [
-                        $key,
-                        $keyExists,
-                    ],
-                    JSON_THROW_ON_ERROR
-                ) . LF,
-                true
-            );
-        } else {
-            // Check for postponed log entries.
-            self::checkPostponedLogEntries();
-            self::writeLogToDatabase($key, $keyExists);
-        }
-    }
-
-    private static function writeLogToDatabase(string $key, bool $keyExists): void
-    {
-        $connection = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getConnectionForTable(self::MISSING_LANGUAGE_LABELS_TABLE);
-
-        // Avoid duplicates without using a select query as check for existing entries
-        $connection->delete(self::MISSING_LANGUAGE_LABELS_TABLE, [
-            'locallang_key' => $key,
-        ]);
-
-        if (false === $keyExists) {
-            $connection->insert(self::MISSING_LANGUAGE_LABELS_TABLE, [
-                'locallang_key' => $key,
-            ]);
-        }
     }
 }

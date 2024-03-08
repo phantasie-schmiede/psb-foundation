@@ -16,9 +16,7 @@ use PSB\PsbFoundation\Attribute\ModuleAction;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
-use PSB\PsbFoundation\Utility\FileUtility;
-use PSB\PsbFoundation\Utility\LocalizationUtility;
-use PSB\PsbFoundation\Utility\StringUtility;
+use PSB\PsbFoundation\Utility\Localization\LoggingUtility;
 use PSB\PsbFoundation\Utility\Xml\XmlUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -99,6 +97,11 @@ class AnalyzeLocalLangController extends AbstractModuleController
 
                 $xmlData = XmlUtility::convertFromXml(file_get_contents($fileInfo->getRealPath()));
 
+                // Skip translations.
+                if (isset($xmlData['xliff']['file'][XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]['target-language'])) {
+                    continue;
+                }
+
                 foreach ($xmlData['xliff']['file']['body']['trans-unit'] as $transUnit) {
                     if (isset($transUnit[XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]['id'])) {
                         $languageLabels[$fileIdentifier . ':' . $transUnit[XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]['id']] = null;
@@ -112,6 +115,7 @@ class AnalyzeLocalLangController extends AbstractModuleController
 
     /**
      * @throws ContainerExceptionInterface
+     * @throws Exception
      * @throws ImplementationException
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
@@ -120,43 +124,40 @@ class AnalyzeLocalLangController extends AbstractModuleController
     private function fetchLabelAccessLogData(): array
     {
         $languageLabels = $this->collectAllLanguageLabels();
-        $logFile = FilePathUtility::getLanguageLabelLogFilesPath() . LocalizationUtility::LOG_FILES['ACCESS'];
+        LoggingUtility::checkPostponedAccessLogEntries();
 
-        if (!FileUtility::fileExists($logFile)) {
-            return $languageLabels;
-        }
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable(LoggingUtility::LOG_TABLES['ACCESS']);
 
-        $logData = StringUtility::explodeByLineBreaks(
-            file_get_contents($logFile)
-        );
+        $logData = $queryBuilder->select('*')
+            ->from(LoggingUtility::LOG_TABLES['ACCESS'])
+            ->executeQuery()
+            ->fetchAllAssociative();
 
         foreach ($logData as $logRecord) {
-            if (empty($logRecord)) {
+            $key = $logRecord['locallang_key'];
+
+            // Skip log entries of keys which are not present in extensions based on psb_foundation.
+            if (!array_key_exists($key, $languageLabels)) {
                 continue;
             }
 
-            [
-                $timestamp,
-                $key,
-            ] = json_decode($logRecord, false, 512, JSON_THROW_ON_ERROR);
-
-            if (isset($languageLabels[$key]['hitCount'])) {
-                $languageLabels[$key]['hitCount']++;
-                $languageLabels[$key]['lastHit'] = $timestamp;
-            } else {
-                $languageLabels[$key] = [
-                    'firstHit' => $timestamp,
-                    'hitCount' => 1,
-                    'lastHit'  => $timestamp,
-                ];
-            }
+            $languageLabels[$key] = $logRecord['hit_count'];
         }
 
-        uasort($languageLabels, static function($a, $b) {
-            return ($a['hitCount'] ?? 0) > ($b['hitCount'] ?? 0);
-        });
+        // Sort by hitCount in ascending order
+        asort($languageLabels);
 
-        return $languageLabels;
+        $result = [];
+
+        // Group results by extension:
+        foreach ($languageLabels as $languageLabel => $hitCount) {
+            $result[$this->getExtensionKeyFromLanguageLabel($languageLabel)][$languageLabel] = $hitCount;
+        }
+
+        ksort($result);
+
+        return $result;
     }
 
     /**
@@ -165,16 +166,31 @@ class AnalyzeLocalLangController extends AbstractModuleController
      */
     private function fetchMissingLabelsLogData(): array
     {
-        LocalizationUtility::checkPostponedLogEntries();
+        LoggingUtility::checkPostponedMissingLogEntries();
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
-            ->getQueryBuilderForTable(LocalizationUtility::MISSING_LANGUAGE_LABELS_TABLE);
+            ->getQueryBuilderForTable(LoggingUtility::LOG_TABLES['MISSING']);
 
         $logData = $queryBuilder->select('*')
-            ->from(LocalizationUtility::MISSING_LANGUAGE_LABELS_TABLE)
+            ->from(LoggingUtility::LOG_TABLES['MISSING'])
             ->executeQuery()
             ->fetchFirstColumn();
         sort($logData);
 
-        return $logData;
+        $result = [];
+
+        // Group results by extension:
+        foreach ($logData as $languageLabel) {
+            $result[$this->getExtensionKeyFromLanguageLabel($languageLabel)][] = $languageLabel;
+        }
+
+        ksort($result);
+
+        return $result;
+    }
+
+    private function getExtensionKeyFromLanguageLabel(string $languageLabel): string
+    {
+        // "LLL:EXT:" = 8 characters
+        return mb_substr($languageLabel, 8, mb_strpos($languageLabel, '/') - 8);
     }
 }
