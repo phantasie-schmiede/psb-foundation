@@ -24,29 +24,21 @@ abstract class AbstractModuleController extends ActionController
 {
     protected ModuleTemplate $moduleTemplate;
 
-    /**
-     * @param ModuleTemplateFactory $moduleTemplateFactory
-     */
     public function __construct(
         protected readonly ModuleTemplateFactory $moduleTemplateFactory,
     ) {
     }
 
     /**
-     * @return void
-     */
-    protected function initializeAction(): void
-    {
-        $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-    }
-
-    /**
      * Returns a response object with the rendered module template.
-     *
-     * @param string|null $html
      */
     protected function htmlResponse(string $html = null): ResponseInterface
     {
         return $this->moduleTemplate->renderResponse();
+    }
+
+    protected function initializeAction(): void
+    {
+        $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
     }
 }

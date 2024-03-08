@@ -13,16 +13,15 @@ namespace PSB\PsbFoundation\ViewHelpers;
 use Closure;
 use InvalidArgumentException;
 use JsonException;
-use PSB\PsbFoundation\Service\LocalizationService;
 use PSB\PsbFoundation\Utility\Configuration\FilePathUtility;
 use PSB\PsbFoundation\Utility\ContextUtility;
+use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\ViewHelpers\Translation\RegisterLanguageFileViewHelper;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
-use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Request;
@@ -40,7 +39,7 @@ use function is_array;
  * Class TranslateViewHelper
  *
  * Extended clone of the core ViewHelper.
- * - uses \PSB\PsbFoundation\Service\LocalizationService to log missing language labels
+ * - uses \PSB\PsbFoundation\Utility\LocalizationUtility to log missing language labels
  * - supports plural forms in language files:
  *   <trans-unit>-tags in xlf-files can be grouped like this to define plural forms of a translation:
  *       <group id=“day” restype=“x-gettext-plurals”>
@@ -74,9 +73,6 @@ class TranslateViewHelper extends AbstractViewHelper
 {
     use CompileWithRenderStatic;
 
-    public const MARKER_AFTER  = '}';
-    public const MARKER_BEFORE = '{';
-
     /**
      * Output is escaped already. We must not escape children, to avoid double encoding.
      *
@@ -87,11 +83,6 @@ class TranslateViewHelper extends AbstractViewHelper
     /**
      * Return array element by key.
      *
-     * @param array                     $arguments
-     * @param Closure                   $renderChildrenClosure
-     * @param RenderingContextInterface $renderingContext
-     *
-     * @return string|null
      * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
@@ -169,22 +160,10 @@ class TranslateViewHelper extends AbstractViewHelper
             }
         }
 
-        if (!empty($translateArguments) && ArrayUtility::isAssociative($translateArguments)) {
-            $markerReplacements = [];
-
-            foreach ($translateArguments as $marker => $replacement) {
-                $markerReplacements[self::MARKER_BEFORE . $marker . self::MARKER_AFTER] = $replacement;
-            }
-
-            $value = str_replace(array_keys($markerReplacements), array_values($markerReplacements), $value);
-        }
-
         return $value;
     }
 
     /**
-     * Wrapper call to static LocalizationService
-     *
      * @param string      $id            Translation Key
      * @param string|null $extensionName UpperCamelCased extension key (for example BlogExample)
      * @param array|null  $arguments     Arguments to be replaced in the resulting string
@@ -205,16 +184,9 @@ class TranslateViewHelper extends AbstractViewHelper
         array  $arguments = null,
         string $languageKey = null,
     ): ?string {
-        return GeneralUtility::makeInstance(LocalizationService::class)
-            ->translate($id, $extensionName, $arguments, $languageKey);
+        return LocalizationUtility::translate($id, $extensionName, $arguments, $languageKey);
     }
 
-    /**
-     * @param string  $id
-     * @param Request $request
-     *
-     * @return string
-     */
     private static function buildIdFromRequest(string $id, Request $request): string
     {
         $path = 'LLL:EXT:' . GeneralUtility::camelCaseToLowerCaseUnderscored(

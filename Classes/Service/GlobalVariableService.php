@@ -25,22 +25,10 @@ use function in_array;
  */
 class GlobalVariableService
 {
-    /**
-     * @var array
-     */
-    protected static array $cachedVariables = [];
-
-    /**
-     * @var array
-     */
+    protected static array $cachedVariables         = [];
     protected static array $globalVariableProviders = [];
 
     /**
-     * @param string     $path
-     * @param bool       $strict
-     * @param mixed|null $fallback
-     *
-     * @return mixed
      * @throws Exception
      */
     public static function get(string $path, bool $strict = true, mixed $fallback = null): mixed
@@ -61,8 +49,7 @@ class GlobalVariableService
                 __CLASS__ . ': Key "' . $key . '" is not registered! Available keys are: ' . implode(
                     ', ',
                     array_keys(self::$globalVariableProviders),
-                ) . '.',
-                1622575130
+                ) . '.', 1622575130
             );
         }
 
@@ -88,11 +75,6 @@ class GlobalVariableService
         }
     }
 
-    /**
-     * @param string $path
-     *
-     * @return bool
-     */
     public static function has(string $path): bool
     {
         try {
@@ -106,17 +88,12 @@ class GlobalVariableService
 
     /**
      * For use in ext_localconf.php
-     *
-     * @param string $className
-     *
-     * @return void
      */
     public static function registerGlobalVariableProvider(string $className): void
     {
         if (!in_array(GlobalVariableProviderInterface::class, class_implements($className), true)) {
             throw new RuntimeException(
-                __CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!',
-                1612426722
+                __CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!', 1612426722
             );
         }
 

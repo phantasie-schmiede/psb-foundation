@@ -8,6 +8,10 @@
         target-language="de">
         <header />
         <body>
+            <trans-unit id="debug.logLanguageLabelAccess">
+                <source>Log language label access</source>
+                <target>Zugriff auf "Language labels" loggen</target>
+            </trans-unit>
             <trans-unit id="debug.logMissingLanguageLabels">
                 <source>Log missing language labels</source>
                 <target>Fehlende "Language labels" loggen</target>

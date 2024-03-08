@@ -24,16 +24,12 @@ use TYPO3\CMS\Core\Site\SiteFinder;
  */
 class SiteConfigurationProvider extends AbstractProvider
 {
-    /**
-     * @param SiteFinder $siteFinder
-     */
     public function __construct(
         protected readonly SiteFinder $siteFinder,
     ) {
     }
 
     /**
-     * @return Site
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws SiteNotFoundException

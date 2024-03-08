@@ -40,11 +40,6 @@ class FileUtility
         'YB' => 8,
     ];
 
-    /**
-     * @param string $filename
-     *
-     * @return bool
-     */
     public static function fileExists(string $filename): bool
     {
         return file_exists(self::resolveFileName($filename));
@@ -125,13 +120,6 @@ class FileUtility
         return GeneralUtility::getFileAbsFileName($fileName) ?: realpath($fileName) ?: '';
     }
 
-    /**
-     * @param string $fileName
-     * @param string $content
-     * @param bool   $append
-     *
-     * @return bool
-     */
     public static function write(string $fileName, string $content, bool $append = false): bool
     {
         $fileName = self::resolveFileName($fileName);

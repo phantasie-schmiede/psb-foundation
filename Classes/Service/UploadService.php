@@ -32,6 +32,7 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Reflection\Exception\PropertyNotAccessibleException;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
+use function count;
 use function in_array;
 
 /**
@@ -45,15 +46,10 @@ class UploadService
 
     private array $uploadConfiguration = [];
 
-    /**
-     * @param FileReferenceService $fileReferenceService
-     * @param StorageRepository    $storageRepository
-     * @param TcaService           $tcaService
-     */
     public function __construct(
         protected readonly FileReferenceService $fileReferenceService,
-        protected readonly StorageRepository $storageRepository,
-        protected readonly TcaService $tcaService,
+        protected readonly StorageRepository    $storageRepository,
+        protected readonly TcaService           $tcaService,
     ) {
     }
 
@@ -61,10 +57,6 @@ class UploadService
      * Stores uploaded files of an extbase request and maps them to domain model properties. The name of the upload form
      * fields have to be identical with the properties' names!
      *
-     * @param AbstractEntity $domainModel
-     * @param Request        $request
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws MisconfiguredTcaException
      * @throws NotFoundExceptionInterface
@@ -73,7 +65,9 @@ class UploadService
      */
     public function fromRequest(AbstractEntity $domainModel, Request $request): void
     {
-        $uploadedFilesCollection = $request->getUploadedFiles()[ContextUtility::getPluginSignatureFromRequest($request)];
+        $uploadedFilesCollection = $request->getUploadedFiles()[ContextUtility::getPluginSignatureFromRequest(
+            $request
+        )];
 
         if (empty($uploadedFilesCollection)) {
             return;
@@ -81,10 +75,13 @@ class UploadService
 
         // Preparation
         $domainModelReflection = new ReflectionClass($domainModel);
-        $uploadedFilesCollection = array_filter($uploadedFilesCollection,
-            static function ($property) use ($domainModelReflection) {
+        $uploadedFilesCollection = array_filter(
+            $uploadedFilesCollection,
+            static function($property) use ($domainModelReflection) {
                 return $domainModelReflection->hasProperty($property);
-            }, ARRAY_FILTER_USE_KEY);
+            },
+            ARRAY_FILTER_USE_KEY
+        );
         $this->collectFieldConfigurations($domainModel, array_keys($uploadedFilesCollection));
         $this->validateUploadedFiles($uploadedFilesCollection);
         $this->provideTargetFolders();
@@ -100,17 +97,12 @@ class UploadService
     }
 
     /**
-     * @param AbstractEntity $domainModel
-     * @param string         $property
-     * @param UploadedFile   $uploadedFile
-     *
-     * @return string|null
      * @throws PropertyNotAccessibleException
      */
     private function buildTargetFileName(
         AbstractEntity $domainModel,
-        string $property,
-        UploadedFile $uploadedFile
+        string         $property,
+        UploadedFile   $uploadedFile,
     ): ?string {
         $fileNameGeneratorConfiguration = $this->uploadConfiguration[$property]['fileNameGenerator'] ?? [];
 
@@ -133,9 +125,12 @@ class UploadService
         }
 
         if (!empty($fileNameGeneratorConfiguration['replacements'] ?? [])) {
-            array_walk($nameParts, static function (&$namePart) use ($fileNameGeneratorConfiguration) {
-                $namePart = str_replace(array_keys($fileNameGeneratorConfiguration['replacements']),
-                    array_values($fileNameGeneratorConfiguration['replacements']), $namePart);
+            array_walk($nameParts, static function(&$namePart) use ($fileNameGeneratorConfiguration) {
+                $namePart = str_replace(
+                    array_keys($fileNameGeneratorConfiguration['replacements']),
+                    array_values($fileNameGeneratorConfiguration['replacements']),
+                    $namePart
+                );
             });
         }
 
@@ -147,28 +142,20 @@ class UploadService
             return null;
         }
 
-        return implode($fileNameGeneratorConfiguration['partSeparator'],
-                $nameParts) . '.' . $this->getFileExtensionByMimeType($uploadedFile);
+        return implode(
+                $fileNameGeneratorConfiguration['partSeparator'],
+                $nameParts
+            ) . '.' . $this->getFileExtensionByMimeType($uploadedFile);
     }
 
-    /**
-     * @param UploadedFile $uploadedFile
-     * @param string       $property
-     *
-     * @return void
-     */
     private function checkFileSize(UploadedFile $uploadedFile, string $property): void
     {
-        if (isset($this->uploadConfiguration[$property]['maxSize']) && (int)$this->uploadConfiguration[$property]['maxSize'] < $uploadedFile->getSize()) {
+        if (isset($this->uploadConfiguration[$property]['maxSize']) && (int)$this->uploadConfiguration[$property]['maxSize'] < $uploadedFile->getSize(
+            )) {
             throw new RuntimeException('Too large!');
         }
     }
 
-    /**
-     * @param UploadedFile $uploadedFile
-     *
-     * @return void
-     */
     private function checkForError(UploadedFile $uploadedFile): void
     {
         switch ($uploadedFile->getError()) {
@@ -184,12 +171,6 @@ class UploadService
         }
     }
 
-    /**
-     * @param UploadedFile $uploadedFile
-     * @param string       $property
-     *
-     * @return void
-     */
     private function checkMimeType(UploadedFile $uploadedFile, string $property): void
     {
         $mimeType = FileUtility::getMimeType($uploadedFile->getTemporaryFileName());
@@ -202,16 +183,16 @@ class UploadService
         $fileExtension = $this->getFileExtensionByMimeType($uploadedFile);
 
         if (null !== $allowedFileExtensions && !in_array($fileExtension, $allowedFileExtensions, true)) {
-            throw new RuntimeException(__CLASS__ . ': File type not allowed (has to be one of: ' . implode(', ',
-                    $allowedFileExtensions) . ')!', 1678280990);
+            throw new RuntimeException(
+                __CLASS__ . ': File type not allowed (has to be one of: ' . implode(
+                    ', ',
+                    $allowedFileExtensions
+                ) . ')!', 1678280990
+            );
         }
     }
 
     /**
-     * @param AbstractEntity $domainModel
-     * @param array          $properties
-     *
-     * @return void
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -227,11 +208,6 @@ class UploadService
         }
     }
 
-    /**
-     * @param UploadedFile $uploadedFile
-     *
-     * @return string
-     */
     private function getFileExtensionByMimeType(UploadedFile $uploadedFile): string
     {
         $mimeType = FileUtility::getMimeType($uploadedFile->getTemporaryFileName());
@@ -239,25 +215,20 @@ class UploadService
         return GeneralUtility::trimExplode('/', $mimeType)[1];
     }
 
-    /**
-     * @param string       $property
-     * @param string       $targetFileName
-     * @param UploadedFile $uploadedFile
-     *
-     * @return FileInterface
-     */
     private function moveUploadedFileToFileStorage(
-        string $property,
-        string $targetFileName,
-        UploadedFile $uploadedFile
+        string       $property,
+        string       $targetFileName,
+        UploadedFile $uploadedFile,
     ): FileInterface {
-        return $this->uploadConfiguration[$property]['storage']->addUploadedFile($uploadedFile,
-            $this->uploadConfiguration[$property]['targetFolder'], $targetFileName,
-            $this->uploadConfiguration[$property]['duplicationBehaviour'] ?? DuplicationBehavior::RENAME);
+        return $this->uploadConfiguration[$property]['storage']->addUploadedFile(
+            $uploadedFile,
+            $this->uploadConfiguration[$property]['targetFolder'],
+            $targetFileName,
+            $this->uploadConfiguration[$property]['duplicationBehaviour'] ?? DuplicationBehavior::RENAME
+        );
     }
 
     /**
-     * @return void
      * @throws MisconfiguredTcaException
      */
     private function provideTargetFolders(): void
@@ -268,9 +239,6 @@ class UploadService
     }
 
     /**
-     * @param string $property
-     *
-     * @return void
      * @throws MisconfiguredTcaException
      */
     private function setStorageAndTargetFolder(string $property): void
@@ -285,8 +253,10 @@ class UploadService
                 $parts = GeneralUtility::trimExplode(':', $targetFolder);
 
                 if (2 !== count($parts)) {
-                    throw new MisconfiguredTcaException(__CLASS__ . ': The configuration option "targetFolder" of the property "' . $property . '" is in an invalid format!',
-                        1677590190);
+                    throw new MisconfiguredTcaException(
+                        __CLASS__ . ': The configuration option "targetFolder" of the property "' . $property . '" is in an invalid format!',
+                        1677590190
+                    );
                 }
 
                 $storage = $this->storageRepository->findByUid((int)$parts[0]);
@@ -303,15 +273,13 @@ class UploadService
         $parentFolder = $storage->getRootLevelFolder();
 
         $this->uploadConfiguration[$property]['storage'] = $storage;
-        $this->uploadConfiguration[$property]['targetFolder'] = $parentFolder->hasFolder($targetFolder) ? $parentFolder->getSubfolder($targetFolder) : $parentFolder->createFolder($targetFolder);
+        $this->uploadConfiguration[$property]['targetFolder'] = $parentFolder->hasFolder(
+            $targetFolder
+        ) ? $parentFolder->getSubfolder($targetFolder) : $parentFolder->createFolder($targetFolder);
     }
 
     /**
      * Checks if the uploaded files match given constraints and ensures a consistent array structure for further loops.
-     *
-     * @param array $uploadedFilesCollection
-     *
-     * @return void
      */
     private function validateUploadedFiles(array &$uploadedFilesCollection): void
     {

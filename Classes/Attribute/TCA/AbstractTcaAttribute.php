@@ -21,9 +21,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 abstract class AbstractTcaAttribute extends AbstractAttribute
 {
-    /**
-     * @var TcaService
-     */
     protected TcaService $tcaService;
 
     public function __construct()

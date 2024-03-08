@@ -13,6 +13,7 @@ namespace PSB\PsbFoundation\EventListener;
 use PSB\PsbFoundation\Attribute\TCA\Column;
 use PSB\PsbFoundation\Utility\StringUtility;
 use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
+use function in_array;
 
 /**
  * Class DatabaseEnricher
@@ -22,20 +23,15 @@ use TYPO3\CMS\Core\Database\Event\AlterTableDefinitionStatementsEvent;
 class DatabaseEnricher
 {
     protected const CREATE_TABLE_PHRASE = 'CREATE TABLE';
-    protected const INDENTATION = '    ';
-    protected const KEY_DEFINITION = 'KEY ';
-    protected const SKIP_KEYWORDS = [
+    protected const INDENTATION         = '    ';
+    protected const KEY_DEFINITION      = 'KEY ';
+    protected const SKIP_KEYWORDS       = [
         'PRIMARY',
         'UNIQUE',
     ];
 
     protected array $originalFields = [];
 
-    /**
-     * @param AlterTableDefinitionStatementsEvent $event
-     *
-     * @return void
-     */
     public function __invoke(AlterTableDefinitionStatementsEvent $event): void
     {
         $additionalFields = [];
@@ -45,17 +41,17 @@ class DatabaseEnricher
 
         foreach ($GLOBALS['TCA'] as $tableName => $tableConfiguration) {
             foreach ($tableConfiguration['columns'] as $columnName => $columnConfiguration) {
-                if (
-                    !empty($columnConfiguration['config']['EXT']['psb_foundation'][Column::CONFIGURATION_IDENTIFIERS['DATABASE_DEFINITION']])
-                    && !$this->sqlHasFieldDefinition($columnName, $tableName)
-                ) {
+                if (!empty($columnConfiguration['config']['EXT']['psb_foundation'][Column::CONFIGURATION_IDENTIFIERS['DATABASE_DEFINITION']]) && !$this->sqlHasFieldDefinition(
+                        $columnName,
+                        $tableName
+                    )) {
                     $additionalFields[$tableName][$columnName] = $columnConfiguration['config']['EXT']['psb_foundation'][Column::CONFIGURATION_IDENTIFIERS['DATABASE_DEFINITION']];
                 }
 
-                if (
-                    !empty($columnConfiguration['config']['EXT']['psb_foundation'][Column::CONFIGURATION_IDENTIFIERS['DATABASE_KEY']])
-                    && !$this->sqlHasKeyDefinition($columnName, $tableName)
-                ) {
+                if (!empty($columnConfiguration['config']['EXT']['psb_foundation'][Column::CONFIGURATION_IDENTIFIERS['DATABASE_KEY']]) && !$this->sqlHasKeyDefinition(
+                        $columnName,
+                        $tableName
+                    )) {
                     $additionalKeys[$tableName][] = $columnName;
                 }
             }
@@ -86,11 +82,6 @@ class DatabaseEnricher
         }
     }
 
-    /**
-     * @param string $sql
-     *
-     * @return array
-     */
     private function generateDataFromRawSql(string $sql): array
     {
         $data = [];
@@ -143,23 +134,11 @@ class DatabaseEnricher
         return $data;
     }
 
-    /**
-     * @param string $fieldName
-     * @param string $tableName
-     *
-     * @return bool
-     */
     private function sqlHasFieldDefinition(string $fieldName, string $tableName): bool
     {
         return in_array($fieldName, $this->originalFields[$tableName]['fields'] ?? [], true);
     }
 
-    /**
-     * @param string $keyName
-     * @param string $tableName
-     *
-     * @return bool
-     */
     private function sqlHasKeyDefinition(string $keyName, string $tableName): bool
     {
         return in_array($keyName, $this->originalFields[$tableName]['keys'] ?? [], true);

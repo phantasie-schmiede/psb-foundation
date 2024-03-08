@@ -27,7 +27,6 @@ use function is_array;
 class RequestParameterProvider extends AbstractProvider
 {
     /**
-     * @return array
      * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException

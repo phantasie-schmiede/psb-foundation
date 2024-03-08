@@ -33,25 +33,21 @@ class Link extends AbstractColumnType
     ) {
     }
 
-    /**
-     * @return array|null
-     */
     public function getAllowedTypes(): ?array
     {
         return $this->allowedTypes;
     }
 
-    /**
-     * @return bool
-     */
     public function getAutocomplete(): bool
     {
         return $this->autocomplete;
     }
 
-    /**
-     * @return array|null
-     */
+    public function getDatabaseDefinition(): string
+    {
+        return DefinitionUtility::text();
+    }
+
     public function getValuePicker(): ?array
     {
         if (null === $this->valuePicker) {
@@ -59,13 +55,5 @@ class Link extends AbstractColumnType
         }
 
         return ['items' => $this->valuePicker];
-    }
-
-    /**
-     * @return string
-     */
-    public function getDatabaseDefinition(): string
-    {
-        return DefinitionUtility::text();
     }
 }

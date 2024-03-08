@@ -24,17 +24,11 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Field
 {
-    /**
-     * @param string $name
-     */
     public function __construct(
         protected string $name,
     ) {
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;

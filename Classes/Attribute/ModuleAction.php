@@ -22,18 +22,12 @@ use Attribute;
 #[Attribute(Attribute::TARGET_METHOD)]
 class ModuleAction extends AbstractAttribute
 {
-    /**
-     * @param bool $default
-     */
     public function __construct(
         /** Marks the default action of the controller (executed, when no specific action is given in a request). */
         protected bool $default = false,
     ) {
     }
 
-    /**
-     * @return bool
-     */
     public function isDefault(): bool
     {
         return $this->default;

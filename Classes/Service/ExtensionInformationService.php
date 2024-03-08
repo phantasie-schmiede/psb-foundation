@@ -38,21 +38,12 @@ class ExtensionInformationService
      */
     protected array $extensionInformationInstances = [];
 
-    /**
-     * @param ExtensionConfiguration $extensionConfiguration
-     * @param PackageManager         $packageManager
-     */
     public function __construct(
         protected readonly ExtensionConfiguration $extensionConfiguration,
         protected readonly PackageManager         $packageManager,
     ) {
     }
 
-    /**
-     * @param string $className
-     *
-     * @return array
-     */
     public function extractExtensionInformationFromClassName(string $className): array
     {
         $classNameParts = GeneralUtility::trimExplode('\\', $className, true);
@@ -64,17 +55,12 @@ class ExtensionInformationService
         }
 
         return [
-            'extensionKey' => GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]),
+            'extensionKey'  => GeneralUtility::camelCaseToLowerCaseUnderscored($classNameParts[1]),
             'extensionName' => $classNameParts[1],
-            'vendorName' => $classNameParts[0],
+            'vendorName'    => $classNameParts[0],
         ];
     }
 
-    /**
-     * @param string $fileName
-     *
-     * @return string|null
-     */
     public function extractVendorNameFromFile(string $fileName): ?string
     {
         $vendorName = null;
@@ -111,10 +97,6 @@ class ExtensionInformationService
      * Additional wrapper function to access specific settings defined in ext_conf_template.txt of an extension more
      * easily.
      *
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $path
-     *
-     * @return mixed
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
      */
@@ -133,11 +115,6 @@ class ExtensionInformationService
         return $extensionConfiguration;
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return array
-     */
     public function getDomainModelClassNames(ExtensionInformationInterface $extensionInformation): array
     {
         $classNames = [];
@@ -174,9 +151,6 @@ class ExtensionInformationService
     }
 
     /**
-     * @param string $extensionKey
-     *
-     * @return ExtensionInformationInterface
      * @throws ImplementationException
      */
     public function getExtensionInformation(string $extensionKey): ExtensionInformationInterface
@@ -194,7 +168,6 @@ class ExtensionInformationService
      * of the stored instances respects their dependencies as resolved by the PackageManager. This register is used for
      * a series of automated tasks like TCA-generation, icon registration and plugin configuration.
      *
-     * @return void
      * @throws ImplementationException
      */
     private function register(): void

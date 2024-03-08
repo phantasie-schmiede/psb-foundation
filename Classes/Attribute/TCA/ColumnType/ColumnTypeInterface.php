@@ -17,18 +17,9 @@ namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
  */
 interface ColumnTypeInterface
 {
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string;
 
-    /**
-     * @return string
-     */
     public function getType(): string;
 
-    /**
-     * @return array
-     */
     public function toArray(): array;
 }

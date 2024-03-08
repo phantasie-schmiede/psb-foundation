@@ -19,19 +19,6 @@ use PSB\PsbFoundation\Enum\ContentType;
  */
 class PluginConfiguration
 {
-    /**
-     * @param string      $name
-     * @param bool        $addToElementWizard
-     * @param array       $controllers
-     * @param string      $flexForm
-     * @param string      $group
-     * @param string      $iconIdentifier
-     * @param string      $title
-     * @param int         $typeNum
-     * @param bool        $typeNumCacheable
-     * @param ContentType $typeNumContentType
-     * @param bool        $typeNumDisableAllHeaderCode
-     */
     public function __construct(
         protected string      $name,
         protected bool        $addToElementWizard = true,
@@ -47,89 +34,56 @@ class PluginConfiguration
     ) {
     }
 
-    /**
-     * @return array
-     */
     public function getControllers(): array
     {
         return $this->controllers;
     }
 
-    /**
-     * @return string
-     */
     public function getFlexForm(): string
     {
         return $this->flexForm;
     }
 
-    /**
-     * @return string
-     */
     public function getGroup(): string
     {
         return $this->group;
     }
 
-    /**
-     * @return string
-     */
     public function getIconIdentifier(): string
     {
         return $this->iconIdentifier;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * @return int
-     */
     public function getTypeNum(): int
     {
         return $this->typeNum;
     }
 
-    /**
-     * @return ContentType
-     */
     public function getTypeNumContentType(): ContentType
     {
         return $this->typeNumContentType;
     }
 
-    /**
-     * @return bool
-     */
     public function isAddToElementWizard(): bool
     {
         return $this->addToElementWizard;
     }
 
-    /**
-     * @return bool
-     */
     public function isTypeNumCacheable(): bool
     {
         return $this->typeNumCacheable;
     }
 
-    /**
-     * @return bool
-     */
     public function isTypeNumDisableAllHeaderCode(): bool
     {
         return $this->typeNumDisableAllHeaderCode;

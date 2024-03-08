@@ -31,9 +31,6 @@ use function is_string;
 class TypoScriptProviderService
 {
     /**
-     * @param ConfigurationManagerInterface $configurationManager
-     * @param TypoScriptService             $typoScriptService
-     *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -66,12 +63,12 @@ class TypoScriptProviderService
         string $path = null,
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
         string $extensionName = null,
-        string $pluginName = null
+        string $pluginName = null,
     ): mixed {
         $typoScript = $this->configurationManager->getConfiguration($configurationType, $extensionName, $pluginName);
         $typoScript = $this->typoScriptService->convertTypoScriptArrayToPlainArray($typoScript);
 
-        array_walk_recursive($typoScript, static function (&$item) {
+        array_walk_recursive($typoScript, static function(&$item) {
             if (is_string($item)) {
                 // if constants are not set
                 if (str_starts_with($item, '{$')) {
@@ -86,12 +83,6 @@ class TypoScriptProviderService
     }
 
     /**
-     * @param string      $path
-     * @param string      $configurationType
-     * @param string|null $extensionName
-     * @param string|null $pluginName
-     *
-     * @return bool
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -99,7 +90,7 @@ class TypoScriptProviderService
         string $path,
         string $configurationType = ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
         string $extensionName = null,
-        string $pluginName = null
+        string $pluginName = null,
     ): bool {
         try {
             $this->get($path, $configurationType, $extensionName, $pluginName);
@@ -110,12 +101,6 @@ class TypoScriptProviderService
         }
     }
 
-    /**
-     * @param array       $typoScript
-     * @param string|null $path
-     *
-     * @return mixed
-     */
     private function getDemandedTypoScript(array $typoScript, string $path = null): mixed
     {
         if (null !== $path) {

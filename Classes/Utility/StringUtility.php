@@ -33,22 +33,12 @@ use function strlen;
  */
 class StringUtility
 {
-    /**
-     * @param $url
-     *
-     * @return string
-     */
-    public static function cleanUrl($url): string
+    public static function cleanUrl(string $url): string
     {
         return html_entity_decode(urldecode($url));
     }
 
     /**
-     * @param string|null $variable
-     * @param bool        $convertEmptyStringToNull
-     * @param array       $namespaces
-     *
-     * @return mixed
      * @throws ContainerExceptionInterface
      * @throws InvalidConfigurationTypeException
      * @throws JsonException
@@ -56,8 +46,8 @@ class StringUtility
      */
     public static function convertString(
         ?string $variable,
-        bool $convertEmptyStringToNull = false,
-        array $namespaces = [],
+        bool    $convertEmptyStringToNull = false,
+        array   $namespaces = [],
     ): mixed {
         if (null === $variable || ($convertEmptyStringToNull && '' === $variable)) {
             return null;
@@ -68,7 +58,14 @@ class StringUtility
             return $variable;
         }
 
-        if (1 === strlen($variable) || !str_starts_with($variable, '0') || in_array($variable[1], ['.', ','], true)) {
+        if (1 === strlen($variable) || !str_starts_with($variable, '0') || in_array(
+                $variable[1],
+                [
+                    '.',
+                    ',',
+                ],
+                true
+            )) {
             $intRepresentation = filter_var($variable, FILTER_VALIDATE_INT);
 
             if (false !== $intRepresentation) {
@@ -84,7 +81,10 @@ class StringUtility
 
         if (str_starts_with($variable, 'TS:') && !ContextUtility::isBootProcessRunning()) {
             $typoScriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
-            [, $path] = GeneralUtility::trimExplode(':', $variable);
+            [
+                ,
+                $path,
+            ] = GeneralUtility::trimExplode(':', $variable);
 
             if ($typoScriptProviderService->has($path)) {
                 return $typoScriptProviderService->get($path);
@@ -93,7 +93,10 @@ class StringUtility
 
         // check for constant
         if (0 < mb_strpos($variable, '::')) {
-            [$className, $constantName] = GeneralUtility::trimExplode('::', $variable, true, 2);
+            [
+                $className,
+                $constantName,
+            ] = GeneralUtility::trimExplode('::', $variable, true, 2);
             $className = ObjectUtility::getFullQualifiedClassName($className, $namespaces);
 
             // If $className is false, we have a false positive. It's not a constant, but for example CSS.
@@ -109,7 +112,7 @@ class StringUtility
                  * array path.
                  */
                 if (0 < preg_match_all('/\[\'?(.*)\'?(](?=\[)|]$)/U', $constantName, $pathSegments)) {
-                    $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
+                    $pathSegments = array_map(static function($value) use ($convertEmptyStringToNull, $namespaces) {
                         return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
                     }, $pathSegments[1]);
 
@@ -120,15 +123,19 @@ class StringUtility
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
                     } catch (Exception) {
-                        throw new RuntimeException(__CLASS__ . ': Path "[' . implode('][',
-                                $pathSegments) . ']" does not exist in array!', 1548170593);
+                        throw new RuntimeException(
+                            __CLASS__ . ': Path "[' . implode(
+                                '][',
+                                $pathSegments
+                            ) . ']" does not exist in array!', 1548170593
+                        );
                     }
                 }
 
                 // check for dot-notation of array path
                 if (str_contains($constantName, '.')) {
                     $pathSegments = explode('.', $constantName);
-                    $pathSegments = array_map(static function ($value) use ($convertEmptyStringToNull, $namespaces) {
+                    $pathSegments = array_map(static function($value) use ($convertEmptyStringToNull, $namespaces) {
                         return self::convertString(trim($value, '\'"'), $convertEmptyStringToNull, $namespaces);
                     }, $pathSegments);
 
@@ -141,8 +148,12 @@ class StringUtility
                         // now try to access the array path
                         return ArrayUtility::getValueByPath($variable, $pathSegments);
                     } catch (Exception) {
-                        throw new RuntimeException('Path "' . implode('.',
-                                $pathSegments) . '" does not exist in array!', 1589385393);
+                        throw new RuntimeException(
+                            'Path "' . implode(
+                                '.',
+                                $pathSegments
+                            ) . '" does not exist in array!', 1589385393
+                        );
                     }
                 }
 
@@ -151,7 +162,14 @@ class StringUtility
         }
 
         // check for JSON
-        if (in_array($variable[0], ['{', '['], true)) {
+        if (in_array(
+            $variable[0],
+            [
+                '{',
+                '[',
+            ],
+            true
+        )) {
             try {
                 $decodedString = json_decode(str_replace('\'', '"', $variable), true, 512, JSON_THROW_ON_ERROR);
 
@@ -170,11 +188,6 @@ class StringUtility
         };
     }
 
-    /**
-     * @param string $dateTimeString
-     *
-     * @return DateTime
-     */
     public static function convertToDateTime(string $dateTimeString): DateTime
     {
         $timestamp = strtotime($dateTimeString);
@@ -186,11 +199,6 @@ class StringUtility
         return (new DateTime())->setTimestamp($timestamp);
     }
 
-    /**
-     * @param string $variable
-     *
-     * @return float
-     */
     public static function convertToFloat(string $variable): float
     {
         return (float)str_replace(',', '.', $variable);
@@ -207,10 +215,10 @@ class StringUtility
      */
     public static function crop(
         string $string,
-        int $length,
+        int    $length,
         string $appendix = '…',
-        bool $respectWordBoundaries = true,
-        bool $respectHtml = true,
+        bool   $respectWordBoundaries = true,
+        bool   $respectHtml = true,
     ): string {
         if (mb_strlen($string) <= $length) {
             return $string;
@@ -219,7 +227,7 @@ class StringUtility
         $lastCharacterBeforeTruncation = '';
 
         if (true === $respectHtml) {
-            $preparedString = preg_replace_callback('/<.*>/U', static function ($matches) {
+            $preparedString = preg_replace_callback('/<.*>/U', static function($matches) {
                 return '###TAG###' . $matches[0] . '###TAG###';
             }, $string);
 
@@ -230,16 +238,17 @@ class StringUtility
 
             foreach ($stringParts as $stringPart) {
                 if ('/>' !== mb_substr($stringPart, -2)) {
-                    if (0 === mb_strpos($stringPart, '</')) {
+                    if (str_starts_with($stringPart, '</')) {
                         $lastOpenedTag = array_pop($openedTags);
                         preg_match('/<\/(.+)>/U', $stringPart, $matches);
                         $closedTag = $matches[1];
 
                         if ($lastOpenedTag !== $closedTag) {
-                            throw new RuntimeException(__CLASS__ . ': HTML tags in the input string are not properly nested.',
-                                1565696694);
+                            throw new RuntimeException(
+                                __CLASS__ . ': HTML tags in the input string are not properly nested.', 1565696694
+                            );
                         }
-                    } elseif (0 === mb_strpos($stringPart, '<')) {
+                    } elseif (str_starts_with($stringPart, '<')) {
                         // extract the tag name
                         preg_match('/<(.+)[\s>]/U', $stringPart, $matches);
                         $openedTags[] = $matches[1];
@@ -273,28 +282,35 @@ class StringUtility
             $lastCharacterBeforeTruncation = mb_substr($string, $length - 1, 1);
         }
 
-        if (in_array($lastCharacterBeforeTruncation, ['.', '!', '?'], true)) {
+        if (in_array(
+            $lastCharacterBeforeTruncation,
+            [
+                '.',
+                '!',
+                '?',
+            ],
+            true
+        )) {
             $appendix = '';
         }
 
         return mb_substr($string, 0, $length) . $appendix;
     }
 
-    /**
-     * @param string $string
-     *
-     * @return array
-     */
     public static function explodeByLineBreaks(string $string): array
     {
-        return preg_split('/' . implode('|', [CRLF, LF, CR]) . '/', $string) ? : [];
+        return preg_split(
+            '/' . implode(
+                '|', [
+                    CRLF,
+                    LF,
+                    CR,
+                ]
+            ) . '/',
+            $string
+        ) ?: [];
     }
 
-    /**
-     * @param string $sentence
-     *
-     * @return string
-     */
     public static function getFirstWord(string $sentence): string
     {
         $words = GeneralUtility::trimExplode(' ', $sentence, true);
@@ -303,9 +319,6 @@ class StringUtility
     }
 
     /**
-     * @param int $style
-     *
-     * @return NumberFormatter
      * @throws AspectNotFoundException
      */
     public static function getNumberFormatter(int $style = NumberFormatter::DEFAULT_STYLE): NumberFormatter
@@ -315,23 +328,29 @@ class StringUtility
 
     /**
      * Removes all characters which are not -, _, [, ], (, ), ., a space, a digit or a letter in the range a-zA-Z.
-     *
-     * @param string $string
-     *
-     * @return string
      */
     public static function removeSpecialChars(string $string): string
     {
         return mb_ereg_replace('/([^\w\ \d\-_\[\]\(\).])/', '', $string);
     }
 
-    /**
-     * @param string $propertyName
-     *
-     * @return string
-     */
     public static function sanitizePropertyName(string $propertyName): string
     {
-        return lcfirst(str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', strtolower($propertyName)))));
+        return lcfirst(
+            str_replace(
+                ' ',
+                '',
+                ucwords(
+                    str_replace(
+                        [
+                            '_',
+                            '-',
+                        ],
+                        ' ',
+                        strtolower($propertyName)
+                    )
+                )
+            )
+        );
     }
 }

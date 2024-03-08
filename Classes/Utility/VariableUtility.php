@@ -31,8 +31,12 @@ class VariableUtility
      *
      * @return mixed
      */
-    public static function getValueByPath(object|array $variable, string $path, bool $strict = true, string $delimiter = '.'): mixed
-    {
+    public static function getValueByPath(
+        object|array $variable,
+        string       $path,
+        bool         $strict = true,
+        string       $delimiter = '.',
+    ): mixed {
         $pathSegments = GeneralUtility::trimExplode($delimiter, $path);
         $value = $variable;
 
@@ -47,8 +51,9 @@ class VariableUtility
                     return null;
                 }
 
-                throw new RuntimeException(__CLASS__ . ': Path "' . $path . '" does not exist in array or object!',
-                    1614066725);
+                throw new RuntimeException(
+                    __CLASS__ . ': Path "' . $path . '" does not exist in array or object!', 1614066725
+                );
             }
         }
 

@@ -28,49 +28,34 @@ class PageTypeConfiguration
      *                                    "yourPageTypeName" to "Your page type name".
      */
     public function __construct(
-        protected int $doktype,
-        protected string $name,
-        protected array $allowedTables = [],
+        protected int     $doktype,
+        protected string  $name,
+        protected array   $allowedTables = [],
         protected ?string $iconIdentifier = null,
         protected ?string $label = null,
     ) {
     }
 
-    /**
-     * @return array
-     */
     public function getAllowedTables(): array
     {
         return $this->allowedTables;
     }
 
-    /**
-     * @return int
-     */
     public function getDoktype(): int
     {
         return $this->doktype;
     }
 
-    /**
-     * @return string|null
-     */
     public function getIconIdentifier(): ?string
     {
         return $this->iconIdentifier;
     }
 
-    /**
-     * @return string|null
-     */
     public function getLabel(): ?string
     {
         return $this->label;
     }
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return $this->name;

@@ -32,9 +32,6 @@ class ContextUtility
 {
     public const DEFAULT_LANGUAGE_KEY = 'en';
 
-    /**
-     * @return string
-     */
     public static function getCurrentBackendLanguage(): string
     {
         ValidationUtility::requiresBackendContext();
@@ -49,7 +46,6 @@ class ContextUtility
     }
 
     /**
-     * @return SiteLanguage
      * @throws AspectNotFoundException
      */
     public static function getCurrentFrontendLanguage(): SiteLanguage
@@ -64,7 +60,6 @@ class ContextUtility
     }
 
     /**
-     * @return string
      * @throws AspectNotFoundException
      */
     public static function getCurrentLocale(): string
@@ -82,27 +77,16 @@ class ContextUtility
         return self::DEFAULT_LANGUAGE_KEY;
     }
 
-    /**
-     * @param Request $request
-     *
-     * @return string
-     */
     public static function getPluginSignatureFromRequest(Request $request): string
     {
         return strtolower('tx_' . $request->getControllerExtensionName() . '_' . $request->getPluginName());
     }
 
-    /**
-     * @return ServerRequestInterface|null
-     */
     public static function getRequest(): ?ServerRequestInterface
     {
         return $GLOBALS['TYPO3_REQUEST'] ?? null;
     }
 
-    /**
-     * @return bool
-     */
     public static function isBackend(): bool
     {
         $request = self::getRequest();
@@ -112,7 +96,6 @@ class ContextUtility
     }
 
     /**
-     * @return bool
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -122,9 +105,6 @@ class ContextUtility
             ->get('boot.state')->complete;
     }
 
-    /**
-     * @return bool
-     */
     public static function isFrontend(): bool
     {
         $request = self::getRequest();
@@ -134,7 +114,6 @@ class ContextUtility
     }
 
     /**
-     * @return bool
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */

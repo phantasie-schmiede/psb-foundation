@@ -46,12 +46,6 @@ class XmlUtility
 
     public const XML_HEADER = '<?xml version="1.0" encoding="UTF-8"?>';
 
-    /**
-     * @param string $xml
-     * @param bool   $forceNoWrap
-     *
-     * @return string
-     */
     public static function beautifyXml(string $xml, bool $forceNoWrap = false): string
     {
         $dom = new DOMDocument();
@@ -104,13 +98,6 @@ class XmlUtility
         return self::buildFromXml($sortAlphabetically, $xml, $mapping, $namespaces);
     }
 
-    /**
-     * @param array|XmlElementInterface $data
-     * @param string                    $xmlHeader
-     * @param bool                      $wellFormatted
-     *
-     * @return string
-     */
     public static function convertToXml(
         array|XmlElementInterface $data,
         string                    $xmlHeader = self::XML_HEADER,
@@ -125,13 +112,6 @@ class XmlUtility
         return $xml;
     }
 
-    /**
-     * @param array  $array
-     * @param string $path
-     * @param bool   $strict
-     *
-     * @return mixed
-     */
     public static function getNodeValue(array $array, string $path, bool $strict = true): mixed
     {
         $path .= '.' . self::SPECIAL_ARRAY_KEYS['NODE_VALUE'];
@@ -143,13 +123,6 @@ class XmlUtility
         return ArrayUtility::getValueByPath($array, $path, '.');
     }
 
-    /**
-     * @param array  $array
-     * @param string $path
-     * @param bool   $strict
-     *
-     * @return void
-     */
     public static function removeNode(array &$array, string $path, bool $strict = false): void
     {
         if (false === $strict && !ArrayUtility::isValidPath($array, $path, '.')) {
@@ -159,21 +132,11 @@ class XmlUtility
         $array = ArrayUtility::removeByPath($array, $path, '.');
     }
 
-    /**
-     * @param string $tagName
-     *
-     * @return string
-     */
     public static function sanitizeTagName(string $tagName): string
     {
         return str_replace('_', '-', GeneralUtility::camelCaseToLowerCaseUnderscored($tagName));
     }
 
-    /**
-     * @param array  $array
-     * @param string $path
-     * @param mixed  $value
-     */
     public static function setNodeValue(array &$array, string $path, mixed $value): void
     {
         $path .= '.' . self::SPECIAL_ARRAY_KEYS['NODE_VALUE'];
@@ -199,7 +162,7 @@ class XmlUtility
         array            $mapping,
         array            $namespaces = [],
         bool             $rootLevel = true,
-    ): object|array|string {
+    ): array|object|string {
         $array = [];
 
         foreach ($xml->getDocNamespaces(false, false) as $prefix => $namespace) {
@@ -279,13 +242,7 @@ class XmlUtility
         return $array;
     }
 
-    /**
-     * @param string $key
-     * @param        $value
-     *
-     * @return string
-     */
-    private static function buildTag(string $key, $value): string
+    private static function buildTag(string $key, mixed $value): string
     {
         $xml = '<' . $key;
 
@@ -331,11 +288,6 @@ class XmlUtility
         return $xml;
     }
 
-    /**
-     * @param array|XmlElementInterface $data
-     *
-     * @return string
-     */
     private static function buildXml(array|XmlElementInterface $data)
     {
         $xml = '';
@@ -386,11 +338,6 @@ class XmlUtility
         return $xml;
     }
 
-    /**
-     * @param array $siblings
-     *
-     * @return array
-     */
     private static function sortSiblings(array $siblings): array
     {
         uasort($siblings, static function($a, $b) {

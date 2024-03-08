@@ -12,6 +12,7 @@ namespace PSB\PsbFoundation\Utility\Configuration;
 
 use PSB\PsbFoundation\Data\ExtensionInformationInterface;
 use PSB\PsbFoundation\Utility\ArrayUtility;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Resource\Exception\InvalidFileException;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use function array_slice;
@@ -23,15 +24,11 @@ use function array_slice;
  */
 class FilePathUtility
 {
-    public const EXTENSION_DIRECTORY_PREFIX = 'EXT:';
-    public const LANGUAGE_FILE_EXTENSION    = '.xlf';
-    public const LANGUAGE_LABEL_PREFIX      = 'LLL:';
+    public const EXTENSION_DIRECTORY_PREFIX    = 'EXT:';
+    public const LANGUAGE_FILE_EXTENSION       = '.xlf';
+    public const LANGUAGE_LABEL_LOG_FILES_PATH = 'log/psb_foundation/language_labels/';
+    public const LANGUAGE_LABEL_PREFIX         = 'LLL:';
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     *
-     * @return string
-     */
     public static function getLanguageFilePath(ExtensionInformationInterface $extensionInformation): string
     {
         return self::LANGUAGE_LABEL_PREFIX . self::getResourcePath($extensionInformation) . 'Private/Language/';
@@ -85,12 +82,14 @@ class FilePathUtility
             ) . '/' . lcfirst($filename) . ':';
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $subdirectory
-     *
-     * @return string
-     */
+    public static function getLanguageLabelLogFilesPath(): string
+    {
+        return rtrim(
+                Environment::getVarPath(),
+                '/'
+            ) . '/' . self::LANGUAGE_LABEL_LOG_FILES_PATH;
+    }
+
     public static function getPrivateResourcePath(
         ExtensionInformationInterface $extensionInformation,
         string                        $subdirectory = '',
@@ -98,12 +97,6 @@ class FilePathUtility
         return self::getResourcePath($extensionInformation, 'Private/' . ltrim($subdirectory, '/'));
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $subdirectory
-     *
-     * @return string
-     */
     public static function getPublicResourcePath(
         ExtensionInformationInterface $extensionInformation,
         string                        $subdirectory = '',
@@ -112,10 +105,6 @@ class FilePathUtility
     }
 
     /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $subdirectory
-     *
-     * @return string
      * @throws InvalidFileException
      */
     public static function getPublicResourceWebPath(
@@ -127,12 +116,6 @@ class FilePathUtility
         return PathUtility::getPublicResourceWebPath($directoryPath);
     }
 
-    /**
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $subdirectory
-     *
-     * @return string
-     */
     public static function getResourcePath(
         ExtensionInformationInterface $extensionInformation,
         string                        $subdirectory = '',

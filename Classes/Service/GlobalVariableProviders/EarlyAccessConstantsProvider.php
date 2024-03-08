@@ -49,7 +49,6 @@ class EarlyAccessConstantsProvider extends AbstractProvider
     public const DIRECTORY = '/Configuration/EarlyAccessConstants/';
 
     /**
-     * @return array
      * @throws ImplementationException
      */
     public function getGlobalVariables(): array
@@ -60,7 +59,11 @@ class EarlyAccessConstantsProvider extends AbstractProvider
 
         // This builds the path for a context-specific file with a lowercase filename.
         /** @var array $contextParts */
-        $contextParts = explode('/', Environment::getContext()->__toString());
+        $contextParts = explode(
+            '/',
+            Environment::getContext()
+                ->__toString()
+        );
         $lastIndex = count($contextParts) - 1;
         $contextParts[$lastIndex] = lcfirst($contextParts[$lastIndex]);
         $contextSpecificFilePath = self::DIRECTORY . implode('/', $contextParts) . '.yaml';
@@ -80,7 +83,9 @@ class EarlyAccessConstantsProvider extends AbstractProvider
             }
         }
 
-        ExtensionManagementUtility::addTypoScriptConstants(TypoScriptUtility::convertArrayToTypoScript($mergedConstants));
+        ExtensionManagementUtility::addTypoScriptConstants(
+            TypoScriptUtility::convertArrayToTypoScript($mergedConstants)
+        );
 
         return $mergedConstants;
     }

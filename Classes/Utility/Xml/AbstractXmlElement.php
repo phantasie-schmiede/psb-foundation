@@ -14,6 +14,7 @@ use PSB\PsbFoundation\Traits\AutoFillPropertiesTrait;
 use PSB\PsbFoundation\Utility\ObjectUtility;
 use ReflectionClass;
 use ReflectionException;
+use function in_array;
 use function is_array;
 
 /**
@@ -25,9 +26,6 @@ class AbstractXmlElement implements XmlElementInterface
 {
     use AutoFillPropertiesTrait;
 
-    /**
-     * @var array
-     */
     protected array $_attributes = [];
 
     /**
@@ -36,14 +34,9 @@ class AbstractXmlElement implements XmlElementInterface
      */
     protected array $_nodeValue = [];
 
-    /**
-     * @var int|null
-     */
     protected ?int $_position = null;
 
     /**
-     * @param array $childData
-     *
      * @throws ReflectionException
      */
     public function __construct(array $childData)
@@ -80,70 +73,42 @@ class AbstractXmlElement implements XmlElementInterface
         $this->fillProperties($childData);
     }
 
-    /**
-     * @return string
-     */
     public static function getTagName(): string
     {
         return XmlUtility::sanitizeTagName((new ReflectionClass(static::class))->getShortName());
     }
 
-    /**
-     * @return array
-     */
     public function _getAttributes(): array
     {
         return $this->_attributes;
     }
 
-    /**
-     * @return mixed|null
-     */
     public function _getNodeValue(): mixed
     {
         return $this->_nodeValue[0] ?? null;
     }
 
-    /**
-     * @return int|null
-     */
     public function _getPosition(): ?int
     {
         return $this->_position;
     }
 
-    /**
-     * @param array $attributes
-     *
-     * @return void
-     */
     public function _setAttributes(array $attributes): void
     {
         $this->_attributes = $attributes;
     }
 
-    /**
-     * @param $nodeValue
-     *
-     * @return void
-     */
     public function _setNodeValue($nodeValue): void
     {
         $this->_nodeValue = [$nodeValue];
     }
 
-    /**
-     * @param int $position
-     *
-     * @return void
-     */
     public function _setPosition(int $position): void
     {
         $this->_position = $position;
     }
 
     /**
-     * @return array
      * @throws ReflectionException
      */
     public function toArray(): array

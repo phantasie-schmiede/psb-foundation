@@ -7,6 +7,9 @@
         source-language="en">
         <header />
         <body>
+            <trans-unit id="debug.logLanguageLabelAccess">
+                <source>Log language label access</source>
+            </trans-unit>
             <trans-unit id="debug.logMissingLanguageLabels">
                 <source>Log missing language labels</source>
             </trans-unit>

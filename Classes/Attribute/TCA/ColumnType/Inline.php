@@ -26,9 +26,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Inline extends AbstractColumnType
 {
-    /**
-     * @var TcaService
-     */
     protected TcaService $tcaService;
 
     /**
@@ -78,24 +75,17 @@ class Inline extends AbstractColumnType
         }
     }
 
-    /**
-     * @return array
-     */
     public function getAppearance(): array
     {
         return $this->appearance;
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         return DefinitionUtility::int(unsigned: true);
     }
 
     /**
-     * @return string|null
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -109,57 +99,36 @@ class Inline extends AbstractColumnType
         return $this->tcaService->convertPropertyNameToColumnName($this->foreignField, $this->linkedModel);
     }
 
-    /**
-     * @return array|null
-     */
     public function getForeignMatchFields(): ?array
     {
         return $this->foreignMatchFields;
     }
 
-    /**
-     * @return string|null
-     */
     public function getForeignSortBy(): ?string
     {
         return $this->foreignSortBy;
     }
 
-    /**
-     * @return string
-     */
     public function getForeignTable(): string
     {
         return $this->foreignTable;
     }
 
-    /**
-     * @return int|null
-     */
     public function getMaxItems(): ?int
     {
         return $this->maxItems;
     }
 
-    /**
-     * @return string|null
-     */
     public function getMm(): ?string
     {
         return $this->mm;
     }
 
-    /**
-     * @return array|null
-     */
     public function getMmMatchFields(): ?array
     {
         return $this->mmMatchFields;
     }
 
-    /**
-     * @return string|null
-     */
     public function getMmOppositeField(): ?string
     {
         return $this->mmOppositeField;

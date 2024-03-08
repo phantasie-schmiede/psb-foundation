@@ -21,7 +21,6 @@ use ReflectionException;
 trait ObjectToArrayTrait
 {
     /**
-     * @return array
      * @throws ReflectionException
      */
     public function toArray(): array

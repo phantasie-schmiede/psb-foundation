@@ -22,10 +22,6 @@ use PSB\PsbFoundation\ViewHelpers\GlobalVariablesViewHelper;
 abstract class AbstractGlobalVariablesViewHelper extends GlobalVariablesViewHelper
 {
     /**
-     * @param string $baseKey
-     * @param array  $arguments
-     *
-     * @return mixed
      * @throws Exception
      */
     protected static function getVariable(string $baseKey, array $arguments): mixed
@@ -37,9 +33,6 @@ abstract class AbstractGlobalVariablesViewHelper extends GlobalVariablesViewHelp
         return GlobalVariableService::get($baseKey, $arguments['strict'], $arguments['fallback']);
     }
 
-    /**
-     * @return void
-     */
     public function initializeArguments(): void
     {
         parent::initializeArguments();

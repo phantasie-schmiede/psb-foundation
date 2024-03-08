@@ -32,18 +32,18 @@ class File extends AbstractColumnType
      * @param string|null  $uploadDuplicationBehaviour           Defines how duplicates in the file system should be
      *                                                           handled (default is renaming the new file).
      *                                                           See \TYPO3\CMS\Core\Resource\DuplicationBehavior.
-     * @param bool         $uploadFileNameGeneratorAppendHash    If true, the hash value of the file content is appended
-     *                                                           to the file name.
+     * @param bool         $uploadFileNameGeneratorAppendHash    If true, the hash value of the file content is
+     *                                                           appended to the file name.
      * @param string       $uploadFileNameGeneratorPartSeparator string which combines the different file name parts
      *                                                           (default is "-")
      * @param string|null  $uploadFileNameGeneratorPrefix        If set, the file name will start with this string.
-     * @param array|null   $uploadFileNameGeneratorProperties    If empty, client file name will be used (removing unsafe
-     *                                                           characters).
+     * @param array|null   $uploadFileNameGeneratorProperties    If empty, client file name will be used (removing
+     *                                                           unsafe characters).
      * @param array|null   $uploadFileNameGeneratorReplacements  Associative array whose keys will be replaced by its
      *                                                           values in the file name
      * @param string|null  $uploadFileNameGeneratorSuffix        If set, the file name will end with this string.
-     * @param string|null  $uploadTargetFolder                   This can be a simple file path or a combined identifier
-     *                                                           like "2:my/file/path/" which defines the
+     * @param string|null  $uploadTargetFolder                   This can be a simple file path or a combined
+     *                                                           identifier like "2:my/file/path/" which defines the
      *                                                           ResourceStorage to be used. Default is "user_upload".
      *                                                           Example: "my/file/path/" will result to
      *                                                           "1:fileadmin/my/file/path/" (with default TYPO3
@@ -66,49 +66,31 @@ class File extends AbstractColumnType
     ) {
     }
 
-    /**
-     * @return array|string
-     */
     public function getAllowed(): array|string
     {
         return $this->allowed;
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         return DefinitionUtility::int(unsigned: true);
     }
 
-    /**
-     * @return int|null
-     */
     public function getMaxItems(): ?int
     {
         return $this->maxItems;
     }
 
-    /**
-     * @return int|null
-     */
     public function getMinItems(): ?int
     {
         return $this->minItems;
     }
 
-    /**
-     * @return array|null
-     */
     public function getOverrideChildTca(): ?array
     {
         return $this->overrideChildTca;
     }
 
-    /**
-     * @return array|null
-     */
     public function getUpload(): ?array
     {
         $configuration = null;

@@ -22,8 +22,6 @@ abstract class AbstractColumnType extends AbstractAttribute implements ColumnTyp
 {
     /**
      * Returns the short class name (lower case) for ['config']['type'].
-     *
-     * @return string
      */
     public function getType(): string
     {
@@ -33,7 +31,6 @@ abstract class AbstractColumnType extends AbstractAttribute implements ColumnTyp
     }
 
     /**
-     * @return array
      * @throws ReflectionException
      */
     public function toArray(): array

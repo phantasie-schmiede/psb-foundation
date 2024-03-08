@@ -16,6 +16,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function is_string;
 
 /**
  * Class TcaConfig
@@ -139,41 +140,26 @@ class Ctrl extends AbstractTcaAttribute
         parent::__construct();
     }
 
-    /**
-     * @return bool|null
-     */
     public function getAdminOnly(): ?bool
     {
         return $this->adminOnly;
     }
 
-    /**
-     * @return array|null
-     */
     public function getContainer(): ?array
     {
         return $this->container;
     }
 
-    /**
-     * @return string|null
-     */
     public function getCopyAfterDuplFields(): ?string
     {
         return $this->copyAfterDuplFields;
     }
 
-    /**
-     * @return string|null
-     */
     public function getCrdate(): ?string
     {
         return $this->crdate;
     }
 
-    /**
-     * @return string|null
-     */
     public function getDefaultSortBy(): ?string
     {
         if (self::DEFAULT_SORTBY === $this->defaultSortBy && !empty($this->sortBy)) {
@@ -183,104 +169,67 @@ class Ctrl extends AbstractTcaAttribute
         return $this->defaultSortBy;
     }
 
-    /**
-     * @return string|null
-     */
     public function getDelete(): ?string
     {
         return $this->delete;
     }
 
-    /**
-     * @return string|null
-     */
     public function getDescriptionColumn(): ?string
     {
         return $this->descriptionColumn;
     }
 
-    /**
-     * @return array|null
-     */
     public function getEXT(): ?array
     {
         return $this->EXT;
     }
 
-    /**
-     * @return string|null
-     */
     public function getEditLock(): ?string
     {
         return $this->editLock;
     }
 
-    /**
-     * @return array|null
-     */
     public function getEnableColumns(): ?array
     {
         return $this->enableColumns;
     }
 
-    /**
-     * @return string|null
-     */
     public function getFormattedLabelUserFunc(): ?string
     {
         return $this->formattedLabelUserFunc;
     }
 
-    /**
-     * @return array|null
-     */
     public function getFormattedLabelUserFuncOptions(): ?array
     {
         return $this->formattedLabelUserFuncOptions;
     }
 
-    /**
-     * @return string|null
-     */
     public function getGroupName(): ?string
     {
         return $this->groupName;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getHideAtCopy(): ?bool
     {
         return $this->hideAtCopy;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getHideTable(): ?bool
     {
         return $this->hideTable;
     }
 
-    /**
-     * @return string|null
-     */
     public function getIconFile(): ?string
     {
         return $this->iconFile;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getIsStatic(): ?bool
     {
         return $this->isStatic;
     }
 
     /**
-     * @return string
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -291,7 +240,6 @@ class Ctrl extends AbstractTcaAttribute
     }
 
     /**
-     * @return string|null
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -315,64 +263,42 @@ class Ctrl extends AbstractTcaAttribute
         return implode(', ', $altLabels);
     }
 
-    /**
-     * @return bool|null
-     */
     public function getLabelAltForce(): ?bool
     {
         return $this->labelAltForce;
     }
 
-    /**
-     * @return string|null
-     */
     public function getLabelUserFunc(): ?string
     {
         return $this->labelUserFunc;
     }
 
-    /**
-     * @return string|null
-     */
     public function getLanguageField(): ?string
     {
         return $this->languageField;
     }
 
-    /**
-     * @return string|null
-     */
     public function getOrigUid(): ?string
     {
         return $this->origUid;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPrependAtCopy(): ?string
     {
         return $this->prependAtCopy;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getReadOnly(): ?bool
     {
         return $this->readOnly;
     }
 
-    /**
-     * @return int|null
-     */
     public function getRootLevel(): ?int
     {
         return $this->rootLevel;
     }
 
     /**
-     * @return string|null
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -391,9 +317,6 @@ class Ctrl extends AbstractTcaAttribute
         return implode(', ', $searchFields);
     }
 
-    /**
-     * @return array|null
-     */
     public function getSecurity(): ?array
     {
         $securityOptions = [
@@ -411,88 +334,57 @@ class Ctrl extends AbstractTcaAttribute
         return $this->security;
     }
 
-    /**
-     * @return string|null
-     */
     public function getSelIconField(): ?string
     {
         return $this->selIconField;
     }
 
-    /**
-     * @return string|null
-     */
     public function getShadowColumnsForNewPlaceholders(): ?string
     {
         return $this->shadowColumnsForNewPlaceholders;
     }
 
-    /**
-     * @return string|null
-     */
     public function getSortBy(): ?string
     {
         return $this->sortBy;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTransOrigDiffSourceField(): ?string
     {
         return $this->transOrigDiffSourceField;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTransOrigPointerField(): ?string
     {
         return $this->transOrigPointerField;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTranslationSource(): ?string
     {
         return $this->translationSource;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTstamp(): ?string
     {
         return $this->tstamp;
     }
 
-    /**
-     * @return string|null
-     */
     public function getType(): ?string
     {
         return $this->type;
     }
 
-    /**
-     * @return array|null
-     */
     public function getTypeIconClasses(): ?array
     {
         return $this->typeIconClasses;
     }
 
     /**
-     * @return string|null
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -506,32 +398,22 @@ class Ctrl extends AbstractTcaAttribute
         return $this->tcaService->convertPropertyNameToColumnName($this->typeIconColumn);
     }
 
-    /**
-     * @return string|null
-     */
     public function getUseColumnsForDefaultValues(): ?string
     {
         return $this->useColumnsForDefaultValues;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getVersioningWS(): ?bool
     {
         return $this->versioningWS;
     }
 
-    /**
-     * @return bool|null
-     */
     public function getVersioningWSAlwaysAllowLiveEdit(): ?bool
     {
         return $this->versioningWS_alwaysAllowLiveEdit;
     }
 
     /**
-     * @return array
      * @throws ReflectionException
      */
     public function toArray(): array

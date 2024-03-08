@@ -28,20 +28,12 @@ class FileReferenceService
 {
     public const TABLE_NAME = 'sys_file_reference';
 
-    /**
-     * @param TcaService $tcaService
-     */
     public function __construct(
         protected readonly TcaService $tcaService,
     ) {
     }
 
     /**
-     * @param AbstractEntity $domainModel
-     * @param FileInterface  $file
-     * @param string         $property
-     *
-     * @return int
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException

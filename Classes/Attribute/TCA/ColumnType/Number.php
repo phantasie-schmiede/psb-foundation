@@ -46,17 +46,11 @@ class Number extends AbstractColumnType
     ) {
     }
 
-    /**
-     * @return bool|null
-     */
     public function getAutocomplete(): ?bool
     {
         return $this->autocomplete;
     }
 
-    /**
-     * @return string
-     */
     public function getDatabaseDefinition(): string
     {
         if (NumberFormat::decimal === $this->format) {
@@ -68,17 +62,11 @@ class Number extends AbstractColumnType
         return DefinitionUtility::int(unsigned: $unsigned);
     }
 
-    /**
-     * @return string
-     */
     public function getFormat(): string
     {
         return $this->format->value;
     }
 
-    /**
-     * @return array|null
-     */
     public function getRange(): ?array
     {
         $range = null;
@@ -94,9 +82,6 @@ class Number extends AbstractColumnType
         return $range;
     }
 
-    /**
-     * @return array|null
-     */
     public function getSlider(): ?array
     {
         $sliderConfiguration = null;
@@ -112,9 +97,6 @@ class Number extends AbstractColumnType
         return $sliderConfiguration;
     }
 
-    /**
-     * @return array|null
-     */
     public function getValuePicker(): ?array
     {
         if (null === $this->valuePicker) {

@@ -43,29 +43,15 @@ class TypoScriptUtility
         'OBJECT_TYPE' => '_objectType',
     ];
 
-    /**
-     * @var string
-     */
     private static string $lineBreakAfterCurlyBracketClose = '';
-
-    /**
-     * @var string
-     */
     private static string $lineBreakBeforeCurlyBracketOpen = '';
+    private static string $objectPath                      = '';
 
-    /**
-     * @var string
-     */
-    private static string $objectPath = '';
-
-    /**
-     * @param array $array
-     *
-     * @return string
-     */
     public static function convertArrayToTypoScript(array $array): string
     {
-        if (Environment::getContext()->isDevelopment() || Environment::getContext()->isTesting()) {
+        if (Environment::getContext()
+                ->isDevelopment() || Environment::getContext()
+                ->isTesting()) {
             $backtrace = debug_backtrace();
             $debugInformation = [
                 'class'    => $backtrace[1]['class'],
@@ -84,11 +70,6 @@ class TypoScriptUtility
         return ($debugOutput ?? '') . $generatedTypoScript;
     }
 
-    /**
-     * @param PageObjectConfiguration $pageTypeConfiguration
-     *
-     * @return void
-     */
     public static function registerPageType(PageObjectConfiguration $pageTypeConfiguration): void
     {
         if (true === $pageTypeConfiguration->isCacheable()) {
@@ -103,10 +84,10 @@ class TypoScriptUtility
             ], $pageTypeConfiguration->getUserFuncParameters());
         } else {
             $contentConfiguration = [
-                'extensionName'               => $pageTypeConfiguration->getExtensionName(),
-                'pluginName'                  => $pageTypeConfiguration->getPluginName(),
-                'userFunc'                    => 'TYPO3\CMS\Extbase\Core\Bootstrap->run',
-                'vendorName'                  => $pageTypeConfiguration->getVendorName(),
+                'extensionName' => $pageTypeConfiguration->getExtensionName(),
+                'pluginName'    => $pageTypeConfiguration->getPluginName(),
+                'userFunc'      => 'TYPO3\CMS\Extbase\Core\Bootstrap->run',
+                'vendorName'    => $pageTypeConfiguration->getVendorName(),
             ];
 
             if ([] !== $pageTypeConfiguration->getSettings()) {
@@ -123,7 +104,8 @@ class TypoScriptUtility
                 'config'                              => [
                     'additionalHeaders'    => [
                         10 => [
-                            'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType()->value . '; charset=utf-8',
+                            'header' => 'Content-type: ' . $pageTypeConfiguration->getContentType(
+                                )->value . '; charset=utf-8',
                         ],
                     ],
                     'admPanel'             => false,
@@ -139,27 +121,15 @@ class TypoScriptUtility
 
     /**
      * For use in Configuration/TCA/Overrides/sys_template.php files
-     *
-     * @param ExtensionInformationInterface $extensionInformation
-     * @param string                        $path
-     * @param string                        $title
-     *
-     * @return void
      */
     public static function registerTypoScript(
         ExtensionInformationInterface $extensionInformation,
-        string $path,
-        string $title,
+        string                        $path,
+        string                        $title,
     ): void {
         ExtensionManagementUtility::addStaticFile($extensionInformation->getExtensionKey(), $path, $title);
     }
 
-    /**
-     * @param array $array
-     * @param int   $indentationLevel
-     *
-     * @return string
-     */
     private static function buildTypoScriptFromArray(array $array, int $indentationLevel = 0): string
     {
         ksort($array);
@@ -167,8 +137,9 @@ class TypoScriptUtility
 
         if (isset($array[self::TYPO_SCRIPT_KEYS['CONDITION']])) {
             if (0 < $indentationLevel) {
-                throw new UnexpectedValueException(__CLASS__ . ': TypoScript conditions must not be placed inside nested elements!',
-                    1552992577);
+                throw new UnexpectedValueException(
+                    __CLASS__ . ': TypoScript conditions must not be placed inside nested elements!', 1552992577
+                );
             }
 
             $typoScript .= '[' . $array[self::TYPO_SCRIPT_KEYS['CONDITION']] . ']' . LF;
@@ -181,13 +152,13 @@ class TypoScriptUtility
 
                 if (is_array($value) && isset($value[self::TYPO_SCRIPT_KEYS['COMMENT']])) {
                     if (is_array($value[self::TYPO_SCRIPT_KEYS['COMMENT']])) {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ? : self::$lineBreakBeforeCurlyBracketOpen);
+                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen);
 
                         foreach ($value[self::TYPO_SCRIPT_KEYS['COMMENT']] as $commentLine) {
                             $typoScript .= $indentation . '# ' . $commentLine . LF;
                         }
                     } else {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ? : self::$lineBreakBeforeCurlyBracketOpen) . $indentation . '# ' . $value[self::TYPO_SCRIPT_KEYS['COMMENT']] . LF;
+                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen) . $indentation . '# ' . $value[self::TYPO_SCRIPT_KEYS['COMMENT']] . LF;
                     }
                     self::$lineBreakBeforeCurlyBracketOpen = '';
                     unset($value[self::TYPO_SCRIPT_KEYS['COMMENT']]);
@@ -199,11 +170,11 @@ class TypoScriptUtility
 
                 if (is_array($value)) {
                     if (isset($value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']])) {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ? : self::$lineBreakBeforeCurlyBracketOpen) . $indentation . self::$objectPath . $key . ' = ' . $value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']] . LF;
+                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen) . $indentation . self::$objectPath . $key . ' = ' . $value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']] . LF;
                         unset($value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']]);
                         $typoScript .= self::processRemainingArray($indentationLevel, $key, $value);
                     } elseif (isset($value[self::TYPO_SCRIPT_KEYS['IMPORT']])) {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ? : self::$lineBreakBeforeCurlyBracketOpen) . $indentation . self::$objectPath . $key . ' < ' . $value[self::TYPO_SCRIPT_KEYS['IMPORT']] . LF;
+                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen) . $indentation . self::$objectPath . $key . ' < ' . $value[self::TYPO_SCRIPT_KEYS['IMPORT']] . LF;
                         unset($value[self::TYPO_SCRIPT_KEYS['IMPORT']]);
                         $typoScript .= self::processRemainingArray($indentationLevel, $key, $value);
                     } elseif (1 === count($value)) {
@@ -230,23 +201,11 @@ class TypoScriptUtility
         return $typoScript;
     }
 
-    /**
-     * @param int $indentationLevel
-     *
-     * @return string
-     */
     private static function createIndentation(int $indentationLevel): string
     {
         return str_repeat(self::INDENTATION, $indentationLevel);
     }
 
-    /**
-     * @param int        $indentationLevel
-     * @param int|string $key
-     * @param array      $value
-     *
-     * @return string
-     */
     private static function processRemainingArray(int $indentationLevel, int|string $key, array $value): string
     {
         $typoScript = '';
@@ -263,18 +222,12 @@ class TypoScriptUtility
         return $typoScript;
     }
 
-    /**
-     * @return void
-     */
     private static function resetLineBreaks(): void
     {
         self::$lineBreakAfterCurlyBracketClose = '';
         self::$lineBreakBeforeCurlyBracketOpen = '';
     }
 
-    /**
-     * @return void
-     */
     private static function resetObjectPath(): void
     {
         self::$objectPath = '';
