@@ -30,7 +30,7 @@ use TYPO3\CMS\Extbase\Mvc\Request;
  */
 class ContextUtility
 {
-    public const DEFAULT_LANGUAGE_KEY = 'en';
+    public const DEFAULT_LANGUAGE_KEY = 'default';
 
     /**
      * @return string
@@ -38,7 +38,7 @@ class ContextUtility
     public static function getCurrentBackendLanguage(): string
     {
         ValidationUtility::requiresBackendContext();
-        $language = $GLOBALS['BE_USER']->uc['lang'];
+        $language = (string)$GLOBALS['BE_USER']->user['lang'];
 
         if ('' === $language) {
             // Fallback to default language.
