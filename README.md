@@ -562,7 +562,6 @@ Examples (filename => icon identifier):
 ### Extension settings
 #### Log missing language labels
 If activated, missing language labels will be stored in `tx_psbfoundation_missing_language_labels`.
-This is restricted to `PSB\PsbFoundation\Utility\LocalizationUtility` which is also used by `PSB\PsbFoundation\ViewHelpers\TranslateViewHelper`.
 All missing default labels (e.g. plugin title or field label) will be listed this way if you didn't provide a custom label.
 Fixed entries get removed on next check (every time the cache is cleared).<br>
 It's recommended to check this table during extension development.
@@ -624,7 +623,7 @@ GlobalVariableService::get(RequestParameterProvider::class . '.formData.hiddenIn
 `PSB\PsbFoundation\ViewHelpers\TranslateViewHelper` is an extended clone of the core's TranslateViewHelper.
 
 Additional features:
-- Logging of missing language labels via `\PSB\PsbFoundation\Utility\LocalizationUtility`
+- Logging of missing language labels
 - Support of plural forms in language files;
   <trans-unit>-tags in xlf-files can be grouped like this to define plural forms of a translation:
   ```xml
