@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility;
 
+use DateTime;
+use Exception;
 use NumberFormatter;
 use RuntimeException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
@@ -94,18 +96,56 @@ class FileUtility
         return $numberFormatter->format($bytes) . '&nbsp;' . $unitString;
     }
 
-    /**
-     * @param string $fileName
-     *
-     * @return false|string
-     */
+    public static function getLockFileName(string $fileName): string
+    {
+        return (self::resolveFileName($fileName) ?: $fileName) . '.lock';
+    }
+
     public static function getMimeType(string $fileName): bool|string
     {
+        $fileName = self::resolveFileName($fileName);
         $fileInformation = finfo_open(FILEINFO_MIME_TYPE);
         $mimeType = $fileInformation->file($fileName);
         finfo_close($fileInformation);
 
         return $mimeType;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function isFileLocked(string $fileName): bool
+    {
+        $lockFileName = self::getLockFileName($fileName);
+
+        if (!file_exists($lockFileName)) {
+            return false;
+        }
+
+        $fileName = self::resolveFileName($fileName);
+        $content = trim(file_get_contents($lockFileName));
+
+        if (!empty($content)) {
+            $lifetime = new DateTime($content);
+            $now = new DateTime();
+
+            if ($now > $lifetime) {
+                return !self::unlockFile($fileName);
+            }
+        }
+
+        return true;
+    }
+
+    public static function lockFile(string $fileName, ?DateTime $lifetime = null): bool
+    {
+        $lockFileName = self::getLockFileName($fileName);
+
+        if ($lifetime instanceof DateTime) {
+            $content = $lifetime->format('Y-m-d H:i:s');
+        }
+
+        return self::write($lockFileName, $content ?? '');
     }
 
     /**
@@ -120,9 +160,28 @@ class FileUtility
         return GeneralUtility::getFileAbsFileName($fileName) ?: realpath($fileName) ?: '';
     }
 
+    public static function unlockFile(string $fileName): bool
+    {
+        $lockFileName = self::getLockFileName($fileName);
+
+        if (file_exists($lockFileName)) {
+            return unlink($lockFileName);
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws Exception
+     */
     public static function write(string $fileName, string $content, bool $append = false): bool
     {
         $fileName = self::resolveFileName($fileName);
+
+        if (self::isFileLocked($fileName)) {
+            return false;
+        }
+
         $pathDetails = pathinfo($fileName);
 
         // Directory creation is skipped if it already exists.
