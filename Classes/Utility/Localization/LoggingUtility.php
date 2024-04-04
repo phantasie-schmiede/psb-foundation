@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\Localization;
 
+use Closure;
 use DateTime;
 use Doctrine\DBAL\Exception;
 use JsonException;
@@ -59,7 +60,7 @@ class LoggingUtility
         );
     }
 
-    public static function checkPostponedLogEntries(\Closure $closure, string $logFile): void
+    public static function checkPostponedLogEntries(Closure $closure, string $logFile): void
     {
         if (file_exists($logFile) && !FileUtility::isFileLocked($logFile) && $logContent = file_get_contents(
                 $logFile

@@ -623,7 +623,6 @@ GlobalVariableService::get(RequestParameterProvider::class . '.formData.hiddenIn
 `PSB\PsbFoundation\ViewHelpers\TranslateViewHelper` is an extended clone of the core's TranslateViewHelper.
 
 Additional features:
-- Logging of missing language labels
 - Support of plural forms in language files;
   <trans-unit>-tags in xlf-files can be grouped like this to define plural forms of a translation:
   ```xml
