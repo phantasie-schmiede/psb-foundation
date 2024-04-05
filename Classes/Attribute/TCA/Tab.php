@@ -25,6 +25,7 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class Tab extends AbstractTcaAttribute
 {
     public function __construct(
+        // The identifier has to be written in snake_case!
         protected string $identifier = '',
         protected string $label = '',
         /**

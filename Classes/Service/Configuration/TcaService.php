@@ -455,14 +455,15 @@ class TcaService
         }
 
         if (null !== $ctrl) {
-            $ctrlProperties = $ctrl->toArray();
-
             if ($overrideMode) {
-                $ctrlProperties = array_filter($ctrlProperties, static function($key) use ($reflection) {
-                    $setArguments = $reflection->getAttributes(Ctrl::class)[0]->getArguments();
+                $ctrlProperties = [];
+                $setArguments = $reflection->getAttributes(Ctrl::class)[0]->getArguments();
 
-                    return in_array($key, $setArguments, true);
-                }, ARRAY_FILTER_USE_KEY);
+                foreach ($setArguments as $key => $value) {
+                    $ctrlProperties[TcaUtility::convertKey($key)] = $value;
+                }
+            } else {
+                $ctrlProperties = $ctrl->toArray();
             }
 
             foreach ($ctrlProperties as $property => $value) {
