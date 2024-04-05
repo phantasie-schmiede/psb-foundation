@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace PSB\PsbFoundation\Utility\Localization;
 
+use Closure;
+use DateTime;
 use Doctrine\DBAL\Exception;
 use JsonException;
 use PSB\PsbFoundation\Data\ExtensionInformation;
@@ -46,21 +48,32 @@ class LoggingUtility
     private static ?bool $logMissingLanguageLabels = null;
 
     /**
-     * @return void
      * @throws Exception
      */
     public static function checkPostponedAccessLogEntries(): void
     {
-        $logFile = FilePathUtility::getLanguageLabelLogFilesPath() . self::LOG_FILES['ACCESS'];
+        self::checkPostponedLogEntries(
+            static function($logEntry) {
+                self::writeAccessLogToDatabase($logEntry);
+            },
+            FilePathUtility::getLanguageLabelLogFilesPath() . self::LOG_FILES['ACCESS']
+        );
+    }
 
-        if (file_exists($logFile) && $logContent = file_get_contents($logFile)) {
-            $postponedKeys = StringUtility::explodeByLineBreaks($logContent);
+    public static function checkPostponedLogEntries(Closure $closure, string $logFile): void
+    {
+        if (file_exists($logFile) && !FileUtility::isFileLocked($logFile) && $logContent = file_get_contents(
+                $logFile
+            )) {
+            FileUtility::lockFile($logFile, (new DateTime())->modify('+5 seconds'));
+            $postponedEntries = StringUtility::explodeByLineBreaks($logContent);
 
-            foreach (array_filter($postponedKeys) as $postponedKey) {
-                self::writeAccessLogToDatabase($postponedKey);
+            foreach (array_filter($postponedEntries) as $postponedEntry) {
+                $closure($postponedEntry);
             }
 
             unlink($logFile);
+            FileUtility::unlockFile($logFile);
         }
     }
 
@@ -69,26 +82,21 @@ class LoggingUtility
      */
     public static function checkPostponedMissingLogEntries(): void
     {
-        $logFile = FilePathUtility::getLanguageLabelLogFilesPath() . self::LOG_FILES['MISSING'];
-
-        if (file_exists($logFile) && $logContent = file_get_contents($logFile)) {
-            $postponedEntries = StringUtility::explodeByLineBreaks($logContent);
-
-            foreach (array_filter($postponedEntries) as $postponedEntry) {
+        self::checkPostponedLogEntries(
+            static function($logEntry) {
                 [
                     $postponedKey,
                     $postponedKeyExists,
                 ] = json_decode(
-                    $postponedEntry,
+                    $logEntry,
                     false,
                     512,
                     JSON_THROW_ON_ERROR
                 );
                 self::writeMissingLogToDatabase($postponedKey, $postponedKeyExists);
-            }
-
-            unlink($logFile);
-        }
+            },
+            FilePathUtility::getLanguageLabelLogFilesPath() . self::LOG_FILES['MISSING']
+        );
     }
 
     /**
