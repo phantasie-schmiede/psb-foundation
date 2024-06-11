@@ -49,6 +49,7 @@ class LoggingUtility
 
     /**
      * @throws Exception
+     * @throws \Exception
      */
     public static function checkPostponedAccessLogEntries(): void
     {
@@ -60,6 +61,9 @@ class LoggingUtility
         );
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function checkPostponedLogEntries(Closure $closure, string $logFile): void
     {
         if (file_exists($logFile) && !FileUtility::isFileLocked($logFile) && $logContent = file_get_contents(
@@ -79,6 +83,7 @@ class LoggingUtility
 
     /**
      * @throws JsonException
+     * @throws \Exception
      */
     public static function checkPostponedMissingLogEntries(): void
     {
@@ -106,8 +111,8 @@ class LoggingUtility
      * @throws Exception
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws JsonException
      * @throws NotFoundExceptionInterface
+     * @throws \Exception
      */
     public static function logLanguageLabelAccess(string $key): void
     {
@@ -200,6 +205,10 @@ class LoggingUtility
      */
     private static function writeAccessLogToDatabase(string $key): void
     {
+        if (!str_starts_with($key, 'LLL:')) {
+            return;
+        }
+
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)
             ->getConnectionForTable(self::LOG_TABLES['ACCESS']);
 
