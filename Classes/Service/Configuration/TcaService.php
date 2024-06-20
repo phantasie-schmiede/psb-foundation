@@ -475,6 +475,8 @@ class TcaService
             }
         }
 
+        $this->initializeTypes($columnConfigurations);
+
         while (!empty($columnConfigurations)) {
             $newColumnAddedToTypes = false;
 
@@ -908,6 +910,20 @@ class TcaService
                 $ctrl->getTranslationSource(),
                 TcaUtility::getDefaultConfigurationForTranslationSourceField()
             );
+        }
+    }
+
+    private function initializeTypes(array $columnConfigurations): void
+    {
+        foreach ($columnConfigurations as $configuration) {
+            $typeList = $configuration->getTypeList();
+            $types = GeneralUtility::trimExplode(',', $typeList);
+
+            foreach ($types as $type) {
+                if (!isset($GLOBALS['TCA'][$this->tableName]['types'][$type])) {
+                    $GLOBALS['TCA'][$this->tableName]['types'][$type] = ['showitem' => ''];
+                }
+            }
         }
     }
 
