@@ -30,7 +30,7 @@ use TYPO3\CMS\Core\Resource\ResourceStorageInterface;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
-use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3\CMS\Extbase\Reflection\Exception\PropertyNotAccessibleException;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 use function count;
@@ -58,13 +58,14 @@ class UploadService
      * Stores uploaded files of an extbase request and maps them to domain model properties. The name of the upload form
      * fields have to be identical with the properties' names!
      *
+     * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
      * @throws MisconfiguredTcaException
      * @throws NotFoundExceptionInterface
      * @throws PropertyNotAccessibleException
      * @throws ReflectionException
      */
-    public function fromRequest(AbstractEntity $domainModel, Request $request): void
+    public function fromRequest(AbstractEntity $domainModel, RequestInterface $request): void
     {
         $pluginSignature = ContextUtility::getPluginSignatureFromRequest($request);
         $uploadedFilesCollection = $request->getUploadedFiles();
@@ -294,6 +295,8 @@ class UploadService
 
     /**
      * Checks if the uploaded files match given constraints and ensures a consistent array structure for further loops.
+     *
+     * @throws AspectNotFoundException
      */
     private function validateUploadedFiles(array &$uploadedFilesCollection): void
     {
