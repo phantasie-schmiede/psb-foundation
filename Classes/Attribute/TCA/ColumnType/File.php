@@ -32,6 +32,8 @@ class File extends AbstractColumnType
      * @param string|null  $uploadDuplicationBehaviour           Defines how duplicates in the file system should be
      *                                                           handled (default is renaming the new file).
      *                                                           See \TYPO3\CMS\Core\Resource\DuplicationBehavior.
+     * @param int|null     $uploadFileMaxSize                    If set and greater than zero, uploaded files must not
+     *                                                           exceed this size (in bytes).
      * @param bool         $uploadFileNameGeneratorAppendHash    If true, the hash value of the file content is
      *                                                           appended to the file name.
      * @param string       $uploadFileNameGeneratorPartSeparator string which combines the different file name parts
@@ -56,6 +58,7 @@ class File extends AbstractColumnType
         protected ?array       $overrideChildTca = null,
         protected ?array       $upload = null,
         protected ?string      $uploadDuplicationBehaviour = null,
+        protected ?int         $uploadFileMaxSize = null,
         protected bool         $uploadFileNameGeneratorAppendHash = true,
         protected string       $uploadFileNameGeneratorPartSeparator = '-',
         protected ?string      $uploadFileNameGeneratorPrefix = null,
@@ -123,6 +126,10 @@ class File extends AbstractColumnType
 
         if (null !== $this->uploadDuplicationBehaviour) {
             $configuration['duplicationBehaviour'] = $this->uploadDuplicationBehaviour;
+        }
+
+        if (null !== $this->uploadFileMaxSize) {
+            $configuration['maxSize'] = $this->uploadFileMaxSize;
         }
 
         if (null !== $this->uploadTargetFolder) {

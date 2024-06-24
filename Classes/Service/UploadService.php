@@ -22,6 +22,7 @@ use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\File\Exception\IniSizeFileException;
+use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Http\UploadedFile;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\FileInterface;
@@ -65,9 +66,12 @@ class UploadService
      */
     public function fromRequest(AbstractEntity $domainModel, Request $request): void
     {
-        $uploadedFilesCollection = $request->getUploadedFiles()[ContextUtility::getPluginSignatureFromRequest(
-            $request
-        )];
+        $pluginSignature = ContextUtility::getPluginSignatureFromRequest($request);
+        $uploadedFilesCollection = $request->getUploadedFiles();
+
+        if (isset($uploadedFilesCollection[$pluginSignature])) {
+            $uploadedFilesCollection = $uploadedFilesCollection[$pluginSignature];
+        }
 
         if (empty($uploadedFilesCollection)) {
             return;
@@ -108,10 +112,6 @@ class UploadService
 
         $nameParts = [];
 
-        if ('' !== ($fileNameGeneratorConfiguration['prefix'] ?? '')) {
-            $nameParts[] = $fileNameGeneratorConfiguration['prefix'];
-        }
-
         if (!empty($fileNameGeneratorConfiguration['properties'] ?? [])) {
             foreach ($fileNameGeneratorConfiguration['properties'] as $fileNameProperty) {
                 $nameParts[] = ObjectAccess::getProperty($domainModel, $fileNameProperty);
@@ -120,18 +120,22 @@ class UploadService
             $nameParts[] = StringUtility::removeSpecialChars($uploadedFile->getClientFilename());
         }
 
-        if ('' !== ($fileNameGeneratorConfiguration['suffix'] ?? '')) {
-            $nameParts[] = $fileNameGeneratorConfiguration['suffix'];
-        }
-
         if (!empty($fileNameGeneratorConfiguration['replacements'] ?? [])) {
             array_walk($nameParts, static function(&$namePart) use ($fileNameGeneratorConfiguration) {
                 $namePart = str_replace(
                     array_keys($fileNameGeneratorConfiguration['replacements']),
                     array_values($fileNameGeneratorConfiguration['replacements']),
-                    $namePart
+                    (string)$namePart
                 );
             });
+        }
+
+        if ('' !== ($fileNameGeneratorConfiguration['prefix'] ?? '')) {
+            array_unshift($nameParts, (string)$fileNameGeneratorConfiguration['prefix']);
+        }
+
+        if ('' !== ($fileNameGeneratorConfiguration['suffix'] ?? '')) {
+            $nameParts[] = (string)$fileNameGeneratorConfiguration['suffix'];
         }
 
         if (true === $fileNameGeneratorConfiguration['appendHash']) {
@@ -148,11 +152,18 @@ class UploadService
             ) . '.' . $this->getFileExtensionByMimeType($uploadedFile);
     }
 
+    /**
+     * @throws AspectNotFoundException
+     */
     private function checkFileSize(UploadedFile $uploadedFile, string $property): void
     {
-        if (isset($this->uploadConfiguration[$property]['maxSize']) && (int)$this->uploadConfiguration[$property]['maxSize'] < $uploadedFile->getSize(
+        if (isset($this->uploadConfiguration[$property]['maxSize']) && 0 < (int)$this->uploadConfiguration[$property]['maxSize'] && (int)$this->uploadConfiguration[$property]['maxSize'] < $uploadedFile->getSize(
             )) {
-            throw new RuntimeException('Too large!');
+            throw new RuntimeException(
+                __CLASS__ . ': File too large (exceeds ' . FileUtility::formatFileSize(
+                    $this->uploadConfiguration[$property]['maxSize']
+                ) . ')!', 1719230057
+            );
         }
     }
 
@@ -162,12 +173,12 @@ class UploadService
             case UPLOAD_ERR_OK:
                 break;
             case UPLOAD_ERR_NO_FILE:
-                throw new RuntimeException('No file sent.');
+                throw new RuntimeException(__CLASS__ . ': No file sent.', 1719230062);
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                throw new IniSizeFileException('Exceeded filesize limit.');
+                throw new IniSizeFileException(__CLASS__ . ': Exceeded file size limit.', 1719230067);
             default:
-                throw new RuntimeException('Unknown errors.');
+                throw new RuntimeException(__CLASS__ . ': Unknown errors.', 1719230071);
         }
     }
 
@@ -203,8 +214,11 @@ class UploadService
 
         foreach ($properties as $property) {
             $fieldConfiguration = $this->tcaService->getConfigurationForPropertyOfDomainModel($domainModel, $property);
-            $this->uploadConfiguration[$property] = $fieldConfiguration[$property]['EXT']['psb_foundation']['upload'] ?? [];
-            $this->uploadConfiguration[$property]['allowed'] = $fieldConfiguration[$property]['allowed'] ?? null;
+            $this->uploadConfiguration[$property] = $fieldConfiguration['config']['EXT']['psb_foundation']['upload'] ?? [];
+            $this->uploadConfiguration[$property]['allowed'] = $fieldConfiguration['config']['allowed'] ? ArrayUtility::guaranteeArrayType(
+                $fieldConfiguration['config']['allowed'],
+                ','
+            ) : null;
         }
     }
 
