@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility;
 
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3ArrayUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function array_slice;
 use function is_array;
 use function is_string;
@@ -48,13 +49,21 @@ class ArrayUtility
         return array_search($needle, array_reverse($array, true), true);
     }
 
-    public static function guaranteeArrayType(mixed $variable): array
+    public static function guaranteeArrayType(mixed $variable, string $explodeOnCharacter = null): array
     {
-        if (!is_array($variable)) {
-            $variable = [$variable];
+        if (is_array($variable)) {
+            return $variable;
         }
 
-        return $variable;
+        if (null === $variable || '' === $variable) {
+            return [];
+        }
+
+        if (null !== $explodeOnCharacter && is_string($variable)) {
+            return GeneralUtility::trimExplode($explodeOnCharacter, $variable);
+        }
+
+        return [$variable];
     }
 
     public static function inArrayRecursive(
