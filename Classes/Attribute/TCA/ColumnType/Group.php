@@ -17,6 +17,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function is_array;
 
 /**
  * Class Group
@@ -29,12 +30,16 @@ class Group extends AbstractColumnType
     protected TcaService $tcaService;
 
     /**
-     * @param string|null $allowed                   https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/Allowed.html
-     * @param array|null  $elementBrowserEntryPoints https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/ElementBrowserEntryPoints.html
-     * @param string|null $foreignTable              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/ForeignTable.html
-     * @param string      $linkedModel               Instead of directly specifying a foreign table, it is possible to
-     *                                               specify a domain model class.
-     * @param int|null    $maxItems                  https://docs.typo3.org/m/typo3/reference-tca/12.4/en-us/ColumnsConfig/CommonProperties/Maxitems.html
+     * $mmOppositeUsage automatically populates $allowed it it's empty.
+     *
+     * @param string|null $allowed                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/Allowed.html
+     * @param array|null  $elementBrowserEntryPoints       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/ElementBrowserEntryPoints.html
+     * @param string|null $foreignTable                    https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/ForeignTable.html
+     * @param string      $linkedModel                     Instead of directly specifying a foreign table, it is
+     *                                                     possible to specify a domain model class.
+     * @param int|null    $maxItems                        https://docs.typo3.org/m/typo3/reference-tca/12.4/en-us/ColumnsConfig/CommonProperties/Maxitems.html
+     * @param string|null $mm                              https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/Mm.html
+     * @param array|null  $mmOppositeUsage                 https://docs.typo3.org/m/typo3/reference-tca/12.4/en-us/ColumnsConfig/Type/Group/Properties/Mm.html#confval-group-mm-opposite-usage
      *
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -46,11 +51,30 @@ class Group extends AbstractColumnType
         protected ?string $foreignTable = null,
         protected string  $linkedModel = '',
         protected ?int    $maxItems = null,
+        protected ?string $mm = null,
+        protected ?array  $mmOppositeUsage = null,
     ) {
         $this->tcaService = GeneralUtility::makeInstance(TcaService::class);
 
         if (class_exists($linkedModel)) {
             $this->foreignTable = $this->tcaService->convertClassNameToTableName($linkedModel);
+        }
+
+        if (!empty($mmOppositeUsage)) {
+            $this->mmOppositeUsage = [];
+
+            foreach ($mmOppositeUsage as $modelOrTableName => $fieldOrPropertyNames) {
+                $this->mmOppositeUsage[$this->tcaService->convertClassNameToTableName($modelOrTableName)] = array_map(
+                    fn(string $fieldOrPropertyName) => $this->tcaService->convertPropertyNameToColumnName(
+                        $fieldOrPropertyName
+                    ),
+                    $fieldOrPropertyNames
+                );
+            }
+
+            if (null === $this->allowed) {
+                $this->allowed = implode(',', array_keys($this->mmOppositeUsage));
+            }
         }
     }
 
@@ -81,5 +105,15 @@ class Group extends AbstractColumnType
     public function getMaxItems(): ?int
     {
         return $this->maxItems;
+    }
+
+    public function getMm(): ?string
+    {
+        return $this->mm;
+    }
+
+    public function getMmOppositeUsage(): ?array
+    {
+        return $this->mmOppositeUsage;
     }
 }

@@ -11,13 +11,19 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service;
 
 use Exception;
-use PSB\PsbFoundation\Attribute\TCA\ColumnType\Mm;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
+use PSB\PsbFoundation\Service\Configuration\TcaService;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
+use ReflectionException;
 use RuntimeException;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\RelationHandler;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use function get_class;
 
 /**
@@ -29,7 +35,45 @@ class ObjectService
 {
     public function __construct(
         protected readonly ConnectionPool $connectionPool,
+        protected readonly TcaService     $tcaService,
     ) {
+    }
+
+    /**
+     * This can be used to get a collection of domain models from a mm-relation of type group with more than one table
+     * allowed.
+     *
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
+     */
+    public function resolveMmRelationWithDifferentTables(AbstractEntity $domainModel, string $property): array
+    {
+        $columnName = $this->tcaService->convertPropertyNameToColumnName($property, $domainModel::class);
+        $tableName = $this->tcaService->convertClassNameToTableName($domainModel::class);
+        $fieldConfiguration = $GLOBALS['TCA'][$tableName]['columns'][$columnName]['config'];
+
+        if ('group' !== $fieldConfiguration['type']) {
+            throw new RuntimeException(
+                __CLASS__ . ': The property "' . $property . '" of object "' . get_class(
+                    $domainModel
+                ) . '" is not of TCA type group!', 1721396926
+            );
+        }
+
+        $relationHandler = GeneralUtility::makeInstance(RelationHandler::class);
+        $relationHandler->start(
+            $domainModel->_getProperty($property),
+            $fieldConfiguration['allowed'] ?? $fieldConfiguration['foreign_table'] ?? '',
+            $fieldConfiguration['MM'] ?? '',
+            $domainModel->getUid(),
+            $tableName,
+            $fieldConfiguration
+        );
+
+        $relationHandler->processDeletePlaceholder();
+
+        return $relationHandler->itemArray;
     }
 
     /**
