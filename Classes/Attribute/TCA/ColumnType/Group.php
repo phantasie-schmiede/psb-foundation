@@ -30,7 +30,7 @@ class Group extends AbstractColumnType
     protected TcaService $tcaService;
 
     /**
-     * $mmOppositeUsage automatically populates $allowed it it's empty.
+     * $mmOppositeUsage automatically populates $allowed if it's empty.
      *
      * @param string|null $allowed                         https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/Allowed.html
      * @param array|null  $elementBrowserEntryPoints       https://docs.typo3.org/m/typo3/reference-tca/main/en-us/ColumnsConfig/Type/Group/Properties/ElementBrowserEntryPoints.html
