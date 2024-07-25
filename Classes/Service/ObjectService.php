@@ -12,18 +12,22 @@ namespace PSB\PsbFoundation\Service;
 
 use Exception;
 use PSB\PsbFoundation\Attribute\TCA\ColumnType\Select;
+use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Service\Configuration\TcaService;
+use PSB\PsbFoundation\Utility\ObjectUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use ReflectionClass;
 use ReflectionException;
 use RuntimeException;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\RelationHandler;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\DomainObject\AbstractDomainObject;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+use TYPO3\CMS\Extbase\Persistence\Repository;
 use function get_class;
 
 /**
@@ -42,13 +46,21 @@ class ObjectService
     /**
      * This can be used to get a collection of domain models from a mm-relation of type group with more than one table
      * allowed.
+     * If the related table name can be resolved to a domain model, the result will include an instance of it,
+     * otherwise a database row will be fetched (no overlays are applied yet!. If more than one domain model is mapped
+     * to a single table, the preferred models (array of full qualified class names) will be used as filter. The first
+     * mapping result is used if there is no preferred model.
      *
      * @throws ContainerExceptionInterface
+     * @throws ImplementationException
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
      */
-    public function resolveMmRelationWithDifferentTables(AbstractEntity $domainModel, string $property): array
-    {
+    public function resolveMmRelationWithDifferentTables(
+        AbstractEntity $domainModel,
+        string         $property,
+        array          $preferredModels = [],
+    ): array {
         $columnName = $this->tcaService->convertPropertyNameToColumnName($property, $domainModel::class);
         $tableName = $this->tcaService->convertClassNameToTableName($domainModel::class);
         $fieldConfiguration = $GLOBALS['TCA'][$tableName]['columns'][$columnName]['config'];
@@ -73,7 +85,34 @@ class ObjectService
 
         $relationHandler->processDeletePlaceholder();
 
-        return $relationHandler->itemArray;
+        $result = [];
+        $repositories = [];
+
+        foreach ($relationHandler->itemArray as $item) {
+            $classNames = $this->tcaService->convertTableNameToClassNames($item['table']);
+
+            if (!empty($classNames)) {
+                $classNames = (array_intersect($classNames, $preferredModels) ?: $classNames);
+                $className = array_shift($classNames);
+                $repositoryClassName = ObjectUtility::getRepositoryClassName($className);
+
+                if (isset($repositories[$repositoryClassName])) {
+                    $repository = $repositories[$repositoryClassName];
+                } elseif (class_exists($repositoryClassName)) {
+                    $repository = GeneralUtility::makeInstance($repositoryClassName);
+                    $repositories[$repositoryClassName] = $repository;
+                }
+
+                if (isset($repository) && $repository instanceof Repository) {
+                    $result[] = $repository->findByUid($item['id']);
+                    continue;
+                }
+            }
+
+            $result[] = BackendUtility::getRecord($item['table'], $item['id']);
+        }
+
+        return $result;
     }
 
     /**

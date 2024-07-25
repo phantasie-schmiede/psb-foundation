@@ -22,6 +22,7 @@ use PSB\PsbFoundation\Attribute\TCA\Tab;
 use PSB\PsbFoundation\Exceptions\ImplementationException;
 use PSB\PsbFoundation\Exceptions\MisconfiguredTcaException;
 use PSB\PsbFoundation\Service\ExtensionInformationService;
+use PSB\PsbFoundation\Utility\ArrayUtility;
 use PSB\PsbFoundation\Utility\Configuration\TcaUtility;
 use PSB\PsbFoundation\Utility\LocalizationUtility;
 use PSB\PsbFoundation\Utility\ReflectionUtility;
@@ -151,9 +152,7 @@ class TcaService
      */
     public function buildTca(bool $overrideMode): void
     {
-        if (false === self::$allowCaching || empty(self::$classTableMapping)) {
-            $this->buildClassesTableMapping();
-        }
+        $this->getClassesTableMapping();
 
         if ($overrideMode) {
             $key = self::CLASS_TABLE_MAPPING_KEYS['TCA_OVERRIDES'];
@@ -245,6 +244,35 @@ class TcaService
     }
 
     /**
+     * This uses the internal mapping of class names to table names to do a reverse lookup.
+     * The result is an array of class names which are mapped to the given table name.
+     * If no class is found, an empty array is returned.
+     *
+     * @throws ContainerExceptionInterface
+     * @throws ImplementationException
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
+     */
+    public function convertTableNameToClassNames(string $tableName): array
+    {
+        $searchResults = ArrayUtility::inArrayRecursive(
+            $this->getClassesTableMapping(),
+            $tableName
+        );
+
+        if (!empty($searchResults)) {
+            // Explode each result path and keep only last part.
+            return array_map(static function($item) {
+                $arrayPathParts = explode('.', $item);
+
+                return array_pop($arrayPathParts);
+            }, $searchResults);
+        }
+
+        return [];
+    }
+
+    /**
      * An existing palette with given identifier would be overwritten!
      *
      * @throws ContainerExceptionInterface
@@ -284,6 +312,21 @@ class TcaService
         }
 
         $GLOBALS['TCA'][$this->tableName]['palettes'][$identifier] = $paletteConfiguration;
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws ImplementationException
+     * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
+     */
+    public function getClassesTableMapping(): array
+    {
+        if (false === self::$allowCaching || empty(self::$classTableMapping)) {
+            $this->buildClassesTableMapping();
+        }
+
+        return self::$classTableMapping;
     }
 
     /**
@@ -400,6 +443,18 @@ class TcaService
         }
 
         $properties = $reflection->getProperties();
+
+        if ($overrideMode) {
+            /*
+             * Filter out properties of parent class that are not overridden in current class to keep original
+             * configuration!
+             */
+            $properties = array_filter($properties, static function($property) use ($reflection) {
+                return $property->getDeclaringClass()
+                        ->getName() === $reflection->getName();
+            });
+        }
+
         $columnConfigurations = [];
 
         foreach ($properties as $property) {
