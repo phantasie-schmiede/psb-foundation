@@ -16,5 +16,5 @@ $EM_CONF[$_EXTKEY] = [
     'description'      => 'Configuration framework for TYPO3 extension development',
     'state'            => 'stable',
     'title'            => 'PSbits | Foundation',
-    'version'          => '2.2.1',
+    'version'          => '2.2.3',
 ];

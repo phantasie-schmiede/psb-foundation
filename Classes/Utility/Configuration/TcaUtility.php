@@ -60,6 +60,7 @@ class TcaUtility
         'mmInsertFields'                => 'MM_insert_fields',
         'mmMatchFields'                 => 'MM_match_fields',
         'mmOppositeField'               => 'MM_opposite_field',
+        'mmOppositeUsage'               => 'MM_oppositeUsage',
         'selIconField'                  => 'selicon_field',
         'sortBy'                        => 'sortby',
         'typeIconClasses'               => 'typeicon_classes',

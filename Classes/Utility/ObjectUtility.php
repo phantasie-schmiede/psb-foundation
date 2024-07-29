@@ -14,6 +14,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
  * Class ObjectUtility
@@ -48,6 +49,17 @@ class ObjectUtility
         }
 
         return false;
+    }
+
+    public static function getRepositoryClassName(AbstractEntity|string $modelInstanceOrModelClassName): string
+    {
+        if ($modelInstanceOrModelClassName instanceof AbstractEntity) {
+            $modelClassName = $modelInstanceOrModelClassName::class;
+        } else {
+            $modelClassName = $modelInstanceOrModelClassName;
+        }
+
+        return str_replace('\Model\\', '\Repository\\', $modelClassName) . 'Repository';
     }
 
     /**

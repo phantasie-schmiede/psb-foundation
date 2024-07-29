@@ -58,6 +58,10 @@ class StringUtilityTest extends UnitTestCase
             '0123',
             '0123',
         ];
+        yield 'floats with trailing zeros are not truncated (e.g. version numbers)' => [
+            '2024.10',
+            '2024.10',
+        ];
         yield 'boolean false' => [
             'false',
             false,

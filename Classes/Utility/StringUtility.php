@@ -58,6 +58,13 @@ class StringUtility
             return $variable;
         }
 
+        /*
+         * Try string-to-number conversion in these cases:
+         * - single zero
+         * - float beginning with "0," or "0."
+         * - float not ending with zero (see line 85)
+         * - any other number not beginning with a zero
+         */
         if (1 === strlen($variable) || !str_starts_with($variable, '0') || in_array(
                 $variable[1],
                 [
@@ -74,7 +81,8 @@ class StringUtility
 
             $floatRepresentation = filter_var(str_replace(',', '.', $variable), FILTER_VALIDATE_FLOAT);
 
-            if (false !== $floatRepresentation) {
+            // Avoid string manipulation by "rounding away" trailing zeros!
+            if (false !== $floatRepresentation && !str_ends_with($variable, '0')) {
                 return $floatRepresentation;
             }
         }
