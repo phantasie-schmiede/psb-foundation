@@ -27,7 +27,6 @@ use TYPO3\CMS\Backend\Attribute\Controller;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 
 /**
  * Class AbstractModuleController
@@ -48,7 +47,6 @@ class AnalyzeLocalLangController extends AbstractModuleController
      * @throws ContainerExceptionInterface
      * @throws Exception
      * @throws ImplementationException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -68,7 +66,6 @@ class AnalyzeLocalLangController extends AbstractModuleController
      *
      * @throws ContainerExceptionInterface
      * @throws ImplementationException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -117,7 +114,6 @@ class AnalyzeLocalLangController extends AbstractModuleController
      * @throws ContainerExceptionInterface
      * @throws Exception
      * @throws ImplementationException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */

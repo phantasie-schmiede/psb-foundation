@@ -23,7 +23,6 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotCon
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
@@ -87,7 +86,6 @@ class TranslateViewHelper extends AbstractViewHelper
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -172,9 +170,6 @@ class TranslateViewHelper extends AbstractViewHelper
      * @return string|null
      * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
-     * @throws ExtensionConfigurationExtensionNotConfiguredException
-     * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */

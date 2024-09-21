@@ -16,7 +16,6 @@ use PSB\PsbFoundation\Utility\StringUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use function is_array;
 
 /**
@@ -28,7 +27,6 @@ class RequestParameterProvider extends AbstractProvider
 {
     /**
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */

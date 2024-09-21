@@ -25,7 +25,6 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotCon
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use function in_array;
 use function is_int;
 
@@ -53,7 +52,6 @@ class ModuleService
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      * @throws ReflectionException
@@ -86,7 +84,6 @@ class ModuleService
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -127,7 +124,6 @@ class ModuleService
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */

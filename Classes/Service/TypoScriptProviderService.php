@@ -20,7 +20,6 @@ use RuntimeException;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use function is_string;
 
 /**
@@ -55,7 +54,6 @@ class TypoScriptProviderService
      *
      * @return mixed
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
