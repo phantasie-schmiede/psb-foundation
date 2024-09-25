@@ -33,7 +33,7 @@ class RequestParameterProvider extends AbstractProvider
     public function getGlobalVariables(): array
     {
         $request = ContextUtility::getRequest();
-        $parameters = $request?->getQueryParams();
+        $parameters = $request?->getQueryParams() ?? [];
         $postParameters = $request?->getParsedBody();
 
         if (is_array($postParameters)) {
@@ -41,7 +41,7 @@ class RequestParameterProvider extends AbstractProvider
         }
 
         array_walk_recursive($parameters, static function(&$item) {
-            $item = StringUtility::convertString($item);
+            $item = is_string($item) ? StringUtility::convertString($item) : $item;
         });
 
         return $parameters;

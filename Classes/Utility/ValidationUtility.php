@@ -78,7 +78,7 @@ class ValidationUtility
         if (!ContextUtility::isTypoScriptAvailable()) {
             throw new RuntimeException(
                 __CLASS__ . ': This method is not allowed during the bootstrap process of TYPO3! Do not call it within or from ext_localconf.php',
-                1614416275
+                1727172047
             );
         }
     }

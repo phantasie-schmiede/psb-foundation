@@ -1,4 +1,3 @@
-version: '2.3'
 services:
   #---------------------------------------------------------------------------------------------------------------------
   # additional services needed for functional tests to be linked, e.g. databases
