@@ -32,6 +32,8 @@ use function strlen;
  */
 class StringUtility
 {
+    public const EMPTY_CHARACTERS = " \t\n\r\0\x0B\xC2\xA0";
+
     public static function cleanUrl(string $url): string
     {
         return html_entity_decode(urldecode($url));
@@ -330,6 +332,11 @@ class StringUtility
     public static function getNumberFormatter(int $style = NumberFormatter::DEFAULT_STYLE): NumberFormatter
     {
         return NumberFormatter::create(ContextUtility::getCurrentLocale(), $style);
+    }
+
+    public static function isEmpty(string $string): bool
+    {
+        return '' === trim($string, self::EMPTY_CHARACTERS);
     }
 
     /**
