@@ -19,9 +19,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Trait ControllerCacheTrait
  *
- * Define this constant in your controller:
- * public const CACHE_TAG = 'controller_cache_trait';
- *
  * @package PSB\PsbFoundation\Traits
  */
 trait ControllerCacheTrait
@@ -29,17 +26,18 @@ trait ControllerCacheTrait
     /**
      * @throws NoSuchCacheGroupException
      */
-    private function deletePagesCache(): void
+    private function deletePagesCache(string $cacheTag): void
     {
         /** @var CacheManager $cacheManager */
         $cacheManager = GeneralUtility::makeInstance(CacheManager::class);
-        $cacheManager->flushCachesInGroupByTag('pages', self::CACHE_TAG);
+        $cacheManager->flushCachesInGroupByTag('pages', $cacheTag);
     }
 
-    private function setCacheTag(): void
+    private function setCacheTags(string ...$cacheTags): void
     {
         /** @var CacheDataCollector $cacheDataCollector */
         $cacheDataCollector = $GLOBALS['TYPO3_REQUEST']->getAttribute('frontend.cache.collector');
-        $cacheDataCollector->addCacheTags(new CacheTag(self::CACHE_TAG));
+        array_walk($cacheTags, static fn(string $cacheTag) => new CacheTag($cacheTag));
+        $cacheDataCollector->addCacheTags(...$cacheTags);
     }
 }
