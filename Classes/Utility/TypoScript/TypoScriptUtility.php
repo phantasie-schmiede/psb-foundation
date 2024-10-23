@@ -34,7 +34,7 @@ class TypoScriptUtility
         'SETUP'     => 'setup',
     ];
 
-    public const INDENTATION = '    ';
+    public const INDENTATION = '  ';
 
     public const TYPO_SCRIPT_KEYS = [
         'COMMENT'     => '_comment',
@@ -133,6 +133,7 @@ class TypoScriptUtility
     private static function buildTypoScriptFromArray(array $array, int $indentationLevel = 0): string
     {
         ksort($array);
+        $indentation = self::createIndentation($indentationLevel);
         $typoScript = '';
 
         if (isset($array[self::TYPO_SCRIPT_KEYS['CONDITION']])) {
@@ -144,21 +145,19 @@ class TypoScriptUtility
 
             $typoScript .= '[' . $array[self::TYPO_SCRIPT_KEYS['CONDITION']] . ']' . LF;
             unset ($array[self::TYPO_SCRIPT_KEYS['CONDITION']]);
-            $typoScript .= self::buildTypoScriptFromArray($array, $indentationLevel);
-            $typoScript .= '[GLOBAL]' . LF;
+            $typoScript .= $indentation . self::buildTypoScriptFromArray($array, $indentationLevel + 1);
+            $typoScript .= '[END]' . LF;
         } else {
             foreach ($array as $key => $value) {
-                $indentation = self::createIndentation($indentationLevel);
-
                 if (is_array($value) && isset($value[self::TYPO_SCRIPT_KEYS['COMMENT']])) {
                     if (is_array($value[self::TYPO_SCRIPT_KEYS['COMMENT']])) {
                         $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen);
 
                         foreach ($value[self::TYPO_SCRIPT_KEYS['COMMENT']] as $commentLine) {
-                            $typoScript .= $indentation . '# ' . $commentLine . LF;
+                            $typoScript .= $indentation . '// ' . $commentLine . LF;
                         }
                     } else {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen) . $indentation . '# ' . $value[self::TYPO_SCRIPT_KEYS['COMMENT']] . LF;
+                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen) . $indentation . '// ' . $value[self::TYPO_SCRIPT_KEYS['COMMENT']] . LF;
                     }
                     self::$lineBreakBeforeCurlyBracketOpen = '';
                     unset($value[self::TYPO_SCRIPT_KEYS['COMMENT']]);
