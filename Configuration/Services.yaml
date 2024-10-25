@@ -7,6 +7,11 @@ services:
   PSB\PsbFoundation\:
     resource: '../Classes/*'
 
+  PSB\PsbFoundation\EventListener\CacheConfigurationBuilder:
+    tags:
+      - identifier: 'psbFoundation_cacheConfigurationBuilder'
+        name: event.listener
+
   PSB\PsbFoundation\EventListener\DatabaseEnricher:
     tags:
       - identifier: 'psbFoundation_databaseEnricher'

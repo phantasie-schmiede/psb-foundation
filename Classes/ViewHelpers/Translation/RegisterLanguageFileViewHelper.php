@@ -19,13 +19,13 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
  * TranslateViewHelper of this extension only.
  *
  * Examples:
- * <psg:translation.registerLanguageFile file="EXT:my_extension/Resources/Private/Language/myFile.xlf"
+ * <psb:translation.registerLanguageFile file="EXT:my_extension/Resources/Private/Language/myFile.xlf"
  * name="myLanguageFile" />
- * <psg:translate id="myLanguageFile:myLabel" />
+ * <psb:translate id="myLanguageFile:myLabel" />
  *
  * If you omit the name attribute, the filename will be used as alias:
- * <psg:translation.registerLanguageFile file="EXT:my_extension/Resources/Private/Language/myFile.xlf" />
- * <psg:translate id="myFile:myLabel" />
+ * <psb:translation.registerLanguageFile file="EXT:my_extension/Resources/Private/Language/myFile.xlf" />
+ * <psb:translate id="myFile:myLabel" />
  *
  * @package PSB\PsbFoundation\ViewHelpers\Translation
  */
