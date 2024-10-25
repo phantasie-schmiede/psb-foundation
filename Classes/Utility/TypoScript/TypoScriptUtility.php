@@ -136,6 +136,8 @@ class TypoScriptUtility
         $indentation = self::createIndentation($indentationLevel);
         $typoScript = '';
 
+        self::processComment($array, $indentation, $typoScript);
+
         if (isset($array[self::TYPO_SCRIPT_KEYS['CONDITION']])) {
             if (0 < $indentationLevel) {
                 throw new UnexpectedValueException(
@@ -149,23 +151,7 @@ class TypoScriptUtility
             $typoScript .= '[END]' . LF;
         } else {
             foreach ($array as $key => $value) {
-                if (is_array($value) && isset($value[self::TYPO_SCRIPT_KEYS['COMMENT']])) {
-                    if (is_array($value[self::TYPO_SCRIPT_KEYS['COMMENT']])) {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen);
-
-                        foreach ($value[self::TYPO_SCRIPT_KEYS['COMMENT']] as $commentLine) {
-                            $typoScript .= $indentation . '// ' . $commentLine . LF;
-                        }
-                    } else {
-                        $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen) . $indentation . '// ' . $value[self::TYPO_SCRIPT_KEYS['COMMENT']] . LF;
-                    }
-                    self::$lineBreakBeforeCurlyBracketOpen = '';
-                    unset($value[self::TYPO_SCRIPT_KEYS['COMMENT']]);
-
-                    if (isset($value[0])) {
-                        $value = array_shift($value);
-                    }
-                }
+                self::processComment($value, $indentation, $typoScript);
 
                 if (is_array($value)) {
                     if (isset($value[self::TYPO_SCRIPT_KEYS['OBJECT_TYPE']])) {
@@ -203,6 +189,28 @@ class TypoScriptUtility
     private static function createIndentation(int $indentationLevel): string
     {
         return str_repeat(self::INDENTATION, $indentationLevel);
+    }
+
+    private static function processComment(mixed &$value, string $indentation, string &$typoScript): void
+    {
+        if (is_array($value) && isset($value[self::TYPO_SCRIPT_KEYS['COMMENT']])) {
+            if (is_array($value[self::TYPO_SCRIPT_KEYS['COMMENT']])) {
+                $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen);
+
+                foreach ($value[self::TYPO_SCRIPT_KEYS['COMMENT']] as $commentLine) {
+                    $typoScript .= $indentation . '// ' . $commentLine . LF;
+                }
+            } else {
+                $typoScript .= (self::$lineBreakAfterCurlyBracketClose ?: self::$lineBreakBeforeCurlyBracketOpen) . $indentation . '// ' . $value[self::TYPO_SCRIPT_KEYS['COMMENT']] . LF;
+            }
+
+            self::$lineBreakBeforeCurlyBracketOpen = '';
+            unset($value[self::TYPO_SCRIPT_KEYS['COMMENT']]);
+
+            if (isset($value[0])) {
+                $value = array_shift($value);
+            }
+        }
     }
 
     private static function processRemainingArray(int $indentationLevel, int|string $key, array $value): string
