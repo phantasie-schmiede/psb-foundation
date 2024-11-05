@@ -11,9 +11,7 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Attribute\TCA\ColumnType;
 
 use Attribute;
-use PSB\PsbFoundation\Data\ExtensionInformation;
 use PSB\PsbFoundation\Utility\Database\DefinitionUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class File
@@ -140,8 +138,6 @@ class File extends AbstractColumnType
             return null;
         }
 
-        $extensionInformation = GeneralUtility::makeInstance(ExtensionInformation::class);
-
-        return ['EXT' => [$extensionInformation->getExtensionKey() => ['upload' => $configuration]]];
+        return $configuration;
     }
 }

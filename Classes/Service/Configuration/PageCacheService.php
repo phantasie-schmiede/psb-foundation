@@ -120,7 +120,6 @@ class PageCacheService
             }
         }
 
-
         if (empty($pagesArray)) {
             return '';
         }
