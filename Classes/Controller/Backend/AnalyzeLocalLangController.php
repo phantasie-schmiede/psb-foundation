@@ -23,17 +23,18 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
-use TYPO3\CMS\Backend\Attribute\Controller;
+use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use function is_array;
 
 /**
  * Class AbstractModuleController
  *
  * @package PSB\PsbFoundation\Controller\Backend
  */
-#[Controller]
+#[AsController]
 class AnalyzeLocalLangController extends AbstractModuleController
 {
     public function __construct(
@@ -93,6 +94,13 @@ class AnalyzeLocalLangController extends AbstractModuleController
                     );
 
                 $xmlData = XmlUtility::convertFromXml(file_get_contents($fileInfo->getRealPath()));
+
+                // Skip empty files.
+                if (!isset($xmlData['xliff']['file']['body']['trans-unit']) || !is_array(
+                        $xmlData['xliff']['file']['body']['trans-unit']
+                    )) {
+                    continue;
+                }
 
                 // Skip translations.
                 if (isset($xmlData['xliff']['file'][XmlUtility::SPECIAL_ARRAY_KEYS['ATTRIBUTES']]['target-language'])) {
