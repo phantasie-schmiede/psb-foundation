@@ -218,6 +218,11 @@ class FileUtility
         return true;
     }
 
+    public static function sanitizeFileName(string $fileName): string
+    {
+        return preg_replace('/[^a-zA-Z0-9_.-]/', '_', $fileName);
+    }
+
     /**
      * @throws Exception
      */
