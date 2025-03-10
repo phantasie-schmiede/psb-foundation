@@ -202,7 +202,9 @@ class TranslateViewHelper extends AbstractViewHelper
             array_shift($controllerName);
         }
 
-        return $path . '/' . implode('/', $controllerName) . '/' . $request->getControllerActionName() . '.xlf:' . $id;
+        return $path . '/' . implode('/', $controllerName) . '/' . self::getActionName(
+                $request->getControllerActionName()
+            ) . '.xlf:' . $id;
     }
 
     /**
@@ -232,6 +234,16 @@ class TranslateViewHelper extends AbstractViewHelper
         }
 
         return false;
+    }
+
+    /**
+     * Helper method for TYPO3v12 compatibility: backend actions are named like "Controller/Action".
+     */
+    private static function getActionName(string $controllerActionName): string
+    {
+        $parts = explode('/', $controllerActionName);
+
+        return lcfirst(array_pop($parts));
     }
 
     public function initializeArguments(): void
