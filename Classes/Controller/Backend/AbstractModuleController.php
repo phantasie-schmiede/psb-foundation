@@ -34,11 +34,20 @@ abstract class AbstractModuleController extends ActionController
      */
     protected function htmlResponse(string $html = null): ResponseInterface
     {
-        return $this->moduleTemplate->renderResponse();
+        return $this->moduleTemplate->renderResponse($html ?? $this->buildTemplateFileName());
     }
 
     protected function initializeAction(): void
     {
         $this->moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+    }
+
+    private function buildTemplateFileName(): string
+    {
+        $extbaseParameters = $this->request->getAttribute('extbase');
+
+        return str_replace('\\', '/', $extbaseParameters->getControllerName()) . '/' . ucfirst(
+                $extbaseParameters->getControllerActionName()
+            );
     }
 }

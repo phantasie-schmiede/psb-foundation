@@ -16,7 +16,6 @@ use PSB\PsbFoundation\Utility\VariableUtility;
 use RuntimeException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use function in_array;
 
 /**
  * Class GlobalVariableService
@@ -91,9 +90,10 @@ class GlobalVariableService
      */
     public static function registerGlobalVariableProvider(string $className): void
     {
-        if (!in_array(GlobalVariableProviderInterface::class, class_implements($className), true)) {
+        if (!is_subclass_of($className, GlobalVariableProviderInterface::class)) {
             throw new RuntimeException(
-                __CLASS__ . ': Class does not implement the required GlobalVariableProviderInterface!', 1612426722
+                __CLASS__ . ': The provider does not implement the required GlobalVariableProviderInterface!',
+                1612426722
             );
         }
 

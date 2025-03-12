@@ -19,7 +19,6 @@ use RuntimeException;
 use SimpleXMLElement;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use function is_array;
 use function is_string;
 
@@ -69,7 +68,6 @@ class XmlUtility
      *
      * @return object|array|string
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -152,7 +150,6 @@ class XmlUtility
      *
      * @return array|object|string
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */

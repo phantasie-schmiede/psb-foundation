@@ -14,7 +14,6 @@ use Generator;
 use JsonException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
@@ -63,7 +62,6 @@ class XmlUtilityTest extends UnitTestCase
      * @dataProvider convertFromAndToXmlDataProvider
      *
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -81,7 +79,6 @@ class XmlUtilityTest extends UnitTestCase
      * @dataProvider convertFromXmlDataProvider
      *
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */

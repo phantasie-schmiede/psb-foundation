@@ -18,6 +18,7 @@ use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use function is_int;
 use function is_string;
+use function strlen;
 
 /**
  * Class FileUtility
@@ -112,6 +113,52 @@ class FileUtility
     }
 
     /**
+     * You must either directly pass $content or set a $filename which content will be read.
+     * If you pass $content, you must also set a $downloadName.
+     */
+    public static function initiateDownload(
+        string $contentType,
+        string $content = null,
+        string $downloadName = null,
+        string $filename = null,
+        bool   $showInline = false,
+    ): void {
+        if (null === $content && null === $filename) {
+            throw new RuntimeException(
+                __CLASS__ . ': Either $content or $filename has to be set!', 1739366404
+            );
+        }
+
+        if (null !== $content) {
+            if (null === $downloadName) {
+                throw new RuntimeException(
+                    __CLASS__ . ': $downloadName has to be set when $content is set!', 1739366548
+                );
+            }
+
+            $contentLength = strlen($content);
+        } else {
+            $contentLength = filesize($filename);
+        }
+
+        $contentDisposition = $showInline ? 'inline' : 'attachment';
+
+        header('Cache-Control: must-revalidate');
+        header('Content-Description: File Transfer');
+        header('Content-Disposition: ' . $contentDisposition . '; filename=' . ($downloadName ?? basename($filename)));
+        header('Content-Length: ' . $contentLength);
+        header('Content-Type: ' . $contentType);
+        header('Expires: 1');
+        header('Pragma: public');
+
+        if (null !== $content) {
+            echo $content;
+        } else {
+            readfile($filename);
+        }
+    }
+
+    /**
      * @throws Exception
      */
     public static function isFileLocked(string $fileName): bool
@@ -169,6 +216,11 @@ class FileUtility
         }
 
         return true;
+    }
+
+    public static function sanitizeFileName(string $fileName): string
+    {
+        return preg_replace('/[^a-zA-Z0-9_.-]/', '_', $fileName);
     }
 
     /**

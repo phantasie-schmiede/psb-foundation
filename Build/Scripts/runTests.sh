@@ -210,7 +210,7 @@ else
 fi
 TEST_SUITE=""
 DBMS="sqlite"
-PHP_VERSION="8.1"
+PHP_VERSION="8.2"
 TYPO3_VERSION="12"
 PHP_XDEBUG_ON=0
 PHP_XDEBUG_PORT=9003
@@ -346,7 +346,7 @@ case ${TEST_SUITE} in
         setUpDockerComposeDotEnv
         docker compose run cgl
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     clean)
         rm -rf \
@@ -361,7 +361,7 @@ case ${TEST_SUITE} in
         setUpDockerComposeDotEnv
         docker compose run composer
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     composerInstall)
         setUpDockerComposeDotEnv
@@ -373,7 +373,7 @@ case ${TEST_SUITE} in
         cp ../../composer.json ../../composer.json.testing
         mv ../../composer.json.orig ../../composer.json
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     composerInstallLowest)
         setUpDockerComposeDotEnv
@@ -385,7 +385,7 @@ case ${TEST_SUITE} in
         cp ../../composer.json ../../composer.json.testing
         mv ../../composer.json.orig ../../composer.json
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     composerInstallHighest)
         setUpDockerComposeDotEnv
@@ -397,13 +397,13 @@ case ${TEST_SUITE} in
         cp ../../composer.json ../../composer.json.testing
         mv ../../composer.json.orig ../../composer.json
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     coveralls)
         setUpDockerComposeDotEnv
         docker compose run coveralls
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     functional)
         handleDbmsAndDriverOptions
@@ -438,31 +438,31 @@ case ${TEST_SUITE} in
                 echo "${HELP}" >&2
                 exit 1
         esac
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     lint)
         setUpDockerComposeDotEnv
         docker compose run lint
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     phpstan)
         setUpDockerComposeDotEnv
         docker compose run phpstan
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     phpstanGenerateBaseline)
         setUpDockerComposeDotEnv
         docker compose run phpstan_generate_baseline
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     unit)
         setUpDockerComposeDotEnv
         docker compose run unit
         SUITE_EXIT_CODE=$?
-        docker compose down
+        docker compose down --remove-orphans
         ;;
     update)
         # pull ${IMAGE_PREFIX}core-testing-*:latest versions of those ones that exist locally

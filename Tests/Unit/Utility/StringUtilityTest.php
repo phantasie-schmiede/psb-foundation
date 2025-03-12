@@ -14,7 +14,6 @@ use Generator;
 use JsonException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 /**
@@ -120,7 +119,6 @@ class StringUtilityTest extends UnitTestCase
      * @throws JsonException
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws InvalidConfigurationTypeException
      */
     public function convertString(string $string, $expectedResult): void
     {

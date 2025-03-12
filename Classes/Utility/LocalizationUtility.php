@@ -22,7 +22,6 @@ use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExis
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility as ExtbaseLocalizationUtility;
 use function array_slice;
 use function is_string;
@@ -56,7 +55,6 @@ class LocalizationUtility
      * @return string|null The value from LOCAL_LANG or null if no translation was found.
      * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      * @see ExtbaseLocalizationUtility
@@ -115,7 +113,6 @@ class LocalizationUtility
      * @return string
      * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -136,7 +133,6 @@ class LocalizationUtility
     /**
      * @throws AspectNotFoundException
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -166,7 +162,6 @@ class LocalizationUtility
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -217,7 +212,6 @@ class LocalizationUtility
      * @throws ContainerExceptionInterface
      * @throws ExtensionConfigurationExtensionNotConfiguredException
      * @throws ExtensionConfigurationPathDoesNotExistException
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */

@@ -39,6 +39,7 @@ class TcaUtility
         'editLock'                      => 'editlock',
         'enableColumns'                 => 'enablecolumns',
         'enableRichText'                => 'enableRichtext',
+        'foreignDefaultSortBy'          => 'foreign_default_sortby',
         'foreignField'                  => 'foreign_field',
         'foreignMatchFields'            => 'foreign_match_fields',
         'foreignSortBy'                 => 'foreign_sortby',

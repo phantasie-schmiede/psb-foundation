@@ -1,24 +1,30 @@
+// Comment on top level
 [request.getQueryParams()['type'] == 1589385441]
-ajax_psb_foundation_typoscriptutility_test = PAGE
-ajax_psb_foundation_typoscriptutility_test {
+  // Comment on second level
+  ajax_psb_foundation_typoscriptutility_test = PAGE
+  ajax_psb_foundation_typoscriptutility_test {
+    10 = USER_INT
+    10 {
+      action = test
+      controller = TypoScriptUtility
+      extensionName = PsbFoundation
+      pluginName = TypoScriptUtilityTest
+      switchableControllerActions.TypoScriptUtility.1 = test
+      userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+      vendorName = PSB
+    }
+
+    // Comment on third level
     config {
-        additionalHeaders.10.header = Content-type: text/html
-        admPanel = 1
-        debug = 1
-        disableAllHeaderCode = 1
+      // Comment on fourth level
+      additionalHeaders.10.header = Content-type: text/html
+
+      // Comment inside fourth level
+      admPanel = 1
+      debug = 1
+      disableAllHeaderCode = 1
     }
 
     typeNum = 1589385441
-
-    10 = USER_INT
-    10 {
-        action = test
-        controller = TypoScriptUtility
-        extensionName = PsbFoundation
-        pluginName = TypoScriptUtilityTest
-        switchableControllerActions.TypoScriptUtility.1 = test
-        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-        vendorName = PSB
-    }
-}
-[GLOBAL]
+  }
+[END]

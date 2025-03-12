@@ -1,67 +1,72 @@
 {
-	"authors": [
-		{
-			"email": "dn@phantasie-schmiede.de",
-			"name": "Daniel Ablass",
-			"role": "Developer"
-		}
-	],
-	"autoload": {
-		"psr-4": {
-			"PSB\\PsbFoundation\\": "Classes"
-		}
-	},
-	"autoload-dev": {
-		"psr-4": {
-			"PSB\\PsbFoundation\\Tests\\": "Tests"
-		}
-	},
-	"config": {
-		"allow-plugins": {
-			"typo3/class-alias-loader": true,
-			"typo3/cms-composer-installers": true
-		},
-		"bin-dir": ".Build/bin",
-		"sort-packages": true,
-		"vendor-dir": ".Build/vendor"
-	},
-	"description": "Configuration framework for TYPO3 extension development",
-	"extra": {
-		"typo3/cms": {
-			"extension-key": "psb_foundation",
-			"web-dir": ".Build/public"
-		}
-	},
-	"keywords": [
-		"configuration",
-		"development",
-		"extension",
-		"typo3"
-	],
-	"license": "GPL-3.0-or-later",
-	"name": "psb/psb-foundation",
-	"require": {
-		"ext-fileinfo": "*",
-		"ext-simplexml": "*",
-		"php": "^8.1",
-		"typo3/cms-core": "^12.4"
-	},
-	"require-dev": {
-		"friendsofphp/php-cs-fixer": "^3.13.0",
-		"phpunit/phpunit": "^9",
-		"roave/security-advisories": "dev-latest",
-		"typo3/coding-standards": "^0.5.3",
-		"typo3/testing-framework": "^8.0.9"
-	},
-	"scripts": {
-		"prepare-release": [
-			"rm -rf .Build",
-			"rm -rf .github",
-			"rm -rf Tests",
-			"rm .editorconfig",
-			"rm .gitattributes",
-			"rm .gitignore"
-		]
-	},
-	"type": "typo3-cms-extension"
+    "authors": [
+        {
+            "email": "dn@phantasie-schmiede.de",
+            "name": "Daniel Ablass",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "PSB\\PsbFoundation\\": "Classes"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PSB\\PsbFoundation\\Tests\\": "Tests",
+            "TYPO3\\CMS\\Core\\Tests\\": ".Build/vendor/typo3/cms-core/Tests"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "typo3/class-alias-loader": true,
+            "typo3/cms-composer-installers": true
+        },
+        "bin-dir": ".Build/bin",
+        "preferred-install": {
+            "typo3/cms-core": "source",
+            "*": "dist"
+        },
+        "sort-packages": true,
+        "vendor-dir": ".Build/vendor"
+    },
+    "description": "Configuration framework for TYPO3 extension development",
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "psb_foundation",
+            "web-dir": ".Build/public"
+        }
+    },
+    "keywords": [
+        "configuration",
+        "development",
+        "extension",
+        "typo3"
+    ],
+    "license": "GPL-3.0-or-later",
+    "name": "psb/psb-foundation",
+    "require": {
+        "ext-fileinfo": "*",
+        "ext-simplexml": "*",
+        "php": "^8.2",
+        "typo3/cms-core": "^12.4 || ^13"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.13.0",
+        "phpunit/phpunit": "^11",
+        "roave/security-advisories": "dev-latest",
+        "typo3/coding-standards": "^0.5.3",
+        "typo3/testing-framework": "^8.2"
+    },
+    "scripts": {
+        "prepare-release": [
+            "rm -rf .Build",
+            "rm -rf .github",
+            "rm -rf Tests",
+            "rm .editorconfig",
+            "rm .gitattributes",
+            "rm .gitignore"
+        ]
+    },
+    "type": "typo3-cms-extension"
 }

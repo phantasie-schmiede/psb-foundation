@@ -21,7 +21,6 @@ use RuntimeException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Utility\ArrayUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use function constant;
 use function in_array;
 use function strlen;
@@ -33,6 +32,8 @@ use function strlen;
  */
 class StringUtility
 {
+    public const EMPTY_CHARACTERS = " \t\n\r\0\x0B\xC2\xA0";
+
     public static function cleanUrl(string $url): string
     {
         return html_entity_decode(urldecode($url));
@@ -40,7 +41,6 @@ class StringUtility
 
     /**
      * @throws ContainerExceptionInterface
-     * @throws InvalidConfigurationTypeException
      * @throws JsonException
      * @throws NotFoundExceptionInterface
      */
@@ -332,6 +332,11 @@ class StringUtility
     public static function getNumberFormatter(int $style = NumberFormatter::DEFAULT_STYLE): NumberFormatter
     {
         return NumberFormatter::create(ContextUtility::getCurrentLocale(), $style);
+    }
+
+    public static function isEmpty(string $string): bool
+    {
+        return '' === trim($string, self::EMPTY_CHARACTERS);
     }
 
     /**
