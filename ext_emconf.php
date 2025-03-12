@@ -8,13 +8,13 @@ $EM_CONF[$_EXTKEY] = [
     'constraints'      => [
         'conflicts' => [],
         'depends'   => [
-            'php'   => '8.1',
-            'typo3' => '12.4.0-12.4.99',
+            'php'   => '8.2',
+            'typo3' => '12.4.0-13.4.99',
         ],
         'suggests'  => [],
     ],
     'description'      => 'Configuration framework for TYPO3 extension development',
     'state'            => 'stable',
     'title'            => 'PSbits | Foundation',
-    'version'          => '2.2.3',
+    'version'          => '2.3.1',
 ];
