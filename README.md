@@ -1,5 +1,5 @@
 # PSB Foundation
-## Enhanced extension programming in Extbase
+## Enhanced extension programming in Extbase (supports TYPO3 v12 and v13)
 
 ---
 **IMPORTANT**
