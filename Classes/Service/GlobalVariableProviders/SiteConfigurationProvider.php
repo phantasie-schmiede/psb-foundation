@@ -11,8 +11,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Service\GlobalVariableProviders;
 
 use PSB\PsbFoundation\Utility\ValidationUtility;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use TYPO3\CMS\Core\Exception\SiteNotFoundException;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\SiteFinder;
@@ -30,13 +28,10 @@ class SiteConfigurationProvider extends AbstractProvider
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      * @throws SiteNotFoundException
      */
     public function getGlobalVariables(): Site
     {
-        ValidationUtility::requiresFrontendContext();
         ValidationUtility::requiresTypoScriptLoaded();
 
         return $this->siteFinder->getSiteByPageId($GLOBALS['TSFE']->id);

@@ -29,10 +29,6 @@ use function is_string;
  */
 class TypoScriptProviderService
 {
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function __construct(
         protected readonly ConfigurationManagerInterface $configurationManager,
         protected readonly TypoScriptService             $typoScriptService,

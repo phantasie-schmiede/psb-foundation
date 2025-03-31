@@ -22,6 +22,8 @@ use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Request;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use function is_array;
 
 /**
  * Class ContextUtility
@@ -113,16 +115,11 @@ class ContextUtility
                 ->isFrontend();
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public static function isTypoScriptAvailable(): bool
     {
-        if (isset($GLOBALS['TSFE']) && self::isFrontend()) {
-            return true;
-        }
+        /** @var TypoScriptFrontendController $tsfe */
+        $tsfe = $GLOBALS['TSFE'] ?? null;
 
-        return !self::isBootProcessRunning();
+        return null !== $tsfe && isset($tsfe->tmpl) && is_array($tsfe->tmpl->setup);
     }
 }

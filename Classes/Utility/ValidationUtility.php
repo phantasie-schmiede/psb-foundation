@@ -11,8 +11,6 @@ declare(strict_types=1);
 namespace PSB\PsbFoundation\Utility;
 
 use InvalidArgumentException;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use function in_array;
 
@@ -69,15 +67,11 @@ class ValidationUtility
         }
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public static function requiresTypoScriptLoaded(): void
     {
         if (!ContextUtility::isTypoScriptAvailable()) {
             throw new RuntimeException(
-                __CLASS__ . ': This method is not allowed during the bootstrap process of TYPO3! Do not call it within or from ext_localconf.php',
+                __CLASS__ . ': This method is allowed in frontend context only! TypoScript is not loaded yet when ext_localconf and TCA files are processed.',
                 1727172047
             );
         }

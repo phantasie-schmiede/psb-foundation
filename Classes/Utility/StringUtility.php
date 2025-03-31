@@ -87,7 +87,7 @@ class StringUtility
             }
         }
 
-        if (str_starts_with($variable, 'TS:') && !ContextUtility::isBootProcessRunning()) {
+        if (str_starts_with($variable, 'TS:') && ContextUtility::isTypoScriptAvailable()) {
             $typoScriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
             [
                 ,
