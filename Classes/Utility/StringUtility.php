@@ -309,7 +309,8 @@ class StringUtility
     {
         return preg_split(
             '/' . implode(
-                '|', [
+                '|',
+                [
                     CRLF,
                     LF,
                     CR,
@@ -337,6 +338,11 @@ class StringUtility
     public static function isEmpty(string $string): bool
     {
         return '' === trim($string, self::EMPTY_CHARACTERS);
+    }
+
+    public static function normalizeForSorting(string $string): string
+    {
+        return transliterator_transliterate('Any-Latin; Latin-ASCII; Lower()', $string) ?: $string;
     }
 
     /**

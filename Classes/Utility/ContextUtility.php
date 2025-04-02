@@ -15,6 +15,7 @@ use PSB\PsbFoundation\Service\GlobalVariableService;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Http\ApplicationType;
@@ -22,7 +23,6 @@ use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Request;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use function is_array;
 
 /**
@@ -117,9 +117,14 @@ class ContextUtility
 
     public static function isTypoScriptAvailable(): bool
     {
-        /** @var TypoScriptFrontendController $tsfe */
-        $tsfe = $GLOBALS['TSFE'] ?? null;
+        try {
+            $typoScript = self::getRequest()
+                ?->getAttribute('frontend.typoscript')
+                ->getSetupArray();
+        } catch (RuntimeException) {
+            return false;
+        }
 
-        return null !== $tsfe && isset($tsfe->tmpl) && is_array($tsfe->tmpl->setup);
+        return is_array($typoScript);
     }
 }

@@ -47,6 +47,8 @@
     "name": "psb/psb-foundation",
     "require": {
         "ext-fileinfo": "*",
+        "ext-intl": "*",
+        "ext-mbstring": "*",
         "ext-simplexml": "*",
         "php": "^8.2",
         "typo3/cms-core": "^12.4 || ^13"
