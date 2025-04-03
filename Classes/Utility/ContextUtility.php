@@ -120,7 +120,7 @@ class ContextUtility
         try {
             $typoScript = self::getRequest()
                 ?->getAttribute('frontend.typoscript')
-                ->getSetupArray();
+                ?->getSetupArray();
         } catch (RuntimeException) {
             return false;
         }
