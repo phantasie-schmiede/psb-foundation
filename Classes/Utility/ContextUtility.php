@@ -15,13 +15,14 @@ use PSB\PsbFoundation\Service\GlobalVariableService;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
+use Throwable;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Site\Entity\Site;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use function is_array;
 
@@ -118,10 +119,17 @@ class ContextUtility
     public static function isTypoScriptAvailable(): bool
     {
         try {
-            $typoScript = self::getRequest()
-                ?->getAttribute('frontend.typoscript')
-                ?->getSetupArray();
-        } catch (RuntimeException) {
+            if (self::isFrontend()) {
+                $typoScript = self::getRequest()
+                    ?->getAttribute('frontend.typoscript')
+                    ?->getSetupArray();
+            } else {
+                $configurationManager = GeneralUtility::makeInstance(ConfigurationManagerInterface::class);
+                $typoScript = $configurationManager->getConfiguration(
+                    ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+                );
+            }
+        } catch (Throwable) {
             return false;
         }
 
