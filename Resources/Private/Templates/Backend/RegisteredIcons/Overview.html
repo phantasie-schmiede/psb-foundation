@@ -1,0 +1,89 @@
+<html
+    data-namespace-typo3-fluid="true"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:foundation="http://typo3.org/ns/PSBits/Foundation/ViewHelpers">
+<f:layout name="Module" />
+
+<f:section name="Content">
+    <div class="row">
+        <div class="col">
+            <h1>
+                <foundation:translate id="header" />
+            </h1>
+
+            <p>
+                <foundation:translate
+                    arguments="{0: totalCount, 1: duplicateCount}"
+                    id="summary" />
+            </p>
+
+            <f:if condition="{registeredIcons}">
+                <f:then>
+                    <f:for
+                        as="icons"
+                        each="{registeredIconsByBundle}"
+                        key="extensionKey">
+                        <h2>{extensionKey}</h2>
+
+                        <div class="table-fit">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <foundation:translate id="table.preview" />
+                                        </th>
+                                        <th>
+                                            <foundation:translate id="table.identifier" />
+                                        </th>
+                                        <th>
+                                            <foundation:translate id="table.provider" />
+                                        </th>
+                                        <th>
+                                            <foundation:translate id="table.source" />
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <f:for
+                                        as="icon"
+                                        each="{icons}">
+                                        <tr>
+                                            <td>
+                                                <core:icon
+                                                    identifier="{icon.identifier}"
+                                                    size="small" />
+                                            </td>
+                                            <td>
+                                                <code>{icon.identifier}</code>
+                                                <f:if condition="{icon.hasDuplicateIdentifier}">
+                                                    <span class="badge badge-warning">
+                                                        <foundation:translate
+                                                            arguments="{0: icon.duplicateCount}"
+                                                            id="duplicateHint" />
+                                                    </span>
+                                                </f:if>
+                                            </td>
+                                            <td>
+                                                <code>{icon.provider}</code>
+                                            </td>
+                                            <td>
+                                                <code>{icon.source}</code>
+                                            </td>
+                                        </tr>
+                                    </f:for>
+                                </tbody>
+                            </table>
+                        </div>
+                    </f:for>
+                </f:then>
+                <f:else>
+                    <div class="alert alert-info">
+                        <foundation:translate id="noIcons" />
+                    </div>
+                </f:else>
+            </f:if>
+        </div>
+    </div>
+</f:section>
+</html>

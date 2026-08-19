@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+    <file
+        datatype="plaintext"
+        date="2026-08-19T00:00:00+00:00"
+        original="messages"
+        product-name="foundation"
+        source-language="en"
+        target-language="de">
+        <header />
+        <body>
+            <trans-unit id="header">
+                <source>Registered icons</source>
+                <target>Registrierte Icons</target>
+            </trans-unit>
+            <trans-unit id="summary">
+                <source>Total: %1$s icons, %2$s duplicate identifiers</source>
+                <target>Gesamt: %1$s Icons, %2$s doppelte Identifier</target>
+            </trans-unit>
+            <trans-unit id="noIcons">
+                <source>No registered icons were found.</source>
+                <target>Es wurden keine registrierten Icons gefunden.</target>
+            </trans-unit>
+            <trans-unit id="table.preview">
+                <source>Preview</source>
+                <target>Vorschau</target>
+            </trans-unit>
+            <trans-unit id="table.identifier">
+                <source>Identifier</source>
+                <target>Identifier</target>
+            </trans-unit>
+            <trans-unit id="table.provider">
+                <source>Provider</source>
+                <target>Provider</target>
+            </trans-unit>
+            <trans-unit id="table.source">
+                <source>Source</source>
+                <target>Quelle</target>
+            </trans-unit>
+            <trans-unit id="duplicateHint">
+                <source>+%1$s duplicate(s)</source>
+                <target>+%1$s Duplikat(e)</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
