@@ -14,68 +14,49 @@
 
             <p>
                 <foundation:translate
-                    arguments="{0: totalCount, 1: duplicateCount}"
+                    arguments="{number: totalCount}"
                     id="summary" />
             </p>
 
             <f:if condition="{registeredIcons}">
                 <f:then>
-                    <f:for
-                        as="icons"
-                        each="{registeredIconsByBundle}"
-                        key="extensionKey">
-                        <h2>{extensionKey}</h2>
-
-                        <div class="table-fit">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            <foundation:translate id="table.preview" />
-                                        </th>
-                                        <th>
-                                            <foundation:translate id="table.identifier" />
-                                        </th>
-                                        <th>
-                                            <foundation:translate id="table.provider" />
-                                        </th>
-                                        <th>
-                                            <foundation:translate id="table.source" />
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <f:for
-                                        as="icon"
-                                        each="{icons}">
-                                        <tr>
-                                            <td>
-                                                <core:icon
-                                                    identifier="{icon.identifier}"
-                                                    size="small" />
-                                            </td>
-                                            <td>
-                                                <code>{icon.identifier}</code>
-                                                <f:if condition="{icon.hasDuplicateIdentifier}">
-                                                    <span class="badge badge-warning">
-                                                        <foundation:translate
-                                                            arguments="{0: icon.duplicateCount}"
-                                                            id="duplicateHint" />
-                                                    </span>
-                                                </f:if>
-                                            </td>
-                                            <td>
-                                                <code>{icon.provider}</code>
-                                            </td>
-                                            <td>
-                                                <code>{icon.source}</code>
-                                            </td>
-                                        </tr>
-                                    </f:for>
-                                </tbody>
-                            </table>
-                        </div>
-                    </f:for>
+                    <div class="table-fit">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>
+                                    <foundation:translate id="table.preview" />
+                                </th>
+                                <th>
+                                    <foundation:translate id="table.identifier" />
+                                </th>
+                                <th>
+                                    <foundation:translate id="table.source" />
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <f:for
+                                as="icon"
+                                each="{registeredIcons}"
+                                key="iconIdentifier">
+                                <tr>
+                                    <td>
+                                        <core:icon
+                                            identifier="{iconIdentifier}"
+                                            size="small" />
+                                    </td>
+                                    <td>
+                                        <code>{iconIdentifier}</code>
+                                    </td>
+                                    <td>
+                                        <code>{icon.options.source}</code>
+                                    </td>
+                                </tr>
+                            </f:for>
+                            </tbody>
+                        </table>
+                    </div>
                 </f:then>
                 <f:else>
                     <div class="alert alert-info">

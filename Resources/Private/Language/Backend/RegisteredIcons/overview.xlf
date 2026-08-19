@@ -12,7 +12,7 @@
                 <source>Registered icons</source>
             </trans-unit>
             <trans-unit id="summary">
-                <source>Total: %1$s icons, %2$s duplicate identifiers</source>
+                <source>Total: {number} icons</source>
             </trans-unit>
             <trans-unit id="noIcons">
                 <source>No registered icons were found.</source>
@@ -23,14 +23,8 @@
             <trans-unit id="table.identifier">
                 <source>Identifier</source>
             </trans-unit>
-            <trans-unit id="table.provider">
-                <source>Provider</source>
-            </trans-unit>
             <trans-unit id="table.source">
                 <source>Source</source>
-            </trans-unit>
-            <trans-unit id="duplicateHint">
-                <source>+%1$s duplicate(s)</source>
             </trans-unit>
         </body>
     </file>

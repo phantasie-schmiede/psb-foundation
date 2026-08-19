@@ -11,46 +11,47 @@ declare(strict_types=1);
 
 namespace PSBits\Foundation\Controller\Backend;
 
-use JsonException;
 use PSBits\Foundation\Attribute\ModuleAction;
-use PSBits\Foundation\Service\RegisteredIconService;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Exception;
+use TYPO3\CMS\Core\Imaging\IconRegistry;
+use function count;
 
+/**
+ * Class RegisteredIconsController
+ *
+ * @package PSBits\Foundation\Controller\Backend
+ */
 #[AsController]
 class RegisteredIconsController extends AbstractModuleController
 {
     public function __construct(
-        protected readonly RegisteredIconService $registeredIconService,
-        ModuleTemplateFactory                    $moduleTemplateFactory,
+        protected readonly IconRegistry $iconRegistry,
+        ModuleTemplateFactory           $moduleTemplateFactory,
     ) {
         parent::__construct($moduleTemplateFactory);
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws JsonException
-     * @throws NotFoundExceptionInterface
+     * @throws Exception
      */
     #[ModuleAction(default: true)]
     public function overviewAction(): ResponseInterface
     {
-        $registeredIcons = $this->registeredIconService->getRegisteredIcons();
-        $duplicateCount  = count(
-            array_filter(
-                $registeredIcons,
-                static fn(array $icon): bool => true === $icon['hasDuplicateIdentifier']
-            )
-        );
+        $iconIdentifiers = $this->iconRegistry->getAllRegisteredIconIdentifiers();
+        $registeredIcons = [];
+
+        foreach ($iconIdentifiers as $iconIdentifier) {
+            $registeredIcons[$iconIdentifier] = $this->iconRegistry->getIconConfigurationByIdentifier($iconIdentifier);
+        }
+
+        ksort($registeredIcons);
 
         $this->moduleTemplate->assignMultiple([
-            'duplicateCount'          => $duplicateCount,
-            'registeredIcons'         => $registeredIcons,
-            'registeredIconsByBundle' => $this->registeredIconService->getRegisteredIconsGroupedByExtension(),
-            'totalCount'              => count($registeredIcons),
+            'registeredIcons' => $registeredIcons,
+            'totalCount'      => count($registeredIcons),
         ]);
 
         return $this->htmlResponse();
