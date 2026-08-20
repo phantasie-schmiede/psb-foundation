@@ -596,12 +596,12 @@ The doktype has to be of type integer. `doktype` and `name` are the only mandato
 If you don't provide an icon identifier, this default identifier will be used: `<extension-key>-page-type-<your-page-type-name>`.
 The identifier is also used as base for further icon-variants.
 
-Example (page type name = "custom", extension key = "your-extension-key"):
+Example (page type name = "customType", extension key = "your_extension_key"):
 
-- your-extension-key-page-type-custom
-- your-extension-key-page-type-custom-contentFromPid
-- your-extension-key-page-type-custom-hideinmenu
-- your-extension-key-page-type-custom-root
+- your-extension-key-page-type-custom-type
+- your-extension-key-page-type-custom-type-contentFromPid
+- your-extension-key-page-type-custom-type-hideinmenu
+- your-extension-key-page-type-custom-type-root
 
 You don't have to provide all these icons. The icons for regular pages will be used as fallback.
 Your SVG-files should to be located in this directory: `EXT:your_extension/Resources/Public/Icons/`

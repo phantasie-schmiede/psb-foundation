@@ -23,6 +23,7 @@ use TYPO3\CMS\Core\Domain\Repository\PageRepository;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\ArrayUtility as Typo3CoreArrayUtility;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class PageTypeService
@@ -100,8 +101,11 @@ class PageTypeService
                 $doktype,
             ], '1', 'after');
 
-            $iconIdentifier = $configuration->getIconIdentifier() ?? ($extensionInformation->getExtensionKey() . '-page-type-' . $name);
-            $icons          = [
+            $iconIdentifier = $configuration->getIconIdentifier() ?? $this->buildDefaultIconIdentifier(
+                $extensionInformation->getExtensionKey(),
+                $name
+            );
+            $icons = [
                 $doktype => $iconIdentifier,
             ];
 
@@ -124,5 +128,18 @@ class PageTypeService
                 ],
             ]);
         }
+    }
+
+    private function buildDefaultIconIdentifier(string $getExtensionKey, string $name): string
+    {
+        return str_replace(
+            '_',
+            '-',
+            $getExtensionKey
+        ) . '-page-type-' . str_replace(
+            '_',
+            '-',
+            GeneralUtility::camelCaseToLowerCaseUnderscored($name)
+        );
     }
 }
