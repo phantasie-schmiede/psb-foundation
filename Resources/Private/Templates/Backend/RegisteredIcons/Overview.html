@@ -1,6 +1,5 @@
 <html
     data-namespace-typo3-fluid="true"
-    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
     xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
     xmlns:foundation="http://typo3.org/ns/PSBits/Foundation/ViewHelpers">
 <f:layout name="Module" />
@@ -20,8 +19,27 @@
 
             <f:if condition="{registeredIcons}">
                 <f:then>
+                    <div class="form-group mb-3">
+                        <label
+                            class="form-label"
+                            for="icon-list-filter">
+                            Filter icons
+                        </label>
+                        <input
+                            class="form-control"
+                            id="icon-list-filter"
+                            placeholder="Type identifier or source path"
+                            type="search" />
+                        <p
+                            aria-live="polite"
+                            class="form-text"
+                            id="icon-filter-count"></p>
+                    </div>
+
                     <div class="table-fit">
-                        <table class="table table-striped table-hover">
+                        <table
+                            class="table table-striped table-hover"
+                            id="icon-list-table">
                             <thead>
                             <tr>
                                 <th>
@@ -40,23 +58,77 @@
                                 as="icon"
                                 each="{registeredIcons}"
                                 key="iconIdentifier">
-                                <tr>
+                                <tr
+                                    data-filter-text="{iconIdentifier} {icon.sourcePath}"
+                                    data-icon-row>
                                     <td>
-                                        <core:icon
-                                            identifier="{iconIdentifier}"
-                                            size="small" />
+                                        <img
+                                            alt="{iconIdentifier}"
+                                            height="32"
+                                            loading="lazy"
+                                            src="{icon.publicWebPath}"
+                                            width="32" />
                                     </td>
                                     <td>
                                         <code>{iconIdentifier}</code>
                                     </td>
                                     <td>
-                                        <code>{icon.options.source}</code>
+                                        <code>{icon.sourcePath}</code>
                                     </td>
                                 </tr>
                             </f:for>
                             </tbody>
                         </table>
                     </div>
+
+                    <script>
+                        (function() {
+                            const filterCount = document.getElementById('icon-filter-count');
+                            const filterInput = document.getElementById('icon-list-filter');
+                            const iconTable   = document.getElementById('icon-list-table');
+
+                            if (!filterInput || !iconTable) {
+                                return;
+                            }
+
+                            const rows = iconTable.querySelectorAll('tbody tr[data-icon-row]');
+                            const totalCount = rows.length;
+                            let debounceTimeoutId = null;
+
+                            const applyFilter = function() {
+                                const query = (filterInput.value || '').toLowerCase().trim();
+                                let visibleCount = 0;
+
+                                rows.forEach(function(row) {
+                                    const filterText = (row.getAttribute('data-filter-text') || '').toLowerCase();
+                                    const isMatch = '' === query || -1 !== filterText.indexOf(query);
+
+                                    row.style.display = isMatch ? '' : 'none';
+
+                                    if (isMatch) {
+                                        visibleCount++;
+                                    }
+                                });
+
+                                if (filterCount) {
+                                    filterCount.textContent = visibleCount + ' of ' + totalCount + ' icons shown';
+                                }
+                            };
+
+                            filterInput.addEventListener('input', function() {
+                                if (null !== debounceTimeoutId) {
+                                    window.clearTimeout(debounceTimeoutId);
+                                }
+
+                                debounceTimeoutId = window.setTimeout(function() {
+                                    applyFilter();
+                                    debounceTimeoutId = null;
+                                }, 300);
+                            });
+
+                            applyFilter();
+                        })();
+                    </script>
                 </f:then>
                 <f:else>
                     <div class="alert alert-info">
