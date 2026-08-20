@@ -87,16 +87,20 @@ class PageTypeService
 
         foreach ($extensionInformation->getPageTypes() as $configuration) {
             $doktype = $configuration->getDoktype();
+            $name    = $configuration->getName();
             $label   = $configuration->getLabel() ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey(
-            ) . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.' . $doktype;
-            LocalizationUtility::translationExists($label);
+            ) . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.' . $name;
+
+            if (!LocalizationUtility::translationExists($label)) {
+                $label = ucfirst(trim(implode(' ', preg_split('/(?=[A-Z])/', $name))));
+            }
 
             ExtensionManagementUtility::addTcaSelectItem($table, 'doktype', [
                 $label,
                 $doktype,
             ], '1', 'after');
 
-            $iconIdentifier = $configuration->getIconIdentifier() ?? ($extensionInformation->getExtensionKey() . '-page-type-' . $doktype);
+            $iconIdentifier = $configuration->getIconIdentifier() ?? ($extensionInformation->getExtensionKey() . '-page-type-' . $name);
             $icons          = [
                 $doktype => $iconIdentifier,
             ];
