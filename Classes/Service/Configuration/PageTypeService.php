@@ -87,7 +87,7 @@ class PageTypeService
 
         foreach ($extensionInformation->getPageTypes() as $configuration) {
             $doktype = $configuration->getDoktype();
-            $label   = $configuration['label'] ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey(
+            $label   = $configuration->getLabel() ?? 'LLL:EXT:' . $extensionInformation->getExtensionKey(
             ) . '/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.' . $doktype;
             LocalizationUtility::translationExists($label);
 
@@ -96,7 +96,7 @@ class PageTypeService
                 $doktype,
             ], '1', 'after');
 
-            $iconIdentifier = $configuration['iconIdentifier'] ?? 'page-type-' . $doktype;
+            $iconIdentifier = $configuration->getIconIdentifier() ?? 'page-type-' . $doktype;
             $icons          = [
                 $doktype => $iconIdentifier,
             ];
