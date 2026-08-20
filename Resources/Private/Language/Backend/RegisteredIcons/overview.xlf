@@ -8,11 +8,17 @@
         source-language="en">
         <header />
         <body>
+            <trans-unit id="filter.label">
+                <source>Filter icons</source>
+            </trans-unit>
+            <trans-unit id="filter.placeholder">
+                <source>Type identifier or source path</source>
+            </trans-unit>
+            <trans-unit id="filter.result">
+                <source>{visible} of {total} icons shown</source>
+            </trans-unit>
             <trans-unit id="header">
                 <source>Registered icons</source>
-            </trans-unit>
-            <trans-unit id="summary">
-                <source>Total: {number} icons</source>
             </trans-unit>
             <trans-unit id="noIcons">
                 <source>No registered icons were found.</source>

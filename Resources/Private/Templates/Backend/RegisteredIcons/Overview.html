@@ -11,28 +11,37 @@
                 <foundation:translate id="header" />
             </h1>
 
-            <p>
-                <foundation:translate
-                    arguments="{number: totalCount}"
-                    id="summary" />
-            </p>
-
             <f:if condition="{registeredIcons}">
                 <f:then>
+                    <f:comment>
+                        <!-- This adds a white background to the icon preview so that it is visible in dark mode. -->
+                    </f:comment>
+                    <style>
+                        @media (prefers-color-scheme: dark) {
+                            #icon-list-table tbody tr:hover td.icon-preview-cell img {
+                                background-color: rgba(255, 255, 255, 0.95);
+                                border-radius: 4px;
+                                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
+                                padding: 2px;
+                            }
+                        }
+                    </style>
+
                     <div class="form-group mb-3">
                         <label
                             class="form-label"
                             for="icon-list-filter">
-                            Filter icons
+                            <foundation:translate id="filter.label" />
                         </label>
                         <input
                             class="form-control"
                             id="icon-list-filter"
-                            placeholder="Type identifier or source path"
+                            placeholder="{foundation:translate(id: 'filter.placeholder')}"
                             type="search" />
                         <p
                             aria-live="polite"
                             class="form-text"
+                            data-count-template="{foundation:translate(id: 'filter.result')}"
                             id="icon-filter-count"></p>
                     </div>
 
@@ -61,7 +70,7 @@
                                 <tr
                                     data-filter-text="{iconIdentifier} {icon.sourcePath}"
                                     data-icon-row>
-                                    <td>
+                                    <td class="icon-preview-cell">
                                         <img
                                             alt="{iconIdentifier}"
                                             height="32"
@@ -111,7 +120,11 @@
                                 });
 
                                 if (filterCount) {
-                                    filterCount.textContent = visibleCount + ' of ' + totalCount + ' icons shown';
+                                    const countTemplate = filterCount.getAttribute('data-count-template') || '{visible} of {total} icons shown';
+
+                                    filterCount.textContent = countTemplate
+                                        .replace('{visible}', String(visibleCount))
+                                        .replace('{total}', String(totalCount));
                                 }
                             };
 

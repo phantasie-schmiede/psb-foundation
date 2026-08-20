@@ -9,13 +9,21 @@
         target-language="de">
         <header />
         <body>
+            <trans-unit id="filter.label">
+                <source>Filter icons</source>
+                <target>Icons filtern</target>
+            </trans-unit>
+            <trans-unit id="filter.placeholder">
+                <source>Type identifier or source path</source>
+                <target>Identifier oder Quellpfad eingeben</target>
+            </trans-unit>
+            <trans-unit id="filter.result">
+                <source>{visible} of {total} icons shown</source>
+                <target>{visible} von {total} Icons angezeigt</target>
+            </trans-unit>
             <trans-unit id="header">
                 <source>Registered icons</source>
                 <target>Registrierte Icons</target>
-            </trans-unit>
-            <trans-unit id="summary">
-                <source>Total: {number} icons</source>
-                <target>Gesamt: {number} Icons</target>
             </trans-unit>
             <trans-unit id="noIcons">
                 <source>No registered icons were found.</source>
