@@ -47,20 +47,20 @@ return call_user_func(
             /** @var SplFileInfo $fileInfo */
             foreach ($finder as $fileInfo) {
                 $iconIdentifier = str_replace(
-                        '_',
-                        '-',
-                        $extensionInformation->getExtensionKey()
-                    ) . '-' . str_replace(
-                        '_',
-                        '-',
-                        GeneralUtility::camelCaseToLowerCaseUnderscored($fileInfo->getFilenameWithoutExtension())
-                    );
+                    '_',
+                    '-',
+                    $extensionInformation->getExtensionKey()
+                ) . '-' . str_replace(
+                    '_',
+                    '-',
+                    GeneralUtility::camelCaseToLowerCaseUnderscored($fileInfo->getFilenameWithoutExtension())
+                );
 
                 // Absolute icon paths do not work in every context inside TYPO3. Therefore we need to use EXT: prefix.
                 $icons[$iconIdentifier] = [
                     'provider' => ('svg' === strtolower(
-                            $fileInfo->getExtension()
-                        )) ? SvgIconProvider::class : BitmapIconProvider::class,
+                        $fileInfo->getExtension()
+                    )) ? SvgIconProvider::class : BitmapIconProvider::class,
                     'source'   => str_replace(
                         array_keys($pathMapping),
                         array_values($pathMapping),

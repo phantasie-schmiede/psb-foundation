@@ -18,6 +18,7 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Exception;
 use TYPO3\CMS\Core\Imaging\IconRegistry;
 use TYPO3\CMS\Core\Utility\PathUtility;
+
 use function count;
 
 /**
@@ -45,7 +46,7 @@ class RegisteredIconsController extends AbstractModuleController
         $registeredIcons = [];
 
         foreach ($iconIdentifiers as $iconIdentifier) {
-            $iconPath = $this->iconRegistry->getIconConfigurationByIdentifier($iconIdentifier)['options']['source'];
+            $iconPath                         = $this->iconRegistry->getIconConfigurationByIdentifier($iconIdentifier)['options']['source'];
             $registeredIcons[$iconIdentifier] = [
                 'publicWebPath' => PathUtility::getPublicResourceWebPath($iconPath),
                 'sourcePath'    => $iconPath,
