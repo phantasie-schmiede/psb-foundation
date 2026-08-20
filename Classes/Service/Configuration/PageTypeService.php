@@ -96,7 +96,7 @@ class PageTypeService
                 $doktype,
             ], '1', 'after');
 
-            $iconIdentifier = $configuration->getIconIdentifier() ?? 'page-type-' . $doktype;
+            $iconIdentifier = $configuration->getIconIdentifier() ?? ($extensionInformation->getExtensionKey() . '-page-type-' . $doktype);
             $icons          = [
                 $doktype => $iconIdentifier,
             ];
