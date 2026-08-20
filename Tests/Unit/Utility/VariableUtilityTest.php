@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -76,7 +77,7 @@ class VariableUtilityTest extends UnitTestCase
      */
     public function getValueByPathOnObject(): void
     {
-        $object = new class {
+        $object = new class () {
             public function getName(): string
             {
                 return 'test';
@@ -91,7 +92,7 @@ class VariableUtilityTest extends UnitTestCase
      */
     public function getValueByPathOnNestedObjectAndArray(): void
     {
-        $inner = new class {
+        $inner = new class () {
             public function getValue(): int
             {
                 return 99;

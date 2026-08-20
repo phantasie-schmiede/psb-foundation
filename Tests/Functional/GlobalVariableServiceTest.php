@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -34,6 +35,7 @@ class GlobalVariableServiceTest extends FunctionalTestCase
     use SiteBasedTestTrait;
 
     public const int ROOT_PAGE_ID = 1;
+
     protected array $testExtensionsToLoad = [
         'typo3conf/ext/psbits/foundation',
     ];
@@ -100,7 +102,11 @@ class GlobalVariableServiceTest extends FunctionalTestCase
         $frontendTypoScript = new FrontendTypoScript(new RootNode(), [], [], []);
         $frontendTypoScript->setSetupArray([]);
         $request = new ServerRequest(
-            'http://example.com/en/', 'GET', null, [], [
+            'http://example.com/en/',
+            'GET',
+            null,
+            [],
+            [
                 'HTTP_HOST'   => 'example.com',
                 'REQUEST_URI' => '/en/',
             ]
