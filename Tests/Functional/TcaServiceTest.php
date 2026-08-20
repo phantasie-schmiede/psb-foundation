@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -44,7 +45,7 @@ class TcaServiceTest extends FunctionalTestCase
         unset($GLOBALS['TCA'][self::TABLE_NAME]);
 
         $tcaService = GeneralUtility::makeInstance(TcaService::class);
-        $tableName = $tcaService->convertClassNameToTableName(AllTcaAttributesModel::class);
+        $tableName  = $tcaService->convertClassNameToTableName(AllTcaAttributesModel::class);
         self::assertSame(self::TABLE_NAME, $tableName);
         $tcaService->setTableName($tableName);
 
@@ -52,7 +53,7 @@ class TcaServiceTest extends FunctionalTestCase
         $buildFromAttributesMethod->setAccessible(true);
         $buildFromAttributesMethod->invoke($tcaService, AllTcaAttributesModel::class, false);
 
-        $actualTca = $GLOBALS['TCA'][self::TABLE_NAME] ?? [];
+        $actualTca   = $GLOBALS['TCA'][self::TABLE_NAME] ?? [];
         $expectedTca = require __DIR__ . '/Fixtures/ExpectedTcaForAllTcaAttributesModel.php';
         self::assertEquals($expectedTca, $actualTca);
     }

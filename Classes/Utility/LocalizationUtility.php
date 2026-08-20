@@ -18,6 +18,7 @@ use PSBits\Foundation\Utility\Localization\PluralFormUtility;
 use PSBits\Foundation\Utility\Xml\XmlUtility;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use ReflectionException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationExtensionNotConfiguredException;
 use TYPO3\CMS\Core\Configuration\Exception\ExtensionConfigurationPathDoesNotExistException;
 use TYPO3\CMS\Core\Context\Exception\AspectNotFoundException;
@@ -59,6 +60,7 @@ class LocalizationUtility
      * @throws ContainerExceptionInterface
      * @throws JsonException
      * @throws NotFoundExceptionInterface
+     * @throws ReflectionException
      * @see ExtbaseLocalizationUtility
      */
     public static function translate(

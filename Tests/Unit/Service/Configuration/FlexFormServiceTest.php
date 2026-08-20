@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -27,6 +28,7 @@ class FlexFormServiceTest extends UnitTestCase
 {
     public const int    TEST_INT_CONSTANT    = 42;
     public const string TEST_STRING_CONSTANT = 'test_constant_value';
+
     private FlexFormService $subject;
 
     public static function processDataProvider(): Generator

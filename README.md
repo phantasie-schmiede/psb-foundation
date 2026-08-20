@@ -584,7 +584,7 @@ public function __construct()
     parent::__construct();
     $this->addPageType(GeneralUtility::makeInstance(PageTypeConfiguration::class,
         allowedTables: ['*'],
-        iconIdentifier: 'page-type-your-page-type-name',
+        iconIdentifier: 'page-type-icon',
         label: 'Your page type name',
         name: 'yourPageTypeName',
         doktype: 1691492222,
@@ -592,16 +592,16 @@ public function __construct()
 }
 ```
 
-The keys (doktype) have to be of type integer. `name` is the only mandatory value.
-If you don't provide an icon identifier this default identifier will be used: `page-type-your-page-type-name`.
+The doktype has to be of type integer. `doktype` and `name` are the only mandatory values.
+If you don't provide an icon identifier, this default identifier will be used: `<extension-key>-page-type-<your-page-type-name>`.
 The identifier is also used as base for further icon-variants.
 
-Example (`'name' => 'custom'`):
+Example (page type name = "customType", extension key = "your_extension_key"):
 
-- page-type-custom
-- page-type-custom-contentFromPid
-- page-type-custom-hideinmenu
-- page-type-custom-root
+- your-extension-key-page-type-custom-type
+- your-extension-key-page-type-custom-type-contentFromPid
+- your-extension-key-page-type-custom-type-hideinmenu
+- your-extension-key-page-type-custom-type-root
 
 You don't have to provide all these icons. The icons for regular pages will be used as fallback.
 Your SVG-files should to be located in this directory: `EXT:your_extension/Resources/Public/Icons/`
@@ -609,7 +609,7 @@ All icons in that directory will be registered by their name automatically.
 Unless `label` is defined,
 `EXT:your_extension/Resources/Private/Language/Backend/Configuration/TCA/Overrides/page.xlf:pageType.yourPageTypeName`
 will be used.
-If that key doesn't exist, `name` will be transformed from "yourPageTypeName" to "Your page type name".
+If that key doesn't exist, `name` will be transformed from "yourPageTypeName" to "Your Page Type Name".
 
 ### Auto-registration of TypoScript-files
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /*
@@ -51,7 +52,7 @@ class TypoScriptProviderServiceTest extends FunctionalTestCase
     {
         $this->mockBackendRequest();
         $typoScriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
-        $typoScript = $typoScriptProviderService->get();
+        $typoScript                = $typoScriptProviderService->get();
         self::assertIsArray($typoScript);
         self::assertArrayHasKey('config', $typoScript);
         self::assertIsArray($typoScript['config']);
@@ -67,7 +68,7 @@ class TypoScriptProviderServiceTest extends FunctionalTestCase
     {
         $this->mockFrontendRequest();
         $typoScriptProviderService = GeneralUtility::makeInstance(TypoScriptProviderService::class);
-        $typoScript = $typoScriptProviderService->get();
+        $typoScript                = $typoScriptProviderService->get();
         self::assertIsArray($typoScript);
         self::assertArrayHasKey('config', $typoScript);
         self::assertIsArray($typoScript['config']);
@@ -93,7 +94,11 @@ class TypoScriptProviderServiceTest extends FunctionalTestCase
     private function createRequest(int $applicationType): ServerRequestInterface
     {
         $request = new ServerRequest(
-            'http://example.com/en/', 'GET', null, [], [
+            'http://example.com/en/',
+            'GET',
+            null,
+            [],
+            [
                 'HTTP_HOST'   => 'example.com',
                 'REQUEST_URI' => '/en/',
             ]
@@ -113,12 +118,6 @@ class TypoScriptProviderServiceTest extends FunctionalTestCase
     {
         $frontendTypoScript = new FrontendTypoScript(new RootNode(), [], [], []);
         $frontendTypoScript->setSetupArray(['config.' => []]);
-        $request = new ServerRequest(
-            'http://example.com/en/', 'GET', null, [], [
-                'HTTP_HOST'   => 'example.com',
-                'REQUEST_URI' => '/en/',
-            ]
-        );
         $GLOBALS['TYPO3_REQUEST'] = $this->createRequest(SystemEnvironmentBuilder::REQUESTTYPE_FE)
             ->withAttribute('frontend.typoscript', $frontendTypoScript);
 

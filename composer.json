@@ -66,6 +66,11 @@
     "scripts": {
         "analyze:php": "phpstan analyse --configuration=Build/Quality/phpstan.neon.dist --no-progress",
         "audit:composer": "composer audit --abandoned=report",
+        "fix:all": [
+            "@fix:classes",
+            "@fix:htmlxml",
+            "@fix:php"
+        ],
         "fix:classes": "npm run fix:classes",
         "fix:htmlxml": "npm run fix:htmlxml",
         "fix:php": "php-cs-fixer fix --config=Build/Quality/.php-cs-fixer.dist.php --verbose",
@@ -87,6 +92,11 @@
         "post-install-cmd": [
             "npm install",
             "cp Build/GitHooks/pre-commit .git/hooks/pre-commit"
+        ],
+        "qa": [
+            "@fix:all",
+            "@lint:all",
+            "@test:all"
         ],
         "test:all": [
             "@lint:all",
